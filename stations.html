@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澜镜 A23 | 监测站</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <span class="brand-mark">LM</span>
+        <div>
+          <p class="brand-kicker">驾驶舱 · 监测站页面</p>
+          <h1>监测站点位总览</h1>
+        </div>
+      </div>
+      <div class="topbar-metrics">
+        <article><span>页面</span><strong>监测站</strong></article>
+        <article><span>点位数</span><strong>6</strong></article>
+        <article><span>状态</span><strong id="globalRisk">橙色预警</strong></article>
+      </div>
+    </header>
+
+    <main class="dashboard-layout">
+      <section class="map-panel panel">
+        <div class="panel-head">
+          <div>
+            <p class="panel-kicker">Stations</p>
+            <h2>地图点位总览</h2>
+          </div>
+          <div class="map-tools">
+            <a class="tool-chip active" href="./stations.html">监测站</a>
+            <a class="tool-chip" href="./heatmap.html">风险热区</a>
+            <a class="tool-chip" href="./history.html">历史轨迹</a>
+          </div>
+        </div>
+
+        <div class="map-stage">
+          <div class="water-grid"></div>
+          <div class="shoreline shoreline-main"></div>
+          <div class="shoreline shoreline-island"></div>
+          <div class="heat-zone heat-zone-a"></div>
+          <div class="heat-zone heat-zone-b"></div>
+          <div class="flow-line flow-line-a"></div>
+          <div class="flow-line flow-line-b"></div>
+
+          <button class="map-point level-high active" data-point="northwest_hotspot" style="top:18%;left:66%;"><span class="dot"></span><span class="label">西北热点区</span></button>
+          <button class="map-point level-mid" data-point="river_inlet" style="top:56%;left:28%;"><span class="dot"></span><span class="label">入湖河口站</span></button>
+          <button class="map-point level-low" data-point="southeast_station" style="top:72%;left:73%;"><span class="dot"></span><span class="label">东南监测站</span></button>
+          <button class="map-point level-mid" data-point="central_lake" style="top:45%;left:51%;"><span class="dot"></span><span class="label">湖心浮标</span></button>
+          <button class="map-point level-low" data-point="water_intake" style="top:30%;left:84%;"><span class="dot"></span><span class="label">取水口</span></button>
+          <button class="map-point level-mid" data-point="south_channel" style="top:82%;left:39%;"><span class="dot"></span><span class="label">南部通道</span></button>
+        </div>
+      </section>
+
+      <aside class="detail-panel panel">
+        <div class="panel-head detail-head">
+          <div>
+            <p class="panel-kicker">Point Detail</p>
+            <h2 id="detailName">西北热点区</h2>
+          </div>
+          <span class="risk-badge high" id="detailRisk">橙色预警</span>
+        </div>
+        <p class="detail-summary" id="detailSummary">受高温、弱风和营养盐富集叠加影响，该区域未来 72 小时存在明显聚集扩张趋势，是当前演示的核心高风险点位。</p>
+        <div class="detail-grid metrics-grid">
+          <article><span>藻密度</span><strong id="metricDensity">1.86e6 cells/L</strong></article>
+          <article><span>叶绿素 a</span><strong id="metricChla">32.4 ug/L</strong></article>
+          <article><span>总磷</span><strong id="metricPhosphorus">0.087 mg/L</strong></article>
+          <article><span>水温</span><strong id="metricTemp">29.1 C</strong></article>
+        </div>
+        <section class="detail-section">
+          <div class="section-line"><h3>点位预测</h3><span id="forecastWindow">未来 1-3 天</span></div>
+          <div class="forecast-card"><strong id="forecastTitle">高风险扩张</strong><p id="forecastText">建议立即提高巡测频次，并将周边取水口纳入联查。</p></div>
+        </section>
+        <section class="detail-section">
+          <div class="section-line"><h3>驱动因子</h3><span>可解释分析</span></div>
+          <div class="factor-list" id="factorList"></div>
+        </section>
+        <section class="detail-section">
+          <div class="section-line"><h3>点位事件流</h3><span>监测与应急</span></div>
+          <div class="timeline-list" id="timelineList"></div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="bottom-grid">
+      <article class="panel mini-panel"><div class="section-line"><h3>导航</h3><span>Page links</span></div><div class="loop-list"><span>监测站</span><span>单点详情</span><span>地图联动</span></div></article>
+      <article class="panel mini-panel"><div class="section-line"><h3>当前播报</h3><span>联动建议</span></div><p id="broadcastText" class="broadcast-text">西北热点区为当前最高优先级，请结合入湖河口站与取水口联动观察，准备橙色预警处置流程。</p></article>
+      <article class="panel mini-panel trend-panel"><div class="section-line"><h3>趋势曲线</h3><span>点位风险变化</span></div><canvas id="trendCanvas" width="420" height="180"></canvas></article>
+    </section>
+  </div>
+  <script src="./script.js"></script>
+</body>
+</html>

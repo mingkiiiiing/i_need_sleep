@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澜镜 A23 | 驾驶舱总览</title>
+  <style>
+    body { margin: 0; font-family: "Microsoft YaHei", sans-serif; background: #edf4ef; color: #10251d; }
+    .shell { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .hero, .card { background: white; border-radius: 24px; box-shadow: 0 16px 40px rgba(16,37,29,.1); }
+    .hero { padding: 24px; }
+    .grid { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .card { padding: 20px; text-decoration: none; color: inherit; }
+    h1,h2,strong { margin: 0; font-family: "Bahnschrift", "Trebuchet MS", sans-serif; }
+    p, small { color: #5d7269; line-height: 1.8; }
+    .actions { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+    .button { min-height: 46px; padding: 0 18px; border-radius: 999px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 700; }
+    .primary { background: #0f8f84; color: white; }
+    .secondary { background: #eef3f1; color: #10251d; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1>驾驶舱总览</h1>
+      <p>这里不再把所有 tab 放在一页，而是把原来的几个 tab 变成三个独立页面。你可以从这里分别进入监测站、风险热区和历史轨迹页面。</p>
+      <div class="actions">
+        <a class="button primary" href="./stations.html">进入监测站页</a>
+        <a class="button secondary" href="./index.html">返回首页</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <a class="card" href="./stations.html">
+        <small>Tab 01</small>
+        <strong>监测站</strong>
+        <p>单独展示地图点位、点击展开详情和点位监测数据。</p>
+      </a>
+      <a class="card" href="./heatmap.html">
+        <small>Tab 02</small>
+        <strong>风险热区</strong>
+        <p>单独展示风险分区、热点扩张和预警等级。</p>
+      </a>
+      <a class="card" href="./history.html">
+        <small>Tab 03</small>
+        <strong>历史轨迹</strong>
+        <p>单独展示时间推演、趋势变化和事件回溯。</p>
+      </a>
+    </section>
+  </div>
+</body>
+</html>
