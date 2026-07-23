@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澜镜 A23 | 首页</title>
+  <style>
+    :root {
+      --ink: #10251d;
+      --muted: #5d7269;
+      --teal: #0f8f84;
+      --teal-deep: #125651;
+      --green: #84c98f;
+      --panel: rgba(255, 255, 255, 0.8);
+      --line: rgba(16, 37, 29, 0.1);
+      --shadow: 0 18px 48px rgba(16, 37, 29, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "Segoe UI Variable Text", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(132, 201, 143, 0.34), transparent 24%),
+        radial-gradient(circle at 88% 16%, rgba(15, 143, 132, 0.18), transparent 20%),
+        linear-gradient(180deg, #edf4ef 0%, #e3ebe5 100%);
+    }
+
+    .shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero,
+    .card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .eyebrow,
+    .muted,
+    .card small {
+      color: var(--muted);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: "Bahnschrift", "Trebuchet MS", sans-serif;
+    }
+
+    h1 {
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.02;
+      margin-bottom: 16px;
+    }
+
+    .hero p,
+    .panel p,
+    .card p {
+      margin: 0;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      min-height: 50px;
+      padding: 0 20px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+      color: white;
+    }
+
+    .button.secondary {
+      background: rgba(16, 37, 29, 0.06);
+      color: var(--ink);
+    }
+
+    .preview {
+      min-height: 300px;
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(180deg, rgba(213, 235, 228, 0.95), rgba(157, 202, 189, 0.95));
+    }
+
+    .preview::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .preview-badge {
+      position: absolute;
+      z-index: 2;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.88);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(16, 37, 29, 0.12);
+    }
+
+    .preview-badge.a { top: 18%; left: 64%; }
+    .preview-badge.b { top: 56%; left: 22%; }
+    .preview-badge.c { top: 74%; left: 70%; }
+
+    .grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card,
+    .panel {
+      padding: 18px;
+    }
+
+    .card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .card strong {
+      display: block;
+      font-family: "Bahnschrift", "Trebuchet MS", sans-serif;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .panel-wrap {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .list div {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(15, 143, 132, 0.06);
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid,
+      .panel-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">A23 服务外包大赛 · 项目首页</p>
+        <h1>把首页、专题页、驾驶舱页彻底拆开</h1>
+        <p>
+          现在不是同页切换了。首页只负责项目介绍和导航入口，下面每一个模块都进入独立页面，
+          驾驶舱里的几个 tab 也都拆成各自单独页面，方便答辩时按顺序逐页展示。
+        </p>
+        <div class="actions">
+          <a class="button primary" href="./cockpit.html">进入驾驶舱总览</a>
+          <a class="button secondary" href="./project-overview.html">打开项目概览页</a>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="preview-badge a">西北热点区</div>
+        <div class="preview-badge b">入湖河口站</div>
+        <div class="preview-badge c">东南监测站</div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <a class="card" href="./project-overview.html">
+        <small>01</small>
+        <strong>项目概览</strong>
+        <p>单独介绍命题背景、项目目标、业务价值和展示定位。</p>
+      </a>
+      <a class="card" href="./tech-route.html">
+        <small>02</small>
+        <strong>技术路线</strong>
+        <p>单独说明多源数据、机理模型、AI 增强与可视化闭环。</p>
+      </a>
+      <a class="card" href="./demo-flow.html">
+        <small>03</small>
+        <strong>演示流程</strong>
+        <p>单独放答辩讲解顺序、讲稿节奏和进入驾驶舱前的铺垫。</p>
+      </a>
+      <a class="card" href="./cockpit.html">
+        <small>04</small>
+        <strong>驾驶舱总览</strong>
+        <p>从首页跳到地图系统页，再分别进入各个专题驾驶舱页面。</p>
+      </a>
+    </section>
+
+    <section class="panel-wrap">
+      <article class="panel">
+        <h2>驾驶舱页内也拆成独立页面</h2>
+        <div class="list">
+          <div>监测站页：单独展示地图点位与单点详情。</div>
+          <div>风险热区页：单独展示热区分布和预警等级。</div>
+          <div>历史轨迹页：单独展示时间轴、趋势曲线和事件回溯。</div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>答辩时的推荐顺序</h2>
+        <p>
+          从首页进入项目概览，再到技术路线和演示流程，最后切到驾驶舱总览页，
+          然后按“监测站、风险热区、历史轨迹”三页逐个展示，这样比把 tab 挤在一个页面上更清楚。
+        </p>
+      </article>
+    </section>
+  </div>
+</body>
+</html>

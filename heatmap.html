@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澜镜 A23 | 风险热区</title>
+  <style>
+    body { margin: 0; font-family: "Microsoft YaHei", sans-serif; background: #edf4ef; color: #10251d; }
+    .shell { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .panel { background: white; border-radius: 24px; padding: 24px; box-shadow: 0 16px 40px rgba(16,37,29,.1); }
+    .map { margin-top: 18px; min-height: 560px; border-radius: 24px; position: relative; overflow: hidden; background: linear-gradient(180deg, #d5ebe4 0%, #9dcabd 100%); }
+    .map::before { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px); background-size: 62px 62px; }
+    .heat { position: absolute; border-radius: 50%; filter: blur(6px); }
+    .heat.a { top: 12%; left: 54%; width: 260px; height: 200px; background: radial-gradient(circle, rgba(232,110,88,.82) 0%, rgba(232,110,88,.12) 58%, transparent 76%); }
+    .heat.b { top: 48%; left: 18%; width: 200px; height: 160px; background: radial-gradient(circle, rgba(232,176,75,.72) 0%, rgba(232,176,75,.12) 58%, transparent 76%); }
+    h1,h2 { margin: 0 0 14px; font-family: "Bahnschrift", "Trebuchet MS", sans-serif; }
+    p, li { color: #5d7269; line-height: 1.8; }
+    .actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .button { min-height: 46px; padding: 0 18px; border-radius: 999px; display: inline-flex; align-items: center; text-decoration: none; font-weight: 700; }
+    .primary { background: #0f8f84; color: white; }
+    .secondary { background: #eef3f1; color: #10251d; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="panel">
+      <h1>风险热区页面</h1>
+      <p>本页单独展示风险分区和热点扩张情况，不再跟监测站点详情挤在同一个 tab 里。</p>
+      <div class="actions">
+        <a class="button primary" href="./history.html">下一页：历史轨迹</a>
+        <a class="button secondary" href="./cockpit.html">返回驾驶舱总览</a>
+      </div>
+      <div class="map">
+        <div class="heat a"></div>
+        <div class="heat b"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
