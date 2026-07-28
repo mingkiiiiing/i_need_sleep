@@ -31,4 +31,21 @@ const router = createRouter({
   }
 })
 
+// 退出边界保护：hash 路由 + 直接 deep link 时，浏览器后退会掉到 about:blank。
+// 这里在 popstate 时如果当前没有 hash，主动压回 home，保持页面不空。
+router.afterEach((to) => {
+  // 防后退掉站：路由进入后多压一个 sentinel history 项
+  if (window.__sentinelFor !== to.fullPath) {
+    window.__sentinelFor = to.fullPath
+    history.pushState({ sentinel: true, from: to.fullPath }, '', window.location.href)
+  }
+})
+
+window.addEventListener('popstate', (e) => {
+  if (e.state && e.state.sentinel) {
+    const from = e.state.from || '/'
+    history.pushState({ sentinel: true, from }, '', '#' + from)
+  }
+})
+
 createApp(App).use(router).mount('#app')

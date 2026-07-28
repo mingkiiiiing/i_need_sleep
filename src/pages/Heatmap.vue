@@ -110,6 +110,9 @@
         </section>
       </aside>
     </div>
+    <footer class="cockpit-foot">
+      <RouterLink class="button secondary" to="/cockpit">← 返回驾驶舱</RouterLink>
+    </footer>
   </main>
 </template>
 
