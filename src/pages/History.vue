@@ -42,6 +42,16 @@
           </div>
           <span style="color: var(--muted); font-size: 12px; letter-spacing: 1px;">按时间倒序</span>
         </header>
+        <div class="timeline-filter">
+          <label>起 <input type="date" v-model="dateStart" /></label>
+          <label>止 <input type="date" v-model="dateEnd" /></label>
+          <button type="button" class="filter-btn" @click="loadTimeline">查询时间轴</button>
+        </div>
+        <div v-if="timelineSummary" class="timeline-summary">
+          <span>{{ timelineSummary.start }} ~ {{ timelineSummary.end }} 共 {{ timelineSummary.days }} 天</span>
+          <span>平均叶绿素 {{ timelineSummary.avgChl }}</span>
+          <span>高风险 {{ timelineSummary.highDays }} 天</span>
+        </div>
         <div class="history-list">
           <article
             v-for="ev in events"
@@ -85,6 +95,11 @@
             <span>监测点位</span>
             <strong>{{ pointName(currentEvent.point) }}</strong>
           </article>
+        </div>
+
+        <div class="event-actions">
+          <button type="button" class="action-btn" :disabled="handleLoading" @click="doHandle">{{ handleLoading ? '推送中…' : '立即推送（短信+邮件）' }}</button>
+          <span v-if="handleResult" class="action-result">推送成功 @ {{ handleResult.pushed_at }}</span>
         </div>
 
         <div class="event-body">
@@ -145,21 +160,30 @@
         <div class="image-slot banner" style="margin-top: 16px;" data-label="历史回放封面 · 待替换为 <img>"></div>
       </section>
     </div>
+    <footer class="cockpit-foot">
+      <RouterLink class="button secondary" to="/cockpit">← 返回驾驶舱</RouterLink>
+    </footer>
   </main>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useCockpitStore } from '../stores/cockpit.js'
-import { getEvents, getPoints, getTimeStages } from '../services/api.js'
+import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
+import { getEvents, getPoints, getTimeStages, handleWarning, getTimeline } from '../services/api.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
+const store = cockpitState()
 
 const events = ref([])
 const stages = ref([])
 const pointsState = ref({ pointData: {} })
+const handleLoading = ref(false)
+const handleResult = ref(null)
+const dateStart = ref('2026-07-21')
+const dateEnd = ref('2026-07-28')
+const timelineSummary = ref(null)
 
 const currentEvent = computed(() => events.value.find((ev) => ev.id === cockpit.currentEventId) || null)
 const matchedPoint = computed(() => currentEvent.value ? pointsState.value.pointData[currentEvent.value.point] : null)
@@ -194,9 +218,38 @@ function stageLabelOf(key) {
 }
 
 function selectEvent(ev) {
-  cockpit.currentEventId = ev.id
-  cockpit.stageKey = ev.stageKey
-  cockpit.selectedPoint = ev.point
+  store.currentEventId = ev.id
+  store.stageKey = ev.stageKey
+  store.selectedPoint = ev.point
+}
+
+async function doHandle() {
+  if (!currentEvent.value) return
+  handleLoading.value = true
+  handleResult.value = null
+  try {
+    const r = await handleWarning(currentEvent.value.id)
+    handleResult.value = r
+  } catch (e) {
+    handleResult.value = { pushed_at: '失败', error: e && e.message }
+  } finally {
+    handleLoading.value = false
+  }
+}
+
+async function loadTimeline() {
+  if (!dateStart.value || !dateEnd.value) return
+  try {
+    const r = await getTimeline(dateStart.value, dateEnd.value)
+    const highDays = r.data.filter(d => d.risk_level === 'high').length
+    const avg = (r.data.reduce((s, d) => s + d.avg_chlorophyll, 0) / r.data.length).toFixed(1)
+    timelineSummary.value = {
+      start: r.start_date, end: r.end_date,
+      days: r.total_days, highDays, avgChl: avg
+    }
+  } catch (e) {
+    timelineSummary.value = null
+  }
 }
 
 const trendOption = computed(() => {
@@ -255,5 +308,6 @@ onMounted(async () => {
   events.value = e
   pointsState.value = p
   stages.value = s
+  loadTimeline()
 })
 </script>
