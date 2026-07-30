@@ -516,25 +516,157 @@ p, li { color: var(--text-soft); line-height: 1.7; }
 }
 .forecast-card p { margin: 0; color: var(--text-soft); }
 
-.factor-list { display: grid; gap: 12px; }
-.factor-row  { display: grid; gap: 8px; }
-.factor-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--text-soft);
+/* ============ SHAP 因子卡片 ============ */
+.factor-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 4px;
 }
-.factor-meta strong { color: var(--text); }
-.factor-track {
-  height: 8px;
+.factor-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-line);
+  background: rgba(8, 16, 28, 0.55);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.factor-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(34, 211, 197, 0.45);
+}
+.factor-row.positive { border-left: 3px solid var(--teal); }
+.factor-row.negative { border-left: 3px solid var(--coral); }
+
+.factor-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(34, 211, 197, 0.10);
+  color: var(--teal);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 13px;
+}
+.factor-row.negative .factor-rank {
+  background: rgba(255, 123, 107, 0.12);
+  color: var(--coral);
+}
+
+.factor-main { display: grid; gap: 8px; }
+.factor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.factor-name {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.factor-impact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  border: 1px solid transparent;
+}
+.factor-impact.positive {
+  color: var(--teal);
+  background: rgba(34, 211, 197, 0.10);
+  border-color: rgba(34, 211, 197, 0.32);
+}
+.factor-impact.negative {
+  color: var(--coral);
+  background: rgba(255, 123, 107, 0.10);
+  border-color: rgba(255, 123, 107, 0.32);
+}
+.impact-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.factor-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 .factor-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--teal), var(--amber), var(--coral));
+  transition: width 0.4s ease;
+  background: linear-gradient(90deg, var(--teal), #6ee7b7);
+  box-shadow: 0 0 12px rgba(34, 211, 197, 0.35);
+}
+.factor-fill.negative {
+  background: linear-gradient(90deg, var(--coral), #ffb1a3);
+  box-shadow: 0 0 12px rgba(255, 123, 107, 0.35);
+}
+
+.factor-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.factor-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+.factor-mute { color: var(--muted); }
+
+/* 顶部汇总条：3 列统计 */
+.factor-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.factor-summary-stat {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-line);
+  background: rgba(8, 16, 28, 0.45);
+}
+.factor-summary-stat .num {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1.1;
+}
+.factor-summary-stat .lbl {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.factor-summary-stat.positive { border-color: rgba(34, 211, 197, 0.35); }
+.factor-summary-stat.positive .num { color: var(--teal); }
+.factor-summary-stat.negative { border-color: rgba(255, 123, 107, 0.35); }
+.factor-summary-stat.negative .num { color: var(--coral); }
+
+@media (max-width: 640px) {
+  .factor-summary { grid-template-columns: 1fr; }
+  .factor-row { grid-template-columns: 1fr; padding: 12px 14px; }
+  .factor-rank { width: auto; }
 }
 
 .timeline-list {

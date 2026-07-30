@@ -10,7 +10,6 @@
 
     <TimeAxisBar :stages="stages" />
     <CockpitSubTabs />
-
     <section class="kpi-grid">
       <article>
         <div class="kpi-label">监测点位</div>
@@ -43,6 +42,7 @@
         title="湖区监测点位全景"
         active-tab="stations"
         @update:model-value="setPoint"
+        :show-tabs="false"
       />
 
       <aside class="panel detail-panel">
@@ -128,15 +128,44 @@
                 <span>95% 置信区间：<strong>{{ explanation.confidence_interval.lower }} ~ {{ explanation.confidence_interval.upper }}</strong></span>
               </div>
             </div>
-            <div class="factor-list">
-              <div v-for="f in (explanation ? explanation.feature_importance : [])" :key="f.name" class="factor-row">
-                <div class="factor-meta">
-                  <span>{{ f.name }} · {{ f.impact === 'positive' ? '正向' : '负向' }}</span>
-                  <strong>{{ f.contribution }}%</strong>
-                </div>
-                <div class="factor-track"><div class="factor-fill" :class="f.impact" :style="{ width: Math.min(100, Math.abs(f.contribution)) + '%' }"></div></div>
+
+            <div v-if="shapItems.length" class="factor-summary">
+              <div class="factor-summary-stat positive">
+                <span class="num">{{ shapStats.positive }}</span>
+                <span class="lbl">正向影响因子</span>
+              </div>
+              <div class="factor-summary-stat negative">
+                <span class="num">{{ shapStats.negative }}</span>
+                <span class="lbl">负向影响因子</span>
+              </div>
+              <div class="factor-summary-stat total">
+                <span class="num">{{ shapStats.total }}%</span>
+                <span class="lbl">解释方差占比</span>
               </div>
             </div>
+
+            <div class="factor-list">
+              <div v-for="(f, idx) in shapItems" :key="f.name" class="factor-row" :class="f.impact">
+                <div class="factor-rank">{{ idx + 1 }}</div>
+                <div class="factor-main">
+                  <div class="factor-head">
+                    <span class="factor-name">{{ f.name }}</span>
+                    <span class="factor-impact" :class="f.impact">
+                      <span class="impact-dot"></span>
+                      {{ f.impact === 'positive' ? '正向推动' : '负向抑制' }}
+                    </span>
+                  </div>
+                  <div class="factor-track" :aria-label="f.contribution + '%'">
+                    <div class="factor-fill" :class="f.impact" :style="{ width: f.barPct + '%' }"></div>
+                  </div>
+                  <div class="factor-foot">
+                    <span class="factor-pct">{{ f.contribution }}%</span>
+                    <span class="factor-mute">排名 #{{ idx + 1 }} / {{ shapItems.length }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div v-if="explanation && explanation.sensitivity_curve.length" class="sensitivity">
               <header><h4>敏感度曲线</h4></header>
               <EChart :option="sensitivityOption" />
@@ -331,6 +360,30 @@ const modelBars = computed(() => {
   return arr.map(a => ({ ...a, pct: Math.min(100, Math.round((a.value / max) * 100)) }))
 })
 
+const shapItems = computed(() => {
+  const items = (explanation.value && explanation.value.feature_importance) || []
+  // 按贡献绝对值排序，取前 6
+  const sorted = items.slice()
+    .map((f) => ({ ...f, contribution: Number(f.contribution) || 0 }))
+    .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+    .slice(0, 6)
+  const maxAbs = sorted.reduce((m, f) => Math.max(m, Math.abs(f.contribution)), 0) || 1
+  return sorted.map((f) => ({
+    name: f.name,
+    impact: f.impact,
+    contribution: f.contribution,
+    barPct: Math.round((Math.abs(f.contribution) / maxAbs) * 100),
+  }))
+})
+
+const shapStats = computed(() => {
+  const items = shapItems.value
+  const positive = items.filter((f) => f.impact === 'positive').length
+  const negative = items.filter((f) => f.impact === 'negative').length
+  const total = items.reduce((s, f) => s + Math.abs(f.contribution), 0)
+  return { positive, negative, total: Math.round(total) }
+})
+
 const sensitivityOption = computed(() => {
   const sc = (explanation.value && explanation.value.sensitivity_curve) || []
   return {
@@ -445,6 +498,40 @@ onMounted(async () => {
   animation: ai-spin 0.8s linear infinite;
   flex: none;
 }
+/* AI 分析 Tab 切换：胶囊 + 渐变 active，与 CockpitSubTabs 同风格 */
+.tab-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(8, 16, 28, 0.55);
+  border: 1px solid var(--panel-line);
+}
+.tab-switch button {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.tab-switch button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+.tab-switch button.active {
+  background: linear-gradient(135deg, rgba(34, 211, 197, 0.32), rgba(34, 211, 197, 0.14));
+  color: var(--text);
+  border-color: rgba(34, 211, 197, 0.45);
+  box-shadow: 0 4px 14px rgba(34, 211, 197, 0.18);
+}
+
 @keyframes ai-spin {
   to { transform: rotate(360deg); }
 }
