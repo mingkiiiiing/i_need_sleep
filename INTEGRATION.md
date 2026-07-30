@@ -1,6 +1,6 @@
 ﻿# 后端对接说明（INTEGRATION）
 
-> 最后更新：2026-07-28
+> 最后更新：2026-07-30
 > 适用范围：A23 · 蓝藻水华监测预警 · 前端 ↔ 后端联调
 
 ---
@@ -11,7 +11,10 @@
 
 ```bash
 cd backend
-pip install fastapi uvicorn pydantic     # requirements.txt 里 numpy 等需 Python 3.12+，Python 3.11 仅需这三个
+# 推荐 Python 3.12+，依赖已在 requirements.txt 锁定
+pip install -r requirements.txt
+
+# 启动 mock 服务（默认端口 8000）
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
@@ -28,6 +31,8 @@ npm run dev
 
 - 前端开发服：`http://127.0.0.1:5173`
 - `vite.config.js` 已配代理：`/api/*` → `http://127.0.0.1:8000`，前端代码统一用 `/api` 相对路径
+
+> 演示前请先启动后端；后端未起时，`USE_MOCK=false` 下前端会按接口降级到 mock。
 
 ### 总开关
 

@@ -34,13 +34,31 @@ npm -v
 
 ## 3. 启动步骤
 
+项目分前后端两套进程，建议开两个终端窗口分别启动。
+
+### 3.1 后端（FastAPI mock）
+
+```bash
+cd backend
+# requirements.txt 已固定版本，建议使用 Python 3.12+
+pip install -r requirements.txt
+
+# 启动 mock 服务（默认端口 8000）
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+- 接口根：http://127.0.0.1:8000
+- 接口文档：/docs（Swagger）、/redoc
+- 已配 CORS *，支持 Vite 代理跨域调用
+
+### 3.2 前端（Vue 3 + Vite）
+
 ```bash
 # 1. 安装依赖
 npm install
 
-# 2. 启动开发服务
+# 2. 启动开发服务（默认端口 5173）
 npm run dev
-# 默认地址 http://localhost:5173
 
 # 3. 生产构建
 npm run build
@@ -50,8 +68,22 @@ npm run build
 npm run preview
 ```
 
-启动后控制台会输出 **Local** 与 **Network** 两个地址，局域网内其他设备可通过 Network 地址访问（如 `http://192.168.x.x:5173/`）。
+启动后控制台会输出 **Local** 与 **Network** 两个地址，局域网内其他设备可通过 Network 地址访问（如 http://192.168.x.x:5173/）。
 
+vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统一使用 /api 相对路径，必须先启动后端，否则页面会走 mock 兜底。
+
+### 3.3 切换数据源
+
+是否走真实接口由 src/services/api.js 中的总开关控制：
+
+```js
+const USE_MOCK = false   // true = 全 mock；false = 接后端（带降级）
+```
+
+- false（默认）：正常调 /api/*，失败时按接口降级到 mock
+- true：完全不调后端，所有数据走前端 mock
+
+排错与字段差异详见 [INTEGRATION.md](./INTEGRATION.md)。
 ---
 
 ## 4. 目录速览
