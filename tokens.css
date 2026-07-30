@@ -1,0 +1,65 @@
+:root {
+  --home-color-paper: oklch(13% 0.025 245);
+  --home-color-paper-2: oklch(10% 0.021 245);
+  --home-color-surface: oklch(18% 0.032 238 / 0.84);
+  --home-color-surface-soft: oklch(26% 0.035 234 / 0.34);
+  --home-color-ink: oklch(94% 0.018 235);
+  --home-color-ink-soft: oklch(77% 0.035 235);
+  --home-color-muted: oklch(59% 0.035 235);
+  --home-color-rule: oklch(72% 0.06 222 / 0.18);
+  --home-color-rule-strong: oklch(76% 0.07 220 / 0.34);
+  --home-color-accent: oklch(78% 0.15 183);
+  --home-color-accent-strong: oklch(70% 0.14 184);
+  --home-color-accent-soft: oklch(78% 0.15 183 / 0.15);
+  --home-color-accent-border: oklch(78% 0.15 183 / 0.46);
+  --home-color-accent-ink: oklch(14% 0.035 190);
+  --home-color-focus: oklch(84% 0.15 183);
+  --home-color-alert: oklch(72% 0.18 28);
+  --home-color-alert-border: oklch(72% 0.18 28 / 0.44);
+  --home-color-watch: oklch(82% 0.14 78);
+  --home-color-stable: oklch(82% 0.13 160);
+  --home-color-violet-border: oklch(68% 0.13 286 / 0.42);
+  --home-color-violet-soft: oklch(54% 0.12 282 / 0.16);
+  --home-color-grid: oklch(72% 0.06 222 / 0.07);
+  --home-color-lake: oklch(36% 0.075 190 / 0.48);
+  --home-color-lake-deep: oklch(18% 0.045 210 / 0.72);
+  --home-color-lake-highlight: oklch(78% 0.15 183 / 0.18);
+  --home-color-lake-shadow: oklch(8% 0.02 238 / 0.72);
+  --home-color-scan: oklch(78% 0.15 183 / 0.20);
+  --home-color-label: oklch(12% 0.028 242 / 0.84);
+  --home-color-label-strong: oklch(12% 0.028 242 / 0.94);
+  --home-color-transparent: oklch(0% 0 0 / 0);
+
+  --home-font-display: "Bahnschrift", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --home-font-body: "Microsoft YaHei", "PingFang SC", "Segoe UI Variable Text", sans-serif;
+  --home-font-mono: "Cascadia Mono", "JetBrains Mono", "Consolas", monospace;
+
+  --home-space-3xs: 0.25rem;
+  --home-space-2xs: 0.5rem;
+  --home-space-xs: 0.75rem;
+  --home-space-sm: 1rem;
+  --home-space-md: 1.5rem;
+  --home-space-lg: 2rem;
+  --home-space-xl: 3rem;
+  --home-space-2xl: 4.5rem;
+
+  --home-text-xs: 0.75rem;
+  --home-text-sm: 0.875rem;
+  --home-text-md: 1.0625rem;
+  --home-text-lg: 1.375rem;
+  --home-text-xl: 1.75rem;
+
+  --home-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --home-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --home-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --home-dur-short: 180ms;
+  --home-dur-reveal: 560ms;
+
+  --home-rule-hair: 1px;
+  --home-radius-sm: 10px;
+  --home-radius-md: 14px;
+  --home-radius-card: 24px;
+  --home-radius-pill: 999px;
+  --home-shadow-small: 0 12px 30px oklch(4% 0.01 240 / 0.38);
+  --home-shadow-panel: 0 28px 80px oklch(4% 0.01 240 / 0.46);
+}

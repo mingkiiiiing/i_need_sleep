@@ -1,0 +1,9 @@
+{
+  "date": "2026-07-30",
+  "font_stack": "Bahnschrift display + Microsoft YaHei/PingFang SC body",
+  "palette": "dark lake blue with teal accent and amber/coral risk states",
+  "motion": "CSS-only; no motion library",
+  "spacing": "existing 4-8px-derived scale",
+  "framework": "Vue 3 + Vite",
+  "preserve": ["route structure", "dark lake-twin brand", "teal accent", "Chinese system fonts"]
+}
