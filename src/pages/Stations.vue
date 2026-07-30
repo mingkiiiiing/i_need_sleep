@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <main class="shell">
     <section class="panel" style="padding: 26px 28px;">
       <p class="eyebrow">COCKPIT · STATIONS</p>
@@ -9,6 +9,7 @@
     </section>
 
     <TimeAxisBar :stages="stages" />
+    <CockpitSubTabs />
 
     <section class="kpi-grid">
       <article>
@@ -33,7 +34,7 @@
       </article>
     </section>
 
-    <div class="dashboard-layout cockpit-stage">
+    <div class="dashboard-layout cockpit-stage dashboard-stacked">
       <LakeMap
         :model-value="store.selectedPoint"
         :point-list="pointList"
@@ -93,7 +94,7 @@
             <span v-else>{{ aiError || '切换点位自动加载' }}</span>
           </div>
 
-          <div v-if="aiLoading" class="ai-placeholder">正在调用 /api/predict 加载模型输出…</div>
+          <div v-if="aiLoading" class="ai-placeholder ai-loading"><span class="ai-spinner" aria-hidden="true"></span><span>正在调用 /api/predict 加载模型输出…</span></div>
           <div v-else-if="aiError" class="ai-placeholder error">AI 加载失败：{{ aiError }}</div>
           <div v-else-if="!prediction" class="ai-placeholder">当前点位无后端 ID，暂不支持 AI 分析</div>
 
@@ -112,7 +113,7 @@
             </div>
             <div class="predict-results">
               <div v-for="r in prediction.results" :key="r.date" class="predict-day">
-                <header><strong>{{ r.date }}</strong><span class="risk-badge" :class="r.risk_level === 'high' ? 'high' : r.risk_level === 'medium' ? 'mid' : 'low'">{{ r.risk_level }}</span></header>
+                <header><strong>{{ r.date }}</strong><span class="risk-badge" :class="riskClassFromLevel(r.risk_level)">{{ r.risk_level }}</span></header>
                 <ul>
                   <li v-for="m in r.metrics" :key="m.metric_code"><span>{{ m.metric_name }}</span><strong>{{ m.value }} {{ m.unit }}</strong></li>
                 </ul>
@@ -179,7 +180,9 @@ import { computed, onMounted, ref } from 'vue'
 import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getPoints, getRegionSummary, getTimeStages, getPrediction, getExplanation } from '../services/api.js'
 import { pointPositions } from '../data/points.js'
+import { SEVERITY_TO_CLASS } from '../services/_mapping.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
+import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import LakeMap from '../components/cockpit/LakeMap.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
@@ -204,8 +207,15 @@ const stageLabel = computed(() => {
   return item ? item.label : ''
 })
 
+const riskClassFromLevel = (level) => SEVERITY_TO_CLASS[level] || 'low'
+
 function setPoint(id) {
   store.selectedPoint = id
+  prediction.value = null
+  explanation.value = null
+  aiError.value = ''
+  aiLoading.value = true
+  aiTab.value = 'predict'
   refreshAiForSelected()
 }
 
@@ -272,22 +282,25 @@ const trendOption = computed(() => {
 
 
 // 链式调用：选中站点 -> predict -> explain
-async function loadAi(stationId) {
+async function loadAi(stationId, token) {
   if (!stationId) return
   aiLoading.value = true
   aiError.value = ''
   try {
     const pred = await getPrediction(stationId)
+    if (token !== _aiToken) return
     prediction.value = pred
     const fakePid = 'PRED-' + (pred.station_id || stationId) + '-' + Date.now()
     const exp = await getExplanation(fakePid)
+    if (token !== _aiToken) return
     explanation.value = exp
   } catch (err) {
+    if (token !== _aiToken) return
     aiError.value = err && err.message ? err.message : 'AI 调用失败'
     prediction.value = null
     explanation.value = null
   } finally {
-    aiLoading.value = false
+    if (token === _aiToken) aiLoading.value = false
   }
 }
 
@@ -301,7 +314,7 @@ async function refreshAiForSelected() {
     return
   }
   const token = ++_aiToken
-  await loadAi(station._backendId)
+  await loadAi(station._backendId, token)
   if (token !== _aiToken) return
 }
 
@@ -346,3 +359,93 @@ onMounted(async () => {
   refreshAiForSelected()
 })
 </script>
+
+
+<style scoped>
+/* Stations 页面：地图与点位详情改为单列堆叠 */
+.dashboard-stacked {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 22px;
+}
+.dashboard-stacked > .panel,
+.dashboard-stacked > aside {
+  width: 100%;
+}
+
+/* 详情面板内部：分区更有节奏 */
+.detail-panel {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.detail-panel .detail-head {
+  margin: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--panel-line);
+}
+.detail-panel .detail-summary {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+/* 关键指标：单行 4 列横排 */
+.detail-panel .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+/* 分区标题行 */
+.detail-panel .section-line {
+  margin-bottom: 10px;
+}
+.detail-panel .section-line h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.detail-panel .detail-section {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px dashed var(--panel-line);
+}
+
+@media (max-width: 1024px) {
+  .detail-panel .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .detail-panel .metrics-grid { grid-template-columns: 1fr; }
+}
+
+.ai-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: rgba(34, 211, 197, 0.08);
+  color: #a9bcd4;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.ai-placeholder.error {
+  background: rgba(255, 123, 107, 0.10);
+  color: #ff9b8f;
+}
+.ai-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(34, 211, 197, 0.25);
+  border-top-color: #22d3c5;
+  animation: ai-spin 0.8s linear infinite;
+  flex: none;
+}
+@keyframes ai-spin {
+  to { transform: rotate(360deg); }
+}
+</style>

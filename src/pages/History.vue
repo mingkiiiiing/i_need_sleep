@@ -9,6 +9,7 @@
     </section>
 
     <TimeAxisBar :stages="stages" />
+    <CockpitSubTabs />
 
     <section class="kpi-grid">
       <article>
@@ -171,6 +172,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getEvents, getPoints, getTimeStages, handleWarning, getTimeline } from '../services/api.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
+import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()

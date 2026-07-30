@@ -9,6 +9,7 @@
     </section>
 
     <TimeAxisBar :stages="stages" />
+    <CockpitSubTabs />
 
     <section class="kpi-grid">
       <article>
@@ -33,7 +34,7 @@
       </article>
     </section>
 
-    <div class="dashboard-layout cockpit-stage">
+    <div class="dashboard-layout cockpit-stage dashboard-stacked">
       <section class="panel heatmap-stage">
         <EChart :option="heatmapOption" />
         <div class="heat-legend">
@@ -121,6 +122,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useCockpitStore } from '../stores/cockpit.js'
 import { getHeatField, getPoints, getRegionSummary, getTimeStages } from '../services/api.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
+import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
@@ -416,3 +418,60 @@ onMounted(async () => {
   summaryState.value = r
 })
 </script>
+<style scoped>
+/* Heatmap 页面：热力图与风险详情改为单列堆叠 */
+.dashboard-stacked {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 22px;
+}
+.dashboard-stacked > .panel,
+.dashboard-stacked > aside {
+  width: 100%;
+}
+
+/* 热力图高度；保持正方形之外适配宽屏 */
+.heatmap-stage {
+  min-height: 560px;
+}
+@media (min-width: 1280px) {
+  .heatmap-stage { min-height: 640px; }
+}
+
+/* 详情面板内部节奏 */
+.detail-panel {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.detail-panel .panel-head {
+  margin: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--panel-line);
+}
+.detail-panel .detail-summary {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.detail-panel .section-line {
+  margin-bottom: 10px;
+}
+.detail-panel .section-line h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.detail-panel .detail-section {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px dashed var(--panel-line);
+}
+
+/* 顶部五热点：每行更舒展 */
+.detail-panel .factor-row {
+  padding: 8px 0;
+}
+
+</style>
