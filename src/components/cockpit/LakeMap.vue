@@ -5,7 +5,7 @@
         <p class="panel-kicker">LAKE TWIN MAP</p>
         <h2>{{ title }}</h2>
       </div>
-      <div class="map-tools">
+      <div v-if="showTabs" class="map-tools">
         <RouterLink class="tool-chip" :class="{ active: activeTab === 'stations' }" to="/stations">监测站</RouterLink>
         <RouterLink class="tool-chip" :class="{ active: activeTab === 'heatmap' }" to="/heatmap">风险分区</RouterLink>
         <RouterLink class="tool-chip" :class="{ active: activeTab === 'history' }" to="/history">历史轨迹</RouterLink>
@@ -51,7 +51,8 @@ defineProps({
   positions: { type: Object, required: true },
   stageLabel: { type: String, default: '' },
   title: { type: String, default: '监测点位全景' },
-  activeTab: { type: String, default: 'stations' }
+  activeTab: { type: String, default: 'stations' },
+  showTabs: { type: Boolean, default: true }
 })
 
 defineEmits(['update:modelValue'])
