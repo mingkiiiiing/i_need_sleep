@@ -9,7 +9,7 @@ export const pointData = {
     risk: '红色预警',
     riskClass: 'high',
     summary: '受高温、弱风和营养盐富集叠加影响，该区域藻类聚集扩张趋势明显，是当前重点关注的核心高风险点位。',
-    coord: { lon: 119.214, lat: 31.388 },
+    coord: { lon: 120.08, lat: 31.42 },
     metrics: { density: '1.25e6 cells/L', chla: '42.8 ug/L', phosphorus: '0.091 mg/L', temp: '29.6 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
@@ -49,7 +49,7 @@ export const pointData = {
     risk: '橙色关注',
     riskClass: 'mid',
     summary: '湖心浮标承担连续遥测职责，是模型校准与全湖趋势研判的重要参考点位。',
-    coord: { lon: 119.305, lat: 31.302 },
+    coord: { lon: 120.15, lat: 31.20 },
     metrics: { density: '8.5e5 cells/L', chla: '18.9 ug/L', phosphorus: '0.063 mg/L', temp: '28.4 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
@@ -88,7 +88,7 @@ export const pointData = {
     risk: '橙色关注',
     riskClass: 'mid',
     summary: '入湖河口承担外源性营养盐输入监测任务，需要与上游水文数据同步分析。',
-    coord: { lon: 119.184, lat: 31.276 },
+    coord: { lon: 119.96, lat: 31.32 },
     metrics: { density: '9.4e5 cells/L', chla: '24.6 ug/L', phosphorus: '0.082 mg/L', temp: '27.8 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
@@ -127,7 +127,7 @@ export const pointData = {
     risk: '绿色稳定',
     riskClass: 'low',
     summary: '东南站点位目前保持低风险稳定状态，是短期内的关键参照点。',
-    coord: { lon: 119.362, lat: 31.246 },
+    coord: { lon: 120.28, lat: 31.05 },
     metrics: { density: '4.7e5 cells/L', chla: '11.4 ug/L', phosphorus: '0.041 mg/L', temp: '26.9 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
@@ -166,7 +166,7 @@ export const pointData = {
     risk: '绿色稳定',
     riskClass: 'low',
     summary: '取水口当前处于安全范围，但因邻近热点扩散带，需保持联动巡查。',
-    coord: { lon: 119.412, lat: 31.318 },
+    coord: { lon: 120.22, lat: 31.36 },
     metrics: { density: '5.0e5 cells/L', chla: '14.2 ug/L', phosphorus: '0.048 mg/L', temp: '27.1 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
@@ -205,7 +205,7 @@ export const pointData = {
     risk: '橙色关注',
     riskClass: 'mid',
     summary: '南部通道承担输运连接作用，适合展示风险在湖区之间的传播路径。',
-    coord: { lon: 119.258, lat: 31.220 },
+    coord: { lon: 120.12, lat: 30.96 },
     metrics: { density: '7.4e5 cells/L', chla: '17.3 ug/L', phosphorus: '0.058 mg/L', temp: '27.6 ℃' },
     forecast: {
       window: ['未来 1 天', '未来 3 天', '未来 7 天', '未来 15 天', '未来 30 天'],
