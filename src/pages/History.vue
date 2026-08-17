@@ -171,12 +171,15 @@
 import { computed, onMounted, ref } from 'vue'
 import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getEvents, getPoints, getTimeStages, handleWarning, getTimeline } from '../services/api.js'
+import { palette } from '../components/cockpit/echartsTheme.js'
+import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
 import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
 const store = cockpitState()
+const { theme } = useTheme()
 
 const events = ref([])
 const stages = ref([])
@@ -255,6 +258,8 @@ async function loadTimeline() {
 }
 
 const trendOption = computed(() => {
+  const p = palette()
+  void theme.value
   if (!matchedPoint.value) return { series: [] }
   const trend = matchedPoint.value.trend || []
   const yMax = Math.max(100, ...trend) + 8
@@ -262,37 +267,37 @@ const trendOption = computed(() => {
     grid: { left: 36, right: 16, top: 16, bottom: 28, containLabel: true },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(8,16,28,0.92)',
-      borderColor: 'rgba(34,211,197,0.4)',
-      textStyle: { color: '#e6f1ff' }
+      backgroundColor: p.surface,
+      borderColor: p.lineStrong,
+      textStyle: { color: p.text }
     },
     xAxis: {
       type: 'category',
       data: trend.map((_, i) => `T-${trend.length - i}d`),
-      axisLine: { lineStyle: { color: 'rgba(120,200,220,0.18)' } },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 }
+      axisLine: { lineStyle: { color: p.lineStrong } },
+      axisLabel: { color: p.muted, fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       max: yMax,
       axisLine: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(120,200,220,0.08)' } }
+      axisLabel: { color: p.muted, fontSize: 11 },
+      splitLine: { lineStyle: { color: p.line } }
     },
     series: [{
       type: 'line',
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
-      lineStyle: { width: 3, color: '#ff7b6b' },
-      itemStyle: { color: '#ff7b6b' },
+      lineStyle: { width: 3, color: p.alert },
+      itemStyle: { color: p.alert },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(255,123,107,0.40)' },
-            { offset: 1, color: 'rgba(255,123,107,0)' }
+            { offset: 0, color: p.alert + '66' },
+            { offset: 1, color: p.alert + '00' }
           ]
         }
       },

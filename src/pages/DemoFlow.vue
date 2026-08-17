@@ -115,7 +115,7 @@ const path = [
   padding: 14px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--c-surface-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -189,7 +189,7 @@ const path = [
   padding: 7px 14px;
   border-radius: 999px;
   border: 1px solid var(--teal);
-  background: rgba(34, 211, 197, 0.10);
+  background: var(--c-accent-soft);
   color: var(--teal);
   font-family: "Bahnschrift", "Segoe UI", sans-serif;
   font-size: 12px;
@@ -199,7 +199,7 @@ const path = [
 }
 .node-link:hover {
   background: var(--teal);
-  color: #02141c;
+  color: var(--c-accent-ink);
 }
 .node-link.disabled {
   border-style: dashed;

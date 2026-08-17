@@ -60,10 +60,11 @@ onMounted(() => {
   margin-bottom: 32px;
   padding: 28px 32px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--panel-line);
-  background:
-    linear-gradient(180deg, rgba(14, 30, 48, 0.78), rgba(10, 22, 38, 0.92));
-  box-shadow: var(--shadow);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
   opacity: 0;
   transform: translateY(20px);
   transition: opacity .9s ease, transform .9s ease;

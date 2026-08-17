@@ -3,6 +3,9 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
 import '../tokens.css'
 import './styles.css'
+import { initTheme } from './composables/useTheme.js'
+
+initTheme()
 
 import Home from './pages/Home.vue'
 import ProjectOverview from './pages/ProjectOverview.vue'

@@ -9,10 +9,35 @@
         </span>
       </RouterLink>
 
-      <div class="home-system-state" aria-label="系统实时状态">
-        <span class="home-state-dot" aria-hidden="true"></span>
-        <span>{{ liveSummary }}</span>
-        <time :datetime="isoTime">{{ liveTime }}</time>
+      <div class="home-topbar-right">
+        <div class="home-system-state" aria-label="系统实时状态">
+          <span class="home-state-dot" aria-hidden="true"></span>
+          <span>{{ liveSummary }}</span>
+          <time :datetime="isoTime">{{ liveTime }}</time>
+        </div>
+
+        <button
+          type="button"
+          class="theme-toggle"
+          :aria-label="theme === 'dark' ? '切换到浅色主题' : theme === 'light' ? '切换到日式暖阳主题' : '切换到深色主题'"
+          :title="theme === 'dark' ? '深色主题 · 点击切换浅色' : theme === 'light' ? '浅色主题 · 点击切换日式暖阳' : '日式暖阳 · 点击切换深色'"
+          @click="cycleTheme"
+        >
+          <svg v-if="theme === 'dark'" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg v-else-if="theme === 'light'" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+          <svg v-else class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v3" />
+            <path d="M5.6 7.6l2.1 2.1" />
+            <path d="M18.4 7.6l-2.1 2.1" />
+            <path d="M3 17h18" />
+            <path d="M6 17a6 6 0 0 1 12 0" />
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -131,6 +156,9 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useTheme } from '../composables/useTheme.js'
+
+const { theme, cycleTheme } = useTheme()
 
 const entries = [
   {
@@ -287,6 +315,51 @@ onBeforeUnmount(() => {
   color: var(--home-color-ink-soft);
   font-size: var(--home-text-xs);
   letter-spacing: 0.04em;
+}
+
+.home-topbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--home-space-sm);
+}
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: var(--home-rule-hair) solid var(--home-color-rule-strong);
+  border-radius: var(--home-radius-pill);
+  background: var(--home-color-surface-soft);
+  color: var(--home-color-ink-soft);
+  cursor: pointer;
+  transition:
+    color var(--home-dur-short) var(--home-ease-out),
+    border-color var(--home-dur-short) var(--home-ease-out),
+    background-color var(--home-dur-short) var(--home-ease-out),
+    transform var(--home-dur-short) var(--home-ease-out);
+}
+
+.theme-toggle:hover {
+  color: var(--home-color-accent);
+  border-color: var(--home-color-accent-border);
+  transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+  transform: translateY(1px);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--home-color-focus);
+  outline-offset: 4px;
+}
+
+.theme-icon {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
 }
 
 .home-system-state time {
@@ -480,10 +553,12 @@ onBeforeUnmount(() => {
   max-width: 100%;
   min-width: 0;
   margin: 0;
-  border: var(--home-rule-hair) solid var(--home-color-rule-strong);
+  border: var(--home-rule-hair) solid var(--glass-border);
   border-radius: var(--home-radius-card);
-  background: var(--home-color-surface);
-  box-shadow: var(--home-shadow-panel);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
   overflow: clip;
 }
 
@@ -878,8 +953,15 @@ onBeforeUnmount(() => {
     flex-direction: column;
   }
 
-  .home-system-state {
+  .home-topbar-right {
     width: 100%;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .home-system-state {
+    flex: 1 1 auto;
+    min-width: 0;
     justify-content: flex-start;
     align-items: flex-start;
     flex-wrap: wrap;

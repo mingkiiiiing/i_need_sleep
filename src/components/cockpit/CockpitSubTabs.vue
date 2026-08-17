@@ -36,7 +36,7 @@ function isActive(t) { return t.match.includes(currentPath.value) }
   margin-top: 28px;
   padding: 10px;
   border-radius: 14px;
-  background: rgba(8, 16, 28, 0.5);
+  background: var(--c-surface-soft);
   border: 1px solid var(--panel-line);
 }
 .sub-tab {
@@ -54,7 +54,7 @@ function isActive(t) { return t.match.includes(currentPath.value) }
   text-decoration: none;
 }
 .sub-tab:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--c-surface-soft);
   color: var(--text);
 }
 .sub-tab-num {
@@ -64,18 +64,18 @@ function isActive(t) { return t.match.includes(currentPath.value) }
   border-radius: 999px;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
-  background: rgba(34, 211, 197, 0.16);
+  background: var(--c-accent-soft);
   color: var(--teal);
-  border: 1px solid rgba(34, 211, 197, 0.28);
+  border: 1px solid var(--c-accent-border);
 }
 .sub-tab.active {
-  background: linear-gradient(135deg, rgba(34, 211, 197, 0.22), rgba(34, 211, 197, 0.08));
+  background: var(--c-accent-soft);
   color: var(--text);
-  border-color: rgba(34, 211, 197, 0.45);
+  border-color: var(--c-accent-border);
 }
 .sub-tab.active .sub-tab-num {
   background: var(--teal);
-  color: #02141c;
+  color: var(--c-accent-ink);
   border-color: var(--teal);
 }
 </style>

@@ -35,6 +35,7 @@
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { palette } from './echartsTheme.js'
 
 const props = defineProps({
   modelValue: { type: String, required: true },
@@ -61,15 +62,19 @@ const activeLayer = ref('satellite')
 const LAKE_CENTER = [31.20, 120.15]
 const DEFAULT_ZOOM = 11
 
-const RISK_COLORS = {
-  high: '#ff5757',
-  mid: '#f4c062',
-  low: '#6ee7b7'
+function riskColors() {
+  const p = palette()
+  return {
+    high: p.alert,
+    mid: p.watch,
+    low: p.stable
+  }
 }
 
 function createMarkerIcon(point, isActive) {
   const riskClass = point.riskClass || 'low'
-  const color = RISK_COLORS[riskClass] || RISK_COLORS.low
+  const colors = riskColors()
+  const color = colors[riskClass] || colors.low
   const dotSize = isActive ? 20 : 14
   const ringSize = isActive ? 36 : 26
 
@@ -283,7 +288,7 @@ onBeforeUnmount(() => {
   padding: 3px;
   border-radius: 999px;
   border: 1px solid var(--panel-line);
-  background: rgba(8, 16, 28, 0.55);
+  background: var(--c-surface-soft);
 }
 
 .layer-switcher button {
@@ -300,13 +305,13 @@ onBeforeUnmount(() => {
 
 .layer-switcher button:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--c-surface-soft);
 }
 
 .layer-switcher button.active {
-  background: linear-gradient(135deg, rgba(34, 211, 197, 0.32), rgba(34, 211, 197, 0.14));
+  background: var(--c-accent-soft);
   color: var(--teal);
-  border-color: rgba(34, 211, 197, 0.45);
+  border-color: var(--c-accent-border);
 }
 
 .map-tools {
@@ -320,7 +325,7 @@ onBeforeUnmount(() => {
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid var(--panel-line);
-  background: #0a1422;
+  background: var(--c-bg-base);
   position: relative;
   z-index: 0;
 }
@@ -335,24 +340,24 @@ onBeforeUnmount(() => {
 <style>
 /* ===== Leaflet global overrides (not scoped) ===== */
 
-/* Dark-themed zoom controls */
+/* Dark-themed zoom controls — 跟随主题 token */
 .leaflet-bar {
-  border: 1px solid rgba(120, 200, 220, 0.28) !important;
-  background: rgba(8, 16, 28, 0.85) !important;
+  border: 1px solid var(--c-line-strong) !important;
+  background: var(--c-surface) !important;
   backdrop-filter: blur(8px);
   border-radius: 10px !important;
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 .leaflet-bar a {
   background: transparent !important;
-  color: #a9bcd4 !important;
-  border-bottom: 1px solid rgba(120, 200, 220, 0.14) !important;
+  color: var(--c-text-soft) !important;
+  border-bottom: 1px solid var(--c-line) !important;
   transition: background 0.18s ease, color 0.18s ease;
 }
 .leaflet-bar a:hover {
-  background: rgba(34, 211, 197, 0.16) !important;
-  color: #22d3c5 !important;
+  background: var(--c-accent-soft) !important;
+  color: var(--c-accent) !important;
 }
 .leaflet-bar a:last-child {
   border-bottom: none !important;
@@ -360,14 +365,14 @@ onBeforeUnmount(() => {
 
 /* Attribution bar */
 .leaflet-control-attribution {
-  background: rgba(8, 16, 28, 0.72) !important;
-  color: #6f8aa3 !important;
+  background: var(--c-surface) !important;
+  color: var(--c-muted) !important;
   font-size: 10px !important;
   border-radius: 6px 0 0 0 !important;
   padding: 3px 8px !important;
 }
 .leaflet-control-attribution a {
-  color: #8aa8c5 !important;
+  color: var(--c-text-soft) !important;
 }
 
 /* ===== Custom marker styles ===== */
@@ -437,9 +442,9 @@ onBeforeUnmount(() => {
   gap: 1px;
   padding: 4px 10px;
   border-radius: 8px;
-  background: rgba(6, 14, 24, 0.88);
+  background: var(--c-surface-strong);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(120, 200, 220, 0.22);
+  border: 1px solid var(--c-line);
   white-space: nowrap;
   pointer-events: none;
   z-index: 3;
@@ -448,13 +453,13 @@ onBeforeUnmount(() => {
 .lake-marker-label strong {
   color: var(--mc);
   font-size: 11px;
-  font-family: "Bahnschrift", "Segoe UI", monospace;
+  font-family: var(--font-display);
   letter-spacing: 0.5px;
   line-height: 1.2;
 }
 
 .lake-marker-label span {
-  color: #c9dcee;
+  color: var(--c-text-soft);
   font-size: 10px;
   line-height: 1.2;
 }
