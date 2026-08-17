@@ -121,11 +121,14 @@
 import { computed, onMounted, ref } from 'vue'
 import { useCockpitStore } from '../stores/cockpit.js'
 import { getHeatField, getPoints, getRegionSummary, getTimeStages } from '../services/api.js'
+import { palette } from '../components/cockpit/echartsTheme.js'
+import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
 import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
+const { theme } = useTheme()
 
 const stages = ref([])
 const heatField = ref({})
@@ -218,6 +221,8 @@ const topCells = computed(() => {
 })
 
 const heatmapOption = computed(() => {
+  const p = palette()
+  void theme.value
   const grid = currentGrid.value
   const cols = 19
   const rows = grid.length || 11
@@ -230,17 +235,17 @@ const heatmapOption = computed(() => {
   return {
     tooltip: {
       position: 'top',
-      backgroundColor: 'rgba(8,16,28,0.92)',
-      borderColor: 'rgba(34,211,197,0.4)',
-      textStyle: { color: '#e6f1ff' },
-      formatter: (p) => `行 ${p.value[1] + 1} · 列 ${p.value[0] + 1}<br/>风险值 ${p.value[2]}`
+      backgroundColor: p.surface,
+      borderColor: p.lineStrong,
+      textStyle: { color: p.text },
+      formatter: (v) => `行 ${v.value[1] + 1} · 列 ${v.value[0] + 1}<br/>风险值 ${v.value[2]}`
     },
     grid: { left: 32, right: 32, top: 30, bottom: 36, containLabel: false },
     xAxis: {
       type: 'category',
       data: Array.from({ length: cols }, (_, i) => `列 ${i + 1}`),
       splitArea: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 10, interval: 2 },
+      axisLabel: { color: p.muted, fontSize: 10, interval: 2 },
       axisLine: { show: false },
       axisTick: { show: false }
     },
@@ -248,7 +253,7 @@ const heatmapOption = computed(() => {
       type: 'category',
       data: Array.from({ length: rows }, (_, i) => `行 ${i + 1}`),
       splitArea: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 10, interval: 1 },
+      axisLabel: { color: p.muted, fontSize: 10, interval: 1 },
       axisLine: { show: false },
       axisTick: { show: false }
     },
@@ -259,11 +264,11 @@ const heatmapOption = computed(() => {
       show: false,
       inRange: {
         color: [
-          'rgba(110, 231, 183, 0.18)',
-          'rgba(110, 231, 183, 0.45)',
-          'rgba(244, 192, 98, 0.55)',
-          'rgba(255, 123, 107, 0.70)',
-          'rgba(255, 80, 110, 0.85)'
+          p.stable + '2e',
+          p.stable + '73',
+          p.watch + '8c',
+          p.alert + 'b3',
+          p.alert
         ]
       }
     },
@@ -273,13 +278,13 @@ const heatmapOption = computed(() => {
       progressive: 0,
       itemStyle: {
         borderRadius: 4,
-        borderColor: 'rgba(8,16,28,0.4)',
+        borderColor: p.surface,
         borderWidth: 1
       },
       emphasis: {
         itemStyle: {
           shadowBlur: 16,
-          shadowColor: 'rgba(34,211,197,0.6)'
+          shadowColor: p.accent + '99'
         }
       },
       animationDuration: 400
@@ -288,43 +293,42 @@ const heatmapOption = computed(() => {
 })
 
 const barOption = computed(() => {
-  const list = pointList.value.map((p) => ({
-    name: p.short + ' ' + p.name,
-    value: summaryState.value.intensity ? summaryState.value.intensity[p.id]?.[cockpit.stageKey] ?? 0 : 0,
-    riskClass: p.riskClass
+  const p = palette()
+  void theme.value
+  const list = pointList.value.map((pt) => ({
+    name: pt.short + ' ' + pt.name,
+    value: summaryState.value.intensity ? summaryState.value.intensity[pt.id]?.[cockpit.stageKey] ?? 0 : 0,
+    riskClass: pt.riskClass
   }))
+  const barColor = (rc) => rc === 'high' ? p.alert : rc === 'mid' ? p.watch : p.stable
   return {
     grid: { left: 110, right: 24, top: 16, bottom: 28, containLabel: true },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(8,16,28,0.92)',
-      borderColor: 'rgba(34,211,197,0.4)',
-      textStyle: { color: '#e6f1ff' }
+      backgroundColor: p.surface,
+      borderColor: p.lineStrong,
+      textStyle: { color: p.text }
     },
     xAxis: {
       type: 'value',
       max: 100,
       axisLine: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(120,200,220,0.08)' } }
+      axisLabel: { color: p.muted, fontSize: 11 },
+      splitLine: { lineStyle: { color: p.line } }
     },
     yAxis: {
       type: 'category',
       data: list.map((d) => d.name),
-      axisLine: { lineStyle: { color: 'rgba(120,200,220,0.18)' } },
-      axisLabel: { color: '#a9bcd4', fontSize: 11 }
+      axisLine: { lineStyle: { color: p.lineStrong } },
+      axisLabel: { color: p.textSoft, fontSize: 11 }
     },
     series: [{
       type: 'bar',
       data: list.map((d) => ({
         value: d.value,
         itemStyle: {
-          color: d.riskClass === 'high'
-            ? '#ff7b6b'
-            : d.riskClass === 'mid'
-              ? '#f4c062'
-              : '#6ee7b7',
+          color: barColor(d.riskClass),
           borderRadius: [0, 6, 6, 0]
         }
       })),
@@ -332,7 +336,7 @@ const barOption = computed(() => {
       label: {
         show: true,
         position: 'right',
-        color: '#a9bcd4',
+        color: p.textSoft,
         fontSize: 11,
         formatter: '{c}'
       }
@@ -341,34 +345,36 @@ const barOption = computed(() => {
 })
 
 const confidenceOption = computed(() => {
+  const p = palette()
+  void theme.value
   const stagesArr = stages.value.length ? stages.value : [{ key: 't1', label: 'T+1 天' }]
   return {
     grid: { left: 48, right: 24, top: 24, bottom: 28, containLabel: true },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(8,16,28,0.92)',
-      borderColor: 'rgba(34,211,197,0.4)',
-      textStyle: { color: '#e6f1ff' }
+      backgroundColor: p.surface,
+      borderColor: p.lineStrong,
+      textStyle: { color: p.text }
     },
     legend: {
       data: ['机理层置信', 'AI 层置信', '综合共识'],
-      textStyle: { color: '#a9bcd4', fontSize: 11 },
+      textStyle: { color: p.textSoft, fontSize: 11 },
       top: 0,
       right: 8
     },
     xAxis: {
       type: 'category',
       data: stagesArr.map((s) => s.label),
-      axisLine: { lineStyle: { color: 'rgba(120,200,220,0.18)' } },
-      axisLabel: { color: '#a9bcd4', fontSize: 11 }
+      axisLine: { lineStyle: { color: p.lineStrong } },
+      axisLabel: { color: p.textSoft, fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       min: 50,
       max: 100,
       axisLine: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(120,200,220,0.08)' } }
+      axisLabel: { color: p.muted, fontSize: 11 },
+      splitLine: { lineStyle: { color: p.line } }
     },
     series: [
       {
@@ -377,8 +383,8 @@ const confidenceOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 2, color: '#22d3c5' },
-        itemStyle: { color: '#22d3c5' },
+        lineStyle: { width: 2, color: p.accent },
+        itemStyle: { color: p.accent },
         data: [94, 90, 86, 82, 78]
       },
       {
@@ -387,8 +393,8 @@ const confidenceOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 2, color: '#a78bfa' },
-        itemStyle: { color: '#a78bfa' },
+        lineStyle: { width: 2, color: p.ai },
+        itemStyle: { color: p.ai },
         data: [78, 80, 82, 80, 76]
       },
       {
@@ -397,8 +403,8 @@ const confidenceOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 3, color: '#ff7b6b' },
-        itemStyle: { color: '#ff7b6b' },
+        lineStyle: { width: 3, color: p.alert },
+        itemStyle: { color: p.alert },
         data: [86, 85, 84, 81, 77]
       }
     ]

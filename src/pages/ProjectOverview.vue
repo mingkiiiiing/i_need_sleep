@@ -99,7 +99,7 @@ import HeroShell from '../components/HeroShell.vue'
   padding: 14px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--c-surface-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -171,7 +171,7 @@ import HeroShell from '../components/HeroShell.vue'
   border-radius: var(--radius-lg);
   border: 1px solid var(--panel-line);
   background:
-    linear-gradient(180deg, rgba(34, 211, 197, 0.06), rgba(34, 211, 197, 0));
+    linear-gradient(180deg, var(--c-accent-soft), transparent);
   position: relative;
   overflow: hidden;
 }
@@ -180,7 +180,7 @@ import HeroShell from '../components/HeroShell.vue'
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 100% 0%, rgba(34, 211, 197, 0.12), transparent 50%);
+    radial-gradient(circle at 100% 0%, var(--c-accent-soft), transparent 50%);
   pointer-events: none;
 }
 .narrative-block h3 {
@@ -202,7 +202,7 @@ import HeroShell from '../components/HeroShell.vue'
   border-radius: var(--radius-lg);
   border: 1px solid var(--panel-line);
   background:
-    linear-gradient(180deg, rgba(34, 211, 197, 0.10), rgba(34, 211, 197, 0));
+    linear-gradient(180deg, var(--c-accent-soft), transparent);
   margin: 32px 0;
 }
 
@@ -221,7 +221,7 @@ import HeroShell from '../components/HeroShell.vue'
   padding: 6px 14px;
   border: 1px solid var(--panel-line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--c-surface-soft);
 }
 .keyline-dot {
   width: 4px; height: 4px; border-radius: 50%; background: var(--muted);

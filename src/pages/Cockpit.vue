@@ -93,7 +93,7 @@ const tiles = [
   padding: 14px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--c-surface-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -137,9 +137,11 @@ const tiles = [
   gap: 14px;
   padding: 26px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--panel-line);
-  background:
-    linear-gradient(180deg, rgba(14, 30, 48, 0.72), rgba(10, 22, 38, 0.92));
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
   color: var(--text);
   text-decoration: none;
   height: 100%;
@@ -151,7 +153,7 @@ const tiles = [
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 0 0, rgba(34, 211, 197, 0.10), transparent 60%);
+  background: radial-gradient(circle at 0 0, var(--c-accent-soft), transparent 60%);
   pointer-events: none;
 }
 .cockpit-link:hover {

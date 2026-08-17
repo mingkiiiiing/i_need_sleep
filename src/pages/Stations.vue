@@ -210,6 +210,8 @@ import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getPoints, getRegionSummary, getTimeStages, getPrediction, getExplanation } from '../services/api.js'
 import { pointPositions } from '../data/points.js'
 import { SEVERITY_TO_CLASS } from '../services/_mapping.js'
+import { palette } from '../components/cockpit/echartsTheme.js'
+import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
 import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import LakeMap from '../components/cockpit/LakeMap.vue'
@@ -217,6 +219,7 @@ import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
 const store = cockpitState()
+const { theme } = useTheme()
 const dash = '—'
 const stages = ref([])
 const pointsState = ref({ pointData: {}, pointPositions: {} })
@@ -249,6 +252,8 @@ function setPoint(id) {
 }
 
 const trendOption = computed(() => {
+  const p = palette()
+  void theme.value
   const trend = (selectedPoint.value && selectedPoint.value.trend) || []
   const stageKey = cockpit.stageKey
   const yMax = Math.max(100, ...trend) + 8
@@ -256,22 +261,22 @@ const trendOption = computed(() => {
     grid: { left: 36, right: 16, top: 16, bottom: 28, containLabel: true },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(8,16,28,0.92)',
-      borderColor: 'rgba(34,211,197,0.4)',
-      textStyle: { color: '#e6f1ff' }
+      backgroundColor: p.surface,
+      borderColor: p.lineStrong,
+      textStyle: { color: p.text }
     },
     xAxis: {
       type: 'category',
       data: trend.map((_, i) => `T-${trend.length - i}d`),
-      axisLine: { lineStyle: { color: 'rgba(120,200,220,0.18)' } },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 }
+      axisLine: { lineStyle: { color: p.lineStrong } },
+      axisLabel: { color: p.muted, fontSize: 11 }
     },
     yAxis: {
       type: 'value',
       max: yMax,
       axisLine: { show: false },
-      axisLabel: { color: '#6f8aa3', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(120,200,220,0.08)' } }
+      axisLabel: { color: p.muted, fontSize: 11 },
+      splitLine: { lineStyle: { color: p.line } }
     },
     series: [
       {
@@ -279,21 +284,21 @@ const trendOption = computed(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { width: 3, color: '#22d3c5' },
-        itemStyle: { color: '#22d3c5' },
+        lineStyle: { width: 3, color: p.accent },
+        itemStyle: { color: p.accent },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(34,211,197,0.45)' },
-              { offset: 1, color: 'rgba(34,211,197,0)' }
+              { offset: 0, color: p.accent + '73' },
+              { offset: 1, color: p.accent + '00' }
             ]
           }
         },
         data: trend,
         markArea: {
-          itemStyle: { color: 'rgba(244,192,98,0.10)' },
+          itemStyle: { color: p.watch + '1a' },
           data: [[
             { yAxis: 60 },
             { yAxis: yMax }
@@ -301,8 +306,8 @@ const trendOption = computed(() => {
         },
         markLine: {
           symbol: 'none',
-          lineStyle: { color: '#ff7b6b', type: 'dashed' },
-          data: [{ yAxis: 75, label: { color: '#ff7b6b', formatter: '预警阈值' } }]
+          lineStyle: { color: p.alert, type: 'dashed' },
+          data: [{ yAxis: 75, label: { color: p.alert, formatter: '预警阈值' } }]
         }
       }
     ]
@@ -385,17 +390,19 @@ const shapStats = computed(() => {
 })
 
 const sensitivityOption = computed(() => {
+  const p = palette()
+  void theme.value
   const sc = (explanation.value && explanation.value.sensitivity_curve) || []
   return {
     tooltip: { trigger: 'axis' },
-    legend: { data: sc.map(s => s.factor), textStyle: { color: '#a9bcd4' }, top: 0 },
+    legend: { data: sc.map(s => s.factor), textStyle: { color: p.textSoft }, top: 0 },
     grid: { left: 40, right: 20, top: 28, bottom: 28, containLabel: true },
-    xAxis: { type: 'category', data: (sc[0] && sc[0].values) || [], axisLine: { lineStyle: { color: 'rgba(120,200,220,0.18)' } }, axisLabel: { color: '#6f8aa3' } },
-    yAxis: { type: 'value', axisLine: { show: false }, axisLabel: { color: '#6f8aa3' }, splitLine: { lineStyle: { color: 'rgba(120,200,220,0.08)' } } },
+    xAxis: { type: 'category', data: (sc[0] && sc[0].values) || [], axisLine: { lineStyle: { color: p.lineStrong } }, axisLabel: { color: p.muted } },
+    yAxis: { type: 'value', axisLine: { show: false }, axisLabel: { color: p.muted }, splitLine: { lineStyle: { color: p.line } } },
     series: sc.map((s, i) => ({
       name: s.factor, type: 'line', smooth: true,
-      lineStyle: { width: 2, color: ['#22d3c5', '#a78bfa', '#ff7b6b'][i % 3] },
-      itemStyle: { color: ['#22d3c5', '#a78bfa', '#ff7b6b'][i % 3] },
+      lineStyle: { width: 2, color: [p.accent, p.ai, p.alert][i % 3] },
+      itemStyle: { color: [p.accent, p.ai, p.alert][i % 3] },
       data: s.response
     }))
   }
@@ -480,21 +487,21 @@ onMounted(async () => {
   gap: 10px;
   padding: 16px 18px;
   border-radius: 10px;
-  background: rgba(34, 211, 197, 0.08);
-  color: #a9bcd4;
+  background: var(--c-accent-soft);
+  color: var(--c-text-soft);
   font-size: 13px;
   letter-spacing: 0.02em;
 }
 .ai-placeholder.error {
-  background: rgba(255, 123, 107, 0.10);
-  color: #ff9b8f;
+  background: var(--c-alert-soft);
+  color: var(--c-alert);
 }
 .ai-spinner {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 2px solid rgba(34, 211, 197, 0.25);
-  border-top-color: #22d3c5;
+  border: 2px solid var(--c-accent-border);
+  border-top-color: var(--c-accent);
   animation: ai-spin 0.8s linear infinite;
   flex: none;
 }
@@ -505,7 +512,7 @@ onMounted(async () => {
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(8, 16, 28, 0.55);
+  background: var(--c-surface-soft);
   border: 1px solid var(--panel-line);
 }
 .tab-switch button {
@@ -523,13 +530,13 @@ onMounted(async () => {
 }
 .tab-switch button:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--c-surface-soft);
 }
 .tab-switch button.active {
-  background: linear-gradient(135deg, rgba(34, 211, 197, 0.32), rgba(34, 211, 197, 0.14));
+  background: var(--c-accent-soft);
   color: var(--text);
-  border-color: rgba(34, 211, 197, 0.45);
-  box-shadow: 0 4px 14px rgba(34, 211, 197, 0.18);
+  border-color: var(--c-accent-border);
+  box-shadow: 0 4px 14px var(--c-accent-glow);
 }
 
 @keyframes ai-spin {

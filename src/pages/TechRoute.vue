@@ -126,7 +126,7 @@ const stages = [
   padding: 14px 18px;
   border-radius: var(--radius-md);
   border: 1px solid var(--panel-line);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--c-surface-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -145,13 +145,15 @@ const stages = [
   gap: 24px;
   padding: 26px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--panel-line);
-  background:
-    linear-gradient(180deg, rgba(14, 30, 48, 0.62), rgba(10, 22, 38, 0.85));
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
   transition: border-color .25s ease, transform .25s ease;
 }
 .tech-stage:hover {
-  border-color: var(--panel-line-strong);
+  border-color: var(--glass-border-strong);
   transform: translateX(4px);
 }
 
@@ -243,7 +245,7 @@ const stages = [
   padding: 5px 12px;
   border-radius: 999px;
   border: 1px solid var(--panel-line);
-  background: rgba(34, 211, 197, 0.06);
+  background: var(--c-accent-soft);
   color: var(--teal);
   font-family: "Bahnschrift", "Segoe UI", sans-serif;
   font-size: 11px;
