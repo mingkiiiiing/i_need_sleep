@@ -1,0 +1,67 @@
+version: "0.1.0"
+
+# 所有转换必须保留原单位和转换记录；禁止根据字段名猜单位。
+canonical_units:
+  temperature: degC
+  concentration_nutrient: mg/L
+  concentration_chlorophyll: ug/L
+  algae_density: cells/L
+  biomass: mg/L
+  precipitation: mm
+  wind_speed: m/s
+  wind_direction: degree
+  pressure: hPa
+  radiation: W/m2
+  par: umol_photons_m2_s
+  water_level: m
+  discharge: m3/s
+  velocity: m/s
+  depth: m
+  area: km2
+  reflectance: reflectance
+  probability: percent
+  fraction: fraction
+
+conversions:
+  - from: "ug/L"
+    to: "mg/L"
+    multiplier: 0.001
+  - from: "mg/L"
+    to: "ug/L"
+    multiplier: 1000.0
+  - from: "mg/m3"
+    to: "ug/L"
+    multiplier: 1.0
+  - from: "m3/s"
+    to: "L/s"
+    multiplier: 1000.0
+  - from: "cm/s"
+    to: "m/s"
+    multiplier: 0.01
+  - from: "km"
+    to: "m"
+    multiplier: 1000.0
+  - from: "m"
+    to: "km"
+    multiplier: 0.001
+  - from: "Pa"
+    to: "hPa"
+    multiplier: 0.01
+  - from: "kPa"
+    to: "hPa"
+    multiplier: 10.0
+  - from: "mm/day"
+    to: "mm"
+    multiplier: 1.0
+
+unit_aliases:
+  degC: ["°C", "℃", "C", "deg C", "degree C", "摄氏度"]
+  mg/L: ["mg l-1", "mg/l", "mg·L-1", "毫克/升"]
+  ug/L: ["μg/L", "µg/L", "ug l-1", "μg l-1", "微克/升"]
+  cells/L: ["cells l-1", "cell/L", "个/L", "细胞/升"]
+  m/s: ["m s-1", "m·s-1", "米/秒"]
+  m3/s: ["m³/s", "m3 s-1", "立方米/秒"]
+  W/m2: ["W m-2", "W·m-2", "瓦/平方米"]
+  hPa: ["hPa", "百帕"]
+  percent: ["%", "百分比"]
+  degree: ["°", "deg", "度"]

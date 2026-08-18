@@ -1,0 +1,28 @@
+{
+  "run_id": "waterstation_preflight_20260818T141950Z",
+  "status": "blocked_no_valid_files",
+  "input_root": "storage\\raw\\authorized_waterstation",
+  "source_id": "taihu_water_station_preflight",
+  "files": {
+    "inventory": "storage\\exports\\authorized_waterstation_preflight\\preflight_inventory.csv",
+    "issues": "storage\\exports\\authorized_waterstation_preflight\\preflight_issues.csv",
+    "summary": "storage\\exports\\authorized_waterstation_preflight\\preflight_summary.json",
+    "database": "storage\\exports\\authorized_waterstation_preflight\\preflight.db"
+  },
+  "summary": {
+    "status": "blocked_no_valid_files",
+    "files_discovered": 1,
+    "files_parsed": 0,
+    "duplicate_files_skipped": 0,
+    "parse_failures": 0,
+    "valid_rows": 0,
+    "issue_rows": 0,
+    "validation_status": "blocked_no_valid_files"
+  },
+  "validation": {
+    "status": "blocked_no_valid_files",
+    "valid_rows": 0,
+    "issue_rows": 0
+  },
+  "next_step": "fix or obtain authorized P0 station files, then rerun preflight"
+}

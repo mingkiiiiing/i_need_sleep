@@ -1,0 +1,51 @@
+{
+  "source_id": "taihu_thqbca_history",
+  "water_quality_file": "storage\\raw\\taihu_thqbca_zenodo\\extracted\\THQBCA-V2\\1.WaterQuality\\1WaterQuality.xlsx",
+  "climate_file": "storage\\raw\\taihu_thqbca_zenodo\\extracted\\THQBCA-V2\\3.Climate\\3.Climate.xlsx",
+  "output_csv": "storage\\raw\\taihu_thqbca_parsed\\thqbca_observations.csv",
+  "records": 83446,
+  "by_variable": {
+    "pH": 576,
+    "cod_mn": 576,
+    "dissolved_oxygen": 576,
+    "total_phosphorus": 576,
+    "phosphate_phosphorus": 576,
+    "total_nitrogen": 576,
+    "ammonia_nitrogen": 576,
+    "nitrate_nitrogen": 576,
+    "nitrite_nitrogen": 576,
+    "phytoplankton_biomass": 576,
+    "algae_density": 16,
+    "precipitation": 23820,
+    "air_temperature": 23820,
+    "water_level": 6210,
+    "wind_speed": 23820
+  },
+  "missing_by_variable": {
+    "precipitation": 2892,
+    "air_temperature": 3,
+    "water_level": 54,
+    "wind_speed": 9
+  },
+  "missing_rate_by_variable": {
+    "pH": 0.0,
+    "cod_mn": 0.0,
+    "dissolved_oxygen": 0.0,
+    "total_phosphorus": 0.0,
+    "phosphate_phosphorus": 0.0,
+    "total_nitrogen": 0.0,
+    "ammonia_nitrogen": 0.0,
+    "nitrate_nitrogen": 0.0,
+    "nitrite_nitrogen": 0.0,
+    "phytoplankton_biomass": 0.0,
+    "algae_density": 0.0,
+    "precipitation": 0.12141057934508816,
+    "air_temperature": 0.00012594458438287153,
+    "water_level": 0.008695652173913044,
+    "wind_speed": 0.0003778337531486146
+  },
+  "time_semantics": "water quality monthly/quarterly; climate daily; Phyto_number annual anchored to Jan 1",
+  "excluded_fields": {
+    "WIN.Wind direction": "workbook contains only a 16-row compass lookup at the beginning, followed by nulls; not treated as daily observations"
+  }
+}

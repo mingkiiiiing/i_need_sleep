@@ -1,0 +1,71 @@
+version: "1.0.0"
+study_area: "Taihu Lake"
+description: "配置驱动的第一版数据质量控制规则；未列入硬拒绝的业务规则只产生告警或进入后续门禁。"
+
+# 这些规则当前由 pipeline/qc.py 实际加载。单位与变量字典一致；
+# 部分硬范围是跨来源的保守安全上限，不等同于单站点仪器量程。
+# 需要项目方确认的站点专属阈值不得直接写成硬拒绝规则。
+hard_range_rules:
+  air_temperature: [-60, 60]
+  wind_speed: [0, 60]
+  wind_direction: [0, 360]
+  precipitation: [0, 500]
+  shortwave_radiation: [0, 2000]
+  cloud_cover: [0, 100]
+
+duplicate_key:
+  fields: [source_id, station_id, scene_id, observed_at, variable_code]
+  issue_code: Q08
+  severity: medium
+  action: reject_duplicate_from_model_table
+
+normalization:
+  wind_direction_360_to_zero:
+    enabled: true
+    issue_code: Q21
+    severity: low
+
+missing_value:
+  issue_code: Q01
+  severity: high
+  action: keep_traceable_then_try_explicit_short_gap_imputation
+
+rejection:
+  issue_codes: [Q02, Q03, Q04, Q06, Q07, Q08, Q10, Q11]
+  appended_flag: Q99
+  preserve_original: true
+
+severity:
+  Q01: high
+  Q02: high
+  Q03: high
+  Q04: critical
+  Q06: high
+  Q07: high
+  Q08: medium
+  Q21: low
+
+advisory_rules:
+  # 这些规则不能在没有站点校准和单位确认前直接拒绝记录。
+  water_temperature: {range: [0, 45], action: flag_for_station_review}
+  total_nitrogen: {range: [0, 100], action: flag_for_station_review}
+  total_phosphorus: {range: [0, 20], action: flag_for_station_review}
+  chlorophyll_a: {range: [0, 10000], action: flag_for_station_review}
+  algae_density: {range: [0, 1.0e12], action: flag_for_station_review}
+  bloom_area_km2: {range: [0, 2338], action: flag_for_station_review}
+
+imputation:
+  max_gap_steps: 3
+  allowed_methods: [linear_time]
+  never_auto_impute: [chlorophyll_a, algae_density, bloom_area_km2]
+  require_flags: [is_imputed, imputation_method, imputation_confidence, value_origin]
+
+freshness:
+  default_max_staleness_days: 30
+  high_frequency_max_median_interval_hours: 6
+  high_frequency_max_gap_hours: 24
+
+fault_injection_acceptance:
+  first_release_fixture_recall_min: 1.0
+  production_target_recall_min: 0.90
+  production_false_positive_rate_max: 0.05

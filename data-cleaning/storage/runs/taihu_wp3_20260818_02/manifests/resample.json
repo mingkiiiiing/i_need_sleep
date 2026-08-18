@@ -1,0 +1,28 @@
+{
+  "run_id": "taihu_wp3_20260818_02_resample",
+  "status": "completed_with_gap_masks",
+  "input": "storage\\runs\\taihu_wp3_20260818_02\\stages\\cleaning\\cleaned_observations.csv",
+  "input_rows": 80899,
+  "resampled_rows": 80899,
+  "gap_rows": 3368,
+  "granularity_counts": {
+    "overpass": 2,
+    "hourly": 600,
+    "quarterly": 5760,
+    "annual": 16,
+    "daily": 74521
+  },
+  "timezone": "Asia/Shanghai for daily buckets; UTC for storage",
+  "rules": {
+    "precipitation": "sum",
+    "wind_direction": "circular_mean",
+    "other_numeric": "mean",
+    "low_frequency": "native_only_no_upsampling",
+    "missing_buckets": "separate resample_gaps.csv with Q01+Q22"
+  },
+  "files": {
+    "resampled_observations": "storage\\runs\\taihu_wp3_20260818_02\\stages\\resample\\resampled_observations.csv",
+    "resample_gaps": "storage\\runs\\taihu_wp3_20260818_02\\stages\\resample\\resample_gaps.csv",
+    "database": "storage\\runs\\taihu_wp3_20260818_02\\data_cleaning.db"
+  }
+}

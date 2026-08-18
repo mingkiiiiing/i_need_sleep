@@ -1,0 +1,17 @@
+{
+  "cleaned_rows": 80899,
+  "variable_groups": 35,
+  "sources": 4,
+  "rejected_rows": 911,
+  "pending_imputation_rows": 2958,
+  "issue_rows": 3869,
+  "duplicate_key_rows": 0,
+  "available_groups": 5,
+  "low_frequency_groups": 11,
+  "stale_groups": 21,
+  "missing_groups": 0,
+  "issue_only_groups": 9,
+  "as_of": "2026-08-18T00:00:00+00:00",
+  "max_staleness_days": 30.0,
+  "low_frequency_hours": 24.0
+}

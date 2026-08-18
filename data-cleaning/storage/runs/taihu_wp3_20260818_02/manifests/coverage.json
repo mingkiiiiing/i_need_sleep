@@ -1,0 +1,18 @@
+{
+  "run_id": "taihu_wp3_20260818_02_coverage",
+  "status": "completed",
+  "input": "storage\\runs\\taihu_wp3_20260818_02\\stages\\resample\\resampled_observations.csv",
+  "rows": 80899,
+  "short_term_ready": false,
+  "operational_short_term_ready": false,
+  "target_ready": false,
+  "required_drivers_ready": false,
+  "files": {
+    "matrix": "storage\\runs\\taihu_wp3_20260818_02\\stages\\coverage\\coverage_matrix.csv",
+    "gaps": "storage\\runs\\taihu_wp3_20260818_02\\stages\\coverage\\coverage_gaps.csv",
+    "audit": "storage\\runs\\taihu_wp3_20260818_02\\stages\\coverage\\coverage_audit.json",
+    "database": "storage\\runs\\taihu_wp3_20260818_02\\data_cleaning.db"
+  },
+  "gap_count": 6,
+  "as_of": "2026-08-18T00:00:00+00:00"
+}

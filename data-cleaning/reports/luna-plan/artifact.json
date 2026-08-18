@@ -1,0 +1,161 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "太湖蓝藻数据清洗 Luna 执行总计划",
+    "description": "115项任务、16个阶段及逐门禁执行规则的技术交接摘要。",
+    "generatedAt": "2026-08-18T16:30:00Z",
+    "cards": [
+      {
+        "id": "plan_metrics",
+        "description": "主计划规模和当前工程基线。",
+        "dataset": "metrics",
+        "sourceId": "plan_inventory",
+        "metrics": [
+          { "label": "执行任务", "field": "task_count", "format": "number" },
+          { "label": "阶段", "field": "phase_count", "format": "number" },
+          { "label": "数据源", "field": "source_count", "format": "number" },
+          { "label": "当前通过测试", "field": "test_count", "format": "number" }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "macro_stage_chart",
+        "title": "四个实施区块的任务数量",
+        "subtitle": "共115项任务；采集和加工任务最多，但必须先完成治理与契约门禁。",
+        "type": "bar",
+        "dataset": "macro_stage_counts",
+        "sourceId": "plan_inventory",
+        "valueFormat": "number",
+        "encodings": {
+          "x": { "field": "macro_stage", "type": "nominal", "label": "实施区块" },
+          "y": { "field": "task_count", "type": "quantitative", "label": "任务数量" },
+          "tooltip": [
+            { "field": "phase_range", "type": "nominal", "label": "覆盖阶段" },
+            { "field": "focus", "type": "nominal", "label": "主要工作" }
+          ]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "phase_table",
+        "title": "阶段门禁和完成证据",
+        "subtitle": "Luna一次只执行一个依赖已完成的TODO任务；门禁未通过不得进入下一阶段。",
+        "dataset": "phases",
+        "sourceId": "plan_inventory",
+        "columns": [
+          { "field": "phase", "label": "阶段", "type": "text" },
+          { "field": "tasks", "label": "任务数", "format": "number" },
+          { "field": "objective", "label": "阶段目标", "type": "text" },
+          { "field": "gate", "label": "通过证据", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "plan_inventory",
+        "label": "Luna execution checklist and Taihu source registry",
+        "path": "data-cleaning/config/luna_execution_checklist.csv"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "body": "## 技术摘要\n\n主计划已经拆成**115项可验收任务、16个阶段和阶段门禁**。Luna必须从P00-01开始，一次只处理一个任务；完成定向测试和完整测试后才能把状态改为DONE。当前工程基线是58项测试全部通过，但CLMS、ECMWF、GFS、IMERG等仍是待开发适配器，授权太湖水站仍未取得。"
+      },
+      { "id": "metrics", "type": "metric-strip", "cardIds": ["plan_metrics"] },
+      {
+        "id": "distribution_explanation",
+        "type": "markdown",
+        "body": "## 工作量集中在真实采集和标准加工\n\n下图把16个阶段合并为四个实施区块。采集接入和清洗加工合计70项，是主要工作量；但前24项治理任务决定字段、许可、时区、空间边界和数据库契约，不能为了尽快接接口而跳过。"
+      },
+      { "id": "distribution", "type": "chart", "chartId": "macro_stage_chart" },
+      {
+        "id": "phase_explanation",
+        "type": "markdown",
+        "body": "## 每个阶段都有不可跳过的完成证据\n\n阶段完成不是以“代码写完”为准，而是以真实批次、manifest、质量报告、测试和可追溯输出共同判定。授权缺失可以标为BLOCKED_AUTH并继续公开数据版，但不能把官方元数据、目录查询或模拟夹具写成真实业务接入。"
+      },
+      { "id": "phase_table_block", "type": "table", "tableId": "phase_table" },
+      {
+        "id": "method",
+        "type": "markdown",
+        "body": "## 执行方法固定为检查、实现、验证、留证\n\n每个任务先读取依赖和现有代码，再把唯一任务标为IN_PROGRESS；实现后先运行定向测试，再运行完整pytest；最后保存真实输入、输出路径、数据真实性、manifest和失败降级。任何密钥不得进入仓库，网页采集不得绕过登录、验证码或访问控制。"
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "body": "## 当前限制决定了两级交付口径\n\n在授权站点到件前，可以完成遥感、权威气象、水文代理、历史水质和三个时域数据集骨架，但叶绿素a只能区分CLMS产品与局地遥感估计，藻密度不能声称完成绝对值校准。取得连续站点/浮标后，必须先预检，再正式清洗和地面—卫星校准。"
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Luna从基线审计开始\n\n1. P00-01记录工作区、Git状态、环境和用户文件保护清单。\n2. P00-02保存当前58项测试基线。\n3. P00-03隔离真实资产与合成夹具。\n4. P00-04冻结配置哈希。\n5. 完成P00门禁后，P01-01迁移Copernicus旧STAC端点。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## 仍需外部确认的问题\n\n- CDSE、CDS/EWDS、NASA Earthdata和CMA账号何时可用？\n- 太湖自动站/浮标能否提供连续7天样例和一个完整藻季？\n- 比赛交付是否允许再分发受限数据，还是只交接口与脱敏样例？\n- 最终短期目标以Chl-a、水华面积还是风险等级作为主标签？"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-18T16:30:00Z",
+    "status": "partial",
+    "datasets": {
+      "metrics": [
+        { "task_count": 115, "phase_count": 16, "source_count": 42, "test_count": 58 }
+      ],
+      "macro_stage_counts": [
+        { "macro_stage": "治理与底座", "task_count": 24, "phase_range": "P00-P03", "focus": "基线、契约、授权、数据库" },
+        { "macro_stage": "多源采集", "task_count": 33, "phase_range": "P04-P08", "focus": "历史、气象、遥感、水文、水站" },
+        { "macro_stage": "清洗与数据集", "task_count": 37, "phase_range": "P09-P12", "focus": "QC、插补、对齐、反演、三时域" },
+        { "macro_stage": "交付与验收", "task_count": 21, "phase_range": "P13-P15", "focus": "SQLite、调度、稳定性、冻结" }
+      ],
+      "phases": [
+        { "phase": "P00", "tasks": 4, "objective": "冻结当前真实基线", "gate": "测试、资产真实性、配置哈希" },
+        { "phase": "P01", "tasks": 7, "objective": "统一来源、变量、单位、时间、空间和许可", "gate": "五类契约均有配置和测试" },
+        { "phase": "P02", "tasks": 7, "objective": "建立账号、授权和网页合规边界", "gate": "凭证模板和合规清单完成" },
+        { "phase": "P03", "tasks": 6, "objective": "建立资产、批次、SQLite和源健康底座", "gate": "所有适配器共用统一契约" },
+        { "phase": "P04", "tasks": 6, "objective": "加固历史数据", "gate": "THQBCA和NASA POWER真实标准长表" },
+        { "phase": "P05", "tasks": 6, "objective": "接入1至90天气象预报", "gate": "ECMWF或GFS真实72小时批次" },
+        { "phase": "P06", "tasks": 8, "objective": "获取遥感像元和湖泊水质产品", "gate": "真实太湖裁剪产品而非仅目录" },
+        { "phase": "P07", "tasks": 6, "objective": "接入水文与静态流域特征", "gate": "真实水位或合法文件和版本化边界" },
+        { "phase": "P08", "tasks": 7, "objective": "接入授权水站/浮标", "gate": "预检通过、授权明确、正式批次ready" },
+        { "phase": "P09", "tasks": 9, "objective": "完成统一清洗和质量控制", "gate": "每个真实源有可逆质量报告" },
+        { "phase": "P10", "tasks": 10, "objective": "完成插补、重采样和时空对齐", "gate": "插补可识别且测试目标不插补" },
+        { "phase": "P11", "tasks": 8, "objective": "反演Chl-a、藻情和水华面积", "gate": "独立验证或明确uncalibrated" },
+        { "phase": "P12", "tasks": 10, "objective": "生成三套预测时域数据集", "gate": "无时间泄漏且数据卡齐全" },
+        { "phase": "P13", "tasks": 6, "objective": "交付SQLite、表格和栅格", "gate": "跨格式一致且全链路可追溯" },
+        { "phase": "P14", "tasks": 7, "objective": "完成调度、监控和恢复", "gate": "故障不污染稳定版本" },
+        { "phase": "P15", "tasks": 8, "objective": "最终验收和版本冻结", "gate": "测试、质量、反演、时域和许可全部验收" }
+      ]
+    },
+    "accessIssues": [
+      {
+        "id": "authorized_station_pending",
+        "dataset": "authorized_station_data",
+        "message": "太湖连续自动站/浮标实测尚未取得，P08及绝对藻密度校准可能BLOCKED_AUTH。"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "plan_inventory",
+      "query": {
+        "engine": "sqlite",
+        "sql": "SELECT phase, COUNT(*) AS task_count FROM luna_execution_checklist GROUP BY phase; SELECT COUNT(*) AS source_count FROM data_source_registry",
+        "description": "Summarizes the reviewed Luna task checklist and Taihu data-source registry.",
+        "executed_at": "2026-08-18T16:30:00Z"
+      }
+    }
+  ],
+  "package_info": {
+    "originUrl": "artifact://taihu-luna-execution-plan",
+    "controls": { "edit": false, "refresh": false }
+  }
+}

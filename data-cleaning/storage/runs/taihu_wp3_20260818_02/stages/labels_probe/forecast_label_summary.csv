@@ -1,0 +1,4 @@
+﻿target_variable,horizon,lower_days,upper_days,input_rows,accepted_rows,availability_rate,mean_gap_days,min_gap_days,max_gap_days,status_counts,split_boundary_count,overall_status
+phytoplankton_biomass,horizon_1_3d,1.0,3.0,576,0,0.0,,,,"{""no_observation_in_window"": 567, ""no_future_observation"": 9}",0,blocked_no_labels
+phytoplankton_biomass,horizon_7_15d,7.0,15.0,576,0,0.0,,,,"{""no_observation_in_window"": 567, ""no_future_observation"": 9}",0,blocked_no_labels
+phytoplankton_biomass,horizon_30_90d,30.0,90.0,576,144,0.25,89.25,89.0,90.0,"{""accepted"": 144, ""no_observation_in_window"": 423, ""no_future_observation"": 9}",0,ready

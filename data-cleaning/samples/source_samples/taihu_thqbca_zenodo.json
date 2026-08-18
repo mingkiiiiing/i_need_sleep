@@ -1,0 +1,166 @@
+{
+  "source_id": "taihu_thqbca_zenodo",
+  "request_url": "https://zenodo.org/api/records/13917285",
+  "http_status": 200,
+  "content_type": "application/json",
+  "payload": {
+    "created": "2024-10-11T03:36:28.384408+00:00",
+    "modified": "2024-10-11T03:36:28.589149+00:00",
+    "id": 13917285,
+    "conceptrecid": "11044482",
+    "doi": "10.5281/zenodo.13917285",
+    "conceptdoi": "10.5281/zenodo.11044482",
+    "doi_url": "https://doi.org/10.5281/zenodo.13917285",
+    "metadata": {
+      "title": "A comprehensive time-series dataset linked to cyanobacterial blooms in Lake Taihu",
+      "doi": "10.5281/zenodo.13917285",
+      "publication_date": "2024-10-11",
+      "description": "<p>Lake Taihu has a history of recurrent harmful cyanobacterial blooms under the pressures of climate change and human activities. Despite efforts to limit nutrient loading, there is a need to better understand the water environment of Lake Taihu in order to improve methods for controlling the cyanobacterial blooms. The spatial and temporal characteristics of the water quality, bio-optical parameters, climate, and anthropogenic data of Lake Taihu (THQBCA) could provide comprehensive information regarding cyanobacterial blooms. The THQBCA dataset contains 26 variables organized into four categories: water quality, bio-optics, climate, and anthropogenic data. The dataset spans more than 15 years (8 of which cover approximately 35 years, 4 of which cover 20 years), and the spatial resolutions of the satellite-derived data range from 30 m to 500 m. The THQBCA dataset is expected to advance research on forecasting and early warning of cyanobacterial blooms, and to support science-based management decisions for sustainable ecological development.</p>",
+      "access_right": "open",
+      "creators": [
+        {
+          "name": "Xue, Kun",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Ma, Ronghua",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Zhu, Guangwei",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Hu, Minqi",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Cao, Zhigang",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Xiong, Junfeng",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Zhang, Yibo",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Xu, Jinduo",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Huang, Zehui",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        },
+        {
+          "name": "Wu, Yiqiu",
+          "affiliation": "Nanjing Institute of Geography and Limnology"
+        }
+      ],
+      "keywords": [
+        "Lake Taihu",
+        "Cyanobacterial blooms",
+        "Water quality",
+        "Bio-optics",
+        "human activities",
+        "climate"
+      ],
+      "dates": [
+        {
+          "type": "created"
+        }
+      ],
+      "version": "V2",
+      "language": "eng",
+      "resource_type": {
+        "title": "Dataset",
+        "type": "dataset"
+      },
+      "license": {
+        "id": "cc-by-4.0"
+      },
+      "relations": {
+        "version": [
+          {
+            "index": 1,
+            "is_last": true,
+            "parent": {
+              "pid_type": "recid",
+              "pid_value": "11044482"
+            }
+          }
+        ]
+      }
+    },
+    "title": "A comprehensive time-series dataset linked to cyanobacterial blooms in Lake Taihu",
+    "links": {
+      "self": "https://zenodo.org/api/records/13917285",
+      "self_html": "https://zenodo.org/records/13917285",
+      "preview_html": "https://zenodo.org/records/13917285?preview=1",
+      "doi": "https://doi.org/10.5281/zenodo.13917285",
+      "self_doi": "https://doi.org/10.5281/zenodo.13917285",
+      "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.13917285",
+      "reserve_doi": "https://zenodo.org/api/records/13917285/draft/pids/doi",
+      "parent": "https://zenodo.org/api/records/11044482",
+      "parent_html": "https://zenodo.org/records/11044482",
+      "parent_doi": "https://doi.org/10.5281/zenodo.11044482",
+      "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.11044482",
+      "self_iiif_manifest": "https://zenodo.org/api/iiif/record:13917285/manifest",
+      "self_iiif_sequence": "https://zenodo.org/api/iiif/record:13917285/sequence/default",
+      "files": "https://zenodo.org/api/records/13917285/files",
+      "media_files": "https://zenodo.org/api/records/13917285/media-files",
+      "archive": "https://zenodo.org/api/records/13917285/files-archive",
+      "archive_media": "https://zenodo.org/api/records/13917285/media-files-archive",
+      "latest": "https://zenodo.org/api/records/13917285/versions/latest",
+      "latest_html": "https://zenodo.org/records/13917285/latest",
+      "versions": "https://zenodo.org/api/records/13917285/versions",
+      "draft": "https://zenodo.org/api/records/13917285/draft",
+      "access_links": "https://zenodo.org/api/records/13917285/access/links",
+      "access_grants": "https://zenodo.org/api/records/13917285/access/grants",
+      "access_users": "https://zenodo.org/api/records/13917285/access/users",
+      "access_request": "https://zenodo.org/api/records/13917285/access/request",
+      "access": "https://zenodo.org/api/records/13917285/access",
+      "communities": "https://zenodo.org/api/records/13917285/communities",
+      "communities-suggestions": "https://zenodo.org/api/records/13917285/communities-suggestions",
+      "request_deletion": "https://zenodo.org/api/records/13917285/request-deletion",
+      "file_modification": "https://zenodo.org/api/records/13917285/file-modification",
+      "quota_increase": "https://zenodo.org/api/records/13917285/quota-increase",
+      "requests": "https://zenodo.org/api/records/13917285/requests"
+    },
+    "updated": "2024-10-11T03:36:28.589149+00:00",
+    "recid": "13917285",
+    "revision": 4,
+    "files": [
+      {
+        "id": "70fd2e7f-d423-4868-b3e0-f0bb02d988b5",
+        "key": "THQBCA-V2.rar",
+        "size": 924743430,
+        "checksum": "md5:9fb11bd2ecb80470abfd33d54bdc9fa3",
+        "links": {
+          "self": "https://zenodo.org/api/records/13917285/files/THQBCA-V2.rar/content"
+        }
+      }
+    ],
+    "swh": {},
+    "owners": [
+      {
+        "id": "1101082"
+      }
+    ],
+    "status": "published",
+    "stats": {
+      "downloads": 822,
+      "unique_downloads": 539,
+      "views": 1153,
+      "unique_views": 1041,
+      "version_downloads": 800,
+      "version_unique_downloads": 517,
+      "version_unique_views": 901,
+      "version_views": 1002
+    },
+    "state": "done",
+    "submitted": true
+  }
+}

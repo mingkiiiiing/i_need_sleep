@@ -1,0 +1,156 @@
+version: "0.1.0"
+verified_at: "2026-08-18"
+study_area: "Taihu Lake"
+
+sources:
+  - source_id: copernicus_sentinel2_stac
+    name: Copernicus Sentinel-2 L2A STAC catalog
+    category: remote_sensing
+    authority: European Commission / Copernicus Data Space Ecosystem
+    access_mode: public_catalog_with_product_access_control
+    realtime_level: periodic_revisit
+    endpoint: https://catalogue.dataspace.copernicus.eu/stac/search
+    method: GET
+    authentication: catalog_query_verified_without_token_product_download_may_require_oauth
+    sample_request: >-
+      ?collections=sentinel-2-l2a&bbox=119.9,30.9,120.7,31.5&datetime=2025-06-01T00:00:00Z/2025-06-30T23:59:59Z&limit=1
+    sample_scene_id: S2A_MSIL2A_20250628T024141_N0511_R089_T51RTQ_20250628T074719
+    sample_scene_time: "2025-06-28T02:41:41Z"
+    sample_cloud_percent: 15.366124
+    sample_metadata_missing_rate: 0.0
+    sample_assets: [B04_10m, B05_20m, B08_10m, SCL_20m, Product]
+    mapped_variables: [scene_id, acquisition_at, band_b04_reflectance, band_b05_reflectance, band_b08_reflectance, scene_classification, cloud_probability, water_mask, fai, remote_chlorophyll_a, remote_bloom_area_km2]
+    verified_result: http_200_geojson_one_feature
+    limitations: [catalog_query_is_verified, direct_product_asset_requires_separate_download_test, cloud_and_valid_pixel_fraction_must_be_calculated]
+    license_risk: inspect_copernicus_terms_before_redistribution
+    fallback: [sentinel3_olci, landsat_c2_l2]
+
+  - source_id: nasa_power_hourly
+    name: NASA POWER hourly point meteorology
+    category: meteorology
+    authority: NASA Langley Research Center POWER project
+    access_mode: public_json_api
+    realtime_level: delayed_analysis_not_nowcast
+    endpoint: https://power.larc.nasa.gov/api/temporal/hourly/point
+    method: GET
+    authentication: none_for_test_endpoint
+    sample_request: >-
+      ?parameters=T2M,WS10M,WD10M,PRECTOTCORR,ALLSKY_SFC_SW_DWN&community=RE&longitude=120.30&latitude=31.20&start=20240601&end=20240602&format=JSON
+    sample_location: "120.30E, 31.20N"
+    sample_fields: [T2M, WS10M, WD10M, PRECTOTCORR, ALLSKY_SFC_SW_DWN]
+    sample_units: {T2M: degC, WS10M: m/s, WD10M: degree, PRECTOTCORR: mm/day, ALLSKY_SFC_SW_DWN: Wh/m2}
+    sample_window: "2024-06-01 00:00 through 2024-06-02 23:00 LST, 48 hourly records"
+    sample_values: {T2M_2024060100: 18.77, WS10M_2024060100: 2.31, WD10M_2024060100: 211.9, PRECTOTCORR_2024060100: 0.09, ALLSKY_SFC_SW_DWN_2024060100: 0}
+    sample_missing_rate: 0.0
+    mapped_variables: [air_temperature, wind_speed, wind_direction, precipitation, shortwave_radiation]
+    verified_result: http_200_json
+    limitations: [not_a_lake_water_temperature_sensor, spatial_point_or_grid_interpolation_required, product_latency_must_be_recorded]
+    license_risk: check_nasa_power_terms_and_attribution
+    fallback: [cma_cldas, era5_land_cds]
+
+  - source_id: taihu_thqbca_zenodo
+    name: THQBCA Taihu historical time-series dataset
+    category: water_quality_and_historical_reference
+    authority: Nanjing Institute of Geography and Limnology, Chinese Academy of Sciences / Zenodo
+    access_mode: public_record_and_file_download
+    realtime_level: historical_static
+    endpoint: https://zenodo.org/api/records/13917285
+    method: GET
+    authentication: none_for_metadata_and_file_test
+    sample_request: "https://zenodo.org/api/records/13917285"
+    sample_title: A comprehensive time-series dataset linked to cyanobacterial blooms in Lake Taihu
+    sample_doi: 10.5281/zenodo.13917285
+    sample_file: THQBCA-V2.rar
+    sample_file_size_bytes: 924743430
+    sample_checksum: md5:9fb11bd2ecb80470abfd33d54bdc9fa3
+    sample_missing_rate: null
+    file_download: https://zenodo.org/api/records/13917285/files/THQBCA-V2.rar/content
+    mapped_variables: [pH, dissolved_oxygen, cod_mn, total_phosphorus, phosphate_phosphorus, total_nitrogen, ammonia_nitrogen, nitrate_nitrogen, nitrite_nitrogen, chlorophyll_a, algae_density, water_level, air_temperature, wind_speed, wind_direction, precipitation, secchi_depth, remote_bloom_area_km2]
+    verified_result: http_200_json_metadata_file_link_verified
+    limitations: [large_download, historical_not_realtime, xlsx_and_tiff_need_local_parsing, license_and_redistribution_must_follow_zenodo_record]
+    license_risk: inspect_record_license_before_packaging_dataset
+    fallback: [project_owner_water_quality_sample,_public_environmental_monitoring_portal]
+
+  - source_id: open_meteo_forecast
+    name: Open-Meteo hourly forecast fallback
+    category: meteorology_forecast
+    authority: Open-Meteo service aggregating numerical weather models
+    access_mode: public_json_api_without_key
+    realtime_level: near_real_time_forecast
+    endpoint: https://api.open-meteo.com/v1/forecast
+    method: GET
+    authentication: none_for_public_endpoint
+    sample_request: >-
+      ?latitude=31.20&longitude=120.30&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation,shortwave_radiation&forecast_days=7&wind_speed_unit=ms&precipitation_unit=mm&timezone=UTC
+    sample_fields: [temperature_2m, wind_speed_10m, wind_direction_10m, precipitation, shortwave_radiation]
+    mapped_variables: [air_temperature, wind_speed, wind_direction, precipitation, shortwave_radiation]
+    verified_result: http_200_json_72_hours_actual_run
+    limitations: [forecast_proxy_not_water_temperature, model_provider_and_run_must_be_recorded, rate_limits_and_terms_must_be_checked]
+    license_risk: confirm_open_meteo_attribution_and_reuse_terms
+    fallback: [cma_cldas, nasa_power_hourly]
+
+  - source_id: mee_water_station_protocol
+    name: MEE surface-water automatic station protocol adapter
+    category: water_quality_automatic_station
+    authority: Ministry of Ecology and Environment of the People's Republic of China
+    access_mode: protocol_compatible_user_supplied_endpoint_or_file
+    realtime_level: depends_on_station_gateway
+    endpoint: https://www.mee.gov.cn/ywgz/fgbz/bz/bzwb/jcffbz/202501/t20250126_1101554.shtml
+    method: JSON_CSV_XLSX_or_authenticated_gateway
+    authentication: endpoint_or_gateway_credentials_required
+    sample_request: null
+    mapped_variables: [chlorophyll_a, algae_density, water_temperature, total_nitrogen, total_phosphorus, pH, dissolved_oxygen, ammonia_nitrogen, cod_mn, water_level, flow_velocity]
+    protocol_codes: {chlorophyll_a: w01016, algae_density: w19011, water_temperature: e01001}
+    verified_result: protocol_fields_and_units_verified_endpoint_pending
+    limitations: [no_anonymous_taihu_realtime_endpoint_verified, station_gateway_authentication_required, station_datum_and_quality_flags_must_be_preserved]
+    license_risk: confirm_station_data_sharing_and_reuse_permission
+    fallback: [project_owner_buoy_gateway, local_station_export_file]
+
+  - source_id: cma_cldas
+    name: CMA CLDAS-V3.0 land surface analysis product
+    category: meteorology
+    authority: China Meteorological Administration National Meteorological Information Centre
+    access_mode: official_product_page_account_or_service_access_pending
+    realtime_level: near_real_time_product_line
+    endpoint: https://k.data.cma.cn/mekb/?id=42651&r=site%2Farticle
+    method: official_page_then_authenticated_download_to_be_verified
+    authentication: account_or_data_service_permission_expected
+    sample_request: null
+    mapped_variables: [air_temperature, relative_humidity, wind_speed, wind_direction, precipitation, shortwave_radiation]
+    verified_result: official_product_description_only
+    limitations: [no_anonymous_machine_download_verified_in_this_run, access_terms_and_product_code_pending]
+    license_risk: confirm_research_competition_and_commercial_permissions
+    fallback: [nasa_power_hourly, era5_land_cds]
+
+  - source_id: tba_taihu_portal
+    name: Taihu Basin Authority official portal
+    category: hydrology
+    authority: Ministry of Water Resources Taihu Basin Authority
+    access_mode: official_html_portal_api_pending
+    realtime_level: portal_current_values
+    endpoint: https://www.tba.gov.cn/
+    method: GET
+    authentication: public_page_observed_api_not_verified
+    sample_request: "https://www.tba.gov.cn/"
+    sample_observation: "页面展示太湖水位3.01及流域站点水位示例，页面HTTP 200"
+    mapped_variables: [water_level, inflow_discharge, outflow_discharge, flow_velocity]
+    verified_result: http_200_html_current_page_only
+    limitations: [html_display_is_not_a_stable_data_interface, historical_download_and_machine_endpoint_pending, station_definition_and_datum_pending]
+    license_risk: confirm_data_consultation_and_reuse_terms
+    fallback: [project_owner_hydrology_data, water_level_balance_estimate_with_flag]
+
+  - source_id: niglas_lake_geodata
+    name: NIGLAS/NESDC Lake-Watershed Taihu data center
+    category: taihu_water_quality_remote_sensing_reference
+    authority: National Earth System Science Data Center, Lake-Watershed Science Data Center / Nanjing Institute of Geography and Limnology, CAS
+    access_mode: public_metadata_with_sample_or_order_access
+    realtime_level: historical_and_periodic_products
+    endpoint: https://lake.geodata.cn/feature.html
+    method: HTML_metadata_probe_then_platform_order_or_authorized_download
+    authentication: public_metadata; login_or_order_for_sample_and_full_data
+    sample_request: https://lake.geodata.cn/feature.html
+    mapped_variables: [chlorophyll_a, algae_density, water_temperature, remote_bloom_area_km2, bloom_flag, air_temperature, wind_speed, water_quality_reference]
+    verified_result: http_200_metadata_pages_actual_probe
+    limitations: [metadata_page_is_not_a_machine_data_api, sample_and_full_download_requires_platform_access_review, reuse_requires_attribution_and_written_permission, realtime_station_values_not_verified]
+    license_risk: high_until_platform_order_and_reuse_terms_are_approved
+    fallback: [copernicus_sentinel2_stac, mee_water_station_protocol, taihu_thqbca_zenodo]

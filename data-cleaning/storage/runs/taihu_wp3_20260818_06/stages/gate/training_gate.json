@@ -1,0 +1,78 @@
+{
+  "gate_status": "blocked",
+  "required_check_count": 7,
+  "passed_required_check_count": 3,
+  "blocked_check_count": 4,
+  "reasons": [
+    "历史目标和必需驱动覆盖门禁",
+    "最新数据新鲜度和频率门禁",
+    "horizon_1_3d未来标签可用率",
+    "horizon_7_15d未来标签可用率"
+  ],
+  "checks": [
+    {
+      "check_name": "coverage_historical",
+      "status": "blocked",
+      "required": true,
+      "observed_value": false,
+      "threshold": true,
+      "reason": "历史目标和必需驱动覆盖门禁"
+    },
+    {
+      "check_name": "coverage_operational",
+      "status": "blocked",
+      "required": true,
+      "observed_value": false,
+      "threshold": true,
+      "reason": "最新数据新鲜度和频率门禁"
+    },
+    {
+      "check_name": "labels_horizon_1_3d",
+      "status": "blocked",
+      "required": true,
+      "observed_value": 0.0,
+      "threshold": 0.5,
+      "reason": "horizon_1_3d未来标签可用率"
+    },
+    {
+      "check_name": "labels_horizon_7_15d",
+      "status": "blocked",
+      "required": true,
+      "observed_value": 0.0,
+      "threshold": 0.5,
+      "reason": "horizon_7_15d未来标签可用率"
+    },
+    {
+      "check_name": "split_duplicate_keys",
+      "status": "passed",
+      "required": true,
+      "observed_value": 0,
+      "threshold": 0,
+      "reason": "目标键不得跨样本重复"
+    },
+    {
+      "check_name": "split_time_order",
+      "status": "passed",
+      "required": true,
+      "observed_value": true,
+      "threshold": true,
+      "reason": "时间切分必须保持时间顺序"
+    },
+    {
+      "check_name": "feature_missing_rate",
+      "status": "passed",
+      "required": true,
+      "observed_value": 0.25133689839572193,
+      "threshold": 0.4,
+      "reason": "训练/验证/测试特征缺失率上限"
+    }
+  ],
+  "thresholds": {
+    "required_horizons": [
+      "horizon_1_3d",
+      "horizon_7_15d"
+    ],
+    "min_label_availability": 0.5,
+    "max_missing_feature_rate": 0.4
+  }
+}

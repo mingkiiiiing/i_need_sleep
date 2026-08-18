@@ -1,0 +1,27 @@
+{
+  "run_id": "taihu_wp3_20260818_05_quality_report",
+  "status": "completed",
+  "input": "storage\\runs\\taihu_wp3_20260818_05\\stages\\cleaning\\cleaned_observations.csv",
+  "files": {
+    "quality_report": "storage\\runs\\taihu_wp3_20260818_05\\stages\\quality\\quality_report.csv",
+    "overall": "storage\\runs\\taihu_wp3_20260818_05\\stages\\quality\\quality_report_overall.json",
+    "database": "storage\\runs\\taihu_wp3_20260818_05\\data_cleaning.db"
+  },
+  "overall": {
+    "cleaned_rows": 80899,
+    "variable_groups": 35,
+    "sources": 4,
+    "rejected_rows": 911,
+    "pending_imputation_rows": 2958,
+    "issue_rows": 3869,
+    "duplicate_key_rows": 0,
+    "available_groups": 5,
+    "low_frequency_groups": 11,
+    "stale_groups": 21,
+    "missing_groups": 0,
+    "issue_only_groups": 9,
+    "as_of": "2026-08-18T00:00:00+00:00",
+    "max_staleness_days": 30.0,
+    "low_frequency_hours": 24.0
+  }
+}

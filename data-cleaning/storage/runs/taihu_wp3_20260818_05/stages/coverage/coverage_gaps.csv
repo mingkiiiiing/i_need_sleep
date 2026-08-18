@@ -1,0 +1,7 @@
+﻿variable_code,role,priority,status,gap,recommended_action
+chlorophyll_a,target,P0,missing,no standard observation rows,接入高频浮标/自动站或授权的官方实时接口
+algae_density,target,P0,low_frequency,median interval 8760.0h exceeds 72.0h,接入高频浮标/自动站或授权的官方实时接口
+bloom_area_km2,target,P0,missing,no standard observation rows,接入高频浮标/自动站或授权的官方实时接口
+water_temperature,driver,P0,missing,no standard observation rows,接入小时级水文气象或数值预报驱动
+total_nitrogen,driver,P0,low_frequency,median interval 2208.0h exceeds 72.0h,接入小时级水文气象或数值预报驱动
+total_phosphorus,driver,P0,low_frequency,median interval 2208.0h exceeds 72.0h,接入小时级水文气象或数值预报驱动
