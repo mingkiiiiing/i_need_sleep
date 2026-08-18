@@ -1,0 +1,28 @@
+{
+  "run_id": "resample_20260818T101038Z",
+  "status": "completed_with_gap_masks",
+  "input": "storage\\exports\\cleaning_20260818T095733Z\\cleaned_observations.csv",
+  "input_rows": 80539,
+  "resampled_rows": 80539,
+  "gap_rows": 3368,
+  "granularity_counts": {
+    "overpass": 2,
+    "hourly": 240,
+    "quarterly": 5760,
+    "annual": 16,
+    "daily": 74521
+  },
+  "timezone": "Asia/Shanghai for daily buckets; UTC for storage",
+  "rules": {
+    "precipitation": "sum",
+    "wind_direction": "circular_mean",
+    "other_numeric": "mean",
+    "low_frequency": "native_only_no_upsampling",
+    "missing_buckets": "separate resample_gaps.csv with Q01+Q22"
+  },
+  "files": {
+    "resampled_observations": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\resample_20260818T101038Z\\resampled_observations.csv",
+    "resample_gaps": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\resample_20260818T101038Z\\resample_gaps.csv",
+    "database": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\data_cleaning.db"
+  }
+}

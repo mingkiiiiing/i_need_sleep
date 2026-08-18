@@ -1,0 +1,127 @@
+{
+  "verified_at": "2026-08-18T09:05:50.469650+00:00",
+  "checks": [
+    {
+      "source_id": "copernicus_sentinel2_stac",
+      "url": "https://catalogue.dataspace.copernicus.eu/stac/search?collections=sentinel-2-l2a&bbox=119.9%2C30.9%2C120.7%2C31.5&datetime=2025-06-01T00%3A00%3A00Z%2F2025-06-30T23%3A59%3A59Z&limit=1",
+      "status": "verified",
+      "http_status": 200,
+      "content_type": "application/geo+json",
+      "sample": {
+        "feature_count": 1,
+        "scene_id": "S2A_MSIL2A_20250628T024141_N0511_R089_T51RTQ_20250628T074719",
+        "datetime": "2025-06-28T02:41:41.024Z",
+        "cloud_cover": 15.366124,
+        "assets": [
+          "AOT_10m",
+          "AOT_20m",
+          "AOT_60m",
+          "B01_20m",
+          "B01_60m",
+          "B02_10m",
+          "B02_20m",
+          "B02_60m",
+          "B03_10m",
+          "B03_20m",
+          "B03_60m",
+          "B04_10m",
+          "B04_20m",
+          "B04_60m",
+          "B05_20m",
+          "B05_60m",
+          "B06_20m",
+          "B06_60m",
+          "B07_20m",
+          "B07_60m",
+          "B08_10m",
+          "B09_60m",
+          "B11_20m",
+          "B11_60m",
+          "B12_20m",
+          "B12_60m",
+          "B8A_20m",
+          "B8A_60m",
+          "Product",
+          "SCL_20m",
+          "SCL_60m",
+          "TCI_10m",
+          "TCI_20m",
+          "TCI_60m",
+          "WVP_10m",
+          "WVP_20m",
+          "WVP_60m",
+          "datastrip_metadata",
+          "granule_metadata",
+          "inspire_metadata",
+          "product_metadata",
+          "safe_manifest",
+          "thumbnail"
+        ],
+        "metadata_missing_rate": {
+          "scene_id": 0.0,
+          "datetime": 0.0,
+          "eo:cloud_cover": 0.0
+        }
+      },
+      "error": null
+    },
+    {
+      "source_id": "nasa_power_hourly",
+      "url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M%2CWS10M%2CWD10M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN&community=RE&longitude=120.30&latitude=31.20&start=20240601&end=20240602&format=JSON",
+      "status": "verified",
+      "http_status": 200,
+      "content_type": "application/json",
+      "sample": {
+        "location": [
+          120.3,
+          31.2,
+          29.15
+        ],
+        "parameters": [
+          "ALLSKY_SFC_SW_DWN",
+          "PRECTOTCORR",
+          "T2M",
+          "WD10M",
+          "WS10M"
+        ],
+        "record_count": 48,
+        "first_time": "2024060100",
+        "first_values": {
+          "ALLSKY_SFC_SW_DWN": 0.0,
+          "PRECTOTCORR": 0.09,
+          "T2M": 18.77,
+          "WD10M": 211.9,
+          "WS10M": 2.31
+        },
+        "missing_rates": {
+          "T2M": 0.0,
+          "WS10M": 0.0,
+          "WD10M": 0.0,
+          "PRECTOTCORR": 0.0,
+          "ALLSKY_SFC_SW_DWN": 0.0
+        }
+      },
+      "error": null
+    },
+    {
+      "source_id": "taihu_thqbca_zenodo",
+      "url": "https://zenodo.org/api/records/13917285",
+      "status": "verified",
+      "http_status": 200,
+      "content_type": "application/json",
+      "sample": {
+        "title": "A comprehensive time-series dataset linked to cyanobacterial blooms in Lake Taihu",
+        "doi": "10.5281/zenodo.13917285",
+        "files": [
+          {
+            "key": "THQBCA-V2.rar",
+            "size": 924743430,
+            "checksum": "md5:9fb11bd2ecb80470abfd33d54bdc9fa3",
+            "download": "https://zenodo.org/api/records/13917285/files/THQBCA-V2.rar/content"
+          }
+        ]
+      },
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+storage/raw/
+storage/bronze/
+storage/silver/
+storage/gold/
+storage/exports/
+storage/staging/
+storage/data_cleaning.db
+storage/*.db

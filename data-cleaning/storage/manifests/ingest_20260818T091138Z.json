@@ -1,0 +1,88 @@
+{
+  "run_id": "ingest_20260818T091138Z",
+  "results": [
+    {
+      "source_id": "copernicus_sentinel2_stac",
+      "status": "ingested",
+      "request_url": "https://catalogue.dataspace.copernicus.eu/stac/search?collections=sentinel-2-l2a&bbox=119.9%2C30.9%2C120.7%2C31.5&datetime=2025-06-01T00%3A00%3A00Z%2F2025-06-02T23%3A59%3A59Z&limit=100",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\copernicus_sentinel2_stac\\20260818T091134Z.json",
+      "records": 2,
+      "retrieved_at": "2026-08-18T09:11:32.610404+00:00",
+      "error": null,
+      "metadata": {
+        "scene_ids": [
+          "S2B_MSIL2A_20250601T023529_N0511_R089_T51RTQ_20250601T043959",
+          "S2B_MSIL2A_20250601T023529_N0511_R089_T50RQV_20250601T043959"
+        ],
+        "bbox": "119.9,30.9,120.7,31.5",
+        "start": "2025-06-01",
+        "end": "2025-06-02"
+      }
+    },
+    {
+      "source_id": "nasa_power_hourly",
+      "status": "ingested",
+      "request_url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M%2CWS10M%2CWD10M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN&community=RE&longitude=120.300000&latitude=31.200000&start=20250601&end=20250602&format=JSON",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\nasa_power_hourly\\20260818T091136Z.json",
+      "records": 48,
+      "retrieved_at": "2026-08-18T09:11:34.794226+00:00",
+      "error": null,
+      "metadata": {
+        "longitude": 120.3,
+        "latitude": 31.2,
+        "parameters": [
+          "ALLSKY_SFC_SW_DWN",
+          "PRECTOTCORR",
+          "T2M",
+          "WD10M",
+          "WS10M"
+        ],
+        "units": {
+          "T2M": {
+            "units": "C",
+            "longname": "Temperature at 2 Meters"
+          },
+          "WS10M": {
+            "units": "m/s",
+            "longname": "Wind Speed at 10 Meters"
+          },
+          "WD10M": {
+            "units": "Degrees",
+            "longname": "Wind Direction at 10 Meters"
+          },
+          "PRECTOTCORR": {
+            "units": "mm/day",
+            "longname": "Precipitation Corrected"
+          },
+          "ALLSKY_SFC_SW_DWN": {
+            "units": "Wh/m^2",
+            "longname": "All Sky Surface Shortwave Downward Irradiance"
+          }
+        },
+        "time_standard": "LST"
+      }
+    },
+    {
+      "source_id": "taihu_thqbca_zenodo",
+      "status": "metadata_ingested",
+      "request_url": "https://zenodo.org/api/records/13917285",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\taihu_thqbca_zenodo\\20260818T091138Z.json",
+      "records": 1,
+      "retrieved_at": "2026-08-18T09:11:36.461376+00:00",
+      "error": null,
+      "metadata": {
+        "title": "A comprehensive time-series dataset linked to cyanobacterial blooms in Lake Taihu",
+        "doi": "10.5281/zenodo.13917285",
+        "files": [
+          {
+            "key": "THQBCA-V2.rar",
+            "size": 924743430,
+            "checksum": "md5:9fb11bd2ecb80470abfd33d54bdc9fa3",
+            "download": "https://zenodo.org/api/records/13917285/files/THQBCA-V2.rar/content"
+          }
+        ],
+        "archive_downloaded": false
+      }
+    }
+  ]
+}
