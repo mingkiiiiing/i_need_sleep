@@ -1,0 +1,24 @@
+{
+  "task_id": "P04-02",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-19T00:00:00Z",
+  "artifacts": [
+    "pipeline/sources/thqbca_data.py",
+    "pipeline/sources/thqbca_remote.py",
+    "pipeline/cli.py",
+    "tests/test_thqbca_data.py",
+    "tests/test_thqbca_remote.py",
+    "storage/raw/taihu_thqbca_parsed/thqbca_observations.csv",
+    "storage/raw/taihu_thqbca_parsed/thqbca_remote_product_index.csv",
+    "storage/manifests/thqbca_parse.json",
+    "storage/manifests/thqbca_remote_product_index.json",
+    "storage/reports/p04_02_directed_validation.json",
+    "storage/reports/p04_02_pytest.txt"
+  ],
+  "quality_gate": {
+    "directed_tests": "2 passed",
+    "full_pytest": "114 passed",
+    "next_task_remains_unstarted": "P04-03 is TODO"
+  },
+  "limitation": "Remote raster members are indexed with provenance only; pixel extraction and spatial statistics remain a later remote-sensing task."
+}

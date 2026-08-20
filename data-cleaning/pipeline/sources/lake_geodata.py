@@ -8,6 +8,7 @@ from html import unescape
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from ..provenance import build_asset_manifest, manifest_root, write_asset_manifest
 from .common import RAW_ROOT, utc_now
 
 
@@ -75,9 +76,21 @@ def probe_lake_geodata_sources(output_root: Path | None = None, database: Path |
             raw_path = raw_dir / f"{stamp}_{source_id}.html"
             raw_path.write_bytes(body)
             html = body.decode("utf-8", errors="replace")
-            record.update({"http_status": status, "content_type": content_type, "raw_path": str(raw_path), "access_status": "metadata_verified_order_or_login_required", "summary": summarize_lake_geodata_html(html)})
+            asset_manifest = build_asset_manifest(
+                source_id=source_id,
+                asset_id=raw_path.stem,
+                request_url=url,
+                local_path=raw_path,
+                retrieved_at_utc=record["retrieved_at"],
+                http_status=status,
+                response_headers={"Content-Type": content_type},
+                status="completed" if status == 200 else "failed",
+            )
+            asset_manifest_path = manifest_root(root) / f"raw_{source_id}_{stamp}.json"
+            write_asset_manifest(asset_manifest, asset_manifest_path)
+            record.update({"http_status": status, "content_type": content_type, "raw_path": str(raw_path), "asset_manifest": str(asset_manifest_path), "access_status": "metadata_verified_order_or_login_required", "summary": summarize_lake_geodata_html(html)})
         except Exception as exc:
-            record.update({"http_status": None, "content_type": None, "raw_path": None, "access_status": "probe_failed", "error": str(exc), "summary": {}})
+            record.update({"http_status": None, "content_type": None, "raw_path": None, "asset_manifest": None, "access_status": "probe_failed", "error": str(exc), "summary": {}})
         results.append(record)
 
     manifest = {

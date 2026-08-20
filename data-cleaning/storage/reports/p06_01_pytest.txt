@@ -1,0 +1,5 @@
+Directed: pytest -q tests/test_copernicus_stac.py tests/test_config_sources.py
+Result: 4 passed in 0.38s
+
+Full suite: pytest -q
+Result: 151 passed in 28.06s

@@ -1,0 +1,24 @@
+{
+  "task_id": "P06-01",
+  "status": "PASS",
+  "adapter_checks": [
+    "uses https://stac.dataspace.copernicus.eu/v1/search",
+    "validates Taihu WGS84 bbox and datetime interval",
+    "preserves collection, scene_id, acquisition time, cloud percentage and asset href descriptors",
+    "retains raw GeoJSON response and ingestion manifest"
+  ],
+  "directed_tests": "4 passed",
+  "full_pytest": "151 passed",
+  "real_query": {
+    "collection": "sentinel-2-l2a",
+    "bbox": [119.9, 30.9, 120.7, 31.5],
+    "start": "2025-06-01",
+    "end": "2025-06-30",
+    "http_status": 200,
+    "scenes": 16,
+    "assets": 688,
+    "first_scene_id": "S2A_MSIL2A_20250628T024141_N0511_R089_T51RTQ_20250628T074719",
+    "first_scene_cloud_percent": 15.366124
+  },
+  "data_truth": "real CDSE STAC v1 GeoJSON response"
+}

@@ -51,8 +51,8 @@ def _time(row: dict[str, Any]) -> datetime | None:
         result = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         return None
-    if result.tzinfo is None:
-        result = result.replace(tzinfo=UTC)
+    if result.tzinfo is None or result.utcoffset() is None:
+        return None
     return result.astimezone(UTC)
 
 
@@ -131,7 +131,21 @@ def validate_station_rows(rows: list[dict[str, Any]], *, max_median_interval_hou
         seen.add(key)
         if issues:
             counts.update(issues)
-            issue_rows.append({"source_row": row.get("source_row") or str(index), "station_id": station, "variable_code": variable, "observed_at": timestamp.isoformat() if timestamp else None, "issues": ",".join(issues), "quality_flags": json.dumps(row.get("quality_flags") or [], ensure_ascii=False)})
+            issue_rows.append(
+                {
+                    "source_file": row.get("source_file"),
+                    "source_row": row.get("source_row") or str(index),
+                    "station_id": station,
+                    "variable_code": variable,
+                    "observed_at": timestamp.isoformat() if timestamp else None,
+                    "longitude": row.get("longitude"),
+                    "latitude": row.get("latitude"),
+                    "unit": row.get("unit"),
+                    "observed_value": row.get("observed_value"),
+                    "issues": ",".join(issues),
+                    "quality_flags": json.dumps(row.get("quality_flags") or [], ensure_ascii=False),
+                }
+            )
         else:
             valid_rows.append(row)
     by_variable = Counter(_variable(row) for row in valid_rows)

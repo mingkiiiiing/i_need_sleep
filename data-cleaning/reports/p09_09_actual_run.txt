@@ -1,0 +1,87 @@
+{
+  "run_id": "p09_09_quality_report",
+  "status": "completed_with_warnings",
+  "input": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\cleaned_observations.csv",
+  "inputs": {
+    "normalized": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\normalized_observations.csv",
+    "cleaned": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\cleaned_observations.csv",
+    "rejected": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\rejected_records.csv",
+    "suspect": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\suspect_records.csv",
+    "pending_imputation": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\imputation_candidates.csv",
+    "pending_conflicts": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\pending_conflicts.csv",
+    "issues": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\qc_issues.csv",
+    "duplicate_audit": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\duplicate_audit.csv"
+  },
+  "files": {
+    "quality_report": "storage\\runs\\p09_09_quality_report\\report\\quality_report.csv",
+    "overall": "storage\\runs\\p09_09_quality_report\\report\\quality_report_overall.json",
+    "database": "storage\\runs\\p09_09_quality_report\\quality_report.db"
+  },
+  "coverage": {
+    "copernicus_sentinel2_stac": {
+      "variable_groups": 1,
+      "input_rows": 2,
+      "cleaned_rows": 2,
+      "valid_value_rows": 2,
+      "missing_rate": 0.0
+    },
+    "nasa_power_hourly": {
+      "variable_groups": 5,
+      "input_rows": 43920,
+      "cleaned_rows": 43691,
+      "valid_value_rows": 43920,
+      "missing_rate": 0.0
+    }
+  },
+  "overall": {
+    "input_rows": 43922,
+    "raw_rows": 43922,
+    "cleaned_rows": 43693,
+    "suspect_rows": 229,
+    "variable_groups": 6,
+    "sources": 2,
+    "rejected_rows": 0,
+    "pending_imputation_rows": 0,
+    "pending_conflict_rows": 0,
+    "missing_value_rows": 0,
+    "missing_rate": 0.0,
+    "issue_rows": 229,
+    "anomaly_rows": 229,
+    "anomaly_rate": 0.005214,
+    "imputed_rows": 0,
+    "imputation_rate": 0.0,
+    "proxy_rows": 43920,
+    "proxy_rate": 0.999954,
+    "duplicate_key_rows": 0,
+    "exact_duplicates_removed": 0,
+    "conflict_audit_rows": 0,
+    "available_groups": 0,
+    "low_frequency_groups": 0,
+    "stale_groups": 6,
+    "missing_groups": 0,
+    "issue_only_groups": 0,
+    "source_coverage": {
+      "copernicus_sentinel2_stac": {
+        "variable_groups": 1,
+        "input_rows": 2,
+        "cleaned_rows": 2,
+        "valid_value_rows": 2,
+        "missing_rate": 0.0
+      },
+      "nasa_power_hourly": {
+        "variable_groups": 5,
+        "input_rows": 43920,
+        "cleaned_rows": 43691,
+        "valid_value_rows": 43920,
+        "missing_rate": 0.0
+      }
+    },
+    "freshness_status_counts": {
+      "stale": 6
+    },
+    "as_of": "2026-08-19T00:00:00+00:00",
+    "max_staleness_days": 30.0,
+    "low_frequency_hours": 24.0
+  },
+  "manifest": "storage\\runs\\p09_09_quality_report\\manifest.json"
+}

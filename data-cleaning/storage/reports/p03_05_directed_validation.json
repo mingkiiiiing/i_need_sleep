@@ -1,0 +1,19 @@
+{
+  "task_id": "P03-05",
+  "task": "建立大文件外部存储规则",
+  "result": "PASS",
+  "test_command": "python -m pytest -q tests/test_storage_contract.py",
+  "tests_passed": 2,
+  "deliverable": "docs/storage_contract.md",
+  "covered_types": ["raster", "GeoTIFF/COG", "GRIB", "NetCDF", "Parquet", "SAFE", "CSV/XLSX/JSON"],
+  "verified_rules": [
+    "large binary payloads remain outside SQLite",
+    "raw_assets records local_path/object URI and checksum_sha256",
+    "partial download and atomic publish are required",
+    "SQLite reference schema contains no BLOB columns"
+  ],
+  "notes": [
+    "The contract does not move or delete existing user files; it governs future ingestion and release paths.",
+    "Public/restricted redistribution remains controlled by the P01-07 license fields and authorization evidence."
+  ]
+}

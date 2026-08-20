@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "file_quarantine",
+  "status": "completed_with_issues",
+  "input_root": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw",
+  "report_path": "storage\\reports\\file_quarantine.csv",
+  "checked_at_utc": "2026-08-19T07:02:30Z",
+  "file_count": 243,
+  "issue_count": 161,
+  "duplicate_count": 158,
+  "issue_code_counts": {
+    "archive_check_unsupported": 1,
+    "duplicate_checksum": 158,
+    "schema_no_rows": 1,
+    "schema_row_width_mismatch": 1
+  },
+  "read_only": true
+}

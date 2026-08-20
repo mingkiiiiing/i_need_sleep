@@ -1,0 +1,28 @@
+{
+  "task_id": "P06-02",
+  "status": "BLOCKED_AUTH",
+  "implementation": [
+    "pipeline/sources/copernicus_assets.py",
+    "pipeline/sources/__init__.py",
+    "pipeline/cli.py",
+    "tests/test_copernicus_assets.py"
+  ],
+  "outputs": [
+    "storage/manifests/sentinel2_assets_p06_02.json",
+    "storage/reports/p06_02_directed_validation.json",
+    "storage/reports/p06_02_pytest.txt"
+  ],
+  "acceptance": {
+    "real_scene_covers_taihu": true,
+    "target_bands_planned": 8,
+    "product_archive_excluded": true,
+    "checksum_and_resume_logic": "shared download_asset plus offline injected-downloader tests",
+    "remote_bytes_downloaded": false,
+    "blocked_reason": "CDSE S3 credentials/token absent"
+  },
+  "tests": {
+    "directed": "11 passed in 0.46s",
+    "full": "156 passed in 23.40s"
+  },
+  "next_task": "P06-03 remains TODO; do not start until CDSE asset download is authorized or an approved local asset delivery is available"
+}

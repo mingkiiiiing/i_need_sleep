@@ -1,0 +1,21 @@
+{
+  "task_id": "P03-02",
+  "status": "DONE",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "pipeline/sources/common.py",
+    "tests/test_resumable_download.py",
+    "storage/reports/p03_02_directed_validation.json",
+    "storage/reports/p03_02_pytest.txt"
+  ],
+  "acceptance": {
+    "partial_file_resume": true,
+    "range_request": true,
+    "checksum_gate_before_rename": true,
+    "atomic_final_rename": true,
+    "same_asset_not_downloaded_twice": true
+  },
+  "next_task": "P03-03",
+  "next_task_status": "TODO",
+  "scope_note": "P03-03 SQLite schema migration work was not executed in this single-task round."
+}

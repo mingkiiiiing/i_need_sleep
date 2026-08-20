@@ -1,0 +1,26 @@
+{
+  "task_id": "P00-03",
+  "validated_at_utc": "2026-08-18T15:38:00Z",
+  "checks": {
+    "p00_01_done": true,
+    "p00_03_in_progress": true,
+    "only_one_active": true,
+    "inventory_exists": true,
+    "summary_exists": true,
+    "row_count_matches_summary": true,
+    "all_candidate_files_covered": true,
+    "truth_classes_valid": true,
+    "synthetic_not_training_eligible": true,
+    "sha256_complete": true,
+    "missing_fixture_root_recorded": true
+  },
+  "overall": true,
+  "inventory_rows": 292,
+  "truth_class_counts": {
+    "real_external": 181,
+    "official_metadata": 108,
+    "synthetic_fixture": 3,
+    "demo": 0
+  },
+  "next_task": "P00-04"
+}

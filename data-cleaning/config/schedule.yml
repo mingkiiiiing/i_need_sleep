@@ -1,0 +1,11 @@
+timezone: Asia/Shanghai
+jobs:
+  authorized_water_station: {interval_minutes: 30, enabled: false, reason: awaiting authorized endpoint/files}
+  public_hydrology: {interval_minutes: 60, enabled: true}
+  noaa_gfs: {cron: "25 0,6,12,18 * * *", enabled: true}
+  ecmwf_open_data: {cron: "45 0,6,12,18 * * *", enabled: true}
+  gpm_imerg: {interval_minutes: 180, enabled: true}
+  sentinel2_earth_search: {cron: "15 10 * * *", enabled: true}
+  sentinel3_olci: {cron: "45 10 * * *", enabled: false, reason: Earthdata token required}
+  open_meteo_seasonal: {cron: "30 11 * * *", enabled: true}
+  c3s_hindcast: {cron: "0 3 6 * *", enabled: false, reason: CDS account acceptance and API key required}

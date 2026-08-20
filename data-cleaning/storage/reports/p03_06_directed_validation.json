@@ -1,0 +1,17 @@
+{
+  "task_id": "P03-06",
+  "title": "建立 source_health 表和更新函数",
+  "executed_at_utc": "2026-08-19T00:00:00Z",
+  "command": "python -m pytest -q tests/test_source_health.py",
+  "result": "passed",
+  "tests_passed": 3,
+  "tests_failed": 0,
+  "verified": [
+    "success_rate is calculated per source across ingestion runs",
+    "last_success_at_utc and consecutive_failures are persisted",
+    "freshness status distinguishes fresh, stale and missing observations",
+    "field coverage and missing rate are persisted",
+    "row count, authorization status and error message are persisted",
+    "same source/run update is idempotent"
+  ]
+}

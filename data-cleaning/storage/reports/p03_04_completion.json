@@ -1,0 +1,22 @@
+{
+  "task_id": "P03-04",
+  "status": "DONE",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "pipeline/schema_reference.py",
+    "storage/databases/schema_reference.sqlite",
+    "tests/test_schema_reference.py",
+    "storage/reports/p03_04_directed_validation.json",
+    "storage/reports/p03_04_pytest.txt"
+  ],
+  "acceptance": {
+    "core_tables_created": true,
+    "primary_keys_present": true,
+    "unique_constraints_present": true,
+    "time_and_space_indexes_present": true,
+    "reference_database_generated": true
+  },
+  "next_task": "P03-05",
+  "next_task_status": "TODO",
+  "scope_note": "P03-05 external storage contract was not executed in this single-task round."
+}

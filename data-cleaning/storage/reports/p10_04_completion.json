@@ -1,0 +1,68 @@
+{
+  "task_id": "P10-04",
+  "phase": "P10",
+  "name": "低频营养盐处理",
+  "status": "completed",
+  "completed_at": "2026-08-19T09:51:56.0203652Z",
+  "implementation": {
+    "module": "pipeline/impute.py",
+    "function": "handle_low_frequency_nutrients",
+    "variables": [
+      "total_nitrogen",
+      "total_phosphorus",
+      "ammonia_nitrogen",
+      "nitrate_nitrogen",
+      "nitrite_nitrogen",
+      "phosphate_phosphorus",
+      "total_kjeldahl_nitrogen"
+    ],
+    "rules": [
+      "保留原生周/月/季度频率",
+      "不创建每日复制行",
+      "不覆盖 clean_value",
+      "输出 native_frequency 和 native_frequency_minutes",
+      "输出 data_age_hours/data_age_status",
+      "输出 latest_value 与 latest_value_age_hours",
+      "按行时间约束 feature_value，防止未来信息泄漏"
+    ],
+    "feature_fields": [
+      "feature_value",
+      "feature_value_observed_at",
+      "feature_value_age_hours",
+      "feature_value_semantics"
+    ]
+  },
+  "actual_controlled_run": {
+    "run_id": "p10_04_low_frequency_nutrients",
+    "input": "storage/runs/p09_08_dedup_conflict_qc/cleaning/normalized_observations.csv",
+    "input_rows": 43922,
+    "nutrient_row_count": 0,
+    "untouched_row_count": 43922,
+    "row_count_before": 43922,
+    "row_count_after": 43922,
+    "low_frequency_series": 0,
+    "native_frequency_preserved": true,
+    "data_truth": "real_external_normalized_observations_from_p09_08_controlled_batch",
+    "interpretation": "The controlled batch contains NASA POWER and Sentinel-2 variables but no nutrient rows; native-frequency and age behavior is covered by offline tests using weekly/monthly nutrient fixtures."
+  },
+  "outputs": {
+    "summary": "storage/runs/p10_04_low_frequency_nutrients/summary.json",
+    "processed_observations": "storage/runs/p10_04_low_frequency_nutrients/processed_observations.csv",
+    "latest_value_table": "storage/runs/p10_04_low_frequency_nutrients/low_frequency_latest_values.csv",
+    "actual_run_log": "reports/p10_04_actual_run.txt"
+  },
+  "verification": {
+    "directed_pytest": "29 passed in 3.73s",
+    "full_pytest": "235 passed, 2 warnings in 60.83s",
+    "directed_log": "reports/p10_04_directed_pytest.txt",
+    "full_log": "reports/p10_04_full_pytest.txt",
+    "test_file": "tests/test_low_frequency_nutrients.py"
+  },
+  "acceptance": [
+    "低频营养盐保持原生频率",
+    "未进行日频率扩展或静默复制",
+    "data_age 和 latest_value 可直接供后续特征工程使用",
+    "feature_value 只使用当前时刻以前的观测"
+  ],
+  "next_task": "P10-05"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "hydrobasins",
+  "asset_id": "hybas_as_lev08_v1c",
+  "request_url": "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_as_lev08_v1c.zip",
+  "local_path": "storage\\raw\\hydrobasins\\hybas_as_lev08_v1c.zip",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-19T05:05:07.163654+00:00",
+  "http_status": 200,
+  "response_headers": {},
+  "checksum_sha256": "878c56bb4253a7c86273dbf5babb0b7093d344f8448d71163b88605860074c16",
+  "size_bytes": 34308015,
+  "license": {
+    "license_tag": "HYDROSHEDS_LICENSE_WITH_ATTRIBUTION",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

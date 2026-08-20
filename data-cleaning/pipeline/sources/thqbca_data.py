@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
 
+from ..time_contract import LOCAL_ZONE_NAME, parse_time
 
 CN_TZ = timezone(timedelta(hours=8))
 UTC = timezone.utc
@@ -50,18 +52,29 @@ def _number(value: Any) -> float | None:
         return None
 
 
+def _slug(value: Any) -> str:
+    text = str(value or "").strip().casefold()
+    text = re.sub(r"[^a-z0-9]+", "_", text).strip("_")
+    return text or "unknown"
+
+
 def _row(
     *, source_file: Path, source_row: str, observed_at: str | None,
     station_id: str, variable_code: str, value: Any, unit: str,
     source_parameter: str, conversion_rule: str | None = None,
 ) -> dict[str, Any]:
     numeric = _number(value)
+    local_time = parse_time(observed_at)["local"] if observed_at else None
     return {
         "source_id": "taihu_thqbca_history",
         "source_file": str(source_file),
         "source_row": source_row,
         "station_id": station_id,
         "observed_at": observed_at,
+        "observed_at_utc": observed_at,
+        "observed_at_local": local_time,
+        "time_status": "accepted" if observed_at else "missing",
+        "source_timezone": LOCAL_ZONE_NAME,
         "variable_code": variable_code,
         "source_parameter": source_parameter,
         "observed_value": value,
@@ -108,17 +121,48 @@ def _water_quality_rows(path: Path) -> list[dict[str, Any]]:
             sheet = workbook[sheet_name]
             values = list(sheet.iter_rows(values_only=True))
             headers = list(values[0]) if values else []
-            cyanobacteria_index = next((i for i, header in enumerate(headers) if str(header).strip().casefold() == "cyanobacteria"), None)
-            if cyanobacteria_index is not None:
+            for taxon_index, header in enumerate(headers):
+                taxon = str(header or "").strip()
+                if taxon_index == 0 or not taxon or taxon.startswith("("):
+                    continue
+                variable_code = "algae_density" if taxon.casefold() == "cyanobacteria" else f"algae_density_{_slug(taxon)}"
                 for excel_row, data in enumerate(values[1:], start=2):
                     annual_time = _time(data[0] if data else None, annual=True)
-                    value = data[cyanobacteria_index] if cyanobacteria_index < len(data) else None
+                    value = data[taxon_index] if taxon_index < len(data) else None
                     rows.append(_row(
-                        source_file=path, source_row=f"{sheet_name}:{excel_row}:Cyanobacteria",
+                        source_file=path, source_row=f"{sheet_name}:{excel_row}:{taxon}",
                         observed_at=annual_time, station_id="TAIHU_WHOLE",
-                        variable_code="algae_density", value=value, unit="cells/L",
-                        source_parameter="Cyanobacteria",
-                        conversion_rule="annual aggregate; date anchored to Jan 1 Asia/Shanghai",
+                        variable_code=variable_code, value=value, unit="cells/L",
+                        source_parameter=taxon,
+                        conversion_rule="annual aggregate; date anchored to Jan 1 Asia/Shanghai; original taxon retained",
+                    ))
+
+        for sheet_name, variable_prefix, unit, source_unit in (
+            ("Zoo_biomass", "zooplankton_biomass", "mg/L", "mg/L"),
+            ("Zoo_number", "zooplankton_density", "ind/L", "ind./L"),
+        ):
+            if sheet_name not in workbook.sheetnames:
+                continue
+            sheet = workbook[sheet_name]
+            values = list(sheet.iter_rows(values_only=True))
+            headers = list(values[0]) if values else []
+            region_index = 1 if sheet_name == "Zoo_biomass" else None
+            for taxon_index, header in enumerate(headers):
+                taxon = str(header or "").strip()
+                if taxon_index == 0 or taxon_index == region_index or not taxon or taxon.startswith("("):
+                    continue
+                variable_code = f"{variable_prefix}_{_slug(taxon)}"
+                for excel_row, data in enumerate(values[1:], start=2):
+                    annual_time = _time(data[0] if data else None, annual=True)
+                    value = data[taxon_index] if taxon_index < len(data) else None
+                    region = str(data[region_index] if region_index is not None and region_index < len(data) else "Whole Lake").strip()
+                    station = "TAIHU_WHOLE" if region.casefold() == "whole lake" else f"TAIHU_{region}"
+                    rows.append(_row(
+                        source_file=path, source_row=f"{sheet_name}:{excel_row}:{taxon}",
+                        observed_at=annual_time, station_id=station,
+                        variable_code=variable_code, value=value, unit=unit,
+                        source_parameter=taxon,
+                        conversion_rule=f"annual aggregate; date anchored to Jan 1 Asia/Shanghai; source unit {source_unit}; original taxon retained",
                     ))
     finally:
         workbook.close()
@@ -164,7 +208,15 @@ def _climate_rows(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def parse_thqbca_workbooks(water_quality: Path, climate: Path, output_csv: Path, manifest_path: Path) -> dict[str, Any]:
+def parse_thqbca_workbooks(
+    water_quality: Path,
+    climate: Path,
+    output_csv: Path,
+    manifest_path: Path,
+    remote_listing_manifest: Path | None = None,
+    remote_index_output: Path | None = None,
+    remote_index_manifest: Path | None = None,
+) -> dict[str, Any]:
     records = _water_quality_rows(water_quality) + _climate_rows(climate)
     fields = [
         "source_id", "source_file", "source_row", "station_id", "observed_at",
@@ -185,20 +237,31 @@ def parse_thqbca_workbooks(water_quality: Path, climate: Path, output_csv: Path,
         by_variable[code] = by_variable.get(code, 0) + 1
         if row["clean_value"] is None:
             missing_by_variable[code] = missing_by_variable.get(code, 0) + 1
+    observed_times = sorted(row["observed_at"] for row in records if row["observed_at"])
     payload = {
         "source_id": "taihu_thqbca_history",
         "water_quality_file": str(water_quality),
         "climate_file": str(climate),
         "output_csv": str(output_csv),
         "records": len(records),
+        "observed_at_min": observed_times[0] if observed_times else None,
+        "observed_at_max": observed_times[-1] if observed_times else None,
         "by_variable": by_variable,
         "missing_by_variable": missing_by_variable,
         "missing_rate_by_variable": {key: missing_by_variable.get(key, 0) / count for key, count in by_variable.items()},
-        "time_semantics": "water quality monthly/quarterly; climate daily; Phyto_number annual anchored to Jan 1",
+        "time_semantics": "water quality monthly/quarterly; climate daily; Phyto/Zoo annual anchored to Jan 1",
         "excluded_fields": {
             "WIN.Wind direction": "workbook contains only a 16-row compass lookup at the beginning, followed by nulls; not treated as daily observations",
         },
     }
+    if remote_listing_manifest and Path(remote_listing_manifest).exists():
+        from .thqbca_remote import build_remote_product_index
+
+        index_output = remote_index_output or output_csv.with_name("thqbca_remote_product_index.csv")
+        index_manifest = remote_index_manifest or manifest_path.with_name("thqbca_remote_product_index.json")
+        payload["remote_product_index"] = build_remote_product_index(remote_listing_manifest, index_output, index_manifest)
+    else:
+        payload["remote_product_index"] = None
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return payload

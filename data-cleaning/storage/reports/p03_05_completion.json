@@ -1,0 +1,20 @@
+{
+  "task_id": "P03-05",
+  "status": "DONE",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "docs/storage_contract.md",
+    "tests/test_storage_contract.py",
+    "storage/reports/p03_05_directed_validation.json",
+    "storage/reports/p03_05_pytest.txt"
+  ],
+  "acceptance": {
+    "raster_grib_netcdf_parquet_externalized": true,
+    "sqlite_blob_forbidden": true,
+    "path_and_checksum_required": true,
+    "large_file_release_process_documented": true
+  },
+  "next_task": "P03-06",
+  "next_task_status": "TODO",
+  "scope_note": "P03-06 source health table and update function were not executed in this single-task round."
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "copernicus_sentinel2_stac",
+  "asset_id": "20260819T034225Z",
+  "request_url": "https://stac.dataspace.copernicus.eu/v1/search?collections=sentinel-2-l2a&bbox=119.9%2C30.9%2C120.7%2C31.5&datetime=2025-06-01T00%3A00%3A00Z%2F2025-06-30T23%3A59%3A59Z&limit=100",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\copernicus_sentinel2_stac\\20260819T034225Z.json",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-19T03:42:25.656027+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "application/geo+json"
+  },
+  "checksum_sha256": "25eb20d4dd0a7d54e8465df4b6855e590a1f3a2aaa20be0a5faa6f9afb5af703",
+  "size_bytes": 1751297,
+  "license": {
+    "license_tag": null,
+    "redistribution_allowed": null,
+    "commercial_use": null
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

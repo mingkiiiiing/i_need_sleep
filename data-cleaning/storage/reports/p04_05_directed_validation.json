@@ -1,0 +1,30 @@
+{
+  "task_id": "P04-05",
+  "status": "passed_on_synthetic_fixture",
+  "fixture": {
+    "format": "CSV bytes with GB18030 encoding",
+    "rows": 2,
+    "station_id": "58321",
+    "variables": ["TEM", "PRE"],
+    "records_after_long_normalization": 4,
+    "missing_records": 1,
+    "quality_codes_retained": ["0", "1"],
+    "local_timezone": "Asia/Shanghai",
+    "first_utc": "2020-06-01T00:00:00+00:00",
+    "first_local": "2020-06-01T08:00:00+08:00",
+    "encoding_detected": "gb18030"
+  },
+  "formats_tested": ["CSV", "TXT-like byte stream", "ZIP with CSV member"],
+  "assertions": [
+    "station_id retained",
+    "Beijing local time and UTC retained",
+    "raw value and missing code retained without filling",
+    "quality code retained and surfaced in quality_flags",
+    "source unit retained or explicitly marked CMA_UNIT_PENDING",
+    "wide and long records normalized to the standard observation contract"
+  ],
+  "real_cma_batch": {
+    "available": false,
+    "reason": "No legally downloaded CMA CSV/TXT/ZIP was present in the workspace; the adapter does not scrape or bypass login."
+  }
+}

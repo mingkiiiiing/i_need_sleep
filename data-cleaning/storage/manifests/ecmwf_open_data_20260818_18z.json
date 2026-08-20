@@ -1,0 +1,113 @@
+{
+  "status": "completed",
+  "target": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\meteorology\\ecmwf_open_data\\ecmwf_2026-08-18_18z_0-360h.grib2",
+  "manifest": {
+    "schema_version": "1.0",
+    "manifest_type": "raw_asset",
+    "source_id": "ecmwf_open_ifs_aifs",
+    "asset_id": "ecmwf_2026-08-18_18z_0-360h.grib2",
+    "request_url": "https://data.ecmwf.int/forecasts/",
+    "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\meteorology\\ecmwf_open_data\\ecmwf_2026-08-18_18z_0-360h.grib2",
+    "requested_at_utc": null,
+    "retrieved_at_utc": "2026-08-19T02:25:22.575979+00:00",
+    "http_status": null,
+    "response_headers": {},
+    "checksum_sha256": "0b1ba26bf9ad33d5b4caf7bebd5fcf3fdba4d8d99e9f24cb27b91850120b1e68",
+    "size_bytes": 14370109,
+    "license": {
+      "license_tag": "ECMWF-open-data-terms",
+      "redistribution_allowed": "review-current-terms",
+      "commercial_use": "review-current-terms"
+    },
+    "retries": 0,
+    "status": "completed",
+    "error": null,
+    "request": {
+      "date": "2026-08-18",
+      "time": 18,
+      "type": "fc",
+      "stream": "oper",
+      "step": [
+        0,
+        36,
+        72
+      ],
+      "param": [
+        "2t",
+        "10u",
+        "10v",
+        "tp",
+        "ssrd",
+        "tcc",
+        "msl"
+      ],
+      "area": [
+        31.65,
+        119.9,
+        30.9,
+        120.75
+      ],
+      "grid": [
+        0.25,
+        0.25
+      ],
+      "format": "grib2",
+      "model": "ifs"
+    },
+    "run_date": "2026-08-18",
+    "cycle": 18,
+    "member": "deterministic",
+    "cached_existing": true,
+    "spatial_window": "applied_during_grib_parsing"
+  },
+  "request": {
+    "date": "2026-08-18",
+    "time": 18,
+    "type": "fc",
+    "stream": "oper",
+    "step": [
+      0,
+      36,
+      72
+    ],
+    "param": [
+      "2t",
+      "10u",
+      "10v",
+      "tp",
+      "ssrd",
+      "tcc",
+      "msl"
+    ],
+    "area": [
+      31.65,
+      119.9,
+      30.9,
+      120.75
+    ],
+    "grid": [
+      0.25,
+      0.25
+    ],
+    "format": "grib2",
+    "model": "ifs"
+  },
+  "run_time": "2026-08-18T18:00:00+00:00",
+  "cached_existing": true,
+  "parsed": {
+    "status": "completed",
+    "records": 21,
+    "output": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\silver\\forecast\\ecmwf\\ecmwf_2026-08-18_18z_area_mean.csv",
+    "variables": [
+      "air_pressure",
+      "air_temperature",
+      "cloud_cover",
+      "precipitation",
+      "shortwave_radiation",
+      "wind_u",
+      "wind_v"
+    ],
+    "coverage_hours": 72.0
+  },
+  "real_batch": true
+}

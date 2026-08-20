@@ -1,0 +1,2 @@
+﻿issue_id,severity,gate,issue_type,input_path,source_row,station_id,variable_code,observed_at,field,value,message,impact,likely_cause,recommended_action,evidence_source
+P08-03-00001,critical,P0,authorization_gap,storage\raw\authorized_waterstation\inbox,,,,,authorization,,授权投递区没有发现可预检的水站/浮标文件,无法验证字段、站点、时间、单位和质量覆盖；禁止进入正式数据库,P08-01尚未收到真实授权delivery，或文件未放入inbox/<delivery_id>/,取得书面授权和交付清单，将原始文件放入授权隔离目录后重新运行P08-02,preflight_summary.json

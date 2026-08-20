@@ -1,0 +1,30 @@
+{
+  "task_id": "P05-01",
+  "status": "passed",
+  "request_contract": {
+    "run_date": "2026-08-18",
+    "cycle_utc": 18,
+    "steps_hours": [0, 36, 72],
+    "bbox_west_south_east_north": [119.9, 30.9, 120.75, 31.65],
+    "parameters": ["2t", "10u", "10v", "tp", "ssrd", "tcc", "msl"],
+    "grid": [0.25, 0.25]
+  },
+  "real_batch": {
+    "grib_path": "storage/raw/meteorology/ecmwf_open_data/ecmwf_2026-08-18_18z_0-360h.grib2",
+    "grib_size_bytes": 14370109,
+    "checksum_sha256": "0b1ba26bf9ad33d5b4caf7bebd5fcf3fdba4d8d99e9f24cb27b91850120b1e68",
+    "parsed_output": "storage/silver/forecast/ecmwf/ecmwf_2026-08-18_18z_area_mean.csv",
+    "records": 21,
+    "variables": ["air_pressure", "air_temperature", "cloud_cover", "precipitation", "shortwave_radiation", "wind_u", "wind_v"],
+    "coverage_hours": 72.0,
+    "model_name": "ECMWF",
+    "member": "deterministic"
+  },
+  "checks": [
+    "run/cycle/step/member are retained",
+    "forecast_reference_time and valid_time are separate",
+    "area mean is calculated only after GRIB parsing over the Taihu bbox",
+    "temperature, pressure, precipitation, radiation and cloud conversions are explicit",
+    "Open-Meteo proxy is not mixed into ECMWF rows"
+  ]
+}

@@ -1,0 +1,8 @@
+Directed: pytest -q tests/test_c3s_seasonal.py
+Result: 5 passed in 2.92s
+
+Full suite: pytest -q
+Result: 139 passed in 22.90s
+
+CLI preflight: python -m pipeline c3s-seasonal --forecast-year 2026 --init-month 8 --hindcast-years 1993 1994 --lead-months 1 2 3
+Result: BLOCKED_AUTH; exit code 2; no network retrieval attempted.

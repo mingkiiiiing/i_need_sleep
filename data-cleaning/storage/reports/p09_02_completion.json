@@ -1,0 +1,25 @@
+{
+  "task_id": "P09-02",
+  "status": "completed",
+  "completed_at_utc": "2026-08-19T07:20:00Z",
+  "implementation": {
+    "module": "pipeline/normalize.py",
+    "raw_pair": "raw_value/raw_unit are set before unit conversion and retained in CSV/SQLite",
+    "aliases": "config/aliases.yml now includes source timezone and CRS aliases",
+    "types": "numeric coordinates/depth/clean values are cast without changing raw_value",
+    "time": "UTC storage plus Asia/Shanghai display; naive values remain pending_timezone",
+    "coordinates": "EPSG:4326 contract, global bounds and Taihu study-area flag",
+    "station_mapping": "explicit CSV/JSON station master only; unresolved IDs are flagged, never guessed"
+  },
+  "actual_controlled_batch": {
+    "run_manifest": "storage/runs/p09_02_standardization_actual/manifest.json",
+    "source_files": 2,
+    "input_rows": 43922,
+    "clean_rows": 43922,
+    "rejected_rows": 0,
+    "issue_count": 0,
+    "database_columns_include": ["raw_value", "raw_unit", "observed_at_utc", "observed_at_local", "source_timezone", "longitude", "latitude"]
+  },
+  "scope_note": "代表性真实批次使用已归档NASA POWER 2020 JSON与Sentinel-2 STAC JSON；多年全量展开需后续流式化，未将高内存试跑结果当作全量完成。",
+  "read_only_raw_boundary": true
+}

@@ -1,0 +1,101 @@
+{
+  "status": "completed",
+  "mode": "historical_replay_not_seven_day_live_test",
+  "windows": 7,
+  "faults": 4,
+  "stable_version_preserved_during_faults": true,
+  "recovery_verified": true,
+  "events": [
+    {
+      "window": "day1",
+      "http_status": 200,
+      "network_error": false,
+      "success": true,
+      "retry_decision": {
+        "retry": false,
+        "delay_seconds": 0,
+        "classification": "permanent"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day2",
+      "http_status": 429,
+      "network_error": false,
+      "success": false,
+      "retry_decision": {
+        "retry": true,
+        "delay_seconds": 2,
+        "classification": "transient"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day3",
+      "http_status": 503,
+      "network_error": false,
+      "success": false,
+      "retry_decision": {
+        "retry": true,
+        "delay_seconds": 2,
+        "classification": "transient"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day4",
+      "http_status": 401,
+      "network_error": false,
+      "success": false,
+      "retry_decision": {
+        "retry": false,
+        "delay_seconds": 0,
+        "classification": "auth_stop"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day5",
+      "http_status": null,
+      "network_error": true,
+      "success": false,
+      "retry_decision": {
+        "retry": true,
+        "delay_seconds": 2,
+        "classification": "transient"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day6",
+      "http_status": 200,
+      "network_error": false,
+      "success": true,
+      "retry_decision": {
+        "retry": false,
+        "delay_seconds": 0,
+        "classification": "permanent"
+      },
+      "stable_version_after": "gold_v1",
+      "staging_promoted": false
+    },
+    {
+      "window": "day7",
+      "http_status": 200,
+      "network_error": false,
+      "success": true,
+      "retry_decision": {
+        "retry": false,
+        "delay_seconds": 0,
+        "classification": "permanent"
+      },
+      "stable_version_after": "gold_v2",
+      "staging_promoted": true
+    }
+  ]
+}

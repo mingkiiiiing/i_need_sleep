@@ -1,0 +1,44 @@
+{
+  "task_id": "P05-05",
+  "status": "BLOCKED_AUTH",
+  "data_truth": "official_request_plan_only",
+  "source_id": "gpm_imerg",
+  "run": "early",
+  "version": "07",
+  "bbox": [
+    119.9,
+    30.9,
+    120.75,
+    31.65
+  ],
+  "granules": [
+    {
+      "observed_at": "2026-08-18T00:00:00Z",
+      "urls": {
+        "file": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S000000-E002959.0000.V07.HDF5",
+        "opendap": "https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S000000-E002959.0000.V07.HDF5"
+      }
+    },
+    {
+      "observed_at": "2026-08-18T00:30:00Z",
+      "urls": {
+        "file": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S003000-E005959.0030.V07.HDF5",
+        "opendap": "https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S003000-E005959.0030.V07.HDF5"
+      }
+    },
+    {
+      "observed_at": "2026-08-18T01:00:00Z",
+      "urls": {
+        "file": "https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S010000-E012959.0060.V07.HDF5",
+        "opendap": "https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGHH.07/2026/230/3B-HHR-E.MS.MRG.3IMERG.20260818-S010000-E012959.0060.V07.HDF5"
+      }
+    }
+  ],
+  "granule_count": 3,
+  "raw_root": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\meteorology\\gpm_imerg",
+  "silver_root": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\silver\\gpm_imerg",
+  "auth_probe": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\earthdata_auth_probe.json",
+  "required_env": "TAIHU_EARTHDATA_TOKEN",
+  "credentials_present": false,
+  "error_class": "MissingEarthdataToken"
+}

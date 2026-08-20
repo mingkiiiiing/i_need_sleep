@@ -1,0 +1,23 @@
+{
+  "task_id": "P04-04",
+  "title": "实现ERA5-Land适配器",
+  "executed_at_utc": "2026-08-19T00:00:00Z",
+  "commands": [
+    "python -m pytest -q tests/test_era5_land.py",
+    "python -m pipeline era5-land --start-year 2005 --end-year 2020"
+  ],
+  "result": "offline_adapter_passed_online_auth_blocked",
+  "tests_passed": 3,
+  "tests_failed": 0,
+  "adapter_checks": [
+    "CDS request uses year chunks, Taihu bbox and NetCDF format",
+    "NetCDF parser supports time/latitude/longitude dimensions",
+    "area means are converted to standard variables and units",
+    "raw NetCDF asset manifests are prepared for authenticated runs",
+    "missing CDS credentials stop before network retrieval"
+  ],
+  "online_status": "BLOCKED_AUTH",
+  "requested_years": [2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020],
+  "data_truth": "official_request_plan_and_schema_fixture_only",
+  "limitation": "No CDS API key or .cdsapirc was present; no real ERA5-Land NetCDF was downloaded."
+}

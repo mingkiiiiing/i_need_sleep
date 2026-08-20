@@ -1,0 +1,21 @@
+{
+  "task_id": "P02-05",
+  "status": "DONE",
+  "gate_status": "PENDING_MANUAL_SUBMISSION",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "storage/authorization/cma/application_receipt.md",
+    "tests/test_cma_application.py",
+    "storage/reports/p02_05_directed_validation.json",
+    "storage/reports/p02_05_pytest.txt"
+  ],
+  "acceptance": {
+    "application_scope_complete": true,
+    "receipt_tracking_fields_complete": true,
+    "real_identity_material_stored": false,
+    "external_submission_completed": false
+  },
+  "next_task": "P02-06",
+  "next_task_status": "TODO",
+  "scope_note": "P02-06 water-station/buoy application was not executed in this single-task round."
+}

@@ -40,8 +40,8 @@ def _parse_time(value: Any) -> datetime | None:
         result = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         return None
-    if result.tzinfo is None:
-        result = result.replace(tzinfo=UTC)
+    if result.tzinfo is None or result.utcoffset() is None:
+        return None
     return result.astimezone(UTC)
 
 

@@ -42,12 +42,14 @@ class ThqbcaParserTests(unittest.TestCase):
             rows = list(output.read_text(encoding="utf-8-sig").splitlines())
             payload = json.loads(manifest.read_text(encoding="utf-8"))
 
-        self.assertEqual(result["records"], 5)
+        self.assertEqual(result["records"], 6)
         self.assertIn("total_nitrogen", result["by_variable"])
         self.assertIn("algae_density", result["by_variable"])
+        self.assertIn("algae_density_total", result["by_variable"])
         self.assertNotIn("wind_direction", result["by_variable"])
         self.assertIn("WIN.Wind direction", payload["excluded_fields"])
-        self.assertEqual(len(rows), 6)
+        self.assertIsNone(payload["remote_product_index"])
+        self.assertEqual(len(rows), 7)
 
 
 if __name__ == "__main__":

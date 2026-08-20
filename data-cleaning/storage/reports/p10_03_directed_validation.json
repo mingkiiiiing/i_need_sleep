@@ -1,0 +1,12 @@
+{
+  "task_id": "P10-03",
+  "status": "passed",
+  "directed_command": "python -m pytest tests/test_long_gap_uncertainty.py tests/test_short_gap_imputation.py tests/test_missing_mechanisms.py tests/test_qc.py tests/test_time_contract.py tests/test_batch.py tests/test_quality_report.py tests/test_quality_report_p09_09.py -q",
+  "directed_result": "26 passed in 3.43s",
+  "directed_log": "reports/p10_03_directed_pytest.txt",
+  "full_command": "python -m pytest -q",
+  "full_result": "232 passed, 2 warnings in 103.11s",
+  "full_log": "reports/p10_03_full_pytest.txt",
+  "actual_run": "storage/runs/p10_03_long_gap_uncertainty/summary.json",
+  "test_fixture": "tests/test_long_gap_uncertainty.py"
+}

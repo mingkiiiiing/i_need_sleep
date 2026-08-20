@@ -1,0 +1,22 @@
+{
+  "task_id": "P08-02",
+  "phase": "P08",
+  "status": "BLOCKED_AUTH",
+  "completed_at_utc": "2026-08-19T05:55:48.5521732Z",
+  "deliverables": [
+    "pipeline/waterstation_preflight.py",
+    "storage/runs/waterstation_preflight/preflight_inventory.csv",
+    "storage/runs/waterstation_preflight/preflight_issues.csv",
+    "storage/runs/waterstation_preflight/preflight_summary.json",
+    "storage/runs/waterstation_preflight/preflight.db",
+    "storage/manifests/waterstation_preflight_20260819T055350Z.json",
+    "storage/reports/p08_02_directed_validation.json"
+  ],
+  "real_authorized_files": false,
+  "data_truth": "no_authorized_delivery",
+  "preflight_result": "blocked_no_valid_files",
+  "next_action": "obtain an authorized P0 water-station delivery, place it under storage/raw/authorized_waterstation/inbox/<delivery_id>/, and rerun waterstation-preflight; only a ready result may enter P08-04",
+  "directed_pytest": "17 passed in 2.33s",
+  "full_pytest": "191 passed in 25.27s",
+  "next_eligible_task": "P08-03"
+}

@@ -65,8 +65,8 @@ def _parse_time(value: Any) -> datetime | None:
                 parsed = None
         if parsed is None:
             return None
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=UTC)
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
     return parsed.astimezone(UTC)
 
 
@@ -564,4 +564,3 @@ def run_remote_calibration(pair_path: Path, output_root: Path | None = None, dat
     manifest_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     result["manifest"] = str(manifest_path)
     return result
-
