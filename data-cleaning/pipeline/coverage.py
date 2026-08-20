@@ -22,10 +22,10 @@ UTC = timezone.utc
 # as alternatives because chlorophyll-a, algae density and bloom area are
 # different observable labels for the same forecast task.
 REQUIREMENTS: dict[str, dict[str, Any]] = {
-    "chlorophyll_a": {"role": "target", "target_alternative": True, "max_interval_hours": 72.0, "observed_required": True},
-    "algae_density": {"role": "target", "target_alternative": True, "max_interval_hours": 72.0, "observed_required": True},
-    "bloom_area_km2": {"role": "target", "target_alternative": True, "max_interval_hours": 72.0, "observed_required": False},
-    "water_temperature": {"role": "driver", "target_alternative": False, "max_interval_hours": 24.0, "observed_required": True},
+    "chlorophyll_a": {"role": "target", "target_alternative": True, "max_interval_hours": 6.0, "max_gap_hours": 24.0, "observed_required": True},
+    "algae_density": {"role": "target", "target_alternative": True, "max_interval_hours": 6.0, "max_gap_hours": 24.0, "observed_required": True},
+    "bloom_area_km2": {"role": "target", "target_alternative": True, "max_interval_hours": 6.0, "max_gap_hours": 24.0, "observed_required": False},
+    "water_temperature": {"role": "driver", "target_alternative": False, "max_interval_hours": 6.0, "max_gap_hours": 24.0, "observed_required": True},
     "total_nitrogen": {"role": "driver", "target_alternative": False, "max_interval_hours": 72.0, "observed_required": True},
     "total_phosphorus": {"role": "driver", "target_alternative": False, "max_interval_hours": 72.0, "observed_required": True},
     "air_temperature": {"role": "driver", "target_alternative": False, "max_interval_hours": 24.0, "observed_required": False},
@@ -48,8 +48,8 @@ def _parse_time(value: Any) -> datetime | None:
         result = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         return None
-    if result.tzinfo is None:
-        result = result.replace(tzinfo=UTC)
+    if result.tzinfo is None or result.utcoffset() is None:
+        return None
     return result.astimezone(UTC)
 
 
@@ -63,7 +63,7 @@ def _float(value: Any) -> float | None:
     return result if math.isfinite(result) else None
 
 
-def _frequency(rows: list[dict[str, Any]]) -> tuple[str, float | None]:
+def _frequency(rows: list[dict[str, Any]]) -> tuple[str, float | None, float | None]:
     explicit = [str(row.get("frequency") or "").lower() for row in rows if row.get("frequency")]
     counts: dict[str, int] = defaultdict(int)
     for value in explicit:
@@ -82,6 +82,7 @@ def _frequency(rows: list[dict[str, Any]]) -> tuple[str, float | None]:
         ordered = sorted(set(timestamps))
         intervals.extend((right - left).total_seconds() / 3600.0 for left, right in zip(ordered, ordered[1:]))
     interval = median(intervals) if intervals else None
+    max_gap = max(intervals) if intervals else None
     if not counts and interval is not None:
         if interval <= 1.5:
             chosen = "hourly"
@@ -95,10 +96,10 @@ def _frequency(rows: list[dict[str, Any]]) -> tuple[str, float | None]:
             chosen = "quarterly"
         else:
             chosen = "annual_or_sparse"
-    return chosen, interval
+    return chosen, interval, max_gap
 
 
-def _status(variable: str, rows: list[dict[str, Any]], median_interval_hours: float | None) -> tuple[str, str]:
+def _status(variable: str, rows: list[dict[str, Any]], median_interval_hours: float | None, max_gap_hours: float | None) -> tuple[str, str]:
     requirement = REQUIREMENTS[variable]
     if not rows:
         return "missing", "no standard observation rows"
@@ -113,6 +114,9 @@ def _status(variable: str, rows: list[dict[str, Any]], median_interval_hours: fl
         return "frequency_unknown", "timestamps are insufficient to estimate cadence"
     if median_interval_hours > float(requirement["max_interval_hours"]):
         return "low_frequency", f"median interval {median_interval_hours:.1f}h exceeds {requirement['max_interval_hours']}h"
+    allowed_gap = requirement.get("max_gap_hours")
+    if allowed_gap is not None and max_gap_hours is not None and max_gap_hours > float(allowed_gap):
+        return "low_frequency", f"maximum gap {max_gap_hours:.1f}h exceeds {allowed_gap}h"
     if proxy_only:
         return "proxy_available", "frequency is adequate but all values are proxy/derived"
     return "ready", "frequency and value origin meet requirement"
@@ -132,8 +136,8 @@ def build_coverage_audit(rows: list[dict[str, Any]], *, as_of: datetime | None =
         valid_rows = [row for row in variable_rows if _float(row.get("clean_value") or row.get("observed_value") or row.get("target_clean_value")) is not None]
         timestamps = [_parse_time(row.get("time_bucket") or row.get("observed_at") or row.get("target_time_bucket")) for row in variable_rows]
         timestamps = [value for value in timestamps if value is not None]
-        frequency, interval = _frequency(variable_rows)
-        status, reason = _status(variable, variable_rows, interval)
+        frequency, interval, max_gap = _frequency(variable_rows)
+        status, reason = _status(variable, variable_rows, interval, max_gap)
         sources = sorted({str(row.get("source_id") or row.get("target_source_id") or "") for row in variable_rows if row.get("source_id") or row.get("target_source_id")})
         stations = sorted({str(row.get("station_id") or row.get("target_station_id") or "") for row in variable_rows if row.get("station_id") or row.get("target_station_id")})
         origins = sorted({str(row.get("value_origin") or "observed") for row in valid_rows})
@@ -146,6 +150,7 @@ def build_coverage_audit(rows: list[dict[str, Any]], *, as_of: datetime | None =
             "target_alternative": requirement["target_alternative"],
             "observed_required": requirement["observed_required"],
             "max_interval_hours": requirement["max_interval_hours"],
+            "max_allowed_gap_hours": requirement.get("max_gap_hours"),
             "row_count": len(variable_rows),
             "valid_value_count": len(valid_rows),
             "source_count": len(sources),
@@ -159,6 +164,7 @@ def build_coverage_audit(rows: list[dict[str, Any]], *, as_of: datetime | None =
             "freshness_status": freshness_status,
             "frequency": frequency,
             "median_interval_hours": interval,
+            "max_gap_hours": max_gap,
             "status": status,
             "status_reason": reason,
         }

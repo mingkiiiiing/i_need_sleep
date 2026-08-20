@@ -1,0 +1,22 @@
+{
+  "task_id": "P02-04",
+  "status": "DONE",
+  "gate_status": "BLOCKED_AUTH",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "scripts/probe_earthdata_auth.py",
+    "tests/test_earthdata_auth_probe.py",
+    "storage/manifests/earthdata_auth_probe.json",
+    "storage/reports/p02_04_directed_validation.json",
+    "storage/reports/p02_04_pytest.txt"
+  ],
+  "acceptance": {
+    "token_presence_checked": true,
+    "token_validation_endpoint_defined": true,
+    "token_value_echoed": false,
+    "missing_token_recorded_as_blocked_auth": true
+  },
+  "next_task": "P02-05",
+  "next_task_status": "TODO",
+  "scope_note": "P02-05 CMA student research application was not executed in this single-task round."
+}

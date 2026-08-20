@@ -1,0 +1,6 @@
+P00-02 test baseline
+Executed from: D:\Project\fuwai\2026_sheng-fuwai\data-cleaning
+Command: python -m pytest -q
+Result: 58 passed in 9.06s
+Exit code: 0
+Interpretation: baseline meets the requirement of at least 58 passing tests.

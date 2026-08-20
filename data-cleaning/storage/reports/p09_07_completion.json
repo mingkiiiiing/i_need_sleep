@@ -1,0 +1,38 @@
+{
+  "task_id": "P09-07",
+  "status": "completed",
+  "completed_at_utc": "2026-08-19T08:09:48Z",
+  "rules_version": "1.0.0",
+  "checks": {
+    "coordinate_swap": "Q36/medium/suspect; Taihu lon/lat plausibility ranges",
+    "zero_coordinate": "Q37/medium/suspect; (0,0) sentinel",
+    "outside_boundary": "Q38/medium/suspect; HydroLAKES Taihu polygon plus 5000 m buffer for station records",
+    "station_drift": "Q39/medium/suspect; projected-distance from per-source/station coordinate median over 1000 m",
+    "crs_mismatch": "Q40/medium/suspect; expected EPSG:4326"
+  },
+  "boundary": {
+    "path": "storage/silver/geo/taihu_boundary.gpkg",
+    "layer": "taihu_boundary_wgs84",
+    "source": "HydroLAKES v1.0 feature 148",
+    "buffer_m": 5000,
+    "scene_centroid_policy": "scene records without station_id are not treated as station-outside failures"
+  },
+  "actual_controlled_batch": {
+    "run_manifest": "storage/runs/p09_07_spatial_qc/manifest.json",
+    "input_rows": 43922,
+    "clean_rows": 43693,
+    "rejected_rows": 0,
+    "suspect_rows": 229,
+    "issue_count": 229,
+    "spatial_issue_counts": {},
+    "note": "NASA POWER station coordinates are inside the buffered boundary; Sentinel-2 scene centroids are exempt from station boundary checks. The 229 retained suspects are inherited Q18 univariate findings."
+  },
+  "fixture_evidence": {
+    "coordinate_swap": "Q36 detected; canonical Q07 hard gate remains auditable",
+    "zero_coordinate": "Q37 detected and retained",
+    "outside_boundary": "Q38 detected and retained",
+    "station_drift": "Q39 detected on the relocated point",
+    "crs_mismatch": "Q40 detected and retained"
+  },
+  "test_stability_note": "The ECMWF open-data test now validates either an auditable blocked branch or a valid real batch because the public endpoint was reachable during the full suite."
+}

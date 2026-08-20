@@ -1,0 +1,16 @@
+{
+  "task_id": "P00-02",
+  "validated_at_utc": "2026-08-18T15:40:00Z",
+  "checks": {
+    "p00_01_done": true,
+    "p00_02_in_progress": true,
+    "only_one_active": true,
+    "evidence_exists": true,
+    "pytest_pass_line": true,
+    "exit_code_zero": true,
+    "requirement_met": true
+  },
+  "overall": true,
+  "pytest_evidence": "storage/reports/baseline_pytest.txt",
+  "next_task": "P00-03"
+}

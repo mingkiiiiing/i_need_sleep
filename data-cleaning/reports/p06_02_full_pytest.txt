@@ -1,0 +1,5 @@
+P06-02 full command:
+python -m pytest -q
+
+Result: 156 passed in 23.40s
+Exit code: 0

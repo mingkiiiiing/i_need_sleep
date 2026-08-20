@@ -1,0 +1,11 @@
+{
+  "task_id": "P01-01",
+  "probed_at_utc": "2026-08-18T22:30:30Z",
+  "method": "GET",
+  "status": 200,
+  "content_type": "application/geo+json",
+  "length_bytes": 65933,
+  "uri": "https://stac.dataspace.copernicus.eu/v1/search?collections=sentinel-2-l2a&bbox=119.9,30.9,120.7,31.5&datetime=2025-06-01T00:00:00Z/2025-06-30T23:59:59Z&limit=1",
+  "response_prefix": "{\"type\":\"FeatureCollection\",\"links\":[{\"rel\":\"next\",\"type\":\"application/geo+json\",\"method\":\"GET\",\"href\":\"https://stac.dataspace.copernicus.eu/v1/search?collectio",
+  "interpretation": "Official Copernicus STAC v1 search endpoint returned HTTP 200 and GeoJSON content."
+}

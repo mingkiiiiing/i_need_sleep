@@ -1,0 +1,33 @@
+{
+  "task_id": "P01-03",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-18T22:46:06Z",
+  "inputs": [
+    "config/luna_execution_checklist.csv",
+    "HydroLAKES Asia subset from Zenodo record 10.5281/zenodo.17503891"
+  ],
+  "outputs": [
+    "config/study_area.yml",
+    "scripts/build_taihu_boundary.py",
+    "storage/raw/geo/hydrolakes/HydroLAKES_Asia.zip",
+    "storage/silver/geo/taihu_boundary.gpkg",
+    "storage/silver/geo/taihu_boundary_manifest.json",
+    "tests/test_study_area.py",
+    "storage/reports/p01_03_directed_validation.json",
+    "storage/reports/p01_03_pytest.txt",
+    "config/luna_execution_checklist.csv"
+  ],
+  "catalog_bbox_wgs84": [119.9, 30.9, 120.75, 31.65],
+  "boundary_source": "HydroLAKES v1.0 Asia subset",
+  "source_feature_id": 148,
+  "geometry_crs": "EPSG:4326",
+  "area_calculation_crs": "EPSG:32651",
+  "source_area_km2": 2329.14,
+  "area_km2_calculated": 2329.357405,
+  "license": "CC-BY-4.0",
+  "source_archive_md5": "7601d5fad928195d6a91c616adb172ad",
+  "boundary_gpkg_sha256": "DF40439A5A9E582811C40E317613E416318D7AAA10EB614E1AE168F0E0D40B5B",
+  "full_pytest": "63 passed in 8.95s",
+  "next_task": "P01-04",
+  "execution_boundary": "No P01-04 or later task was executed"
+}

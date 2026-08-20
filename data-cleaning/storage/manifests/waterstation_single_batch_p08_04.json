@@ -1,0 +1,12 @@
+{
+  "run_id": "waterstation_single_batch_p08_04",
+  "task_id": "P08-04",
+  "status": "BLOCKED_AUTH",
+  "data_truth": "no_authorized_single_file",
+  "input_root": "storage/raw/authorized_waterstation/inbox",
+  "supported_file_count": 0,
+  "preflight_status": "blocked_no_valid_files",
+  "guard": "storage/runs/waterstation_single_batch/p08_04_guard.json",
+  "formal_batch_executed": false,
+  "next_step": "obtain authorized file, run waterstation-preflight, require ready, then run waterstation-batch"
+}

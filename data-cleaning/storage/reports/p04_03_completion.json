@@ -1,0 +1,21 @@
+{
+  "task_id": "P04-03",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-19T00:00:00Z",
+  "artifacts": [
+    "pipeline/sources/nasa_power_history.py",
+    "pipeline/normalize.py",
+    "pipeline/cli.py",
+    "tests/test_nasa_power_history.py",
+    "storage/manifests/nasa_power_history_2005_2020.json",
+    "storage/silver/nasa_power/nasa_power_hourly_2005_2020.csv",
+    "storage/reports/p04_03_directed_validation.json",
+    "storage/reports/p04_03_pytest.txt"
+  ],
+  "quality_gate": {
+    "directed_tests": "3 passed",
+    "full_pytest": "115 passed",
+    "next_task_remains_unstarted": "P04-04 is TODO"
+  },
+  "raw_asset_policy": "One UTC JSON response and provenance manifest per year; reruns reuse the same URL/year file idempotently."
+}

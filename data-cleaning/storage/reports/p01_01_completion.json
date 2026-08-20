@@ -1,0 +1,26 @@
+{
+  "task_id": "P01-01",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-18T22:30:30Z",
+  "inputs": [
+    "config/sources.yml",
+    "config/luna_execution_checklist.csv",
+    "official Copernicus STAC v1 search endpoint"
+  ],
+  "outputs": [
+    "config/sources.yml",
+    "tests/test_config_sources.py",
+    "storage/reports/p01_01_endpoint_probe.json",
+    "storage/reports/p01_01_directed_validation.json",
+    "storage/reports/p01_01_pytest.txt",
+    "config/luna_execution_checklist.csv"
+  ],
+  "endpoint": "https://stac.dataspace.copernicus.eu/v1/search",
+  "endpoint_probe": "HTTP 200 application/geo+json",
+  "offline_config_test": "passed",
+  "full_pytest": "59 passed in 11.15s",
+  "config_sha256": "CFC479458EF4462D6C98C36219B3136EAA6539183FB8C5B471513B5C6E3654A5",
+  "scope_note": "Only the source configuration and its offline acceptance test were changed; runtime adapter migration remains P06-01.",
+  "next_task": "P01-02",
+  "execution_boundary": "No P01-02 or later task was executed"
+}

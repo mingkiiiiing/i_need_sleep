@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "noaa_gfs",
+  "asset_id": "gfs_2026-08-18_18z_f006_subset",
+  "request_url": "https://nomads.ncep.noaa.gov/cgi-bin/filter_gfs_0p25.pl?file=gfs.t18z.pgrb2.0p25.f006&leftlon=119.9&rightlon=120.75&toplat=31.65&bottomlat=30.9&var_TMP=on&lev_2_m_above_ground=on&var_UGRD=on&lev_10_m_above_ground=on&var_VGRD=on&lev_10_m_above_ground=on&var_APCP=on&lev_surface=on&var_DSWRF=on&lev_surface=on&var_TCDC=on&lev_entire_atmosphere=on&var_PRMSL=on&lev_mean_sea_level=on&dir=%2Fgfs.20260818%2F18%2Fatmos",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\meteorology\\noaa_gfs\\gfs_2026-08-18_18z_f006_subset.grib2",
+  "requested_at_utc": null,
+  "retrieved_at_utc": null,
+  "http_status": 200,
+  "response_headers": {},
+  "checksum_sha256": "e4d0cea33219a88ab375a89177a6befb2bd35211632912ad8c94760bb6c729bd",
+  "size_bytes": 7502247,
+  "license": {
+    "license_tag": "NOAA-open-US-government-data",
+    "redistribution_allowed": "review-NOAA-terms",
+    "commercial_use": "review-NOAA-terms"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

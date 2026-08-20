@@ -2,12 +2,17 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 from .common import IngestResult, request_json, utc_now, write_raw_json
 from .local_files import _as_time, _canonical, _coordinate, _first, _key, _load_alias_map, _read_rows, _value
 from ..normalize import _row
+from ..provenance import sanitize_url
+
+
+WATER_STATION_TOKEN_ENV = "TAIHU_WATER_STATION_TOKEN"
 
 
 DEFAULT_UNITS = {
@@ -51,7 +56,9 @@ def normalize_water_station_rows(path: Path, rows: list[dict[str, Any]], *, sour
     observations: list[dict[str, Any]] = []
     for row_number, raw in enumerate(rows, start=1):
         time_value = _first(raw, "observed_at", aliases) or _first(raw, "acquisition_at", aliases)
-        observed_at = _as_time(time_value)
+        source_timezone = _first(raw, "source_timezone", aliases)
+        time_fields = _as_time(time_value, str(source_timezone) if source_timezone not in (None, "") else None)
+        observed_at = time_fields["utc"]
         row_source = _first(raw, "source_id", aliases) or source_id
         station_id = _first(raw, "station_id", aliases)
         longitude = _first(raw, "longitude", aliases)
@@ -69,8 +76,9 @@ def normalize_water_station_rows(path: Path, rows: list[dict[str, Any]], *, sour
             variable_code = _canonical(variable_value, aliases) or "unknown_variable"
             observed_value, clean_value = _value(long_value)
             unit = explicit_unit or DEFAULT_UNITS.get(variable_code)
-            observations.append(_row(source_id=str(row_source), source_file=path, source_row=str(row_number), observed_at=observed_at, variable_code=variable_code, observed_value=observed_value, clean_value=clean_value, unit=unit, value_origin=str(value_origin), station_id=str(station_id) if station_id not in (None, "") else None, longitude=_coordinate(longitude), latitude=_coordinate(latitude), source_parameter=str(variable_value)))
+            observations.append(_row(source_id=str(row_source), source_file=path, source_row=str(row_number), observed_at=observed_at, variable_code=variable_code, observed_value=observed_value, clean_value=clean_value, unit=unit, value_origin=str(value_origin), station_id=str(station_id) if station_id not in (None, "") else None, longitude=_coordinate(longitude), latitude=_coordinate(latitude), source_parameter=str(variable_value), time_fields=time_fields, raw_unit=source_unit or unit))
             observations[-1]["source_unit"] = source_unit or unit
+            observations[-1]["raw_unit"] = source_unit or unit
             observations[-1]["conversion_rule"] = _first(raw, "conversion_rule", aliases)
             continue
         for header, raw_value in raw.items():
@@ -79,8 +87,9 @@ def normalize_water_station_rows(path: Path, rows: list[dict[str, Any]], *, sour
                 continue
             observed_value, clean_value = _value(raw_value)
             unit = explicit_unit or DEFAULT_UNITS.get(variable_code)
-            observations.append(_row(source_id=str(row_source), source_file=path, source_row=f"{row_number}:{header}", observed_at=observed_at, variable_code=variable_code, observed_value=observed_value, clean_value=clean_value, unit=unit, value_origin=str(value_origin), station_id=str(station_id) if station_id not in (None, "") else None, longitude=_coordinate(longitude), latitude=_coordinate(latitude), source_parameter=header))
+            observations.append(_row(source_id=str(row_source), source_file=path, source_row=f"{row_number}:{header}", observed_at=observed_at, variable_code=variable_code, observed_value=observed_value, clean_value=clean_value, unit=unit, value_origin=str(value_origin), station_id=str(station_id) if station_id not in (None, "") else None, longitude=_coordinate(longitude), latitude=_coordinate(latitude), source_parameter=header, time_fields=time_fields, raw_unit=source_unit or unit))
             observations[-1]["source_unit"] = source_unit or unit
+            observations[-1]["raw_unit"] = source_unit or unit
     return observations
 
 
@@ -113,7 +122,13 @@ def normalize_water_station_payload(path: Path, envelope: dict[str, Any]) -> lis
     return normalize_water_station_rows(path, _payload_rows(envelope.get("payload", {})), source_id=path.parent.name)
 
 
-def ingest_water_station_endpoint(url: str, *, source_id: str = "water_station_endpoint") -> IngestResult:
+def ingest_water_station_endpoint(
+    url: str,
+    *,
+    source_id: str = "water_station_endpoint",
+    token: str | None = None,
+    require_token: bool = True,
+) -> IngestResult:
     """Fetch an authenticated/public station JSON endpoint and preserve raw data.
 
     No endpoint URL is hard-coded because official portals commonly require
@@ -122,10 +137,48 @@ def ingest_water_station_endpoint(url: str, *, source_id: str = "water_station_e
     """
 
     retrieved_at = utc_now()
+    safe_url = sanitize_url(url)
+    access_token = token if token is not None else os.getenv(WATER_STATION_TOKEN_ENV)
+    if require_token and not access_token:
+        return IngestResult(
+            source_id,
+            "BLOCKED_AUTH",
+            safe_url,
+            None,
+            0,
+            retrieved_at,
+            "MissingTAIHUWaterStationToken",
+            metadata={"token_env": WATER_STATION_TOKEN_ENV, "token_present": False, "request_attempted": False},
+        )
     try:
-        status, content_type, payload = request_json(url)
+        headers = {"Authorization": f"Bearer {access_token}"} if access_token else None
+        status, content_type, payload = request_json(safe_url, headers=headers)
         records = len(_payload_rows(payload))
-        raw_path = write_raw_json(source_id, url, status, content_type, payload)
-        return IngestResult(source_id, "ingested" if status == 200 and records else "failed", url, str(raw_path), records, retrieved_at, metadata={"record_count": records, "endpoint_supplied_by_user": True})
+        raw_path = write_raw_json(source_id, safe_url, status, content_type, payload)
+        return IngestResult(source_id, "ingested" if status == 200 and records else "failed", safe_url, str(raw_path), records, retrieved_at, metadata={"record_count": records, "endpoint_supplied_by_user": True, "token_present": bool(access_token), "request_attempted": True})
     except Exception as exc:
-        return IngestResult(source_id, "failed", url, None, 0, retrieved_at, str(exc))
+        return IngestResult(source_id, "failed", safe_url, None, 0, retrieved_at, str(exc), metadata={"token_present": bool(access_token), "request_attempted": True})
+
+
+def probe_water_station_auth(endpoint_url: str | None = None) -> dict[str, Any]:
+    """Check HJ1404 URL/token readiness without making a network request."""
+
+    token_present = bool(os.getenv(WATER_STATION_TOKEN_ENV))
+    if not token_present:
+        status = "BLOCKED_AUTH"
+        reason = f"{WATER_STATION_TOKEN_ENV} is not configured"
+    elif not endpoint_url:
+        status = "BLOCKED_DATA"
+        reason = "formal HJ1404 endpoint URL is not supplied"
+    else:
+        status = "ready_to_request"
+        reason = "endpoint URL and token variable are present; request not attempted by probe"
+    return {
+        "task_id": "P08-07",
+        "status": status,
+        "endpoint_url": sanitize_url(endpoint_url or "") if endpoint_url else None,
+        "token_env": WATER_STATION_TOKEN_ENV,
+        "token_present": token_present,
+        "request_attempted": False,
+        "reason": reason,
+    }

@@ -1,0 +1,8 @@
+{
+  "source_id": "open_meteo_ecmwf_seas5",
+  "authentication": "none",
+  "access_evidence": "storage/raw/open_meteo_seasonal/manifest.json",
+  "license_status": "conditional_review",
+  "redistribution_allowed": "conditional",
+  "note": "Attribute Open-Meteo and the upstream model provider and verify current service terms."
+}

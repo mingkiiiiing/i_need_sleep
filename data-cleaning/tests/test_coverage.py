@@ -36,6 +36,15 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(item["status"], "proxy_only")
         self.assertFalse(result["target_ready"])
 
+    def test_high_frequency_target_rejects_a_gap_over_24_hours(self):
+        rows = [row("chlorophyll_a", 1, 10), row("chlorophyll_a", 2, 11), row("chlorophyll_a", 3, 12), row("chlorophyll_a", 6, 13)]
+        result = build_coverage_audit(rows, as_of=datetime(2025, 1, 6, tzinfo=timezone.utc))
+        item = next(item for item in result["matrix"] if item["variable_code"] == "chlorophyll_a")
+        self.assertEqual(item["median_interval_hours"], 24.0)
+        self.assertEqual(item["max_gap_hours"], 72.0)
+        self.assertEqual(item["status"], "low_frequency")
+        self.assertFalse(result["target_ready"])
+
     def test_run_writes_matrix_and_gap_files(self):
         with tempfile.TemporaryDirectory() as directory:
             input_path = Path(directory) / "observations.csv"

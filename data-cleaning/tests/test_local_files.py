@@ -14,7 +14,7 @@ class LocalFileTests(unittest.TestCase):
             with path.open("w", encoding="utf-8-sig", newline="") as handle:
                 writer = csv.DictWriter(handle, fieldnames=["监测时间", "站点编号", "水温", "总磷"])
                 writer.writeheader()
-                writer.writerow({"监测时间": "2025-06-01 00:00:00", "站点编号": "T01", "水温": "26.5", "总磷": "0.08"})
+                writer.writerow({"监测时间": "2025-06-01T00:00:00+08:00", "站点编号": "T01", "水温": "26.5", "总磷": "0.08"})
             result = normalize_local_file(path)
 
         self.assertEqual(len(result["observations"]), 2)
@@ -28,7 +28,7 @@ class LocalFileTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(handle, fieldnames=["time", "station_code", "variable", "value", "unit"])
                 writer.writeheader()
-                writer.writerow({"time": "2025060100", "station_code": "T01", "variable": "TN", "value": "1.2", "unit": "mg/L"})
+                writer.writerow({"time": "2025-06-01T00:00:00+08:00", "station_code": "T01", "variable": "TN", "value": "1.2", "unit": "mg/L"})
                 writer.writerow({"time": "not-a-time", "station_code": "T01", "variable": "TN", "value": "1.3", "unit": "mg/L"})
             records = normalize_local_file(path)["observations"]
         self.assertEqual(len(records), 2)

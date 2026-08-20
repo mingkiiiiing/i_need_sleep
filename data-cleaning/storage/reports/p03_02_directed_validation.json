@@ -1,0 +1,19 @@
+{
+  "task_id": "P03-02",
+  "task": "实现断点续传和幂等",
+  "result": "PASS",
+  "test_command": "python -m pytest -q tests/test_resumable_download.py",
+  "tests_passed": 2,
+  "deliverable": "pipeline/sources/common.py",
+  "behaviors_verified": [
+    "interrupted stream leaves <output>.partial",
+    "existing partial sends HTTP Range bytes=<offset>-",
+    "checksum verified before atomic rename",
+    "same source_id + asset_id + checksum skips network request",
+    "shared download manifest records checksum, size and attempts"
+  ],
+  "notes": [
+    "If a server ignores Range, the partial file is safely restarted rather than appended to incorrectly.",
+    "A completed file without an expected checksum or matching manifest is not silently overwritten."
+  ]
+}

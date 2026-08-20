@@ -1,0 +1,41 @@
+{
+  "run_id": "p10_01_missing_mechanism_classification",
+  "status": "completed",
+  "task_id": "P10-01",
+  "input": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\normalized_observations.csv",
+  "input_rows": 43922,
+  "missing_mechanism_counts": {
+    "not_missing": 43922
+  },
+  "source_event_audit_rows": 0,
+  "categories": [
+    "not_missing",
+    "interface_failure",
+    "device_offline",
+    "low_frequency",
+    "cloud_masked",
+    "quality_rejected",
+    "temporal_gap_short",
+    "temporal_gap_long",
+    "edge_gap",
+    "unknown"
+  ],
+  "policies": {
+    "not_missing": "observed_or_existing_value",
+    "interface_failure": "retry_or_failover; never_impute_from_same_failed_response",
+    "device_offline": "check_telemetry_and_hold_missing",
+    "low_frequency": "retain_native_frequency_and_emit_data_age",
+    "cloud_masked": "use_cross_sensor_or_lag_feature; never_overwrite_current_observation",
+    "quality_rejected": "manual_review_or_source_repair; never_treat_as_observed",
+    "temporal_gap_short": "eligible_for_P10_02_masked_validation_only",
+    "temporal_gap_long": "retain_missing_or_uncertainty_model; no_silent_forward_fill",
+    "edge_gap": "retain_missing; no_bracketed_interpolation",
+    "unknown": "manual_review_before_any_imputation"
+  },
+  "generated_at_utc": "2026-08-19T08:42:37.496366+00:00",
+  "data_truth": "real_external_normalized_observations_from_p09_08_controlled_batch",
+  "outputs": {
+    "classified_observations": "storage\\runs\\p10_01_missing_mechanism_classification\\classified_observations.csv",
+    "summary": "storage\\runs\\p10_01_missing_mechanism_classification\\summary.json"
+  }
+}

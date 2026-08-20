@@ -3,6 +3,25 @@ study_area: "Taihu Lake"
 timezone: "Asia/Shanghai"
 standard_crs: "EPSG:4326"
 
+# Time contract: UTC is the storage/comparison timezone; Asia/Shanghai is the
+# local display and daily-bucketing timezone. A naive input timestamp is not
+# silently interpreted as UTC and must remain pending until its source
+# timezone is supplied.
+time_contract:
+  storage_timezone: UTC
+  local_timezone: Asia/Shanghai
+  naive_input_policy: pending_timezone
+  invalid_input_policy: reject
+  observed_time_field: observed_at
+  observed_time_utc_field: observed_at_utc
+  observed_time_local_field: observed_at_local
+  forecast_reference_field: forecast_reference_time
+  forecast_valid_field: valid_time
+  forecast_reference_local_field: forecast_reference_time_local
+  forecast_valid_local_field: valid_time_local
+  required_status_field: time_status
+  source_timezone_field: source_timezone
+
 # required_level: A=core target/key, B=key driver, C=enhancement, D=out of first release
 # source_type: observed, remote_sensing, derived, imputed, static
 variables:
@@ -38,6 +57,95 @@ variables:
     required_level: A
     role: key_time
     missing_policy: reject
+    evidence: [E01]
+  - code: observed_at_utc
+    name_zh: 观测或过境时间UTC
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: record
+    standard_frequency: raw_hour_daily
+    required_level: A
+    role: canonical_time_storage
+    missing_policy: reject
+    evidence: [E01]
+  - code: observed_at_local
+    name_zh: 观测或过境时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: record
+    standard_frequency: raw_hour_daily
+    required_level: B
+    role: local_time_display
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: time_status
+    name_zh: 时间解析状态
+    source_type: derived
+    data_type: enum
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: time_quality
+    allowed_values: [accepted, pending_timezone, invalid, missing]
+    missing_policy: reject_if_not_accepted_for_model
+    evidence: [E01]
+  - code: source_timezone
+    name_zh: 原始时间时区
+    source_type: static
+    data_type: string
+    unit: IANA_timezone_or_offset
+    raw_frequency: record
+    standard_frequency: record
+    required_level: B
+    role: time_provenance
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: forecast_reference_time
+    name_zh: 预报起报时间UTC
+    source_type: observed
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_run
+    standard_frequency: forecast_run
+    required_level: B
+    role: forecast_initialization
+    missing_policy: reject_forecast_record
+    evidence: [E01]
+  - code: forecast_reference_time_local
+    name_zh: 预报起报时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_run
+    standard_frequency: forecast_run
+    required_level: C
+    role: forecast_initialization_local
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: valid_time
+    name_zh: 预报有效时间UTC
+    source_type: observed
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_step
+    standard_frequency: forecast_step
+    required_level: B
+    role: forecast_validity
+    missing_policy: reject_forecast_record
+    evidence: [E01]
+  - code: valid_time_local
+    name_zh: 预报有效时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_step
+    standard_frequency: forecast_step
+    required_level: C
+    role: forecast_validity_local
+    missing_policy: pending_timezone
     evidence: [E01]
   - code: station_id
     name_zh: 标准站点编号
@@ -392,6 +500,18 @@ variables:
     standard_frequency: hourly_daily
     required_level: C
     role: ionic_state_and_qc
+    allowed_range: [0, 10000]
+    missing_policy: optional
+    evidence: [E02, E04]
+  - code: tds
+    name_zh: 总溶解固体
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: hourly_monthly
+    standard_frequency: hourly_daily
+    required_level: C
+    role: ionic_state_and_cross_variable_qc
     allowed_range: [0, 10000]
     missing_policy: optional
     evidence: [E02, E04]

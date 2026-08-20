@@ -1,0 +1,32 @@
+{
+  "source_id": "zenodo_taihu_satellite_ground_insitu",
+  "record_id": "10434391",
+  "doi": "10.5281/zenodo.10434391",
+  "status": "completed",
+  "authorization": "none",
+  "file_count": 3,
+  "outputs": [
+    {
+      "path": "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20201222_Water_dataset.xlsx",
+      "bytes": 98142,
+      "md5": "d2528ad73c2dd2e77f5e75dd5aa86319",
+      "expected_md5": "d2528ad73c2dd2e77f5e75dd5aa86319",
+      "checksum_ok": true
+    },
+    {
+      "path": "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20221213_Water_dataset.xlsx",
+      "bytes": 123468,
+      "md5": "50fcfa059f26fb46bd61255578368f6c",
+      "expected_md5": "50fcfa059f26fb46bd61255578368f6c",
+      "checksum_ok": true
+    },
+    {
+      "path": "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20231017_Water_dataset.xlsx",
+      "bytes": 105905,
+      "md5": "16bce7166ffb502d8b632b943a8c5bcc",
+      "expected_md5": "16bce7166ffb502d8b632b943a8c5bcc",
+      "checksum_ok": true
+    }
+  ],
+  "manifest": "storage\\manifests\\zenodo_taihu_insitu.json"
+}

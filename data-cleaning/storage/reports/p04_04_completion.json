@@ -1,0 +1,22 @@
+{
+  "task_id": "P04-04",
+  "status": "BLOCKED_AUTH",
+  "completed_at_utc": "2026-08-19T00:00:00Z",
+  "artifacts": [
+    "pipeline/sources/era5_land.py",
+    "pipeline/cli.py",
+    "requirements.txt",
+    "tests/test_era5_land.py",
+    "storage/manifests/era5_land_2005_2020.json",
+    "storage/reports/p04_04_directed_validation.json",
+    "storage/reports/p04_04_pytest.txt"
+  ],
+  "quality_gate": {
+    "directed_tests": "3 passed",
+    "full_pytest": "118 passed",
+    "offline_adapter": "ready",
+    "real_netcdf_batch": "blocked by CDS authentication",
+    "next_task_remains_unstarted": "P04-05 is TODO"
+  },
+  "next_action": "Configure TAIHU_CDS_API_KEY or a local .cdsapirc, then rerun the era5-land CLI for authenticated NetCDF retrieval."
+}

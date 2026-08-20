@@ -1,0 +1,34 @@
+{
+  "task_id": "P09-08",
+  "status": "completed",
+  "completed_at_utc": "2026-08-19T08:16:01Z",
+  "rules_version": "1.0.0",
+  "checks": {
+    "exact_duplicate": "retain first canonical row, remove later identical fingerprints, write duplicate_audit",
+    "same_key_conflict": "Q41/medium; all conflicting rows enter pending_conflicts and remain out of model table",
+    "cross_source_overlap": "source_id is part of business key; each source is retained without overwrite"
+  },
+  "business_key": ["source_id", "station_id", "scene_id", "observed_at", "variable_code"],
+  "actual_controlled_batch": {
+    "run_manifest": "storage/runs/p09_08_dedup_conflict_qc/manifest.json",
+    "input_rows": 43922,
+    "deduplicated_rows": 43922,
+    "exact_duplicates_removed": 0,
+    "conflict_groups": 0,
+    "pending_conflict_rows": 0,
+    "clean_rows": 43693,
+    "rejected_rows": 0,
+    "suspect_rows": 229,
+    "note": "The controlled NASA POWER plus Sentinel-2 STAC batch has no duplicate/conflict groups; 229 suspects are inherited Q18 review findings."
+  },
+  "fixture_evidence": {
+    "exact_duplicate": "one later identical row removed and retained-first provenance audited",
+    "same_key_conflict": "two conflicting values written to pending_conflicts with Q41 and never rejected as ordinary duplicates",
+    "cross_source": "same station/time/variable from source_a and source_b retained independently"
+  },
+  "outputs": {
+    "pending_conflicts_csv": "storage/runs/p09_08_dedup_conflict_qc/cleaning/pending_conflicts.csv",
+    "duplicate_audit_csv": "storage/runs/p09_08_dedup_conflict_qc/cleaning/duplicate_audit.csv",
+    "database": "storage/runs/p09_08_dedup_conflict_qc/cleaning.db"
+  }
+}

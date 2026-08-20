@@ -1,0 +1,12 @@
+{
+  "task_id": "P10-02",
+  "status": "passed",
+  "directed_command": "python -m pytest tests/test_short_gap_imputation.py tests/test_missing_mechanisms.py tests/test_qc.py tests/test_quality_report.py tests/test_quality_report_p09_09.py tests/test_time_contract.py tests/test_batch.py -q",
+  "directed_result": "23 passed in 3.39s",
+  "directed_log": "reports/p10_02_directed_pytest.txt",
+  "full_command": "python -m pytest -q",
+  "full_result": "229 passed, 2 warnings in 48.78s",
+  "full_log": "reports/p10_02_full_pytest.txt",
+  "actual_run": "storage/runs/p10_02_short_gap_imputation/summary.json",
+  "test_fixture": "tests/test_short_gap_imputation.py"
+}

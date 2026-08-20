@@ -1,0 +1,19 @@
+{
+  "task_id": "P07-01",
+  "source_id": "tba_current_level",
+  "source_url": "https://www.tba.gov.cn/",
+  "status": "BLOCKED_POLICY",
+  "data_truth": "no_input_page",
+  "input_path": null,
+  "output_csv": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\staging\\tba_hydrology\\water_level.csv",
+  "manifest": "storage\\manifests\\tba_hydrology_p07_01.json",
+  "authorization_evidence_path": null,
+  "raw_html_path": null,
+  "page_timestamp": null,
+  "retrieved_at_utc": "2026-08-19T04:34:04.309553+00:00",
+  "html_sha256": null,
+  "dom_fingerprint": null,
+  "observations": 0,
+  "warnings": [],
+  "next_action": "在条款/书面许可允许后保存一份TBA页面HTML，或提供人工导出的公开水情文件；当前不自动轮询"
+}

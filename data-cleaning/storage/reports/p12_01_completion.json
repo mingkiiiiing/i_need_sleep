@@ -1,0 +1,8 @@
+{
+  "task_id": "P12-01",
+  "status": "completed",
+  "validation": "storage/reports/p12_01_directed_validation.json",
+  "completed_at_utc": "2026-08-19T11:22:05.9091251Z",
+  "next_task": "P12-02",
+  "manifest": "storage/gold/daily_features/manifest.json"
+}

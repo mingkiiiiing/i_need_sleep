@@ -1,0 +1,29 @@
+{
+  "status": "completed",
+  "output_gpkg": "storage\\silver\\geo\\hydrolakes_hydrobasins.gpkg",
+  "topology_csv": "storage\\reports\\hydrobasins_topology.csv",
+  "lake_boundary_source": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\silver\\geo\\taihu_boundary.gpkg",
+  "hydrobasins_source": "storage\\raw\\hydrobasins\\hybas_as_lev08_v1c.zip",
+  "source_crs": "EPSG:4326",
+  "buffer_deg": 0.5,
+  "base_basin_count": 52,
+  "selected_basin_count": 2909,
+  "topology_count": 2909,
+  "layers": [
+    "taihu_boundary_wgs84",
+    "taihu_boundary_utm51n",
+    "hydrobasins_level08_wgs84",
+    "hydrobasins_centroids_wgs84",
+    "boundary_metadata"
+  ],
+  "spatial_index_verified": true,
+  "topology_rule": "selected polygons intersect Taihu buffer or are upstream through NEXT_DOWN chain",
+  "license": "HydroLAKES CC-BY-4.0; HydroBASINS HydroSHEDS license with attribution required",
+  "data_truth": "real_external_hydrolakes_boundary_and_hydrobasins_archive",
+  "task_id": "P07-04",
+  "manifest": "storage\\manifests\\hydrolakes_hydrobasins_p07_04.json",
+  "raw_asset_manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\raw_hydrobasins_hybas_as_lev08_v1c.json",
+  "hydrolakes_source_url": "https://zenodo.org/records/17503891/files/HydroLAKES_Asia.zip?download=1",
+  "hydrobasins_source_url": "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_as_lev08_v1c.zip",
+  "retrieved_at_utc": "2026-08-19T05:05:07.212191+00:00"
+}

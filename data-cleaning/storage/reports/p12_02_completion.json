@@ -1,0 +1,10 @@
+{
+  "task_id": "P12-02",
+  "status": "DONE",
+  "completed_at": "2026-08-19T19:26:27+08:00",
+  "directed_test": "3 passed",
+  "full_test": "258 passed, 2 warnings",
+  "output_manifest": "storage/gold/lag_rolling_features/manifest.json",
+  "causal_policy": "all lag and rolling source dates are strictly earlier than feature_date",
+  "next_task": "P12-03"
+}

@@ -1,0 +1,13 @@
+{
+  "task_id": "P09-03",
+  "directed_command": "python -m pytest tests/test_qc.py tests/test_physical_range_qc.py tests/test_time_contract.py tests/test_unit_contract.py -q",
+  "directed_result": "21 passed in 3.54s",
+  "directed_log": "reports/p09_03_directed_pytest.txt",
+  "full_command": "python -m pytest -q",
+  "full_result": "208 passed in 37.57s",
+  "full_log": "reports/p09_03_full_pytest.txt",
+  "actual_batch_manifest": "storage/runs/p09_03_physical_range_qc/manifest.json",
+  "suspect_csv": "storage/runs/p09_03_physical_range_qc/cleaning/suspect_records.csv",
+  "rejected_csv": "storage/runs/p09_03_physical_range_qc/cleaning/rejected_records.csv",
+  "qc_issues_csv": "storage/runs/p09_03_physical_range_qc/cleaning/qc_issues.csv"
+}

@@ -1,5 +1,0 @@
-﻿dataset_split,row_count,min_time_group,max_time_group,unique_groups,unique_target_variables,missing_feature_rate
-train,396,2005-02-01,2015-11-01,9,1,0.23529411764705882
-validation,81,2016-02-01,2018-02-01,9,1,0.23529411764705882
-test,99,2018-05-01,2020-11-01,9,1,0.25133689839572193
-excluded_missing_time,0,,,0,0,

@@ -43,6 +43,11 @@ def standardize_units(records: list[dict[str, Any]]) -> dict[str, Any]:
     """
     aliases, expected_units, conversions = _load_policy()
     for row in records:
+        # Preserve an immutable source pair before any aliasing or numerical
+        # conversion.  Older callers may only provide observed_value/unit;
+        # backfill the audit fields without changing their behavior.
+        row.setdefault("raw_value", row.get("observed_value", row.get("clean_value")))
+        row.setdefault("raw_unit", row.get("source_unit") or row.get("unit"))
         source_unit = row.get("source_unit") or row.get("unit")
         row["source_unit"] = source_unit
         variable_code = row.get("variable_code")

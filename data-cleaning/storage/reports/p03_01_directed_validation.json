@@ -1,0 +1,46 @@
+{
+  "task_id": "P03-01",
+  "task": "统一原始资产manifest",
+  "result": "PASS",
+  "test_command": "python -m pytest -q tests/test_provenance_manifest.py",
+  "tests_passed": 3,
+  "deliverable": "pipeline/provenance.py",
+  "manifest_contract": {
+    "schema_version": "1.0",
+    "manifest_type": "raw_asset",
+    "fields": [
+      "source_id",
+      "asset_id",
+      "request_url",
+      "local_path",
+      "requested_at_utc",
+      "retrieved_at_utc",
+      "http_status",
+      "response_headers",
+      "checksum_sha256",
+      "size_bytes",
+      "license",
+      "retries",
+      "status",
+      "error"
+    ]
+  },
+  "security_checks": {
+    "url_query_credentials_redacted": true,
+    "sensitive_headers_redacted": true,
+    "token_values_persisted": false
+  },
+  "adapter_integration": [
+    "pipeline.sources.common.write_raw_json",
+    "pipeline.sources.nasa_power",
+    "pipeline.sources.copernicus_stac",
+    "pipeline.sources.open_meteo",
+    "pipeline.sources.water_station",
+    "pipeline.sources.zenodo",
+    "pipeline.sources.lake_geodata"
+  ],
+  "notes": [
+    "公共来源的许可证值由后续来源台账注入；未核实来源保留空值而不猜测许可。",
+    "本任务只统一资产血缘，不执行断点续传、幂等下载或真实大文件批次。"
+  ]
+}

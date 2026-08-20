@@ -1,8 +1,0 @@
-﻿check_name,status,required,observed_value,threshold,reason
-coverage_historical,blocked,True,False,True,历史目标和必需驱动覆盖门禁
-coverage_operational,blocked,True,False,True,最新数据新鲜度和频率门禁
-labels_horizon_1_3d,blocked,True,0.0,0.5,horizon_1_3d未来标签可用率
-labels_horizon_7_15d,blocked,True,0.0,0.5,horizon_7_15d未来标签可用率
-split_duplicate_keys,passed,True,0,0,目标键不得跨样本重复
-split_time_order,passed,True,True,True,时间切分必须保持时间顺序
-feature_missing_rate,passed,True,0.25133689839572193,0.4,训练/验证/测试特征缺失率上限

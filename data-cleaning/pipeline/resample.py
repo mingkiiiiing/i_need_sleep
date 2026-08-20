@@ -23,6 +23,25 @@ UTC = timezone.utc
 CN_TZ = timezone(timedelta(hours=8))
 Q_RESAMPLE = "Q22"
 
+SUPPORTED_FREQUENCIES = ("auto", "hourly", "daily", "decadal", "monthly")
+FREQUENCY_RANK = {"hourly": 0, "daily": 1, "decadal": 2, "monthly": 3, "quarterly": 4, "annual": 5}
+
+# Variables that represent an amount accumulated over the source interval.
+# They must be summed, never averaged, when a coarser bucket is requested.
+FLUX_VARIABLES = {
+    "precipitation", "rainfall", "runoff", "inflow", "outflow", "discharge",
+    "evaporation", "water_flux",
+}
+
+# Robust state variables use a median; the remaining state variables default
+# to a mean.  The mapping is intentionally explicit and versionable so a new
+# variable cannot silently inherit a flux rule.
+MEDIAN_STATE_VARIABLES = {
+    "chlorophyll_a", "algae_density", "turbidity", "pH",
+    "total_nitrogen", "total_phosphorus", "ammonia_nitrogen",
+    "nitrate_nitrogen", "nitrite_nitrogen", "phosphate_phosphorus",
+}
+
 
 def _parse_time(value: str | None) -> datetime | None:
     if not value:
@@ -31,8 +50,8 @@ def _parse_time(value: str | None) -> datetime | None:
         parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         return None
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=UTC)
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
     return parsed.astimezone(UTC)
 
 
@@ -78,7 +97,7 @@ def _infer_granularity(group: list[dict[str, Any]]) -> str:
     variable = str(group[0].get("variable_code") or "")
     if source_id == "nasa_power_hourly":
         return "hourly"
-    if source_id.startswith("copernicus_") or group[0].get("scene_id"):
+    if source_id.startswith("copernicus_") or source_id.startswith("sentinel") or source_id.startswith("clms_"):
         return "overpass"
     if variable == "algae_density":
         return "annual"
@@ -96,6 +115,8 @@ def _infer_granularity(group: list[dict[str, Any]]) -> str:
         return "hourly"
     if median <= 1.5:
         return "daily"
+    if median <= 15:
+        return "decadal"
     if median <= 45:
         return "monthly"
     if median <= 120:
@@ -109,6 +130,56 @@ def _local_day_bucket(timestamp: datetime) -> datetime:
     local = timestamp.astimezone(CN_TZ)
     local_midnight = local.replace(hour=0, minute=0, second=0, microsecond=0)
     return local_midnight.astimezone(UTC)
+
+
+def _local_month_bucket(timestamp: datetime) -> datetime:
+    local = timestamp.astimezone(CN_TZ)
+    month_start = local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    return month_start.astimezone(UTC)
+
+
+def _local_decadal_bucket(timestamp: datetime) -> datetime:
+    local = timestamp.astimezone(CN_TZ)
+    day = 1 if local.day <= 10 else 11 if local.day <= 20 else 21
+    decadal_start = local.replace(day=day, hour=0, minute=0, second=0, microsecond=0)
+    return decadal_start.astimezone(UTC)
+
+
+def _frequency_bucket(timestamp: datetime, frequency: str) -> datetime:
+    if frequency == "hourly":
+        return _hour_bucket(timestamp)
+    if frequency == "daily":
+        return _local_day_bucket(timestamp)
+    if frequency == "decadal":
+        return _local_decadal_bucket(timestamp)
+    if frequency == "monthly":
+        return _local_month_bucket(timestamp)
+    return timestamp
+
+
+def _next_frequency_bucket(bucket: datetime, frequency: str) -> datetime:
+    if frequency == "hourly":
+        return bucket + timedelta(hours=1)
+    if frequency == "daily":
+        return bucket + timedelta(days=1)
+    local = bucket.astimezone(CN_TZ)
+    if frequency == "decadal":
+        if local.day == 1:
+            next_local = local.replace(day=11)
+        elif local.day == 11:
+            next_local = local.replace(day=21)
+        else:
+            year, month = local.year, local.month + 1
+            if month == 13:
+                year, month = year + 1, 1
+            next_local = local.replace(year=year, month=month, day=1)
+        return next_local.astimezone(UTC)
+    if frequency == "monthly":
+        year, month = local.year, local.month + 1
+        if month == 13:
+            year, month = year + 1, 1
+        return local.replace(year=year, month=month, day=1).astimezone(UTC)
+    return bucket
 
 
 def _hour_bucket(timestamp: datetime) -> datetime:
@@ -129,10 +200,15 @@ def _circular_mean(values: list[float]) -> float | None:
 
 
 def _aggregation_method(variable_code: str) -> str:
-    if variable_code == "precipitation":
+    token = str(variable_code or "").casefold()
+    flux_tokens = {item.casefold() for item in FLUX_VARIABLES}
+    median_tokens = {item.casefold() for item in MEDIAN_STATE_VARIABLES}
+    if token in flux_tokens:
         return "sum"
-    if variable_code == "wind_direction":
+    if token == "wind_direction":
         return "circular_mean"
+    if token in median_tokens:
+        return "median"
     return "mean"
 
 
@@ -144,6 +220,12 @@ def _aggregate_value(variable_code: str, values: list[float]) -> float | None:
         return sum(values)
     if method == "circular_mean":
         return _circular_mean(values)
+    if method == "median":
+        ordered = sorted(values)
+        middle = len(ordered) // 2
+        if len(ordered) % 2:
+            return ordered[middle]
+        return (ordered[middle - 1] + ordered[middle]) / 2.0
     return sum(values) / len(values)
 
 
@@ -151,11 +233,7 @@ def _time_bucket(row: dict[str, Any], granularity: str) -> str | None:
     timestamp = _parse_time(row.get("observed_at"))
     if timestamp is None:
         return None
-    if granularity == "hourly":
-        return _hour_bucket(timestamp).isoformat()
-    if granularity == "daily":
-        return _local_day_bucket(timestamp).isoformat()
-    return timestamp.isoformat()
+    return _frequency_bucket(timestamp, granularity).isoformat()
 
 
 def _with_resample_fields(
@@ -186,6 +264,8 @@ def _with_resample_fields(
     output["quality_flags"] = sorted(set(flags + [Q_RESAMPLE]))
     output["missing_flag"] = 1 if value is None else 0
     output["aggregation_coverage"] = None
+    output["observed_flag"] = 1 if value is not None and not bool(row.get("is_imputed")) else 0
+    output["imputation_flag"] = 1 if bool(row.get("is_imputed")) else 0
     if n_obs > 1:
         output["value_origin"] = "derived"
         output["is_imputed"] = any(bool(item.get("is_imputed")) for item in [row])
@@ -211,15 +291,14 @@ def _group_key(row: dict[str, Any]) -> tuple[Any, ...]:
 
 
 def _make_gap_rows(group: list[dict[str, Any]], granularity: str, existing: set[str]) -> list[dict[str, Any]]:
-    if granularity not in {"hourly", "daily"}:
+    if granularity not in {"hourly", "daily", "decadal", "monthly"}:
         return []
     timestamps = [_parse_time(row.get("observed_at")) for row in group]
     timestamps = [value for value in timestamps if value]
     if len(timestamps) < 2:
         return []
-    start = _hour_bucket(min(timestamps)) if granularity == "hourly" else _local_day_bucket(min(timestamps))
-    end = _hour_bucket(max(timestamps)) if granularity == "hourly" else _local_day_bucket(max(timestamps))
-    step = timedelta(hours=1) if granularity == "hourly" else timedelta(days=1)
+    start = _frequency_bucket(min(timestamps), granularity)
+    end = _frequency_bucket(max(timestamps), granularity)
     template = dict(group[0])
     gaps: list[dict[str, Any]] = []
     current = start
@@ -243,15 +322,28 @@ def _make_gap_rows(group: list[dict[str, Any]], granularity: str, existing: set[
                     "quality_flags": ["Q01", Q_RESAMPLE],
                     "value_origin": "derived",
                     "is_imputed": False,
+                    "observed_flag": 0,
+                    "imputation_flag": 0,
+                    "resample_status": "missing_bucket",
                 }
             )
             gaps.append(gap)
-        current += step
+        current = _next_frequency_bucket(current, granularity)
     return gaps
 
 
-def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Aggregate hourly/daily groups and return missing-bucket masks."""
+def resample_records(rows: list[dict[str, Any]], *, target_frequency: str = "auto") -> dict[str, Any]:
+    """Aggregate observations to a requested frequency without upsampling.
+
+    ``auto`` preserves the historical behavior: hourly and daily sources are
+    bucketed at their native cadence, while coarse/scene sources remain native.
+    An explicit ``hourly``/``daily``/``decadal``/``monthly`` request may only
+    aggregate to a coarser cadence.  Requests that would create values between
+    native observations are emitted as ``frequency=native`` with an explicit
+    ``resample_status=no_upsampling`` marker.
+    """
+    if target_frequency not in SUPPORTED_FREQUENCIES:
+        raise ValueError(f"unsupported target_frequency: {target_frequency}")
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         if _parse_time(row.get("observed_at")) is not None:
@@ -260,11 +352,28 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
     output: list[dict[str, Any]] = []
     gaps: list[dict[str, Any]] = []
     grain_counter: Counter[str] = Counter()
+    target_counter: Counter[str] = Counter()
+    status_counter: Counter[str] = Counter()
     for group in groups.values():
         group = sorted(group, key=lambda item: _parse_time(item.get("observed_at")) or datetime.max.replace(tzinfo=UTC))
         granularity = _infer_granularity(group)
         grain_counter[granularity] += len(group)
-        if granularity not in {"hourly", "daily"}:
+        effective_frequency: str | None
+        resample_status: str
+        if target_frequency == "auto":
+            effective_frequency = granularity if granularity in {"hourly", "daily"} else None
+            resample_status = "native_frequency" if effective_frequency is None else "aggregated"
+        elif granularity not in FREQUENCY_RANK or FREQUENCY_RANK.get(granularity, 99) > FREQUENCY_RANK[target_frequency]:
+            # Coarse/scene observations cannot be expanded into fabricated
+            # hourly/daily/旬 values.
+            effective_frequency = None
+            resample_status = "no_upsampling"
+        else:
+            effective_frequency = target_frequency
+            resample_status = "aggregated"
+        target_counter[effective_frequency or "native"] += len(group)
+        status_counter[resample_status] += len(group)
+        if effective_frequency is None:
             for row in group:
                 bucket = _time_bucket(row, granularity) or str(row.get("observed_at") or "")
                 flags = _json_or_empty(row.get("quality_flags"))
@@ -277,12 +386,15 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 native["missing_flag"] = 1 if row.get("clean_value") is None else 0
                 native["aggregation_coverage"] = 1.0 if row.get("clean_value") is not None else 0.0
                 native["quality_flags"] = flags
+                native["resample_status"] = resample_status
+                native["observed_flag"] = int(row.get("observed_flag", 0 if row.get("clean_value") is None else 1) or 0)
+                native["imputation_flag"] = int(row.get("imputation_flag", 1 if row.get("is_imputed") else 0) or 0)
                 output.append(native)
             continue
 
         buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for row in group:
-            bucket = _time_bucket(row, granularity)
+            bucket = _time_bucket(row, effective_frequency)
             if bucket:
                 buckets[bucket].append(row)
         existing: set[str] = set()
@@ -294,7 +406,7 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
             aggregate = _with_resample_fields(
                 base,
                 time_bucket=bucket,
-                frequency=granularity,
+                frequency=effective_frequency,
                 source_granularity=granularity,
                 aggregation_method=_aggregation_method(str(base.get("variable_code") or "")),
                 n_obs=len(bucket_rows),
@@ -303,6 +415,8 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 flags=flags,
             )
             aggregate["is_imputed"] = any(bool(item.get("is_imputed")) for item in bucket_rows)
+            aggregate["imputation_flag"] = int(aggregate["is_imputed"])
+            aggregate["observed_flag"] = int(bool(values) and not aggregate["is_imputed"])
             confidences = [
                 float(item["imputation_confidence"])
                 for item in bucket_rows
@@ -310,8 +424,9 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
             ]
             aggregate["imputation_confidence"] = min(confidences) if confidences else None
             aggregate["aggregation_coverage"] = len(values) / len(bucket_rows) if bucket_rows else 0.0
+            aggregate["resample_status"] = resample_status
             output.append(aggregate)
-        gaps.extend(_make_gap_rows(group, granularity, existing))
+        gaps.extend(_make_gap_rows(group, effective_frequency, existing))
 
     return {
         "records": output,
@@ -319,6 +434,9 @@ def resample_records(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "row_count": len(output),
         "gap_count": len(gaps),
         "granularity_counts": dict(grain_counter),
+        "target_frequency_counts": dict(target_counter),
+        "resample_status_counts": dict(status_counter),
+        "target_frequency": target_frequency,
     }
 
 
@@ -357,7 +475,8 @@ def _write_sqlite(path: Path, records: list[dict[str, Any]], gaps: list[dict[str
                 frequency TEXT NOT NULL, source_granularity TEXT NOT NULL,
                 aggregation_method TEXT NOT NULL, n_obs INTEGER NOT NULL,
                 aggregation_coverage REAL, value_origin TEXT,
-                is_imputed INTEGER, quality_flags TEXT
+                is_imputed INTEGER, observed_flag INTEGER, imputation_flag INTEGER,
+                resample_status TEXT, quality_flags TEXT
             );
             CREATE TABLE resample_gaps AS SELECT * FROM resampled_observations WHERE 0;
             """
@@ -366,7 +485,8 @@ def _write_sqlite(path: Path, records: list[dict[str, Any]], gaps: list[dict[str
             "source_id", "station_id", "scene_id", "observed_at", "time_bucket",
             "longitude", "latitude", "variable_code", "clean_value", "observed_value",
             "unit", "source_unit", "frequency", "source_granularity", "aggregation_method",
-            "n_obs", "aggregation_coverage", "value_origin", "is_imputed", "quality_flags",
+            "n_obs", "aggregation_coverage", "value_origin", "is_imputed", "observed_flag",
+            "imputation_flag", "resample_status", "quality_flags",
         ]
         sql = f"INSERT INTO resampled_observations ({','.join(columns)}) VALUES ({','.join('?' for _ in columns)})"
         connection.executemany(sql, [tuple(json.dumps(row.get(column), ensure_ascii=False) if column == "quality_flags" else row.get(column) for column in columns) for row in records])
@@ -377,9 +497,17 @@ def _write_sqlite(path: Path, records: list[dict[str, Any]], gaps: list[dict[str
         connection.close()
 
 
-def run_resampling(input_path: Path, output_root: Path | None = None, database: Path | None = None, *, manifest_path: Path | None = None, run_id: str | None = None) -> dict[str, Any]:
+def run_resampling(
+    input_path: Path,
+    output_root: Path | None = None,
+    database: Path | None = None,
+    *,
+    frequency: str = "auto",
+    manifest_path: Path | None = None,
+    run_id: str | None = None,
+) -> dict[str, Any]:
     rows = read_observation_csv(input_path)
-    result = resample_records(rows)
+    result = resample_records(rows, target_frequency=frequency)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     output_root = output_root or Path(__file__).resolve().parents[1] / "storage" / "exports" / f"resample_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
@@ -399,12 +527,17 @@ def run_resampling(input_path: Path, output_root: Path | None = None, database: 
         "resampled_rows": result["row_count"],
         "gap_rows": result["gap_count"],
         "granularity_counts": result["granularity_counts"],
-        "timezone": "Asia/Shanghai for daily buckets; UTC for storage",
+        "target_frequency": frequency,
+        "target_frequency_counts": result["target_frequency_counts"],
+        "resample_status_counts": result["resample_status_counts"],
+        "timezone": "Asia/Shanghai for daily/decadal/monthly buckets; UTC for hourly/storage",
         "rules": {
-            "precipitation": "sum",
+            "flux_variables": sorted(FLUX_VARIABLES),
+            "median_state_variables": sorted(MEDIAN_STATE_VARIABLES),
             "wind_direction": "circular_mean",
             "other_numeric": "mean",
             "low_frequency": "native_only_no_upsampling",
+            "supported_frequencies": list(SUPPORTED_FREQUENCIES),
             "missing_buckets": "separate resample_gaps.csv with Q01+Q22",
         },
         "files": {**files, "database": str(database)},

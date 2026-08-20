@@ -1,0 +1,8 @@
+Directed: pytest -q tests/test_gpm_imerg.py
+Result: 4 passed in 0.78s
+
+Full suite: pytest -q
+Result: 143 passed in 22.61s
+
+CLI preflight: python -m pipeline gpm-imerg --start-time 2026-08-18T00:00:00Z --end-time 2026-08-18T01:00:00Z --run early --version 07
+Result: BLOCKED_AUTH; exit code 2; no network retrieval attempted.

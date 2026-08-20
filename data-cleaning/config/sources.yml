@@ -1,5 +1,5 @@
 version: "0.1.0"
-verified_at: "2026-08-18"
+verified_at: "2026-08-19"
 study_area: "Taihu Lake"
 
 sources:
@@ -9,8 +9,9 @@ sources:
     authority: European Commission / Copernicus Data Space Ecosystem
     access_mode: public_catalog_with_product_access_control
     realtime_level: periodic_revisit
-    endpoint: https://catalogue.dataspace.copernicus.eu/stac/search
+    endpoint: https://stac.dataspace.copernicus.eu/v1/search
     method: GET
+    api_version: "STAC API 1.0.0"
     authentication: catalog_query_verified_without_token_product_download_may_require_oauth
     sample_request: >-
       ?collections=sentinel-2-l2a&bbox=119.9,30.9,120.7,31.5&datetime=2025-06-01T00:00:00Z/2025-06-30T23:59:59Z&limit=1
@@ -20,7 +21,10 @@ sources:
     sample_metadata_missing_rate: 0.0
     sample_assets: [B04_10m, B05_20m, B08_10m, SCL_20m, Product]
     mapped_variables: [scene_id, acquisition_at, band_b04_reflectance, band_b05_reflectance, band_b08_reflectance, scene_classification, cloud_probability, water_mask, fai, remote_chlorophyll_a, remote_bloom_area_km2]
-    verified_result: http_200_geojson_one_feature
+    verified_result: http_200_geojson_search_response
+    verified_at: "2026-08-19"
+    verified_status: 200
+    verified_content_type: application/geo+json
     limitations: [catalog_query_is_verified, direct_product_asset_requires_separate_download_test, cloud_and_valid_pixel_fraction_must_be_calculated]
     license_risk: inspect_copernicus_terms_before_redistribution
     fallback: [sentinel3_olci, landsat_c2_l2]
@@ -154,3 +158,40 @@ sources:
     limitations: [metadata_page_is_not_a_machine_data_api, sample_and_full_download_requires_platform_access_review, reuse_requires_attribution_and_written_permission, realtime_station_values_not_verified]
     license_risk: high_until_platform_order_and_reuse_terms_are_approved
     fallback: [copernicus_sentinel2_stac, mee_water_station_protocol, taihu_thqbca_zenodo]
+
+  - source_id: earth_search_sentinel2_l2a
+    name: Sentinel-2 Collection 1 L2A COG via Earth Search
+    category: remote_sensing
+    authority: Element 84 / AWS Open Data / Copernicus
+    access_mode: public_stac_and_cog_without_key
+    realtime_level: satellite_revisit
+    endpoint: https://earth-search.aws.element84.com/v1/search
+    authentication: none
+    mapped_variables: [blue, green, red, rededge1, nir, swir16, scl, ndci, mci, fai]
+    verified_result: four_scenes_found_one_scene_seven_assets_downloaded_and_checksummed
+    limitations: [selected_tile_covers_66_69_percent_of_lake, clouds_and_revisit_create_gaps, attribution_required]
+    license_risk: verify_current_Copernicus_Sentinel_terms_before_redistribution
+
+  - source_id: zenodo_taihu_insitu_10434391
+    name: Taihu satellite-ground synchronous water dataset
+    category: retrieval_calibration
+    authority: NIGLAS / Zenodo
+    access_mode: public_record_and_files
+    endpoint: https://zenodo.org/api/records/10434391
+    authentication: none
+    mapped_variables: [chlorophyll_a, tsm, secchi_depth, water_temperature, rrs_490, rrs_560, rrs_665, rrs_705, rrs_842]
+    verified_result: three_xlsx_downloads_md5_verified_41_samples_parsed
+    limitations: [only_three_dates, field_spectral_to_satellite_domain_shift, record_license_review_pending]
+    license_risk: inspect_record_license_before_public_packaging
+
+  - source_id: open_meteo_ecmwf_seas5
+    name: Open-Meteo ECMWF seasonal ensemble
+    category: meteorology_seasonal_forecast
+    authority: Open-Meteo / ECMWF
+    access_mode: public_json_api_without_key
+    endpoint: https://seasonal-api.open-meteo.com/v1/seasonal
+    authentication: none
+    mapped_variables: [air_temperature, precipitation, shortwave_radiation, wind_speed, ensemble_p10, ensemble_p90]
+    verified_result: actual_90_day_51_member_minimum_ensemble
+    limitations: [current_forecast_not_historical_hindcast, cannot_by_itself_support_training_serving_parity]
+    license_risk: confirm_Open_Meteo_and_upstream_attribution_terms

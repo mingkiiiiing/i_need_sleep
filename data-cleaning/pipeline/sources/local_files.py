@@ -9,7 +9,8 @@ from typing import Any
 
 import yaml
 
-from ..normalize import _iso_time, _row
+from ..normalize import _row
+from ..time_contract import parse_time
 
 
 _CONTROL_ALIASES = {
@@ -41,6 +42,10 @@ _MISSING = {"", "-", "--", "na", "n/a", "null", "none", "nan", "-999", "-999.0"}
 
 def _key(value: Any) -> str:
     return re.sub(r"[\s_\-()/]+", "", str(value).strip()).casefold()
+
+
+_CONTROL_ALIAS_KEYS = {_key(item) for item in _CONTROL_ALIASES}
+_VALUE_ALIAS_KEYS = {_key(item) for item in ("value", "observed_value", "clean_value", "measurement", "measure", "val", "数值")}
 
 
 def _load_alias_map(alias_path: Path | None = None) -> dict[str, str]:
@@ -93,23 +98,14 @@ def _read_rows(path: Path) -> list[dict[str, Any]]:
     raise ValueError(f"unsupported local file type: {path.suffix}")
 
 
-def _as_time(value: Any) -> str | None:
+def _as_time(value: Any, source_timezone: str | None = None) -> dict[str, str | None]:
     if value is None or str(value).strip() == "":
-        return None
-    if isinstance(value, datetime):
-        return value.isoformat()
-    if isinstance(value, date):
-        return datetime.combine(value, datetime.min.time()).isoformat()
-    text = str(value).strip()
-    normalized = _iso_time(text)
-    if normalized:
-        return normalized
-    for fmt in ("%Y/%m/%d %H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y/%m/%d", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(text, fmt).isoformat() + "+00:00"
-        except ValueError:
-            continue
-    return None
+        return parse_time(value, source_timezone=source_timezone)
+    if isinstance(value, (datetime, date)):
+        parsed = parse_time(value, source_timezone=source_timezone)
+    else:
+        parsed = parse_time(str(value).strip(), source_timezone=source_timezone)
+    return parsed
 
 
 def _value(value: Any) -> tuple[Any, Any]:
@@ -144,23 +140,35 @@ def normalize_local_file(path: Path, alias_path: Path | None = None) -> dict[str
     source_id = f"local_{path.stem}"
     observations: list[dict[str, Any]] = []
     for row_number, raw in enumerate(rows, start=2):
-        canonical_headers = {_canonical(key, aliases): key for key in raw if _canonical(key, aliases)}
-        time_value = _first(raw, "observed_at", aliases) or _first(raw, "acquisition_at", aliases)
-        observed_at = _as_time(time_value)
-        row_source = _first(raw, "source_id", aliases) or source_id
-        station_id = _first(raw, "station_id", aliases)
-        longitude = _first(raw, "longitude", aliases)
-        latitude = _first(raw, "latitude", aliases)
-        unit = _first(raw, "unit", aliases)
-        source_unit = _first(raw, "source_unit", aliases) or unit
-        conversion_rule = _first(raw, "conversion_rule", aliases)
-        value_origin = _first(raw, "value_origin", aliases) or "observed"
+        # Canonicalise each header once. The previous implementation scanned
+        # and regex-normalised every header again for every requested field,
+        # making large canonical CSV files unnecessarily quadratic in the
+        # number of metadata lookups.
+        canonical_raw = {}
+        for key, value in raw.items():
+            canonical_key = _canonical(key, aliases)
+            if canonical_key:
+                canonical_raw[canonical_key] = value
+        time_value = canonical_raw.get("observed_at") or canonical_raw.get("acquisition_at")
+        source_timezone = canonical_raw.get("source_timezone")
+        time_fields = _as_time(time_value, str(source_timezone) if source_timezone not in (None, "") else None)
+        observed_at = time_fields["utc"]
+        row_source = canonical_raw.get("source_id") or source_id
+        station_id = canonical_raw.get("station_id")
+        station_name = canonical_raw.get("station_name")
+        longitude = canonical_raw.get("longitude")
+        latitude = canonical_raw.get("latitude")
+        unit = canonical_raw.get("unit")
+        source_unit = canonical_raw.get("source_unit") or unit
+        conversion_rule = canonical_raw.get("conversion_rule")
+        value_origin = canonical_raw.get("value_origin") or "observed"
 
-        variable_value = _first(raw, "variable_code", aliases)
+        variable_value = canonical_raw.get("variable_code")
         long_value = None
         for key, value in raw.items():
-            if _key(key) in {_key(item) for item in _CONTROL_ALIASES}:
-                if _key(key) in {_key(item) for item in ("value", "observed_value", "clean_value", "measurement", "measure", "val", "数值")}:
+            key_token = _key(key)
+            if key_token in _CONTROL_ALIAS_KEYS:
+                if key_token in _VALUE_ALIAS_KEYS:
                     long_value = value
                     break
         if variable_value is not None and long_value is not None:
@@ -175,13 +183,18 @@ def normalize_local_file(path: Path, alias_path: Path | None = None) -> dict[str
                     longitude=_coordinate(longitude),
                     latitude=_coordinate(latitude),
                     source_parameter=str(variable_value),
+                    conversion_rule=conversion_rule,
+                    time_fields=time_fields,
+                    raw_unit=source_unit,
                 )
             )
+            observations[-1]["station_name"] = station_name
             observations[-1]["source_unit"] = source_unit
+            observations[-1]["raw_unit"] = source_unit
             observations[-1]["conversion_rule"] = conversion_rule
             continue
 
-        metadata = {"observed_at", "acquisition_at", "source_id", "station_id", "station_name", "lake_zone", "longitude", "latitude", "depth_m", "unit", "source_unit", "conversion_rule", "value_origin", "quality_flags", "is_imputed"}
+        metadata = {"observed_at", "acquisition_at", "source_id", "station_id", "station_name", "lake_zone", "longitude", "latitude", "depth_m", "source_timezone", "unit", "source_unit", "conversion_rule", "value_origin", "quality_flags", "is_imputed"}
         for header, raw_value in raw.items():
             variable_code = _canonical(header, aliases)
             if not variable_code or variable_code in metadata:
@@ -196,6 +209,12 @@ def normalize_local_file(path: Path, alias_path: Path | None = None) -> dict[str
                     longitude=_coordinate(longitude),
                     latitude=_coordinate(latitude),
                     source_parameter=header,
+                    conversion_rule=conversion_rule,
+                    time_fields=time_fields,
+                    raw_unit=source_unit,
                 )
             )
+            observations[-1]["station_name"] = station_name
+            observations[-1]["source_unit"] = source_unit
+            observations[-1]["raw_unit"] = source_unit
     return {"observations": observations, "catalog": [], "archives": []}

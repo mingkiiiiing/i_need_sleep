@@ -1,0 +1,22 @@
+{
+  "task_id": "P06-01",
+  "status": "DONE",
+  "implemented": true,
+  "module": "pipeline/sources/copernicus_stac.py",
+  "endpoint": "https://stac.dataspace.copernicus.eu/v1/search",
+  "real_manifest": "storage/manifests/ingest_20260819T034225Z.json",
+  "raw_response": "storage/raw/copernicus_sentinel2_stac/20260819T034225Z.json",
+  "real_batch": {
+    "collection": "sentinel-2-l2a",
+    "scenes": 16,
+    "assets": 688,
+    "bbox": [119.9, 30.9, 120.7, 31.5],
+    "period": "2025-06-01/2025-06-30"
+  },
+  "tests": {
+    "directed": "4 passed",
+    "full_pytest": "151 passed"
+  },
+  "next_task": "P06-02",
+  "notes": "STAC catalogue discovery is public and verified. Product/asset download authentication and checksum handling are intentionally deferred to P06-02."
+}

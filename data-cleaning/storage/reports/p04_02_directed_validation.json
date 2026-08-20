@@ -1,0 +1,33 @@
+{
+  "task_id": "P04-02",
+  "title": "扩展THQBCA藻类水位遥感解析",
+  "executed_at_utc": "2026-08-19T00:00:00Z",
+  "commands": [
+    "python -m pipeline parse-thqbca",
+    "python -m pipeline revalidate-thqbca",
+    "python -m pytest -q tests/test_thqbca_data.py tests/test_thqbca_remote.py"
+  ],
+  "result": "passed",
+  "tests_passed": 2,
+  "tests_failed": 0,
+  "standard_long_table": {
+    "records": 84179,
+    "algae_density_taxonomy_groups": 10,
+    "zooplankton_biomass_groups": 4,
+    "zooplankton_density_groups": 5,
+    "phytoplankton_biomass_rows": 576,
+    "water_level_rows": 6210,
+    "original_taxon_names_preserved": true
+  },
+  "remote_product_index": {
+    "records": 146,
+    "aquatic_vegetation": 21,
+    "floating_algae_cover": 20,
+    "secchi_depth": 35,
+    "chlorophyll_a": 36,
+    "trophic_state_index": 34,
+    "unmatched_raster_members": 0,
+    "pixel_values_extracted": false
+  },
+  "data_truth": "real_external_file_and_archive_metadata"
+}

@@ -1,0 +1,44 @@
+version: "0.1.0"
+study_area_id: taihu_lake
+name: Taihu Lake
+name_zh: 太湖
+boundary_status: frozen_public_reference
+
+# This bbox is used only for catalogue/API search windows. All spatial
+# analysis must clip to the polygon in the GeoPackage below.
+catalog_bbox_wgs84: [119.90, 30.90, 120.75, 31.65]
+bbox_order: [min_longitude, min_latitude, max_longitude, max_latitude]
+bbox_role: catalog_search_only
+
+boundary:
+  path: storage/silver/geo/taihu_boundary.gpkg
+  exchange_layer: taihu_boundary_wgs84
+  area_layer: taihu_boundary_utm51n
+  geometry_type: Polygon
+  geometry_crs: EPSG:4326
+  area_calculation_crs: EPSG:32651
+  source_dataset: HydroLAKES v1.0
+  source_feature_id: 148
+  source_name: Tai
+  source_version: "HydroLAKES v1.0 Asia subset; Zenodo v1 (2025-11-01)"
+  source_record: https://zenodo.org/records/17503891
+  source_doi: 10.5281/zenodo.17503891
+  source_download: https://zenodo.org/records/17503891/files/HydroLAKES_Asia.zip?download=1
+  source_md5: 7601d5fad928195d6a91c616adb172ad
+  license: CC-BY-4.0
+  citation: "Messager et al. (2016), HydroLAKES v1.0; source subset deposited at Zenodo."
+  boundary_role: authoritative_public_reference_polygon
+  source_area_km2: 2329.14
+  area_km2_calculated: 2329.357405
+  area_method: planar_polygon_area_after_reprojection
+  area_difference_percent: 0.009
+  area_calculation_note: "Area is calculated in EPSG:32651, never directly in EPSG:4326."
+
+processing_rules:
+  clip_all_remote_sensing_and_grid_data: true
+  retain_catalog_bbox_for_query_only: true
+  preserve_source_geometry_and_attributes: true
+  preserve_original_source_archive: true
+  operational_boundary_review_required: true
+  operational_boundary_review_note: "Before regulatory publication, cross-check against the authorized local shoreline/product polygon if supplied by the project owner."
+

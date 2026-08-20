@@ -1,0 +1,18 @@
+{
+  "task_id": "P00-04",
+  "validated_at_utc": "2026-08-18T22:26:00Z",
+  "checks": {
+    "p00_03_done": true,
+    "p00_04_in_progress": true,
+    "only_one_active": true,
+    "snapshot_parses": true,
+    "config_count_matches": true,
+    "all_hashes_match": true,
+    "all_config_files_listed": true,
+    "credential_scan_passed": true,
+    "no_content_backup": true
+  },
+  "overall": true,
+  "config_file_count": 7,
+  "next_task": "P01-01"
+}
