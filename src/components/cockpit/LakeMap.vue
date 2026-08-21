@@ -59,8 +59,19 @@ let heatLayer = null
 let resizeObserver = null
 const activeLayer = ref('satellite')
 
-const LAKE_CENTER = [31.20, 120.15]
+// 太湖流域中心（点位几何中心，默认视野对准点位+水域）
+const LAKE_CENTER = [31.19, 120.15]
+// 默认缩放 11（太湖大小刚好），最小可缩到 9 级看更广的全景
 const DEFAULT_ZOOM = 11
+const MIN_ZOOM = 9
+const MAX_ZOOM = 14
+// 地图边界（拖拽/瓦片加载的硬边界）
+// 覆盖长三角范围：保证缩小到 9 级、宽屏全宽时满屏都有地图（太湖+周边城市），不露白
+// [南西角, 北东角]  [lat, lon]
+const LAKE_BOUNDS = [
+  [29.30, 118.00],
+  [33.10, 122.30]
+]
 
 function riskColors() {
   const p = palette()
@@ -125,13 +136,30 @@ async function initMap() {
     zoom: DEFAULT_ZOOM,
     zoomControl: true,
     attributionControl: true,
-    preferCanvas: true
+    preferCanvas: true,
+    // 锁定在太湖流域，拖拽不会超出边界 → 区域外瓦片不会加载
+    maxBounds: LAKE_BOUNDS,
+    maxBoundsViscosity: 1.0,
+    // 默认 11 级，最小 9 级（全景），最大 14 级看细节
+    scrollWheelZoom: true,
+    doubleClickZoom: true,
+    boxZoom: false,
+    keyboard: false,
+    touchZoom: true,
+    dragging: true
   })
+
+  map.setView(LAKE_CENTER, DEFAULT_ZOOM, { animate: false })
+  map.setMinZoom(MIN_ZOOM)
+  map.setMaxZoom(MAX_ZOOM)
+
+  const tileBounds = L.latLngBounds(LAKE_BOUNDS)
 
   satelliteLayer = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom: 19,
+      bounds: tileBounds,
       attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics'
     }
   ).addTo(map)
@@ -140,6 +168,7 @@ async function initMap() {
     'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom: 19,
+      bounds: tileBounds,
       opacity: 0.85
     }
   ).addTo(map)
@@ -148,6 +177,7 @@ async function initMap() {
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom: 17,
+      bounds: tileBounds,
       attribution: '&copy; Esri'
     }
   )
@@ -215,10 +245,10 @@ function updateHeatLayer() {
   heatLayer.setLatLngs(heatData)
 }
 
+// 回到默认视野（11 级，太湖全景）
 function fitBounds() {
-  if (!map || markers.length === 0) return
-  const group = L.featureGroup(markers.map(({ marker }) => marker))
-  map.fitBounds(group.getBounds().pad(0.2))
+  if (!map) return
+  map.setView(LAKE_CENTER, DEFAULT_ZOOM)
 }
 
 function switchLayer(layer) {
@@ -270,7 +300,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .map-panel {
-  min-height: 640px;
+  min-height: 720px;
   display: flex;
   flex-direction: column;
 }
@@ -321,7 +351,7 @@ onBeforeUnmount(() => {
 
 .leaflet-map-container {
   flex: 1;
-  min-height: 560px;
+  min-height: 620px;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid var(--panel-line);
@@ -332,7 +362,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 820px) {
   .leaflet-map-container {
-    min-height: 440px;
+    min-height: 460px;
   }
 }
 </style>
