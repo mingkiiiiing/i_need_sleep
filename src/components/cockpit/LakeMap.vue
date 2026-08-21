@@ -41,6 +41,8 @@ const props = defineProps({
   modelValue: { type: String, required: true },
   pointList: { type: Array, required: true },
   positions: { type: Object, default: () => ({}) },
+  heatField: { type: Object, default: () => ({}) },
+  heatStageKey: { type: String, default: '' },
   stageLabel: { type: String, default: '' },
   title: { type: String, default: '监测点位全景' },
   activeTab: { type: String, default: 'stations' },
@@ -118,6 +120,28 @@ function buildHeatPoints(pointList) {
   return points
 }
 
+function buildGridHeatPoints(field, stageKey) {
+  const grid = field && stageKey ? field[stageKey] : null
+  if (!Array.isArray(grid) || !grid.length) return []
+
+  // Grid maps to Taihu Lake region (normalized 0-100 → lat/lon).
+  const bounds = { south: 30.90, north: 31.48, west: 119.88, east: 120.38 }
+  const rows = grid.length
+  const cols = Math.max(...grid.map((row) => row.length), 0)
+  if (!cols) return []
+
+  const points = []
+  grid.forEach((row, r) => row.forEach((value, c) => {
+    const v = Number(value)
+    if (!Number.isFinite(v) || v < 3) return
+    const intensity = Math.min(1, v / 100)
+    const lat = bounds.north - ((r + 0.5) / rows) * (bounds.north - bounds.south)
+    const lon = bounds.west + ((c + 0.5) / cols) * (bounds.east - bounds.west)
+    points.push([lat, lon, intensity])
+  }))
+  return points
+}
+
 async function initMap() {
   if (!mapContainerRef.value) return
 
@@ -136,7 +160,6 @@ async function initMap() {
     zoom: DEFAULT_ZOOM,
     zoomControl: true,
     attributionControl: true,
-    preferCanvas: true,
     // 锁定在太湖流域，拖拽不会超出边界 → 区域外瓦片不会加载
     maxBounds: LAKE_BOUNDS,
     maxBoundsViscosity: 1.0,
@@ -184,19 +207,7 @@ async function initMap() {
 
   addMarkers()
 
-  const heatData = buildHeatPoints(props.pointList)
-  if (heatData.length && typeof L.heatLayer === 'function') {
-    heatLayer = L.heatLayer(heatData, {
-      radius: 50,
-      blur: 35,
-      maxZoom: 14,
-      minOpacity: 0.25,
-      gradient: { 0.2: '#6ee7b7', 0.4: '#f4c062', 0.6: '#ff8c5a', 0.8: '#ff5757', 1.0: '#ff2d2d' }
-    })
-    if (activeLayer.value === 'satellite') {
-      heatLayer.addTo(map)
-    }
-  }
+  rebuildHeatLayer()
 
   fitBounds()
 
@@ -239,10 +250,56 @@ function updateMarkerStates() {
   })
 }
 
-function updateHeatLayer() {
-  if (!map || !heatLayer) return
-  const heatData = buildHeatPoints(props.pointList)
-  heatLayer.setLatLngs(heatData)
+function rebuildHeatLayer() {
+  if (!map) return
+  if (typeof L.heatLayer !== 'function') return
+
+  // Remove old layer
+  if (heatLayer) {
+    map.removeLayer(heatLayer)
+    heatLayer = null
+  }
+
+  // Pick data source: grid (geographic heatmap) > point list (sparse monitoring points)
+  const hasGrid = Object.keys(props.heatField).length > 0 && props.heatStageKey
+  const heatData = hasGrid
+    ? buildGridHeatPoints(props.heatField, props.heatStageKey)
+    : buildHeatPoints(props.pointList)
+
+  if (!heatData.length) return
+
+  heatLayer = L.heatLayer(heatData, {
+    radius: hasGrid ? 35 : 50,
+    blur: hasGrid ? 25 : 35,
+    maxZoom: 15,
+    minOpacity: 0.05,
+    max: 1.0,
+    gradient: {
+      0.0: '#22d3ee',
+      0.2: '#6ee7b7',
+      0.4: '#fbbf24',
+      0.6: '#f97316',
+      0.8: '#ef4444',
+      1.0: '#dc2626'
+    }
+  })
+
+  if (activeLayer.value === 'satellite') {
+    heatLayer.addTo(map)
+  }
+
+  // Ensure heat canvas renders above tile layers
+  setTimeout(() => {
+    const canvas = mapContainerRef.value?.querySelector('canvas.leaflet-heatmap-layer')
+    if (canvas) {
+      canvas.style.zIndex = '1000'
+      canvas.style.pointerEvents = 'none'
+    }
+    const overlayPane = mapContainerRef.value?.querySelector('.leaflet-overlay-pane')
+    if (overlayPane) {
+      overlayPane.style.zIndex = '450'
+    }
+  }, 0)
 }
 
 // 回到默认视野（11 级，太湖全景）
@@ -275,9 +332,13 @@ watch(() => props.modelValue, () => {
 watch(() => props.pointList, () => {
   if (map) {
     addMarkers()
-    updateHeatLayer()
+    rebuildHeatLayer()
     fitBounds()
   }
+}, { deep: true })
+
+watch(() => [props.heatField, props.heatStageKey], () => {
+  rebuildHeatLayer()
 }, { deep: true })
 
 onMounted(() => {

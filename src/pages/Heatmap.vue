@@ -35,23 +35,17 @@
     </section>
 
     <div class="dashboard-layout cockpit-stage dashboard-stacked">
-      <section class="panel heatmap-stage">
-        <EChart :option="heatmapOption" />
-        <div class="heat-legend">
-          <div class="heat-legend-row">
-            <span class="legend-dot high"></span> 高风险网格 (≥ 75)
-          </div>
-          <div class="heat-legend-row">
-            <span class="legend-dot mid"></span> 关注网格 (45–75)
-          </div>
-          <div class="heat-legend-row">
-            <span class="legend-dot low"></span> 稳定网格 (≤ 45)
-          </div>
-          <div style="margin-top: 6px; color: var(--muted); font-size: 12px;">
-            时间档位：{{ stageLabel }}
-          </div>
-        </div>
-      </section>
+      <LakeMap
+        :model-value="cockpit.selectedPoint"
+        :point-list="mapPointList"
+        :positions="{}"
+        :heat-field="heatField"
+        :heat-stage-key="cockpit.stageKey"
+        :stage-label="stageLabel"
+        title="太湖风险热力分区"
+        active-tab="heatmap"
+        @update:model-value="setPoint"
+      />
 
       <aside class="panel detail-panel">
         <header class="panel-head">
@@ -102,13 +96,6 @@
           </div>
         </section>
 
-        <section class="detail-section">
-          <div class="section-line">
-            <h3>湖泊地理底图</h3>
-            <span>等待卫星影像</span>
-          </div>
-          <div class="image-slot tall" data-label="湖体卫星底图 · 待替换为 <img>"></div>
-        </section>
       </aside>
     </div>
     <footer class="cockpit-foot">
@@ -119,15 +106,17 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useCockpitStore } from '../stores/cockpit.js'
+import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getHeatField, getPoints, getRegionSummary, getTimeStages } from '../services/api.js'
 import { palette } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
 import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
+import LakeMap from '../components/cockpit/LakeMap.vue'
 
 const cockpit = useCockpitStore()
+const cockpitMutable = cockpitState()
 const { theme } = useTheme()
 
 const stages = ref([])
@@ -136,6 +125,17 @@ const pointsState = ref({ pointData: {} })
 const summaryState = ref({})
 
 const pointList = computed(() => Object.values(pointsState.value.pointData))
+const mapPointList = computed(() => pointList.value.map((point) => {
+  const value = summaryState.value.intensity?.[point.id]?.[cockpit.stageKey] ?? 0
+  return {
+    ...point,
+    riskClass: value >= 75 ? 'high' : value >= 45 ? 'mid' : 'low'
+  }
+}))
+
+function setPoint(pointId) {
+  cockpitMutable.selectedPoint = pointId
+}
 const currentGrid = computed(() => heatField.value[cockpit.stageKey] || [])
 const stageLabel = computed(() => {
   const item = stages.value.find((s) => s.key === cockpit.stageKey)
@@ -215,81 +215,9 @@ const topCells = computed(() => {
   }))
   flat.sort((a, b) => b.value - a.value)
   return flat.slice(0, 5).map((cell, i) => ({
-    label: `高值区 #${i + 1} · 行 ${cell.row + 1} / 列 ${cell.col + 1}`,
+    label: `地图热点区 #${i + 1}`,
     value: cell.value
   }))
-})
-
-const heatmapOption = computed(() => {
-  const p = palette()
-  void theme.value
-  const grid = currentGrid.value
-  const cols = 19
-  const rows = grid.length || 11
-  const data = []
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      data.push([c, r, grid[r] ? grid[r][c] || 0 : 0])
-    }
-  }
-  return {
-    tooltip: {
-      position: 'top',
-      backgroundColor: p.surface,
-      borderColor: p.lineStrong,
-      textStyle: { color: p.text },
-      formatter: (v) => `行 ${v.value[1] + 1} · 列 ${v.value[0] + 1}<br/>风险值 ${v.value[2]}`
-    },
-    grid: { left: 32, right: 32, top: 30, bottom: 36, containLabel: false },
-    xAxis: {
-      type: 'category',
-      data: Array.from({ length: cols }, (_, i) => `列 ${i + 1}`),
-      splitArea: { show: false },
-      axisLabel: { color: p.muted, fontSize: 10, interval: 2 },
-      axisLine: { show: false },
-      axisTick: { show: false }
-    },
-    yAxis: {
-      type: 'category',
-      data: Array.from({ length: rows }, (_, i) => `行 ${i + 1}`),
-      splitArea: { show: false },
-      axisLabel: { color: p.muted, fontSize: 10, interval: 1 },
-      axisLine: { show: false },
-      axisTick: { show: false }
-    },
-    visualMap: {
-      min: 0,
-      max: 100,
-      calculable: false,
-      show: false,
-      inRange: {
-        color: [
-          p.stable + '2e',
-          p.stable + '73',
-          p.watch + '8c',
-          p.alert + 'b3',
-          p.alert
-        ]
-      }
-    },
-    series: [{
-      type: 'heatmap',
-      data,
-      progressive: 0,
-      itemStyle: {
-        borderRadius: 4,
-        borderColor: p.surface,
-        borderWidth: 1
-      },
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 16,
-          shadowColor: p.accent + '99'
-        }
-      },
-      animationDuration: 400
-    }]
-  }
 })
 
 const barOption = computed(() => {
