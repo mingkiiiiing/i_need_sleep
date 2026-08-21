@@ -50,11 +50,25 @@ export function getRegionSummary() {
   return withFallback(() => request('/cockpit/region-summary'), mock.fetchRegionSummary)
 }
 
-// 预测调用保留为稳定对外方法；forecastScale 映射为赛题定义的预警时间尺度。
 export function getPrediction(stationId, targetMetric = 'chlorophyll_a', forecastScale = 'short_term') {
   const horizonDays = { short_term: 3, mid_term: 7, long_term: 30 }[forecastScale] || 3
   return request('/model/predict', {
     method: 'POST',
     body: JSON.stringify({ station_id: stationId, horizon_days: horizonDays, target_metric: targetMetric })
   })
+}
+
+export function getExplanation(predictionId) {
+  return withFallback(() => request(`/model/explain/${encodeURIComponent(predictionId)}`), () => mock.fetchExplanation(predictionId))
+}
+
+export function handleWarning(eventId) {
+  return withFallback(() => request('/cockpit/handle-warning', {
+    method: 'POST',
+    body: JSON.stringify({ event_id: eventId })
+  }), () => mock.fetchHandleWarning(eventId))
+}
+
+export function getTimeline(startDate, endDate) {
+  return withFallback(() => request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`), () => mock.fetchTimeline(startDate, endDate))
 }

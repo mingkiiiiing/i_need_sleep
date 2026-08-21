@@ -71,6 +71,10 @@ h1, h2, h3, h4, strong, p { margin: 0; }
   max-width: 1480px;
   margin: 0 auto;
   padding: 24px 28px 60px;
+  /* 撑满视口高度：让数据大屏页面（监测站等）的地图区域填满剩余画布 */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===================== 通用排版 ===================== */
@@ -783,6 +787,9 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: 18px;
   margin-top: 18px;
+  /* 在 flex 纵向容器（.shell）中占满剩余高度，地图填满画布 */
+  flex: 1;
+  align-items: stretch;
 }
 
 /* ===================== 旧版兼容 ===================== */
