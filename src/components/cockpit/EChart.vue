@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" style="width: 100%; height: 260px;"></div>
+  <div ref="rootRef" :style="{ width: '100%', height: height + 'px' }"></div>
 </template>
 
 <script setup>
@@ -35,7 +35,8 @@ echarts.use([
 ])
 
 const props = defineProps({
-  option: { type: Object, required: true }
+  option: { type: Object, required: true },
+  height: { type: [Number, String], default: 260 }
 })
 
 const rootRef = ref(null)

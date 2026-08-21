@@ -1,41 +1,77 @@
 <template>
-  <main class="shell">
-    <section class="panel" style="padding: 26px 28px;">
-      <p class="eyebrow">COCKPIT · RISK HEATMAP</p>
-      <h1>{{ stageTitle }}</h1>
-      <p style="max-width: 880px; margin-top: 14px;">
-        基于机理 + AI 融合模型输出的藻华风险空间分布。当前档位聚焦 {{ stageLabel }}，可通过顶部播放器切换时间尺度，观察风险高值区随时间的扩散与收敛。
-      </p>
+  <main class="shell heatmap-shell">
+    <section class="heatmap-header">
+      <div>
+        <p class="eyebrow">COCKPIT · RISK HEATMAP</p>
+        <h1>太湖蓝藻风险综合驾驶舱</h1>
+        <p class="heatmap-subtitle">融合机理模型与 AI 推演，追踪蓝藻风险的空间聚集、扩散与收敛。</p>
+      </div>
+      <div class="header-status">
+        <span class="status-light"></span>
+        <div>
+          <strong>{{ stageLabel || '数据加载中' }}</strong>
+          <small>模型在线 · 预测置信度 {{ summary.confidence }}%</small>
+        </div>
+        <span class="risk-badge" :class="stageRiskClass">{{ stageRiskLabel }}</span>
+      </div>
     </section>
 
-    <TimeAxisBar :stages="stages" />
     <CockpitSubTabs />
 
-    <section class="kpi-grid">
-      <article>
-        <div class="kpi-label">高风险网格</div>
-        <div class="kpi-value" style="color: var(--coral);">{{ summary.highCells }}</div>
-        <div class="kpi-trend up">占比 {{ summary.highShare }}%</div>
-      </article>
-      <article>
-        <div class="kpi-label">关注网格</div>
-        <div class="kpi-value" style="color: var(--amber);">{{ summary.midCells }}</div>
-        <div class="kpi-trend flat">占比 {{ summary.midShare }}%</div>
-      </article>
-      <article>
-        <div class="kpi-label">稳定网格</div>
-        <div class="kpi-value" style="color: var(--green);">{{ summary.lowCells }}</div>
-        <div class="kpi-trend down">占比 {{ summary.lowShare }}%</div>
-      </article>
-      <article>
-        <div class="kpi-label">预测置信度</div>
-        <div class="kpi-value">{{ summary.confidence }}%</div>
-        <div class="kpi-trend flat">机理与 AI 共识度</div>
-      </article>
-    </section>
+    <section class="cockpit-grid">
+      <aside class="panel cockpit-rail left-rail">
+        <div class="rail-heading">
+          <div>
+            <p class="panel-kicker">RISK OVERVIEW</p>
+            <h2>区域态势</h2>
+          </div>
+          <span class="rail-index">01</span>
+        </div>
 
-    <div class="dashboard-layout cockpit-stage dashboard-stacked">
+        <div class="risk-score">
+          <span class="score-label">当前研判</span>
+          <strong>{{ stageRiskLabel }}</strong>
+          <span class="score-caption">{{ stageLabel }}</span>
+        </div>
+
+        <div class="metric-stack">
+          <div class="metric-row metric-high">
+            <span><i></i>高风险网格</span>
+            <strong>{{ summary.highCells }}</strong>
+            <small>{{ summary.highShare }}%</small>
+          </div>
+          <div class="metric-row metric-mid">
+            <span><i></i>关注网格</span>
+            <strong>{{ summary.midCells }}</strong>
+            <small>{{ summary.midShare }}%</small>
+          </div>
+          <div class="metric-row metric-low">
+            <span><i></i>稳定网格</span>
+            <strong>{{ summary.lowCells }}</strong>
+            <small>{{ summary.lowShare }}%</small>
+          </div>
+        </div>
+
+        <div class="rail-section">
+          <div class="section-line">
+            <h3>当前研判</h3>
+            <span>{{ stageLabel }}</span>
+          </div>
+          <p class="rail-summary">{{ stageSummary }}</p>
+        </div>
+
+        <div class="rail-section rail-note">
+          <span class="note-mark">AI</span>
+          <div>
+            <strong>融合模型共识度</strong>
+            <small>机理层与 AI 层联合校准</small>
+          </div>
+          <b>{{ summary.confidence }}%</b>
+        </div>
+      </aside>
+
       <LakeMap
+        class="map-stage"
         :model-value="cockpit.selectedPoint"
         :point-list="mapPointList"
         :positions="{}"
@@ -47,59 +83,64 @@
         @update:model-value="setPoint"
       />
 
-      <aside class="panel detail-panel">
-        <header class="panel-head">
+      <aside class="panel cockpit-rail right-rail">
+        <div class="rail-heading">
           <div>
-            <p class="panel-kicker">RISK SUMMARY</p>
-            <h2>{{ stageTitle }}</h2>
+            <p class="panel-kicker">ANALYSIS FEED</p>
+            <h2>研判分析</h2>
           </div>
-          <span class="risk-badge" :class="stageRiskClass">{{ stageRiskLabel }}</span>
-        </header>
+          <span class="rail-index">02</span>
+        </div>
 
-        <p class="detail-summary">{{ stageSummary }}</p>
-
-        <section class="detail-section" style="margin-top: 8px;">
+        <section class="rail-section hotspot-section">
           <div class="section-line">
-            <h3>热点分布前五</h3>
+            <h3>热点区域排行</h3>
             <span>{{ stageLabel }}</span>
           </div>
           <div class="factor-list">
-            <div v-for="cell in topCells" :key="cell.label" class="factor-row">
-              <div class="factor-meta">
-                <span>{{ cell.label }}</span>
-                <strong style="color: var(--coral);">{{ cell.value }}</strong>
-              </div>
-              <div class="factor-track">
-                <div class="factor-fill" :style="{ width: cell.value + '%' }"></div>
-              </div>
+            <div v-for="(cell, i) in topCells" :key="cell.label" class="factor-track">
+              <div class="factor-fill" :class="{ 'is-top': i === 0 }" :style="{ width: cell.width + '%' }"></div>
+              <span class="factor-tag">{{ cell.label }}</span>
+              <strong class="factor-value">{{ cell.value }}</strong>
             </div>
           </div>
         </section>
 
-        <section class="detail-section">
+        <section class="rail-section chart-section">
           <div class="section-line">
-            <h3>各点位风险强度</h3>
+            <h3>点位风险强度</h3>
             <span>{{ stageLabel }}</span>
           </div>
-          <div class="chart-card">
-            <EChart :option="barOption" />
+          <div class="chart-frame">
+            <EChart :option="barOption" :height="200" />
           </div>
         </section>
 
-        <section class="detail-section">
+        <section class="rail-section chart-section confidence-section">
           <div class="section-line">
-            <h3>机理 + AI 置信曲线</h3>
+            <h3>模型置信曲线</h3>
             <span>跨档位对比</span>
           </div>
-          <div class="chart-card">
-            <EChart :option="confidenceOption" />
+          <div class="chart-frame">
+            <EChart :option="confidenceOption" :height="168" />
           </div>
         </section>
-
       </aside>
-    </div>
-    <footer class="cockpit-foot">
-      <RouterLink class="button secondary" to="/cockpit">← 返回驾驶舱</RouterLink>
+    </section>
+
+    <section class="timeline-dock">
+      <div class="dock-label">
+        <span class="dock-index">03</span>
+        <div>
+          <strong>时间推演</strong>
+          <small>切换预测尺度</small>
+        </div>
+      </div>
+      <TimeAxisBar :stages="stages" />
+      <RouterLink class="dock-back" to="/cockpit" aria-label="返回驾驶舱" title="返回驾驶舱">←</RouterLink>
+    </section>
+    <footer class="cockpit-foot heatmap-foot">
+      <span>数据源：机理模型 + AI 融合预测 · 当前视图：{{ stageTitle }}</span>
     </footer>
   </main>
 </template>
@@ -214,9 +255,12 @@ const topCells = computed(() => {
     flat.push({ row: r, col: c, value: v })
   }))
   flat.sort((a, b) => b.value - a.value)
-  return flat.slice(0, 5).map((cell, i) => ({
+  const list = flat.slice(0, 5)
+  const max = list[0]?.value || 100
+  return list.map((cell, i) => ({
     label: `地图热点区 #${i + 1}`,
-    value: cell.value
+    value: cell.value,
+    width: Math.max(8, Math.round((cell.value / max) * 100))
   }))
 })
 
@@ -224,13 +268,13 @@ const barOption = computed(() => {
   const p = palette()
   void theme.value
   const list = pointList.value.map((pt) => ({
-    name: pt.short + ' ' + pt.name,
+    name: pt.name,
     value: summaryState.value.intensity ? summaryState.value.intensity[pt.id]?.[cockpit.stageKey] ?? 0 : 0,
     riskClass: pt.riskClass
   }))
   const barColor = (rc) => rc === 'high' ? p.alert : rc === 'mid' ? p.watch : p.stable
   return {
-    grid: { left: 110, right: 24, top: 16, bottom: 28, containLabel: true },
+    grid: { left: 0, right: 0, top: 8, bottom: 20, containLabel: true },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -241,34 +285,80 @@ const barOption = computed(() => {
     xAxis: {
       type: 'value',
       max: 100,
+      show: false,
       axisLine: { show: false },
-      axisLabel: { color: p.muted, fontSize: 11 },
-      splitLine: { lineStyle: { color: p.line } }
+      axisLabel: { show: false },
+      splitLine: { show: false }
     },
     yAxis: {
       type: 'category',
       data: list.map((d) => d.name),
-      axisLine: { lineStyle: { color: p.lineStrong } },
-      axisLabel: { color: p.textSoft, fontSize: 11 }
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { show: false }
     },
-    series: [{
-      type: 'bar',
-      data: list.map((d) => ({
-        value: d.value,
-        itemStyle: {
-          color: barColor(d.riskClass),
-          borderRadius: [0, 6, 6, 0]
+    series: [
+      {
+        name: '强度底条',
+        type: 'bar',
+        data: list.map(() => 100),
+        barWidth: 24,
+        barCategoryGap: 8,
+        barGap: '-100%',
+        itemStyle: { color: p.line, borderRadius: 12 }
+      },
+      {
+        name: '点位风险强度',
+        type: 'bar',
+        data: list.map((d) => ({
+          value: d.value,
+          itemStyle: {
+            color: barColor(d.riskClass),
+            borderRadius: 8
+          }
+        })),
+        barWidth: 24,
+        barCategoryGap: 8,
+        label: {
+          show: true,
+          position: 'inside',
+          overflow: 'truncate',
+          formatter: (params) => `{name|${list[params.dataIndex].name}}{div| }{value|${params.value}}`,
+          rich: {
+            name: {
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 600,
+              flex: 1,
+              align: 'left',
+              textShadowBlur: 4,
+              textShadowColor: 'rgba(0, 0, 0, 0.4)'
+            },
+            div: {
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: 11,
+              borderLeftWidth: 1,
+              borderLeftColor: 'rgba(255, 255, 255, 0.45)',
+              borderLeftType: 'solid',
+              height: 12,
+              width: 1,
+              lineHeight: 12,
+              align: 'center',
+              padding: [0, 0, 0, 10]
+            },
+            value: {
+              color: '#fff',
+              fontSize: 11,
+              fontWeight: 700,
+              align: 'right',
+              padding: [0, 10, 0, 0],
+              textShadowBlur: 4,
+              textShadowColor: 'rgba(0, 0, 0, 0.4)'
+            }
+          }
         }
-      })),
-      barWidth: 14,
-      label: {
-        show: true,
-        position: 'right',
-        color: p.textSoft,
-        fontSize: 11,
-        formatter: '{c}'
       }
-    }]
+    ]
   }
 })
 
@@ -277,7 +367,7 @@ const confidenceOption = computed(() => {
   void theme.value
   const stagesArr = stages.value.length ? stages.value : [{ key: 't1', label: '未来 1 天' }]
   return {
-    grid: { left: 48, right: 24, top: 24, bottom: 28, containLabel: true },
+    grid: { left: 40, right: 16, top: 26, bottom: 20, containLabel: true },
     tooltip: {
       trigger: 'axis',
       backgroundColor: p.surface,
@@ -286,9 +376,9 @@ const confidenceOption = computed(() => {
     },
     legend: {
       data: ['机理层置信', 'AI 层置信', '综合共识'],
-      textStyle: { color: p.textSoft, fontSize: 11 },
+      textStyle: { color: p.textSoft, fontSize: 10 },
       top: 0,
-      right: 8
+      right: 4
     },
     xAxis: {
       type: 'category',
@@ -298,11 +388,12 @@ const confidenceOption = computed(() => {
     },
     yAxis: {
       type: 'value',
-      min: 50,
-      max: 100,
       axisLine: { show: false },
-      axisLabel: { color: p.muted, fontSize: 11 },
-      splitLine: { lineStyle: { color: p.line } }
+      axisLabel: { color: p.muted, fontSize: 10 },
+      splitLine: { lineStyle: { color: p.line } },
+      scale: true,
+      min: (v) => Math.floor(v.min - 3),
+      max: (v) => Math.ceil(v.max + 3)
     },
     series: [
       {
@@ -353,59 +444,58 @@ onMounted(async () => {
 })
 </script>
 <style scoped>
-/* Heatmap 页面：热力图与风险详情改为单列堆叠 */
-.dashboard-stacked {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
-  margin-top: 22px;
-}
-.dashboard-stacked > .panel,
-.dashboard-stacked > aside {
-  width: 100%;
-}
-
-/* 热力图高度；保持正方形之外适配宽屏 */
-.heatmap-stage {
-  min-height: 560px;
-}
-@media (min-width: 1280px) {
-  .heatmap-stage { min-height: 640px; }
-}
-
-/* 详情面板内部节奏 */
-.detail-panel {
-  padding: 24px 26px;
+.heatmap-shell { max-width: 1680px; }
+.heatmap-header {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 2px 22px;
+  border-bottom: 1px solid var(--c-line);
 }
-.detail-panel .panel-head {
-  margin: 0;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--panel-line);
-}
-.detail-panel .detail-summary {
-  margin: 0;
-  line-height: 1.7;
-}
+.heatmap-header h1 { margin: 5px 0 0; font-size: clamp(24px, 3vw, 42px); }
+.heatmap-subtitle { margin: 10px 0 0; color: var(--c-muted); }
+.header-status { display: flex; align-items: center; gap: 12px; min-width: 275px; padding: 12px 14px; border: 1px solid var(--c-line); background: var(--glass-bg); }
+.header-status > div { display: grid; gap: 3px; flex: 1; }
+.header-status strong { font-size: 13px; }
+.header-status small { color: var(--c-muted); font-size: 11px; }
+.status-light { width: 8px; height: 8px; border-radius: 50%; background: var(--c-stable); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-stable) 16%, transparent); }
+.cockpit-grid { display: grid; grid-template-columns: 238px minmax(560px, 1fr) 312px; gap: 14px; align-items: stretch; margin-top: 14px; }
+.cockpit-rail { min-width: 0; padding: 18px 16px; overflow: hidden; }
+.rail-heading { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--c-line); }
+.rail-heading h2 { margin: 4px 0 0; font-size: 18px; }
+.rail-index, .dock-index { color: var(--c-accent); font-family: var(--font-display); font-size: 11px; letter-spacing: .12em; }
+.risk-score { display: grid; gap: 5px; padding: 18px 0; border-bottom: 1px solid var(--c-line); }
+.score-label, .score-caption { color: var(--c-muted); font-size: 11px; }
+.risk-score strong { color: var(--c-alert); font-family: var(--font-display); font-size: 26px; }
+.metric-stack { padding: 8px 0; border-bottom: 1px solid var(--c-line); }
+.metric-row { display: grid; grid-template-columns: 1fr auto 34px; align-items: center; gap: 6px; padding: 10px 0; }
+.metric-row span { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.metric-row i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.metric-row strong { font-family: var(--font-display); font-size: 18px; }
+.metric-row small { color: var(--c-muted); text-align: right; font-size: 10px; }
+.metric-high { color: var(--c-alert); }.metric-mid { color: var(--c-watch); }.metric-low { color: var(--c-stable); }
+.rail-section { padding-top: 16px; }
+.section-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.section-line h3 { margin: 0; font-size: 13px; }.section-line span { color: var(--c-muted); font-size: 10px; white-space: nowrap; }
+.rail-summary { margin: 0; color: var(--c-text-soft); font-size: 12px; line-height: 1.75; }
+.rail-note { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; margin-top: 15px; padding: 12px 0 0; border-top: 1px dashed var(--c-line); }
+.note-mark { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid var(--c-accent); color: var(--c-accent); font: 10px var(--font-display); }
+.rail-note div { display: grid; gap: 3px; }.rail-note strong { font-size: 11px; }.rail-note small { color: var(--c-muted); font-size: 9px; }.rail-note b { color: var(--c-accent); font: 16px var(--font-display); }
+.map-stage { min-width: 0; }.map-stage :deep(.map-panel) { min-height: 720px; height: 100%; }
+.right-rail { padding-bottom: 10px; }.hotspot-section { padding-bottom: 4px; }
+.factor-list { display: grid; gap: 8px; }
+.factor-track { position: relative; height: 24px; border-radius: 12px; background: var(--c-line); overflow: hidden; }
+.factor-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 12px; background: linear-gradient(90deg, var(--c-watch), var(--c-alert)); }
+.factor-fill.is-top { background: linear-gradient(90deg, var(--c-alert), #ffb3a6); box-shadow: 0 0 8px var(--c-alert-soft); }
+.factor-tag { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 11px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.factor-value { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); z-index: 2; color: #fff; font: 12px var(--font-display); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.chart-section { border-top: 1px dashed var(--c-line); }.chart-frame { height: 200px; }
+.left-rail .confidence-section { padding-top: 14px; }
+.left-rail .confidence-section .chart-frame { height: 168px; }
+.timeline-dock { display: grid; grid-template-columns: 130px minmax(0, 1fr) 34px; align-items: center; gap: 16px; margin-top: 14px; padding: 12px 14px 12px 16px; border: 1px solid var(--c-line); background: var(--glass-bg); }.timeline-dock :deep(.time-axis-bar) { margin: 0; border: 0; padding: 0; }.dock-label { display: flex; align-items: center; gap: 10px; }.dock-label div { display: grid; gap: 3px; }.dock-label strong { font-size: 12px; }.dock-label small { color: var(--c-muted); font-size: 10px; }.dock-back { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--c-line-strong); color: var(--c-text-soft); font-size: 18px; }.heatmap-foot { justify-content: center; color: var(--c-muted); font-size: 10px; }
 
-.detail-panel .section-line {
-  margin-bottom: 10px;
-}
-.detail-panel .section-line h3 {
-  margin: 0;
-  font-size: 14px;
-}
-.detail-panel .detail-section {
-  margin: 0;
-  padding-top: 16px;
-  border-top: 1px dashed var(--panel-line);
-}
-
-/* 顶部五热点：每行更舒展 */
-.detail-panel .factor-row {
-  padding: 8px 0;
-}
+@media (max-width: 1180px) { .cockpit-grid { grid-template-columns: 210px minmax(450px, 1fr); }.right-rail { grid-column: 1 / -1; display: grid; grid-template-columns: 180px 1fr 1fr; gap: 18px; }.right-rail .rail-heading { grid-row: span 2; }.right-rail .rail-section { padding-top: 0; }.right-rail .hotspot-section { grid-column: 1; grid-row: span 2; }.right-rail .chart-section { grid-column: 2 / -1; border-top: 0; border-left: 1px dashed var(--c-line); padding-left: 18px; } }
+@media (max-width: 760px) { .heatmap-header { display: grid; align-items: start; }.header-status { min-width: 0; }.cockpit-grid { display: flex; flex-direction: column; }.map-stage { order: -1; }.map-stage :deep(.map-panel) { min-height: 560px; }.left-rail, .right-rail { display: block; }.right-rail .rail-heading, .right-rail .rail-section { padding-top: 16px; }.right-rail .chart-section { border-top: 1px dashed var(--c-line); border-left: 0; padding-left: 0; }.timeline-dock { grid-template-columns: 1fr 34px; }.timeline-dock :deep(.time-axis-bar) { grid-column: 1 / -1; grid-row: 2; }.dock-label { grid-column: 1; }.dock-back { grid-column: 2; grid-row: 1; } }
 
 </style>
