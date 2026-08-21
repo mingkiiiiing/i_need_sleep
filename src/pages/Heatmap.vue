@@ -144,11 +144,11 @@ const stageLabel = computed(() => {
 
 const stageTitle = computed(() => {
   switch (cockpit.stageKey) {
-    case 't1':  return 'T+1 天：紧急研判 / 立即响应'
-    case 't3':  return 'T+3 天：短期扩散 / 周内联动'
-    case 't7':  return 'T+7 天：中期研判 / 资源调度'
-    case 't15': return 'T+15 天：长期推演 / 滚动校准'
-    case 't30': return 'T+30 天：综合态势 / 战略复盘'
+    case 't1':  return '未来 1 天：紧急研判 / 立即响应'
+    case 't3':  return '未来 3 天：短期扩散 / 周内联动'
+    case 't7':  return '未来 7 天：中期研判 / 资源调度'
+    case 't15': return '未来 15 天：长期推演 / 滚动校准'
+    case 't30': return '未来 30 天：综合态势 / 战略复盘'
     default:    return '风险热力分布'
   }
 })
@@ -347,7 +347,7 @@ const barOption = computed(() => {
 const confidenceOption = computed(() => {
   const p = palette()
   void theme.value
-  const stagesArr = stages.value.length ? stages.value : [{ key: 't1', label: 'T+1 天' }]
+  const stagesArr = stages.value.length ? stages.value : [{ key: 't1', label: '未来 1 天' }]
   return {
     grid: { left: 48, right: 24, top: 24, bottom: 28, containLabel: true },
     tooltip: {

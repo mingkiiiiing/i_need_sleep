@@ -33,7 +33,7 @@ export const pointData = {
       ['07-16 08:10', '系统开始记录', '近一周藻华波动数据入库，作为基线参考'],
       ['07-20 09:25', '风险缓慢上升', '藻细胞密度连续 3 日高于历史均值 18%'],
       ['07-23 10:05', '进入橙色关注窗口', '温度突破 28℃ 且风速降至 2 级以下'],
-      ['07-30 10:50', '给出分时预警输出', 'T+3 / T+7 同步进入中、高档区间']
+      ['07-30 10:50', '给出分时预警输出', '未来 3 天 / 7 天同步进入中、高档区间']
     ],
     explainability: [
       { driver: '水温', contribution: 0.34, direction: '正' },
@@ -249,11 +249,11 @@ export const pointPositions = {
 }
 
 export const timeStages = [
-  { key: 't1', label: 'T+1 天', short: 'T+1d', days: 1,  index: 0 },
-  { key: 't3', label: 'T+3 天', short: 'T+3d', days: 3,  index: 1 },
-  { key: 't7', label: 'T+7 天', short: 'T+7d', days: 7,  index: 2 },
-  { key: 't15', label: 'T+15 天', short: 'T+15d', days: 15, index: 3 },
-  { key: 't30', label: 'T+30 天', short: 'T+30d', days: 30, index: 4 }
+  { key: 't1', label: '未来 1 天', short: '1 天', days: 1,  index: 0 },
+  { key: 't3', label: '未来 3 天', short: '3 天', days: 3,  index: 1 },
+  { key: 't7', label: '未来 7 天', short: '7 天', days: 7,  index: 2 },
+  { key: 't15', label: '未来 15 天', short: '15 天', days: 15, index: 3 },
+  { key: 't30', label: '未来 30 天', short: '30 天', days: 30, index: 4 }
 ]
 
 // 全局事件流，按时间排序，覆盖三个页面的时间轴播放器
@@ -272,7 +272,7 @@ export const eventStream = [
   { id: 'e12',time: '07-25 10:50', stageKey: 't30', point: 'southeast_station', title: '数据校准完成',     summary: '与浮标源数据比对一致，作为稳态样本保留。',               severity: 'low' },
   { id: 'e13',time: '07-29 10:25', stageKey: 't30', point: 'south_channel',     title: '通道观测建议',     summary: '建议保持通道切面连续观测，进入 30 天评估。',             severity: 'mid' },
   { id: 'e14',time: '07-29 10:35', stageKey: 't30', point: 'central_lake',      title: '湖心联动建议',     summary: '建议结合湖面风场做动态展示，作为机理模型校准点。',       severity: 'mid' },
-  { id: 'e15',time: '07-30 10:50', stageKey: 't30', point: 'northwest_hotspot', title: '分时预警输出',     summary: 'T+3 与 T+7 同步进入中高档区间，需要滚动更新机理参数。',  severity: 'high' }
+  { id: 'e15',time: '07-30 10:50', stageKey: 't30', point: 'northwest_hotspot', title: '分时预警输出',     summary: '未来 3 天与 7 天同步进入中高档区间，需要滚动更新机理参数。',  severity: 'high' }
 ]
 
 // 用于 Heatmap 的风险场网格：每个 stage 一份，0-100 风险值

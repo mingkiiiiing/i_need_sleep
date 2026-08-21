@@ -97,11 +97,10 @@ const navItems = [
   { num: '00', to: '/',                 label: '首页' },
   { num: '01', to: { path: '/', hash: '#project-overview' }, label: '项目概览' },
   { num: '02', to: '/tech-route',       label: '技术路线' },
-  { num: '03', to: '/demo-flow',        label: '演示流程' },
-  { num: '04', to: '/cockpit',          label: '驾驶舱' },
-  { num: '05', to: '/stations',         label: '监测站' },
-  { num: '06', to: '/heatmap',          label: '热力图' },
-  { num: '07', to: '/history',          label: '历史事件' }
+  { num: '03', to: '/cockpit',          label: '驾驶舱' },
+  { num: '04', to: '/stations',         label: '监测站' },
+  { num: '05', to: '/heatmap',          label: '热力图' },
+  { num: '06', to: '/history',          label: '历史事件' }
 ]
 
 const now = ref(new Date())

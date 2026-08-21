@@ -70,7 +70,7 @@ const USE_MOCK = false   // true = 全 mock；false = 接后端（带降级）
 
 | 前端 service | 后端接口 | 适配器 | 兜底 |
 |---|---|---|---|
-| `getTimeStages()` | ❌ 无 | — | mock（前端硬编码 T+1/T+3/T+7/T+15/T+30） |
+| `getTimeStages()` | ❌ 无 | — | mock（前端硬编码 未来 1/3/7/15/30 天） |
 | `getPoints()` | `/api/sites` | `adaptSites()` | mock（forecast/factors/trend/timeline 等仍走 mock） |
 | `getPointDetail(id)` | `/api/sites` | 复用 `getPoints()` | mock |
 | `getHeatField()` | `/api/map/risk` | `adaptHeatField()` | mock |
@@ -184,7 +184,6 @@ async function withFallback(primary, fallback) {
 | `/` Home | — | 纯静态 |
 | `/project-overview` | — | 纯静态 |
 | `/tech-route` | — | 纯静态 |
-| `/demo-flow` | — | 纯静态 |
 | `/cockpit` | — | 列表入口 |
 | `/stations` | `/api/sites` + `/api/predict` + `/api/explain` | 双 Tab（模型对比 / SHAP 解释）+ 链式调用 |
 | `/heatmap` | `/api/sites` + `/api/dashboard/overview` + `/api/map/risk` | KPI / 网格 / 强度排行 |
