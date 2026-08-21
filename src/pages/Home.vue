@@ -1,48 +1,7 @@
 <template>
   <main class="home-workbench" :class="{ 'is-ready': ready }">
-    <header class="home-topbar home-reveal" style="--reveal-index: 0">
-      <RouterLink class="home-brand" to="/" aria-label="返回首页">
-        <span class="home-brand-mark">A23</span>
-        <span class="home-brand-copy">
-          <strong>LAKE TWIN</strong>
-          <small>蓝藻水华监测预警</small>
-        </span>
-      </RouterLink>
-
-      <div class="home-topbar-right">
-        <div class="home-system-state" aria-label="系统实时状态">
-          <span class="home-state-dot" aria-hidden="true"></span>
-          <span>{{ liveSummary }}</span>
-          <time :datetime="isoTime">{{ liveTime }}</time>
-        </div>
-
-        <button
-          type="button"
-          class="theme-toggle"
-          :aria-label="theme === 'dark' ? '切换到浅色主题' : theme === 'light' ? '切换到日式暖阳主题' : '切换到深色主题'"
-          :title="theme === 'dark' ? '深色主题 · 点击切换浅色' : theme === 'light' ? '浅色主题 · 点击切换日式暖阳' : '日式暖阳 · 点击切换深色'"
-          @click="cycleTheme"
-        >
-          <svg v-if="theme === 'dark'" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-          <svg v-else-if="theme === 'light'" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-          </svg>
-          <svg v-else class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 3v3" />
-            <path d="M5.6 7.6l2.1 2.1" />
-            <path d="M18.4 7.6l-2.1 2.1" />
-            <path d="M3 17h18" />
-            <path d="M6 17a6 6 0 0 1 12 0" />
-          </svg>
-        </button>
-      </div>
-    </header>
-
     <section class="home-hero-v2" aria-labelledby="home-title">
-      <article class="home-copy home-reveal" style="--reveal-index: 1">
+      <article class="home-copy home-reveal" style="--reveal-index: 0">
         <p class="home-kicker">机理与 AI 融合的地表水监测系统</p>
         <h1 id="home-title" class="home-title-v2">
           <span>蓝藻水华</span>
@@ -71,7 +30,7 @@
         </dl>
       </article>
 
-      <figure class="lake-workbench home-reveal" style="--reveal-index: 2">
+      <figure class="lake-workbench home-reveal" style="--reveal-index: 1">
         <figcaption class="lake-workbench-head">
           <div>
             <span>LIVE TWIN / 湖体遥测</span>
@@ -116,7 +75,7 @@
       </figure>
     </section>
 
-    <section class="home-index home-reveal" style="--reveal-index: 3" aria-labelledby="home-index-title">
+    <section class="home-index home-reveal" style="--reveal-index: 2" aria-labelledby="home-index-title">
       <header class="home-index-head">
         <div>
           <p>系统入口</p>
@@ -125,20 +84,76 @@
         <p>从项目背景到实时研判，四个模块共同组成完整演示路径。</p>
       </header>
 
-      <ol class="home-route-list">
-        <li v-for="entry in entries" :key="entry.to">
-          <RouterLink class="home-route-card" :to="entry.to">
-            <span class="home-route-num">{{ entry.index }}</span>
-            <span class="home-route-copy">
-              <small>{{ entry.voice }}</small>
-              <strong>{{ entry.title }}</strong>
-              <span>{{ entry.summary }}</span>
-            </span>
-            <span class="home-route-meta">{{ entry.meta }}</span>
-            <span class="home-route-arrow" aria-hidden="true">→</span>
-          </RouterLink>
-        </li>
-      </ol>
+      <div class="home-route-grid">
+        <RouterLink v-for="entry in entries" :key="entry.index" class="home-route-card" :to="entry.to">
+          <span class="home-route-num">{{ entry.index }}</span>
+          <span class="home-route-copy">
+            <small>{{ entry.voice }}</small>
+            <strong>{{ entry.title }}</strong>
+            <span>{{ entry.summary }}</span>
+          </span>
+          <span class="home-route-meta">{{ entry.meta }}</span>
+          <span class="home-route-arrow" aria-hidden="true">→</span>
+        </RouterLink>
+      </div>
+    </section>
+
+    <section id="project-overview" class="home-overview home-reveal" style="--reveal-index: 3" aria-labelledby="overview-title">
+      <header class="home-overview-head">
+        <div>
+          <p class="home-overview-kicker">PROJECT OVERVIEW · 01</p>
+          <h2 id="overview-title">项目概览</h2>
+        </div>
+        <p class="home-overview-lede">
+          面向新三湖（滇池、太湖、巢湖）与老三湖（太湖、巢湖、滆湖）等重点湖库，建立机理与 AI 融合的蓝藻水华监测预警模型，输出从早识别、早预报到早预警的全链条能力。
+        </p>
+      </header>
+
+      <div class="overview-meta-row">
+        <div class="overview-meta-card"><span>主题</span><strong>数据与计算</strong></div>
+        <div class="overview-meta-card"><span>赛题</span><strong>A23 · 应用类</strong></div>
+        <div class="overview-meta-card"><span>主办</span><strong>我有一点困</strong></div>
+        <div class="overview-meta-card"><span>核心</span><strong>机理 × AI 融合</strong></div>
+      </div>
+
+      <article class="overview-context">
+        <p class="overview-kicker">整体背景 · CONTEXT</p>
+        <h3 class="overview-h3">蓝藻水华是富营养化水体在特定水文气候条件下分发性增殖的生态灾变现象</h3>
+        <p class="overview-prose">
+          蓝藻水华严重威胁饮用水安全、水生态系统健康及流域经济社会的可持续发展。随着《水污染防治行动计划》深入推进及《"十四五"生态环境监测规划》明确要求在新老三湖等重点湖库开展蓝藻水华监测预警，传统"人工采样 + 实验室分析"的监测模式已难以满足"提前预警、精准防控"的管理需要。
+        </p>
+      </article>
+
+      <div class="overview-split">
+        <article class="overview-block">
+          <p class="overview-kicker">传统路径 · CLASSICAL</p>
+          <h4>水动力 - 水质 - 藻类生长耦合模型</h4>
+          <p>可刻画营养盐循环、藻类生理生态过程及物理迁移规律，具备可解释性强、外推能力好的优势，但参数率定困难、计算效率低，对突发扰动响应滞后。</p>
+        </article>
+        <article class="overview-block">
+          <p class="overview-kicker">数据驱动 · DATA-DRIVEN</p>
+          <h4>深度学习 / 物理信息神经网络</h4>
+          <p>能从多源异构监测数据中挖掘环境因子与藻华分发的非线性映射关系，实现短期预警与风险分级，但物理一致性约束弱、泛化性能不足。</p>
+        </article>
+      </div>
+
+      <article class="overview-solution">
+        <p class="overview-kicker">融合范式 · OUR ANSWER</p>
+        <h3 class="overview-h3">把藻类生长动力学方程、流体水力学守恒定律等物理机理嵌入神经网络架构</h3>
+        <p class="overview-prose">
+          或利用 AI 对机理模型参数进行实时校正，构建兼具物理可解释性与数据自适应性的混合智能模型，依托"空 - 天 - 地 - 水"多源数据融合驱动实现蓝藻水华早识别、早预报、早预警。模型需支撑监测数据实时映射、藻华风险分级预警可视化、历史场景回溯与未来情景推演。
+        </p>
+      </article>
+
+      <div class="overview-keyline">
+        <span>多源数据接入</span>
+        <span class="keyline-dot" aria-hidden="true"></span>
+        <span>数据质量控制</span>
+        <span class="keyline-dot" aria-hidden="true"></span>
+        <span>机理 + AI 建模</span>
+        <span class="keyline-dot" aria-hidden="true"></span>
+        <span>数字孪生预警</span>
+      </div>
     </section>
 
     <footer class="home-footer-v2 home-reveal" style="--reveal-index: 4">
@@ -155,14 +170,11 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useTheme } from '../composables/useTheme.js'
-
-const { theme, cycleTheme } = useTheme()
+import { onMounted, ref } from 'vue'
 
 const entries = [
   {
-    to: '/project-overview',
+    to: { path: '/', hash: '#project-overview' },
     index: '01',
     title: '项目概览',
     voice: 'PROJECT OVERVIEW',
@@ -211,28 +223,11 @@ const monitorPoints = [
 ]
 
 const ready = ref(false)
-const now = ref(new Date())
-let clockTimer
-
-const liveSummary = '系统在线 · 6 点联动'
-const liveTime = computed(() => {
-  const value = now.value
-  const pad = (number) => String(number).padStart(2, '0')
-  return `${pad(value.getMonth() + 1)}-${pad(value.getDate())} ${pad(value.getHours())}:${pad(value.getMinutes())}`
-})
-const isoTime = computed(() => now.value.toISOString())
 
 onMounted(() => {
   requestAnimationFrame(() => {
     ready.value = true
   })
-  clockTimer = window.setInterval(() => {
-    now.value = new Date()
-  }, 60000)
-})
-
-onBeforeUnmount(() => {
-  window.clearInterval(clockTimer)
 })
 </script>
 
@@ -257,125 +252,6 @@ onBeforeUnmount(() => {
   color: var(--home-color-ink);
   font-family: var(--home-font-body);
   overflow-x: clip;
-}
-
-.home-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--home-space-md);
-  min-height: 64px;
-  padding-bottom: var(--home-space-sm);
-  border-bottom: var(--home-rule-hair) solid var(--home-color-rule);
-}
-
-.home-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--home-space-sm);
-  min-height: 44px;
-  border-radius: var(--home-radius-sm);
-}
-
-.home-brand-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border: var(--home-rule-hair) solid var(--home-color-accent);
-  border-radius: var(--home-radius-sm);
-  color: var(--home-color-accent);
-  font-family: var(--home-font-display);
-  font-size: var(--home-text-sm);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.home-brand-copy {
-  display: grid;
-  gap: var(--home-space-3xs);
-}
-
-.home-brand-copy strong {
-  font-family: var(--home-font-display);
-  font-size: var(--home-text-sm);
-  letter-spacing: 0.16em;
-}
-
-.home-brand-copy small {
-  color: var(--home-color-muted);
-  font-size: var(--home-text-xs);
-}
-
-.home-system-state {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--home-space-xs);
-  min-height: 44px;
-  color: var(--home-color-ink-soft);
-  font-size: var(--home-text-xs);
-  letter-spacing: 0.04em;
-}
-
-.home-topbar-right {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--home-space-sm);
-}
-
-.theme-toggle {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: var(--home-rule-hair) solid var(--home-color-rule-strong);
-  border-radius: var(--home-radius-pill);
-  background: var(--home-color-surface-soft);
-  color: var(--home-color-ink-soft);
-  cursor: pointer;
-  transition:
-    color var(--home-dur-short) var(--home-ease-out),
-    border-color var(--home-dur-short) var(--home-ease-out),
-    background-color var(--home-dur-short) var(--home-ease-out),
-    transform var(--home-dur-short) var(--home-ease-out);
-}
-
-.theme-toggle:hover {
-  color: var(--home-color-accent);
-  border-color: var(--home-color-accent-border);
-  transform: translateY(-1px);
-}
-
-.theme-toggle:active {
-  transform: translateY(1px);
-}
-
-.theme-toggle:focus-visible {
-  outline: 3px solid var(--home-color-focus);
-  outline-offset: 4px;
-}
-
-.theme-icon {
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-}
-
-.home-system-state time {
-  padding-left: var(--home-space-xs);
-  border-left: var(--home-rule-hair) solid var(--home-color-rule);
-  color: var(--home-color-muted);
-  font-family: var(--home-font-mono);
-}
-
-.home-state-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--home-radius-pill);
-  background: var(--home-color-accent);
-  box-shadow: 0 0 0 5px var(--home-color-accent-soft);
-  animation: home-status-pulse 1.8s var(--home-ease-in-out) infinite;
 }
 
 .home-hero-v2 {
@@ -462,7 +338,6 @@ onBeforeUnmount(() => {
 }
 
 .home-action:focus-visible,
-.home-brand:focus-visible,
 .home-route-card:focus-visible {
   outline: 3px solid var(--home-color-focus);
   outline-offset: 4px;
@@ -792,37 +667,39 @@ onBeforeUnmount(() => {
   line-height: 1.75;
 }
 
-.home-route-list {
-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
-}
-
-.home-route-list li {
-  border-bottom: var(--home-rule-hair) solid var(--home-color-rule);
+.home-route-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--home-space-sm);
 }
 
 .home-route-card {
   position: relative;
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto 32px;
-  gap: var(--home-space-md);
+  grid-template-columns: 44px minmax(0, 1fr) auto 28px;
+  gap: var(--home-space-sm);
   align-items: center;
-  min-height: 112px;
-  padding: var(--home-space-sm) var(--home-space-xs);
-  border-radius: var(--home-radius-sm);
+  min-height: 84px;
+  padding: var(--home-space-sm) var(--home-space-sm);
+  border: var(--home-rule-hair) solid var(--home-color-rule);
+  border-radius: var(--home-radius-md);
   transition:
     transform var(--home-dur-short) var(--home-ease-out),
     background-color var(--home-dur-short) var(--home-ease-out),
+    border-color var(--home-dur-short) var(--home-ease-out),
     color var(--home-dur-short) var(--home-ease-out),
     opacity var(--home-dur-short) var(--home-ease-out);
 }
 
 .home-route-card:hover {
-  transform: translateX(6px);
+  transform: translateY(-3px);
   background: var(--home-color-surface-soft);
+  border-color: var(--home-color-accent-border);
+  box-shadow: var(--glass-shadow);
 }
 
 .home-route-card:active {
-  transform: translateX(2px);
+  transform: translateY(-1px);
 }
 
 .home-route-card[aria-disabled="true"] {
@@ -856,7 +733,7 @@ onBeforeUnmount(() => {
 .home-route-copy strong {
   color: var(--home-color-ink);
   font-family: var(--home-font-display);
-  font-size: var(--home-text-xl);
+  font-size: var(--home-text-lg);
   font-weight: 700;
 }
 
@@ -877,6 +754,208 @@ onBeforeUnmount(() => {
 .home-route-arrow {
   color: var(--home-color-accent);
   font-size: var(--home-text-lg);
+}
+
+/* ============ 项目概览 ============ */
+.home-overview {
+  scroll-margin-top: 76px;
+  padding-block: var(--home-space-xl) var(--home-space-lg);
+  border-top: var(--home-rule-hair) solid var(--home-color-rule);
+}
+
+.home-overview-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--home-space-sm);
+  margin-bottom: var(--home-space-lg);
+}
+
+.home-overview-head > div { min-width: 0; }
+
+.home-overview-kicker {
+  margin-bottom: var(--home-space-2xs);
+  color: var(--home-color-accent);
+  font-family: var(--home-font-mono);
+  font-size: var(--home-text-xs);
+  letter-spacing: 0.12em;
+}
+
+.home-overview-head h2 {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--home-color-ink);
+  font-family: var(--home-font-display);
+  font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+  font-weight: 760;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.home-overview-lede {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--home-color-ink-soft);
+  font-size: var(--home-text-md);
+  line-height: 1.75;
+}
+
+.overview-meta-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--home-space-sm);
+  margin-bottom: var(--home-space-lg);
+}
+
+.overview-meta-card {
+  display: grid;
+  gap: var(--home-space-3xs);
+  padding: var(--home-space-sm) var(--home-space-sm);
+  border: var(--home-rule-hair) solid var(--home-color-rule);
+  border-radius: var(--home-radius-md);
+  background: var(--home-color-surface-soft);
+}
+
+.overview-meta-card span {
+  color: var(--home-color-muted);
+  font-family: var(--home-font-mono);
+  font-size: var(--home-text-xs);
+  letter-spacing: 0.08em;
+}
+
+.overview-meta-card strong {
+  color: var(--home-color-ink);
+  font-size: var(--home-text-sm);
+  font-weight: 700;
+}
+
+.overview-context,
+.overview-solution {
+  margin-bottom: var(--home-space-lg);
+}
+
+.overview-context {
+  padding: var(--home-space-md);
+  border: var(--home-rule-hair) solid var(--home-color-rule);
+  border-radius: var(--home-radius-lg);
+  background: var(--home-color-surface-soft);
+}
+
+.overview-solution {
+  padding: var(--home-space-md);
+  border: var(--home-rule-hair) solid var(--home-color-accent-border);
+  border-radius: var(--home-radius-lg);
+  background:
+    linear-gradient(180deg, var(--home-color-accent-soft), var(--home-color-transparent));
+}
+
+.overview-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--home-space-xs);
+  margin: 0 0 var(--home-space-sm);
+  color: var(--home-color-accent);
+  font-family: var(--home-font-mono);
+  font-size: var(--home-text-xs);
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.overview-kicker::before {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: var(--home-color-accent);
+}
+
+.overview-h3 {
+  margin: 0 0 var(--home-space-sm);
+  max-width: 40ch;
+  color: var(--home-color-ink);
+  font-family: var(--home-font-display);
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.overview-prose {
+  max-width: 52rem;
+  margin: 0;
+  color: var(--home-color-ink-soft);
+  font-size: var(--home-text-sm);
+  line-height: 1.85;
+  text-align: justify;
+}
+
+.overview-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--home-space-sm);
+  margin-bottom: var(--home-space-lg);
+}
+
+.overview-block {
+  padding: var(--home-space-sm) var(--home-space-md);
+  border: var(--home-rule-hair) solid var(--home-color-rule);
+  border-radius: var(--home-radius-lg);
+  background:
+    linear-gradient(180deg, var(--home-color-surface-soft), var(--home-color-transparent));
+  position: relative;
+  overflow: hidden;
+}
+
+.overview-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 100% 0%, var(--home-color-accent-soft), var(--home-color-transparent) 50%);
+  pointer-events: none;
+}
+
+.overview-block h4 {
+  position: relative;
+  margin: var(--home-space-3xs) 0 var(--home-space-2xs);
+  color: var(--home-color-ink);
+  font-family: var(--home-font-display);
+  font-size: var(--home-text-md);
+  font-weight: 700;
+}
+
+.overview-block p {
+  position: relative;
+  margin: 0;
+  color: var(--home-color-ink-soft);
+  font-size: var(--home-text-sm);
+  line-height: 1.75;
+}
+
+.overview-keyline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--home-space-sm);
+  margin-top: var(--home-space-sm);
+  font-family: var(--home-font-mono);
+  font-size: var(--home-text-xs);
+  letter-spacing: 0.06em;
+  color: var(--home-color-ink);
+}
+
+.overview-keyline > span:not(.keyline-dot) {
+  padding: var(--home-space-2xs) var(--home-space-sm);
+  border: var(--home-rule-hair) solid var(--home-color-rule);
+  border-radius: var(--home-radius-pill);
+  background: var(--home-color-surface-soft);
+}
+
+.keyline-dot {
+  width: 4px;
+  height: 4px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--home-color-muted);
 }
 
 .home-footer-v2 {
@@ -913,11 +992,6 @@ onBeforeUnmount(() => {
   transform: none;
 }
 
-@keyframes home-status-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.58; transform: scale(0.82); }
-}
-
 @keyframes home-lake-scan {
   from { transform: translateY(-100%); }
   to { transform: translateY(100%); }
@@ -947,36 +1021,9 @@ onBeforeUnmount(() => {
     padding: var(--home-space-sm) var(--home-space-sm) var(--home-space-lg);
   }
 
-  .home-topbar,
   .home-footer-v2 {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .home-topbar-right {
-    width: 100%;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .home-system-state {
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .home-system-state > span:nth-child(2) {
-    margin-right: auto;
-  }
-
-  .home-system-state time {
-    flex: 0 0 100%;
-    width: 100%;
-    padding: var(--home-space-2xs) 0 0;
-    border-top: var(--home-rule-hair) solid var(--home-color-rule);
-    border-left: 0;
   }
 
   .home-hero-v2 {
@@ -1014,21 +1061,28 @@ onBeforeUnmount(() => {
     white-space: normal;
   }
 
+  .home-route-grid {
+    grid-template-columns: 1fr;
+  }
+
   .home-route-card {
     grid-template-columns: 44px minmax(0, 1fr) 28px;
-    gap: var(--home-space-sm);
   }
 
   .home-route-meta {
     display: none;
   }
+
+  .overview-meta-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-split {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
-  .home-brand-copy strong {
-    letter-spacing: 0.1em;
-  }
-
   .home-actions {
     display: grid;
   }
@@ -1063,12 +1117,16 @@ onBeforeUnmount(() => {
 
   .home-route-card {
     grid-template-columns: 36px minmax(0, 1fr) 24px;
-    min-height: 104px;
-    padding-inline: 0;
+    min-height: 76px;
+    padding-inline: var(--home-space-2xs);
   }
 
   .home-route-copy strong {
-    font-size: var(--home-text-lg);
+    font-size: var(--home-text-md);
+  }
+
+  .overview-meta-row {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1083,7 +1141,6 @@ onBeforeUnmount(() => {
     transform: none;
   }
 
-  .home-state-dot,
   .lake-scan {
     animation: none;
   }

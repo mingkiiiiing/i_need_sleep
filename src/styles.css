@@ -894,7 +894,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
 /* ===================== 路由切换过渡 ===================== */
 .route-stage {
   position: relative;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 60px);
 }
 .route-enter-from {
   opacity: 0;
