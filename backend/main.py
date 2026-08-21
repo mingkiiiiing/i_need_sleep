@@ -30,11 +30,11 @@ class PredictRequest(BaseModel):
 class DataRepository:
     """演示数据仓库；真实数据到位后替换为 JSON/数据库实现，路由无需变更。"""
     stages = [
-        {"key": "t1", "label": "T+1 天", "short": "T+1d", "days": 1, "index": 0},
-        {"key": "t3", "label": "T+3 天", "short": "T+3d", "days": 3, "index": 1},
-        {"key": "t7", "label": "T+7 天", "short": "T+7d", "days": 7, "index": 2},
-        {"key": "t15", "label": "T+15 天", "short": "T+15d", "days": 15, "index": 3},
-        {"key": "t30", "label": "T+30 天", "short": "T+30d", "days": 30, "index": 4},
+        {"key": "t1", "label": "未来 1 天", "short": "1 天", "days": 1, "index": 0},
+        {"key": "t3", "label": "未来 3 天", "short": "3 天", "days": 3, "index": 1},
+        {"key": "t7", "label": "未来 7 天", "short": "7 天", "days": 7, "index": 2},
+        {"key": "t15", "label": "未来 15 天", "short": "15 天", "days": 15, "index": 3},
+        {"key": "t30", "label": "未来 30 天", "short": "30 天", "days": 30, "index": 4},
     ]
     specs = [
         ("northwest_hotspot", "西北热点区", "NW-01", "红色预警", "high", [88, 76, 72, 64], ["1.25e6 cells/L", "42.8 ug/L", "0.091 mg/L", "29.6 ℃"]),

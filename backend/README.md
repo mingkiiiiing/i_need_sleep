@@ -21,7 +21,7 @@ python -m uvicorn backend.main:app --reload --port 8000
 
 | 接口 | 用途 |
 | --- | --- |
-| `GET /api/v1/cockpit/time-stages` | T+1、T+3、T+7、T+15、T+30 档位 |
+| `GET /api/v1/cockpit/time-stages` | 未来 1 / 3 / 7 / 15 / 30 天档位 |
 | `GET /api/v1/cockpit/points` | 站点详情及地图相对坐标 |
 | `GET /api/v1/cockpit/points/{station_id}` | 单站详情 |
 | `GET /api/v1/cockpit/risk-heatmap` | 5 个档位的 11×19 风险网格 |

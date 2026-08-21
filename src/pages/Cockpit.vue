@@ -8,7 +8,7 @@
     >
       <template #meta>
         <div class="meta-card"><span class="meta-key">子页数</span><span class="meta-value">3 个并列</span></div>
-        <div class="meta-card"><span class="meta-key">时间档位</span><span class="meta-value">T+1 / 3 / 7 / 15 / 30</span></div>
+        <div class="meta-card"><span class="meta-key">时间档位</span><span class="meta-value">未来 1 / 3 / 7 / 15 / 30 天</span></div>
         <div class="meta-card"><span class="meta-key">监测点位</span><span class="meta-value">6 个</span></div>
         <div class="meta-card"><span class="meta-key">实时状态</span><span class="meta-value">1 红色预警</span></div>
       </template>
@@ -41,8 +41,6 @@
           </RouterLink>
         </li>
       </ol>
-
-      <div class="image-slot banner" data-label="驾驶舱全景大图位 · 待替换"></div>
     </HeroShell>
 
     <footer class="cockpit-foot">

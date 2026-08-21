@@ -102,10 +102,9 @@ src/
 │     └─ echartsTheme.js         # ECharts 暗色主题常量
 ├─ pages/
 │  ├─ Home.vue                   # 主页（Marquee Hero + 右侧入口边栏）
-│  ├─ ProjectOverview.vue        # 项目概览（01 / 04）
-│  ├─ TechRoute.vue              # 技术路线（02 / 04）
-│  ├─ DemoFlow.vue               # 演示流程（03 / 04）
-│  ├─ Cockpit.vue                # 驾驶舱总览（04 / 04）
+│  ├─ ProjectOverview.vue        # 项目概览（01 / 03）
+│  ├─ TechRoute.vue              # 技术路线（02 / 03）
+│  ├─ Cockpit.vue                # 驾驶舱总览（03 / 03）
 │  ├─ Stations.vue               # 监测站档位研判
 │  ├─ Heatmap.vue                # 风险热力分区
 │  └─ History.vue                # 历史事件回放
@@ -127,7 +126,6 @@ src/
 | `/` | 主页 |
 | `/project-overview` | 项目概览 |
 | `/tech-route` | 技术路线 |
-| `/demo-flow` | 演示流程 |
 | `/cockpit` | 驾驶舱总览 |
 | `/stations` | 监测站档位研判 |
 | `/heatmap` | 风险热力分区 |

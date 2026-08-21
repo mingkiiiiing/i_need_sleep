@@ -36,7 +36,7 @@
             <span>LIVE TWIN / 湖体遥测</span>
             <strong>太湖监测网络</strong>
           </div>
-          <span class="lake-workbench-stage">T+1 当前档位</span>
+          <span class="lake-workbench-stage">当前档位 · 未来 1 天</span>
         </figcaption>
 
         <div class="lake-canvas" aria-label="六个湖区监测点位实时状态示意图">
@@ -79,23 +79,24 @@
       <header class="home-index-head">
         <div>
           <p>系统入口</p>
-          <h2 id="home-index-title">按任务进入，而不是按页面浏览</h2>
+          <h2 id="home-index-title">选择你的起点</h2>
         </div>
-        <p>从项目背景到实时研判，四个模块共同组成完整演示路径。</p>
+        <p>从项目背景到实时研判，三个模块共同组成完整演示路径。</p>
       </header>
 
-      <div class="home-route-grid">
-        <RouterLink v-for="entry in entries" :key="entry.index" class="home-route-card" :to="entry.to">
-          <span class="home-route-num">{{ entry.index }}</span>
-          <span class="home-route-copy">
-            <small>{{ entry.voice }}</small>
-            <strong>{{ entry.title }}</strong>
-            <span>{{ entry.summary }}</span>
-          </span>
-          <span class="home-route-meta">{{ entry.meta }}</span>
-          <span class="home-route-arrow" aria-hidden="true">→</span>
-        </RouterLink>
-      </div>
+      <ol class="home-route-axis">
+        <li v-for="entry in entries" :key="entry.index" class="axis-step">
+          <RouterLink class="axis-node" :to="entry.to">
+            <span class="axis-marker" aria-hidden="true">{{ entry.index }}</span>
+            <span class="axis-body">
+              <small>{{ entry.voice }} · {{ entry.meta }}</small>
+              <strong>{{ entry.title }}</strong>
+              <span>{{ entry.summary }}</span>
+            </span>
+            <span class="axis-cta">进入模块 <i aria-hidden="true">→</i></span>
+          </RouterLink>
+        </li>
+      </ol>
     </section>
 
     <section id="project-overview" class="home-overview home-reveal" style="--reveal-index: 3" aria-labelledby="overview-title">
@@ -190,16 +191,8 @@ const entries = [
     meta: 'HOW'
   },
   {
-    to: '/demo-flow',
-    index: '03',
-    title: '演示流程',
-    voice: 'DEMO FLOW',
-    summary: '按讲解顺序串联系统关键能力。',
-    meta: 'SHOW'
-  },
-  {
     to: '/cockpit',
-    index: '04',
+    index: '03',
     title: '数字驾驶舱',
     voice: 'COCKPIT',
     summary: '进入站点、热力图与历史事件视图。',
@@ -209,7 +202,7 @@ const entries = [
 
 const facts = [
   { label: '监测网络', value: '6 个点位', note: '湖体四向 + 上下游' },
-  { label: '预测档位', value: 'T+1 — T+30', note: '短 / 中 / 长期尺度' },
+  { label: '预测档位', value: '未来 1 — 30 天', note: '短 / 中 / 长期尺度' },
   { label: '当前态势', value: '1 处红色预警', note: '融合模型实时研判' }
 ]
 
@@ -338,7 +331,7 @@ onMounted(() => {
 }
 
 .home-action:focus-visible,
-.home-route-card:focus-visible {
+.axis-node:focus-visible {
   outline: 3px solid var(--home-color-focus);
   outline-offset: 4px;
 }
@@ -667,93 +660,127 @@ onMounted(() => {
   line-height: 1.75;
 }
 
-.home-route-grid {
+.home-route-axis {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--home-space-sm);
-}
-
-.home-route-card {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--home-space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
   position: relative;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto 28px;
-  gap: var(--home-space-sm);
+}
+
+/* 贯穿三个节点的轴线 */
+.home-route-axis::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--home-color-transparent),
+    var(--home-color-accent-border) 12%,
+    var(--home-color-accent-border) 88%,
+    var(--home-color-transparent)
+  );
+  z-index: 0;
+}
+
+.axis-step {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.axis-node {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  min-height: 84px;
-  padding: var(--home-space-sm) var(--home-space-sm);
-  border: var(--home-rule-hair) solid var(--home-color-rule);
+  text-align: center;
+  gap: var(--home-space-sm);
+  padding: 0 var(--home-space-xs) var(--home-space-xs);
   border-radius: var(--home-radius-md);
-  transition:
-    transform var(--home-dur-short) var(--home-ease-out),
-    background-color var(--home-dur-short) var(--home-ease-out),
-    border-color var(--home-dur-short) var(--home-ease-out),
-    color var(--home-dur-short) var(--home-ease-out),
-    opacity var(--home-dur-short) var(--home-ease-out);
+  text-decoration: none;
+  transition: transform var(--home-dur-short) var(--home-ease-out);
 }
 
-.home-route-card:hover {
-  transform: translateY(-3px);
-  background: var(--home-color-surface-soft);
-  border-color: var(--home-color-accent-border);
-  box-shadow: var(--glass-shadow);
+.axis-node:hover {
+  transform: translateY(-4px);
 }
 
-.home-route-card:active {
-  transform: translateY(-1px);
-}
-
-.home-route-card[aria-disabled="true"] {
-  pointer-events: none;
-  opacity: 0.45;
-}
-
-.home-route-card[data-state="loading"] { cursor: wait; opacity: 0.72; }
-.home-route-card[data-state="error"] { color: var(--home-color-alert); }
-.home-route-card[data-state="success"] { color: var(--home-color-stable); }
-
-.home-route-num {
-  color: var(--home-color-muted);
+.axis-marker {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--home-color-accent);
+  border-radius: 50%;
+  background: var(--home-color-paper-2);
+  color: var(--home-color-accent);
   font-family: var(--home-font-mono);
-  font-size: var(--home-text-sm);
+  font-size: var(--home-text-md);
+  font-weight: 700;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 0 6px color-mix(in oklch, var(--home-color-accent) 14%, var(--home-color-transparent));
+  transition:
+    background-color var(--home-dur-short) var(--home-ease-out),
+    color var(--home-dur-short) var(--home-ease-out),
+    box-shadow var(--home-dur-short) var(--home-ease-out);
 }
 
-.home-route-copy {
+.axis-node:hover .axis-marker {
+  background: var(--home-color-accent);
+  color: var(--home-color-accent-ink);
+  box-shadow: 0 0 0 8px color-mix(in oklch, var(--home-color-accent) 22%, var(--home-color-transparent));
+}
+
+.axis-body {
   display: grid;
   gap: var(--home-space-3xs);
   min-width: 0;
 }
 
-.home-route-copy small {
+.axis-body small {
   color: var(--home-color-muted);
   font-family: var(--home-font-mono);
   font-size: var(--home-text-xs);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
-.home-route-copy strong {
+.axis-body strong {
   color: var(--home-color-ink);
   font-family: var(--home-font-display);
   font-size: var(--home-text-lg);
   font-weight: 700;
 }
 
-.home-route-copy > span {
+.axis-body > span {
   color: var(--home-color-ink-soft);
   font-size: var(--home-text-sm);
+  line-height: 1.6;
 }
 
-.home-route-meta {
-  padding: var(--home-space-2xs) var(--home-space-xs);
-  border: var(--home-rule-hair) solid var(--home-color-rule);
-  border-radius: var(--home-radius-pill);
-  color: var(--home-color-muted);
+.axis-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--home-space-2xs);
+  margin-top: var(--home-space-3xs);
+  color: var(--home-color-accent);
   font-family: var(--home-font-mono);
   font-size: var(--home-text-xs);
+  letter-spacing: 0.08em;
 }
 
-.home-route-arrow {
-  color: var(--home-color-accent);
-  font-size: var(--home-text-lg);
+.axis-cta i {
+  font-style: normal;
+  transition: transform var(--home-dur-short) var(--home-ease-out);
+}
+
+.axis-node:hover .axis-cta i {
+  transform: translateX(4px);
 }
 
 /* ============ 项目概览 ============ */
@@ -1061,16 +1088,42 @@ onMounted(() => {
     white-space: normal;
   }
 
-  .home-route-grid {
+  .home-route-axis {
     grid-template-columns: 1fr;
+    gap: var(--home-space-md);
   }
 
-  .home-route-card {
-    grid-template-columns: 44px minmax(0, 1fr) 28px;
+  /* 轴线转为左侧竖向 */
+  .home-route-axis::before {
+    top: 28px;
+    bottom: 28px;
+    left: 28px;
+    right: auto;
+    width: 2px;
+    height: auto;
+    background: linear-gradient(
+      180deg,
+      var(--home-color-transparent),
+      var(--home-color-accent-border) 12%,
+      var(--home-color-accent-border) 88%,
+      var(--home-color-transparent)
+    );
   }
 
-  .home-route-meta {
-    display: none;
+  .axis-node {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    gap: var(--home-space-md);
+    padding: 0 0 var(--home-space-xs);
+  }
+
+  .axis-marker {
+    flex: 0 0 auto;
+  }
+
+  .axis-body {
+    padding-top: var(--home-space-3xs);
   }
 
   .overview-meta-row {
@@ -1115,13 +1168,19 @@ onMounted(() => {
     max-width: none;
   }
 
-  .home-route-card {
-    grid-template-columns: 36px minmax(0, 1fr) 24px;
-    min-height: 76px;
-    padding-inline: var(--home-space-2xs);
+  .axis-marker {
+    width: 48px;
+    height: 48px;
+    font-size: var(--home-text-sm);
   }
 
-  .home-route-copy strong {
+  .home-route-axis::before {
+    top: 24px;
+    bottom: 24px;
+    left: 24px;
+  }
+
+  .axis-body strong {
     font-size: var(--home-text-md);
   }
 
@@ -1133,7 +1192,7 @@ onMounted(() => {
 @media (prefers-reduced-motion: reduce) {
   .home-reveal,
   .home-action,
-  .home-route-card {
+  .axis-node {
     transition-duration: 50ms;
   }
 

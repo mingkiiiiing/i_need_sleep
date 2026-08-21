@@ -9,7 +9,7 @@
       <template #meta>
         <div class="meta-card"><span class="meta-key">数据层</span><span class="meta-value">空 - 天 - 地 - 水</span></div>
         <div class="meta-card"><span class="meta-key">模型层</span><span class="meta-value">机理 + AI 融合</span></div>
-        <div class="meta-card"><span class="meta-key">尺度</span><span class="meta-value">T+1 → T+30</span></div>
+        <div class="meta-card"><span class="meta-key">尺度</span><span class="meta-value">未来 1 → 30 天</span></div>
         <div class="meta-card"><span class="meta-key">交付</span><span class="meta-value">数字孪生平台</span></div>
       </template>
 
@@ -37,7 +37,7 @@
     </HeroShell>
 
     <footer class="tech-foot">
-      <RouterLink class="button primary" to="/demo-flow">下一节：演示流程 →</RouterLink>
+      <RouterLink class="button primary" to="/cockpit">下一节：数字驾驶舱 →</RouterLink>
       <RouterLink class="button secondary" to="/project-overview">← 返回项目概览</RouterLink>
     </footer>
   </main>

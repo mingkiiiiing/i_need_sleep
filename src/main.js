@@ -10,7 +10,6 @@ initTheme()
 import Home from './pages/Home.vue'
 import ProjectOverview from './pages/ProjectOverview.vue'
 import TechRoute from './pages/TechRoute.vue'
-import DemoFlow from './pages/DemoFlow.vue'
 import Cockpit from './pages/Cockpit.vue'
 import Stations from './pages/Stations.vue'
 import Heatmap from './pages/Heatmap.vue'
@@ -20,7 +19,6 @@ const routes = [
   { path: '/', component: Home },
   { path: '/project-overview', component: ProjectOverview },
   { path: '/tech-route', component: TechRoute },
-  { path: '/demo-flow', component: DemoFlow },
   { path: '/cockpit', component: Cockpit },
   { path: '/stations', component: Stations },
   { path: '/heatmap', component: Heatmap },
