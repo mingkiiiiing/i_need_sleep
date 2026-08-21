@@ -1,0 +1,1218 @@
+version: "0.1.0"
+study_area: "Taihu Lake"
+timezone: "Asia/Shanghai"
+standard_crs: "EPSG:4326"
+
+# Time contract: UTC is the storage/comparison timezone; Asia/Shanghai is the
+# local display and daily-bucketing timezone. A naive input timestamp is not
+# silently interpreted as UTC and must remain pending until its source
+# timezone is supplied.
+time_contract:
+  storage_timezone: UTC
+  local_timezone: Asia/Shanghai
+  naive_input_policy: pending_timezone
+  invalid_input_policy: reject
+  observed_time_field: observed_at
+  observed_time_utc_field: observed_at_utc
+  observed_time_local_field: observed_at_local
+  forecast_reference_field: forecast_reference_time
+  forecast_valid_field: valid_time
+  forecast_reference_local_field: forecast_reference_time_local
+  forecast_valid_local_field: valid_time_local
+  required_status_field: time_status
+  source_timezone_field: source_timezone
+
+# required_level: A=core target/key, B=key driver, C=enhancement, D=out of first release
+# source_type: observed, remote_sensing, derived, imputed, static
+variables:
+  - code: run_id
+    name_zh: 流水线运行编号
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: run
+    standard_frequency: run
+    required_level: A
+    role: provenance
+    missing_policy: reject
+    evidence: [E00]
+  - code: source_id
+    name_zh: 数据源编号
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: provenance
+    missing_policy: reject
+    evidence: [E00]
+  - code: observed_at
+    name_zh: 观测或过境时间
+    source_type: observed
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: source_defined
+    standard_frequency: raw_hour_daily
+    required_level: A
+    role: key_time
+    missing_policy: reject
+    evidence: [E01]
+  - code: observed_at_utc
+    name_zh: 观测或过境时间UTC
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: record
+    standard_frequency: raw_hour_daily
+    required_level: A
+    role: canonical_time_storage
+    missing_policy: reject
+    evidence: [E01]
+  - code: observed_at_local
+    name_zh: 观测或过境时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: record
+    standard_frequency: raw_hour_daily
+    required_level: B
+    role: local_time_display
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: time_status
+    name_zh: 时间解析状态
+    source_type: derived
+    data_type: enum
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: time_quality
+    allowed_values: [accepted, pending_timezone, invalid, missing]
+    missing_policy: reject_if_not_accepted_for_model
+    evidence: [E01]
+  - code: source_timezone
+    name_zh: 原始时间时区
+    source_type: static
+    data_type: string
+    unit: IANA_timezone_or_offset
+    raw_frequency: record
+    standard_frequency: record
+    required_level: B
+    role: time_provenance
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: forecast_reference_time
+    name_zh: 预报起报时间UTC
+    source_type: observed
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_run
+    standard_frequency: forecast_run
+    required_level: B
+    role: forecast_initialization
+    missing_policy: reject_forecast_record
+    evidence: [E01]
+  - code: forecast_reference_time_local
+    name_zh: 预报起报时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_run
+    standard_frequency: forecast_run
+    required_level: C
+    role: forecast_initialization_local
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: valid_time
+    name_zh: 预报有效时间UTC
+    source_type: observed
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_step
+    standard_frequency: forecast_step
+    required_level: B
+    role: forecast_validity
+    missing_policy: reject_forecast_record
+    evidence: [E01]
+  - code: valid_time_local
+    name_zh: 预报有效时间本地时
+    source_type: derived
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: forecast_step
+    standard_frequency: forecast_step
+    required_level: C
+    role: forecast_validity_local
+    missing_policy: pending_timezone
+    evidence: [E01]
+  - code: station_id
+    name_zh: 标准站点编号
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: station
+    standard_frequency: station
+    required_level: A
+    role: key_space
+    missing_policy: isolate
+    evidence: [E02]
+  - code: station_name
+    name_zh: 站点名称
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: station
+    standard_frequency: station
+    required_level: B
+    role: metadata
+    missing_policy: station_master_lookup
+    evidence: [E02]
+  - code: lake_zone
+    name_zh: 太湖分区
+    source_type: static
+    data_type: enum
+    unit: null
+    raw_frequency: station_or_grid
+    standard_frequency: station_or_grid
+    required_level: B
+    role: spatial_heterogeneity
+    missing_policy: derive_from_geometry
+    evidence: [E02, E03]
+  - code: longitude
+    name_zh: 经度
+    source_type: static
+    data_type: float
+    unit: degree_east
+    raw_frequency: station_or_grid
+    standard_frequency: station_or_grid
+    required_level: A
+    role: spatial_match
+    allowed_range: [119.5, 121.0]
+    missing_policy: reject_spatial_record
+    evidence: [E01]
+  - code: latitude
+    name_zh: 纬度
+    source_type: static
+    data_type: float
+    unit: degree_north
+    raw_frequency: station_or_grid
+    standard_frequency: station_or_grid
+    required_level: A
+    role: spatial_match
+    allowed_range: [30.8, 31.7]
+    missing_policy: reject_spatial_record
+    evidence: [E01]
+  - code: depth_m
+    name_zh: 采样或传感器深度
+    source_type: observed
+    data_type: float
+    unit: m
+    raw_frequency: source_defined
+    standard_frequency: raw_profile
+    required_level: B
+    role: vertical_state
+    allowed_range: [0, 100]
+    missing_policy: keep_unknown_depth_flag
+    evidence: [E02, E04]
+  - code: geometry_wkt
+    name_zh: 站点或网格几何
+    source_type: static
+    data_type: string
+    unit: WKT
+    raw_frequency: station_or_grid
+    standard_frequency: station_or_grid
+    required_level: C
+    role: spatial_index
+    missing_policy: derive_from_coordinates
+    evidence: [E01]
+  - code: source_row
+    name_zh: 来源行号或像元索引
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: provenance
+    missing_policy: reject
+    evidence: [E00]
+
+  - code: chlorophyll_a
+    name_zh: 叶绿素a浓度
+    source_type: observed
+    data_type: float
+    unit: ug/L
+    raw_frequency: monthly_quarterly_or_continuous
+    standard_frequency: hourly_daily_overpass
+    required_level: A
+    role: target_and_calibration
+    allowed_range: [0, 10000]
+    missing_policy: no_label_imputation
+    evidence: [E02, E03, E05]
+  - code: algae_density
+    name_zh: 藻细胞密度
+    source_type: observed
+    data_type: float
+    unit: cells/L
+    raw_frequency: survey
+    standard_frequency: daily_overpass
+    required_level: A
+    role: target_and_calibration
+    allowed_range: [0, 1.0e12]
+    missing_policy: no_label_imputation
+    evidence: [E02, E03]
+  - code: cyanobacteria_biomass
+    name_zh: 蓝藻生物量
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: survey
+    standard_frequency: daily_overpass
+    required_level: B
+    role: mechanistic_state
+    allowed_range: [0, 10000]
+    missing_policy: proxy_with_origin_flag
+    evidence: [E02, E03]
+  - code: phytoplankton_biomass
+    name_zh: 浮游植物总生物量
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: survey
+    standard_frequency: daily_overpass
+    required_level: C
+    role: ecological_context
+    allowed_range: [0, 10000]
+    missing_policy: optional
+    evidence: [E02]
+  - code: bloom_flag
+    name_zh: 水华发生标志
+    source_type: remote_sensing
+    data_type: boolean
+    unit: null
+    raw_frequency: overpass_or_survey
+    standard_frequency: daily
+    required_level: A
+    role: classification_target
+    missing_policy: derive_from_validated_classification
+    evidence: [E03, E05]
+  - code: bloom_area_km2
+    name_zh: 水华面积
+    source_type: remote_sensing
+    data_type: float
+    unit: km2
+    raw_frequency: overpass_or_survey
+    standard_frequency: daily
+    required_level: A
+    role: spatial_target
+    allowed_range: [0, 2338]
+    missing_policy: no_imputation_without_valid_pixel_mask
+    evidence: [E03]
+  - code: bloom_fraction
+    name_zh: 有效湖面水华比例
+    source_type: derived
+    data_type: float
+    unit: fraction
+    raw_frequency: derived_scene
+    standard_frequency: daily
+    required_level: B
+    role: spatial_target_normalization
+    allowed_range: [0, 1]
+    missing_policy: null_without_valid_area
+    evidence: [E03]
+
+  - code: water_temperature
+    name_zh: 水温
+    source_type: observed
+    data_type: float
+    unit: degC
+    raw_frequency: minute_hour_monthly
+    standard_frequency: hourly_daily
+    required_level: A
+    role: growth_temperature_limit
+    allowed_range: [0, 45]
+    missing_policy: short_gap_only
+    evidence: [E02, E03, E04]
+  - code: pH
+    name_zh: 酸碱度
+    source_type: observed
+    data_type: float
+    unit: pH
+    raw_frequency: hourly_monthly_quarterly
+    standard_frequency: hourly_daily
+    required_level: B
+    role: ecological_state_and_qc
+    allowed_range: [4, 12]
+    missing_policy: short_gap_or_neighbor
+    evidence: [E01, E02]
+  - code: dissolved_oxygen
+    name_zh: 溶解氧
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: hourly_monthly_quarterly
+    standard_frequency: hourly_daily
+    required_level: B
+    role: oxygen_state_and_qc
+    allowed_range: [0, 30]
+    missing_policy: short_gap_only
+    evidence: [E01, E02]
+  - code: turbidity
+    name_zh: 浊度
+    source_type: observed
+    data_type: float
+    unit: NTU
+    raw_frequency: minute_hour_monthly
+    standard_frequency: hourly_daily
+    required_level: B
+    role: light_attenuation_and_qc
+    allowed_range: [0, 5000]
+    missing_policy: short_gap_or_ss_proxy
+    evidence: [E04, E06]
+  - code: secchi_depth
+    name_zh: 透明度
+    source_type: observed
+    data_type: float
+    unit: m
+    raw_frequency: survey_monthly
+    standard_frequency: daily_overpass
+    required_level: B
+    role: light_availability
+    allowed_range: [0, 20]
+    missing_policy: remote_or_turbidity_proxy
+    evidence: [E02, E05]
+  - code: suspended_solids
+    name_zh: 悬浮物
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: survey_monthly
+    standard_frequency: daily_overpass
+    required_level: B
+    role: resuspension_and_optics
+    allowed_range: [0, 5000]
+    missing_policy: turbidity_proxy_with_flag
+    evidence: [E04, E05]
+  - code: total_nitrogen
+    name_zh: 总氮
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: A
+    role: nutrient_limitation
+    allowed_range: [0, 100]
+    missing_policy: no_long_gap_imputation
+    evidence: [E02, E03, E05]
+  - code: total_phosphorus
+    name_zh: 总磷
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: A
+    role: nutrient_limitation
+    allowed_range: [0, 20]
+    missing_policy: no_long_gap_imputation
+    evidence: [E02, E03, E05]
+  - code: phosphate_phosphorus
+    name_zh: 正磷酸盐磷
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: B
+    role: bioavailable_phosphorus
+    allowed_range: [0, 20]
+    missing_policy: TP_proxy_with_flag
+    evidence: [E02, E04]
+  - code: ammonia_nitrogen
+    name_zh: 氨氮
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: B
+    role: inorganic_nitrogen
+    allowed_range: [0, 100]
+    missing_policy: DIN_proxy_with_flag
+    evidence: [E02, E04]
+  - code: nitrate_nitrogen
+    name_zh: 硝酸盐氮
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: B
+    role: inorganic_nitrogen
+    allowed_range: [0, 100]
+    missing_policy: DIN_proxy_with_flag
+    evidence: [E02, E04]
+  - code: nitrite_nitrogen
+    name_zh: 亚硝酸盐氮
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: C
+    role: inorganic_nitrogen
+    allowed_range: [0, 20]
+    missing_policy: optional
+    evidence: [E02, E04]
+  - code: dissolved_inorganic_nitrogen
+    name_zh: 溶解无机氮
+    source_type: derived
+    data_type: float
+    unit: mg/L
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: nutrient_limitation
+    allowed_range: [0, 100]
+    missing_policy: null_if_component_missing
+    evidence: [E04]
+  - code: cod_mn
+    name_zh: 高锰酸盐指数
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: monthly_quarterly
+    standard_frequency: daily_weekly
+    required_level: C
+    role: organic_background
+    allowed_range: [0, 100]
+    missing_policy: optional
+    evidence: [E01, E02]
+  - code: conductivity
+    name_zh: 电导率
+    source_type: observed
+    data_type: float
+    unit: uS/cm
+    raw_frequency: hourly_monthly
+    standard_frequency: hourly_daily
+    required_level: C
+    role: ionic_state_and_qc
+    allowed_range: [0, 10000]
+    missing_policy: optional
+    evidence: [E02, E04]
+  - code: tds
+    name_zh: 总溶解固体
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: hourly_monthly
+    standard_frequency: hourly_daily
+    required_level: C
+    role: ionic_state_and_cross_variable_qc
+    allowed_range: [0, 10000]
+    missing_policy: optional
+    evidence: [E02, E04]
+  - code: dissolved_organic_carbon
+    name_zh: 溶解有机碳
+    source_type: observed
+    data_type: float
+    unit: mg/L
+    raw_frequency: survey
+    standard_frequency: daily_weekly
+    required_level: D
+    role: optical_and_carbon_context
+    allowed_range: [0, 100]
+    missing_policy: optional
+    evidence: [E04]
+
+  - code: air_temperature
+    name_zh: 气温
+    source_type: observed
+    data_type: float
+    unit: degC
+    raw_frequency: hourly_daily
+    standard_frequency: hourly_daily
+    required_level: A
+    role: meteorological_driver
+    allowed_range: [-40, 50]
+    missing_policy: grid_or_reanalysis_proxy
+    evidence: [E03, E05, E08]
+  - code: relative_humidity
+    name_zh: 相对湿度
+    source_type: observed
+    data_type: float
+    unit: percent
+    raw_frequency: hourly
+    standard_frequency: hourly_daily
+    required_level: C
+    role: meteorological_context
+    allowed_range: [0, 100]
+    missing_policy: optional
+    evidence: [E08]
+  - code: air_pressure
+    name_zh: 海平面气压
+    source_type: observed
+    data_type: float
+    unit: hPa
+    raw_frequency: hourly_daily
+    standard_frequency: hourly_daily
+    required_level: B
+    role: bloom_surface_forcing
+    allowed_range: [850, 1100]
+    missing_policy: reanalysis_proxy
+    evidence: [E03]
+  - code: wind_speed
+    name_zh: 风速
+    source_type: observed
+    data_type: float
+    unit: m/s
+    raw_frequency: minute_hour_daily
+    standard_frequency: hourly_daily
+    required_level: A
+    role: mixing_transport_aggregation
+    allowed_range: [0, 60]
+    missing_policy: grid_or_neighbor_proxy
+    evidence: [E03, E04, E05]
+  - code: wind_direction
+    name_zh: 风向
+    source_type: observed
+    data_type: float
+    unit: degree
+    raw_frequency: minute_hour_daily
+    standard_frequency: hourly_daily
+    required_level: A
+    role: transport_direction
+    allowed_range: [0, 360]
+    missing_policy: derive_from_uv_or_keep_missing
+    evidence: [E04, E05]
+  - code: wind_u
+    name_zh: 东向风分量
+    source_type: derived
+    data_type: float
+    unit: m/s
+    raw_frequency: derived
+    standard_frequency: hourly_daily
+    required_level: B
+    role: vector_transport
+    missing_policy: derive_from_speed_direction
+    evidence: [E04]
+  - code: wind_v
+    name_zh: 北向风分量
+    source_type: derived
+    data_type: float
+    unit: m/s
+    raw_frequency: derived
+    standard_frequency: hourly_daily
+    required_level: B
+    role: vector_transport
+    missing_policy: derive_from_speed_direction
+    evidence: [E04]
+  - code: precipitation
+    name_zh: 降水
+    source_type: observed
+    data_type: float
+    unit: mm
+    raw_frequency: hourly_daily
+    standard_frequency: hourly_daily
+    required_level: B
+    role: runoff_dilution_nutrient_input
+    allowed_range: [0, 500]
+    missing_policy: grid_proxy
+    evidence: [E03, E05, E08]
+  - code: shortwave_radiation
+    name_zh: 短波太阳辐射
+    source_type: observed
+    data_type: float
+    unit: W/m2
+    raw_frequency: hourly
+    standard_frequency: hourly_daily
+    required_level: A
+    role: photosynthesis_light
+    allowed_range: [0, 1500]
+    missing_policy: sunshine_or_PAR_proxy
+    evidence: [E08]
+  - code: par
+    name_zh: 光合有效辐射
+    source_type: derived
+    data_type: float
+    unit: umol_photons_m2_s
+    raw_frequency: derived
+    standard_frequency: hourly_daily
+    required_level: B
+    role: photosynthesis_light
+    allowed_range: [0, 3000]
+    missing_policy: derive_from_shortwave
+    evidence: [E04, E08]
+  - code: sunshine_duration
+    name_zh: 日照时数
+    source_type: observed
+    data_type: float
+    unit: h
+    raw_frequency: daily
+    standard_frequency: daily
+    required_level: C
+    role: light_proxy
+    allowed_range: [0, 24]
+    missing_policy: derive_from_radiation_or_optional
+    evidence: [E05]
+  - code: cloud_cover
+    name_zh: 云量或云概率
+    source_type: observed
+    data_type: float
+    unit: percent
+    raw_frequency: hourly_or_scene
+    standard_frequency: hourly_daily_scene
+    required_level: B
+    role: light_and_remote_quality
+    allowed_range: [0, 100]
+    missing_policy: derive_from_SCL_or_scene_metadata
+    evidence: [E06, E08]
+
+  - code: water_level
+    name_zh: 湖面水位
+    source_type: observed
+    data_type: float
+    unit: m
+    raw_frequency: hourly_daily
+    standard_frequency: hourly_daily
+    required_level: A
+    role: hydrology_state
+    allowed_range: [-5, 10]
+    missing_policy: nearest_hydrology_station
+    evidence: [E02, E09]
+  - code: inflow_discharge
+    name_zh: 入湖流量
+    source_type: observed
+    data_type: float
+    unit: m3/s
+    raw_frequency: hourly_daily_or_periodic
+    standard_frequency: daily
+    required_level: B
+    role: loading_and_dilution
+    allowed_range: [0, 100000]
+    missing_policy: water_level_discharge_relation
+    evidence: [E09]
+  - code: outflow_discharge
+    name_zh: 出湖流量
+    source_type: observed
+    data_type: float
+    unit: m3/s
+    raw_frequency: hourly_daily_or_periodic
+    standard_frequency: daily
+    required_level: B
+    role: flushing_and_exchange
+    allowed_range: [0, 100000]
+    missing_policy: water_balance_estimate_with_flag
+    evidence: [E09]
+  - code: flow_velocity
+    name_zh: 流速
+    source_type: observed
+    data_type: float
+    unit: m/s
+    raw_frequency: model_or_ADCP
+    standard_frequency: hourly_daily
+    required_level: B
+    role: spatial_transport
+    allowed_range: [0, 20]
+    missing_policy: hydrodynamic_model_proxy
+    evidence: [E09]
+  - code: water_depth
+    name_zh: 水深
+    source_type: static
+    data_type: float
+    unit: m
+    raw_frequency: survey_or_model
+    standard_frequency: daily_grid
+    required_level: B
+    role: light_and_mixing
+    allowed_range: [0, 100]
+    missing_policy: bathymetry_water_level_model
+    evidence: [E02, E09]
+  - code: residence_time
+    name_zh: 停留时间
+    source_type: derived
+    data_type: float
+    unit: day
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: accumulation_and_flushing
+    allowed_range: [0, 10000]
+    missing_policy: derive_from_volume_and_flow
+    evidence: [E09]
+  - code: nutrient_load_n
+    name_zh: 氮负荷
+    source_type: derived
+    data_type: float
+    unit: kg/day
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: external_loading
+    missing_policy: null_without_discharge
+    evidence: [E09]
+  - code: nutrient_load_p
+    name_zh: 磷负荷
+    source_type: derived
+    data_type: float
+    unit: kg/day
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: external_loading
+    missing_policy: null_without_discharge
+    evidence: [E09]
+
+  - code: scene_id
+    name_zh: 遥感场景编号
+    source_type: remote_sensing
+    data_type: string
+    unit: null
+    raw_frequency: scene
+    standard_frequency: scene
+    required_level: A
+    role: remote_provenance
+    missing_policy: reject_scene
+    evidence: [E06]
+  - code: acquisition_at
+    name_zh: 遥感获取时间
+    source_type: remote_sensing
+    data_type: datetime
+    unit: ISO8601
+    raw_frequency: scene
+    standard_frequency: overpass
+    required_level: A
+    role: remote_match_time
+    missing_policy: reject_scene
+    evidence: [E06]
+  - code: band_b02_reflectance
+    name_zh: 蓝光反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: optical_feature
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b03_reflectance
+    name_zh: 绿光反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: water_index
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b04_reflectance
+    name_zh: 红光反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: optical_feature
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b05_reflectance
+    name_zh: 红边1反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: chlorophyll_red_edge
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b06_reflectance
+    name_zh: 红边2反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: chlorophyll_red_edge
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b07_reflectance
+    name_zh: 红边3反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: chlorophyll_red_edge
+    allowed_range: [-0.1, 2]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b08_reflectance
+    name_zh: 近红外反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: floating_algae_index
+    allowed_range: [-0.1, 3]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E03, E06]
+  - code: band_b8a_reflectance
+    name_zh: 窄近红外反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: optical_feature
+    allowed_range: [-0.1, 3]
+    missing_policy: keep_invalid_pixel_mask
+    evidence: [E06]
+  - code: band_b11_reflectance
+    name_zh: 短波红外1反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: C
+    role: cloud_water_land_mask
+    allowed_range: [-0.1, 3]
+    missing_policy: optional
+    evidence: [E06]
+  - code: band_b12_reflectance
+    name_zh: 短波红外2反射率
+    source_type: remote_sensing
+    data_type: float
+    unit: reflectance
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: C
+    role: cloud_water_land_mask
+    allowed_range: [-0.1, 3]
+    missing_policy: optional
+    evidence: [E06]
+  - code: scene_classification
+    name_zh: 场景分类SCL
+    source_type: remote_sensing
+    data_type: integer
+    unit: code
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: remote_quality_mask
+    allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    missing_policy: invalid_pixel
+    evidence: [E06]
+  - code: cloud_probability
+    name_zh: 云概率
+    source_type: remote_sensing
+    data_type: float
+    unit: percent
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: remote_quality_mask
+    allowed_range: [0, 100]
+    missing_policy: scene_cloud_flag
+    evidence: [E06]
+  - code: aerosol_optical_thickness
+    name_zh: 气溶胶光学厚度
+    source_type: remote_sensing
+    data_type: float
+    unit: dimensionless
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: atmospheric_quality
+    allowed_range: [0, 10]
+    missing_policy: quality_warning
+    evidence: [E06]
+  - code: water_mask
+    name_zh: 水体掩膜
+    source_type: derived
+    data_type: boolean
+    unit: null
+    raw_frequency: derived_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: spatial_validity
+    missing_policy: reject_remote_area
+    evidence: [E06]
+  - code: valid_pixel_fraction
+    name_zh: 有效像元比例
+    source_type: derived
+    data_type: float
+    unit: fraction
+    raw_frequency: derived_scene
+    standard_frequency: scene_daily
+    required_level: A
+    role: remote_coverage
+    allowed_range: [0, 1]
+    missing_policy: scene_warning_or_reject
+    evidence: [E06]
+  - code: ndwi
+    name_zh: 归一化水体指数
+    source_type: derived
+    data_type: float
+    unit: dimensionless
+    raw_frequency: derived_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: water_extraction
+    missing_policy: derive_from_bands
+    evidence: [E06]
+  - code: fai
+    name_zh: 漂浮藻类指数
+    source_type: derived
+    data_type: float
+    unit: dimensionless
+    raw_frequency: derived_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: bloom_detection
+    missing_policy: derive_from_valid_bands
+    evidence: [E03]
+  - code: mci
+    name_zh: 最大叶绿素指数
+    source_type: derived
+    data_type: float
+    unit: dimensionless
+    raw_frequency: derived_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: chlorophyll_detection
+    missing_policy: derive_from_red_edge
+    evidence: [E06]
+  - code: remote_chlorophyll_a
+    name_zh: 遥感反演叶绿素a
+    source_type: remote_sensing
+    data_type: float
+    unit: ug/L
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: spatial_target
+    allowed_range: [0, 10000]
+    missing_policy: no_imputation_without_uncertainty
+    evidence: [E03, E05]
+  - code: remote_algae_density
+    name_zh: 遥感反演藻密度
+    source_type: remote_sensing
+    data_type: float
+    unit: cells/L
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: spatial_target
+    allowed_range: [0, 1.0e12]
+    missing_policy: optional
+    evidence: [E03]
+  - code: remote_bloom_class
+    name_zh: 遥感水华类别
+    source_type: remote_sensing
+    data_type: enum
+    unit: null
+    raw_frequency: pixel_scene
+    standard_frequency: pixel_overpass
+    required_level: A
+    role: spatial_classification
+    allowed_values: [clear_water, suspected_bloom, confirmed_bloom, invalid]
+    missing_policy: invalid_pixel
+    evidence: [E03]
+  - code: remote_bloom_area_km2
+    name_zh: 遥感水华面积
+    source_type: derived
+    data_type: float
+    unit: km2
+    raw_frequency: derived_scene
+    standard_frequency: daily
+    required_level: A
+    role: spatial_target
+    allowed_range: [0, 2338]
+    missing_policy: no_area_without_valid_fraction
+    evidence: [E03]
+  - code: remote_uncertainty
+    name_zh: 遥感反演不确定性
+    source_type: derived
+    data_type: float
+    unit: product_specific
+    raw_frequency: derived_scene
+    standard_frequency: pixel_overpass
+    required_level: B
+    role: uncertainty
+    missing_policy: quality_warning
+    evidence: [E03, E05]
+
+  - code: observed_value
+    name_zh: 标准化前或插补前值
+    source_type: observed
+    data_type: float
+    unit: source_defined
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: audit_value
+    missing_policy: preserve_null_only_if_source_null
+    evidence: [E00]
+  - code: clean_value
+    name_zh: 清洗后标准值
+    source_type: derived
+    data_type: float
+    unit: canonical_variable_unit
+    raw_frequency: derived
+    standard_frequency: record
+    required_level: A
+    role: model_input
+    missing_policy: keep_missing_mask
+    evidence: [E00]
+  - code: unit
+    name_zh: 标准单位
+    source_type: static
+    data_type: string
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: schema
+    missing_policy: reject_unrecognized_unit
+    evidence: [E01]
+  - code: imputation_method
+    name_zh: 插补方法
+    source_type: static
+    data_type: enum
+    unit: null
+    raw_frequency: imputation_event
+    standard_frequency: imputation_event
+    required_level: B
+    role: imputation_audit
+    missing_policy: required_when_imputed
+    evidence: [E00]
+  - code: time_gap_hours
+    name_zh: 多源时间差
+    source_type: derived
+    data_type: float
+    unit: h
+    raw_frequency: alignment_event
+    standard_frequency: alignment_event
+    required_level: A
+    role: temporal_match_quality
+    missing_policy: required_for_alignment
+    evidence: [E03, E05]
+  - code: space_gap_m
+    name_zh: 多源空间距离
+    source_type: derived
+    data_type: float
+    unit: m
+    raw_frequency: alignment_event
+    standard_frequency: alignment_event
+    required_level: B
+    role: spatial_match_quality
+    missing_policy: required_for_spatial_match
+    evidence: [E04]
+  - code: rolling_mean_* 
+    name_zh: 滑动均值特征模板
+    source_type: derived
+    data_type: float
+    unit: source_variable_unit
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: A
+    role: multi_scale_feature
+    missing_policy: window_coverage_threshold
+    evidence: [E00]
+  - code: lag_*
+    name_zh: 滞后特征模板
+    source_type: derived
+    data_type: float
+    unit: source_variable_unit
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: A
+    role: response_delay_feature
+    missing_policy: preserve_lag_missingness
+    evidence: [E00]
+
+  - code: tn_tp_ratio
+    name_zh: 氮磷比
+    source_type: derived
+    data_type: float
+    unit: dimensionless
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: nutrient_feature
+    missing_policy: null_if_denominator_invalid
+    evidence: [E05]
+  - code: temperature_degree_days
+    name_zh: 温度积算
+    source_type: derived
+    data_type: float
+    unit: degC_day
+    raw_frequency: derived
+    standard_frequency: daily_weekly
+    required_level: B
+    role: cumulative_growth_feature
+    missing_policy: break_on_long_gap
+    evidence: [E05]
+  - code: wind_calm_duration
+    name_zh: 静风持续时间
+    source_type: derived
+    data_type: float
+    unit: h
+    raw_frequency: derived
+    standard_frequency: hourly_daily
+    required_level: B
+    role: surface_accumulation_feature
+    missing_policy: break_on_gap
+    evidence: [E03]
+  - code: value_origin
+    name_zh: 值来源类型
+    source_type: static
+    data_type: enum
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: provenance
+    allowed_values: [observed, remote_sensing, derived, imputed, proxy, static]
+    missing_policy: reject
+    evidence: [E00]
+  - code: quality_flags
+    name_zh: 质量标志
+    source_type: static
+    data_type: enum_array
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: data_quality
+    missing_policy: default_Q00_only_after_check
+    evidence: [E00, E01]
+  - code: is_imputed
+    name_zh: 是否插补
+    source_type: static
+    data_type: boolean
+    unit: null
+    raw_frequency: record
+    standard_frequency: record
+    required_level: A
+    role: data_quality
+    missing_policy: false_only_for_observed
+    evidence: [E00]

@@ -1,0 +1,23 @@
+{
+  "task_id": "P01-06",
+  "validated_at_utc": "2026-08-18T23:02:47Z",
+  "checks": {
+    "p01_05_done": true,
+    "p01_06_in_progress_before_validation": true,
+    "only_one_active": true,
+    "variables_yaml_parses": true,
+    "storage_timezone_is_utc": true,
+    "local_timezone_is_asia_shanghai": true,
+    "naive_input_policy_is_pending": true,
+    "forecast_reference_and_valid_fields_are_distinct": true,
+    "aware_timestamp_utc_local_conversion_passed": true,
+    "naive_timestamp_not_silently_utc": true,
+    "explicit_source_timezone_conversion_passed": true,
+    "forecast_payload_timezone_contract_passed": true,
+    "sqlite_retains_utc_local_status_fields": true,
+    "downstream_naive_time_parsers_reject": true,
+    "offline_time_tests_passed": true
+  },
+  "overall": true,
+  "next_task": "P01-07"
+}

@@ -1,0 +1,7 @@
+P03-01 directed validation
+command: python -m pytest -q tests/test_provenance_manifest.py
+result: 3 passed in 0.18s
+
+P03-01 full regression
+command: python -m pytest -q
+result: 99 passed in 10.74s

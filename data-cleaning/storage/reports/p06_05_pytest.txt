@@ -1,0 +1,2 @@
+Directed: 10 passed in 0.64s
+Full: 160 passed in 27.97s

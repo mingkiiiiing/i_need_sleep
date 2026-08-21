@@ -1,0 +1,5 @@
+Targeted: python -m pytest -q tests/test_config_sources.py
+Result: 1 passed in 0.13s
+
+Full: python -m pytest -q
+Result: 59 passed in 11.15s

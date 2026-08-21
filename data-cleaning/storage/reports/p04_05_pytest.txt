@@ -1,0 +1,5 @@
+Directed: python -m pytest -q tests/test_cma_files.py tests/test_license_registry.py
+6 passed in 0.25s
+
+Full: python -m pytest -q
+121 passed in 17.71s

@@ -1,0 +1,24 @@
+{
+  "task_id": "P05-06",
+  "status": "DONE",
+  "implemented": true,
+  "config": "config/forecast_source_priority.yml",
+  "module": "pipeline/forecast_failover.py",
+  "source_health_extension": "pipeline/source_health.py",
+  "cli": "python -m pipeline forecast-failover --ecmwf <csv> --gfs <csv> --environment production",
+  "real_primary_artifacts": [
+    "storage/silver/forecast/selected/forecast_selected.csv",
+    "storage/manifests/forecast_failover_p05_06_real.json"
+  ],
+  "real_fallback_artifacts": [
+    "storage/silver/forecast/selected/forecast_selected_gfs_fallback.csv",
+    "storage/manifests/forecast_failover_p05_06_fallback.json"
+  ],
+  "health_database": "storage/databases/forecast_source_health.sqlite",
+  "tests": {
+    "directed": "8 passed",
+    "full_pytest": "148 passed"
+  },
+  "next_task": "P06-01",
+  "notes": "Open-Meteo is explicitly development-only in production selection. Both primary selection and controlled ECMWF-to-GFS fallback preserve the real model_name and write a source-health switch record."
+}

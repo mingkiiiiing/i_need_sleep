@@ -1,0 +1,226 @@
+version: "1.0.0"
+study_area: "Taihu Lake"
+description: "配置驱动的第一版数据质量控制规则；未列入硬拒绝的业务规则只产生告警或进入后续门禁。"
+
+# 这些规则当前由 pipeline/qc.py 实际加载。单位与变量字典一致；
+# 部分硬范围是跨来源的保守安全上限，不等同于单站点仪器量程。
+# 需要项目方确认的站点专属阈值不得直接写成硬拒绝规则。
+hard_range_rules:
+  air_temperature: [-60, 60]
+  wind_speed: [0, 60]
+  wind_direction: [0, 360]
+  precipitation: [0, 500]
+  shortwave_radiation: [0, 2000]
+  cloud_cover: [0, 100]
+
+duplicate_key:
+  fields: [source_id, station_id, scene_id, observed_at, variable_code]
+  issue_code: Q08
+  severity: medium
+  action: reject_duplicate_from_model_table
+
+normalization:
+  wind_direction_360_to_zero:
+    enabled: true
+    issue_code: Q21
+    severity: low
+
+missing_value:
+  issue_code: Q01
+  severity: high
+  action: keep_traceable_then_try_explicit_short_gap_imputation
+
+missing_mechanism:
+  categories: [interface_failure, device_offline, low_frequency, cloud_masked, quality_rejected, temporal_gap_short, temporal_gap_long, edge_gap, unknown]
+  low_frequency_factor: 2.0
+  short_gap_max_steps: 3
+  policy:
+    interface_failure: retry_or_failover
+    device_offline: hold_and_check_telemetry
+    low_frequency: retain_native_frequency_and_data_age
+    cloud_masked: cross_sensor_or_lag_only
+    quality_rejected: manual_review_only
+    temporal_gap_short: masked_validation_before_imputation
+    temporal_gap_long: uncertainty_or_keep_missing
+
+rejection:
+  issue_codes: [Q02, Q03, Q04, Q06, Q07, Q08, Q10, Q11, Q13, Q14, Q15]
+  appended_flag: Q99
+  preserve_original: true
+
+severity:
+  Q01: high
+  Q02: high
+  Q03: high
+  Q04: critical
+  Q06: high
+  Q07: high
+  Q08: medium
+  Q21: low
+  Q12: medium
+  Q13: high
+  Q14: high
+  Q15: high
+  Q16: medium
+  Q17: medium
+  Q25: medium
+  Q26: medium
+  Q27: medium
+  Q28: medium
+  Q29: medium
+  Q36: medium
+  Q37: medium
+  Q38: medium
+  Q39: medium
+  Q40: medium
+  Q41: medium
+
+temporal_quality:
+  max_gap_hours: 24
+  sensor_stuck_min_points: 6
+  sensor_stuck_tolerance: 0.0
+  future_tolerance_minutes: 0
+  interval_change_ratio: 4.0
+  interval_change_min_hours: 2.0
+  sensor_stuck_variables: [water_temperature, chlorophyll_a, algae_density, total_nitrogen, total_phosphorus, ammonia_nitrogen, nitrate_nitrogen, nitrite_nitrogen, pH, dissolved_oxygen, turbidity, conductivity, water_level, flow_velocity]
+
+univariate_quality:
+  hampel_window_radius: 3
+  hampel_n_sigma: 3.0
+  hampel_min_points: 5
+  hampel_variables: [water_temperature, chlorophyll_a, algae_density, total_nitrogen, total_phosphorus, ammonia_nitrogen, nitrate_nitrogen, nitrite_nitrogen, pH, dissolved_oxygen, turbidity, conductivity, water_level, flow_velocity, air_temperature, wind_speed, precipitation]
+  max_rate_per_hour:
+    water_temperature: 5.0
+    air_temperature: 10.0
+    wind_speed: 30.0
+    precipitation: 500.0
+    water_level: 1.0
+    flow_velocity: 10.0
+    pH: 2.0
+    dissolved_oxygen: 10.0
+    total_nitrogen: 50.0
+    total_phosphorus: 10.0
+    chlorophyll_a: 1000.0
+    algae_density: 10000000000.0
+
+multivariate_quality:
+  # Cross-variable rules are review gates. They intentionally mark every
+  # participating record as suspect and never delete a row automatically.
+  do_temperature:
+    issue_code: Q25
+    max_do_saturation_ratio: 2.0
+    min_temperature_c: -2.0
+    max_temperature_c: 45.0
+  ec_tds:
+    issue_code: Q26
+    tds_to_ec_min: 0.3
+    tds_to_ec_max: 1.2
+  nutrient_components:
+    issue_code: Q27
+    relative_tolerance: 0.25
+    absolute_tolerance_mg_l: 0.01
+  precipitation_flow:
+    issue_code: Q28
+    heavy_precipitation_mm_per_h: 50.0
+    zero_flow_tolerance: 0.0
+  cloud_radiation:
+    issue_code: Q29
+    high_cloud_percent: 90.0
+    high_radiation_w_m2: 500.0
+
+spatial_quality:
+  boundary_path: storage/silver/geo/taihu_boundary.gpkg
+  boundary_layer: taihu_boundary_wgs84
+  boundary_buffer_m: 5000.0
+  station_drift_m: 1000.0
+  coordinate_swap:
+    issue_code: Q36
+    longitude_range: [119.5, 121.0]
+    latitude_range: [30.8, 31.7]
+  zero_coordinate_tolerance: 0.000001
+  outside_boundary_issue_code: Q38
+  station_drift_issue_code: Q39
+  expected_crs_epsg: 4326
+  crs_issue_code: Q40
+
+deduplication:
+  conflict_issue_code: Q41
+  exact_duplicate_action: retain_first_and_audit
+  conflict_action: pending_manual_review
+  cross_source_action: retain_each_source_without_overwrite
+
+advisory_rules:
+  # 这些规则不能在没有站点校准和单位确认前直接拒绝记录。
+  water_temperature: {range: [0, 45], action: flag_for_station_review}
+  total_nitrogen: {range: [0, 100], action: flag_for_station_review}
+  total_phosphorus: {range: [0, 20], action: flag_for_station_review}
+  chlorophyll_a: {range: [0, 10000], action: flag_for_station_review}
+  algae_density: {range: [0, 1.0e12], action: flag_for_station_review}
+  bloom_area_km2: {range: [0, 2338], action: flag_for_station_review}
+
+# Soft physical bounds are review gates, not deletion rules. A row outside
+# these ranges is retained in ``suspect_records`` with Q12 so station-specific
+# calibration can review it before model use.
+soft_range_rules:
+  water_temperature: {range: [0, 45], issue_code: Q12, severity: medium, action: suspect}
+  total_nitrogen: {range: [0, 100], issue_code: Q12, severity: medium, action: suspect}
+  total_phosphorus: {range: [0, 20], issue_code: Q12, severity: medium, action: suspect}
+  chlorophyll_a: {range: [0, 10000], issue_code: Q12, severity: medium, action: suspect}
+  algae_density: {range: [0, 1.0e12], issue_code: Q12, severity: medium, action: suspect}
+  bloom_area_km2: {range: [0, 2338], issue_code: Q12, severity: medium, action: suspect}
+
+imputation:
+  max_gap_steps: 3
+  allowed_methods: [linear_time]
+  never_auto_impute: [chlorophyll_a, algae_density, bloom_area_km2]
+  require_flags: [is_imputed, imputation_method, imputation_confidence, value_origin]
+
+long_gap_uncertainty:
+  method: local_donor_envelope
+  preserve_clean_value_null: true
+  observed_flag: 0
+  imputation_flag: 1
+  no_silent_forward_fill: true
+
+low_frequency_nutrients:
+  variables: [total_nitrogen, total_phosphorus, ammonia_nitrogen, nitrate_nitrogen, nitrite_nitrogen, phosphate_phosphorus, total_kjeldahl_nitrogen]
+  max_age_hours: 720
+  preserve_native_frequency: true
+  no_daily_expansion: true
+  feature_semantics: latest_observed_with_age
+
+wind_uv:
+  direction_convention: meteorological_from
+  calm_speed_threshold_mps: 0.1
+  max_gap_steps: 3
+  canonical_direction_degrees: 0
+  no_direction_for_calm: true
+  method: uv_linear_interpolation
+
+resampling:
+  default_frequency: auto
+  supported_frequencies: [hourly, daily, decadal, monthly]
+  timezone_for_calendar_buckets: Asia/Shanghai
+  storage_timezone: UTC
+  no_upsampling: true
+  flux_aggregation: sum
+  circular_aggregation: circular_mean
+  robust_state_aggregation: median
+  default_state_aggregation: mean
+
+temporal_alignment:
+  default_max_time_diff_hours: 24
+  ideal_ground_remote_hours: 3
+  matching_strategy: nearest
+  future_values: preserve_for_alignment_and_block_in_feature_stage
+  return_signed_time_gap: true
+
+freshness:
+  default_max_staleness_days: 30
+  high_frequency_max_median_interval_hours: 6
+  high_frequency_max_gap_hours: 24
+
+fault_injection_acceptance:
+  first_release_fixture_recall_min: 1.0
+  production_target_recall_min: 0.90
+  production_false_positive_rate_max: 0.05

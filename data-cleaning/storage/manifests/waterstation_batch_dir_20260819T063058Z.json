@@ -1,0 +1,12 @@
+{
+  "run_id": "waterstation_batch_dir_20260819T063058Z",
+  "status": "blocked_no_valid_files",
+  "input_root": "storage\\raw\\authorized_waterstation\\inbox",
+  "files_discovered": 0,
+  "files_parsed": 0,
+  "duplicate_files_skipped": 0,
+  "parse_failures": 0,
+  "inventory": "storage\\runs\\waterstation_directory_batch\\input_inventory.csv",
+  "staging_root": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\staging\\waterstation_dir_20260819T063058Z",
+  "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\waterstation_batch_dir_20260819T063058Z.json"
+}

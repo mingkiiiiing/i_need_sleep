@@ -1,0 +1,27 @@
+{
+  "task_id": "P05-04",
+  "status": "BLOCKED_AUTH",
+  "implemented": true,
+  "module": "pipeline/sources/c3s_seasonal.py",
+  "cli": "python -m pipeline c3s-seasonal --forecast-year 2026 --init-month 8 --hindcast-years 1993 1994 --lead-months 1 2 3 --manifest storage/manifests/c3s_seasonal_2026_08.json",
+  "offline_adapter": {
+    "request_builder": true,
+    "hindcast_forecast_schema": true,
+    "grib_netcdf_parser": true,
+    "ensemble_member_preservation": true,
+    "bias_correction_interface": true
+  },
+  "real_batch_verified": false,
+  "auth_status": {
+    "status": "BLOCKED_AUTH",
+    "required": "TAIHU_CDS_API_KEY or ~/.cdsapirc or ~/.config/cdsapi/config",
+    "present": false,
+    "probe_manifest": "storage/manifests/cds_auth_probe.json"
+  },
+  "tests": {
+    "directed": "5 passed",
+    "full_pytest": "139 passed"
+  },
+  "next_task": "P05-05",
+  "notes": "C3S seasonal forecasts are monthly probabilistic drivers. The adapter does not label the request plan as real data and will retrieve hindcast plus current forecast only after CDS authorization is configured."
+}

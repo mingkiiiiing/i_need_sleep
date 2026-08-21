@@ -1,0 +1,2 @@
+Command: python -m pytest -q
+Result: 166 passed in 28.03s

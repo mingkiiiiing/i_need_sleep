@@ -1,0 +1,16 @@
+{
+  "task_id": "P03-06",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-19T00:00:00Z",
+  "artifacts": [
+    "pipeline/source_health.py",
+    "tests/test_source_health.py",
+    "storage/reports/p03_06_directed_validation.json",
+    "storage/reports/p03_06_pytest.txt"
+  ],
+  "quality_gate": {
+    "directed_tests": "3 passed",
+    "full_pytest": "112 passed",
+    "next_task_remains_unstarted": "P04-01 is TODO"
+  }
+}

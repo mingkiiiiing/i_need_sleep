@@ -1,0 +1,13 @@
+{
+  "task_id": "P09-05",
+  "directed_command": "python -m pytest tests/test_univariate_qc.py tests/test_temporal_qc.py tests/test_qc.py tests/test_physical_range_qc.py -q",
+  "directed_result": "16 passed in 2.59s",
+  "directed_log": "reports/p09_05_directed_pytest.txt",
+  "full_command": "python -m pytest -q",
+  "full_result": "216 passed in 28.45s",
+  "full_log": "reports/p09_05_full_pytest.txt",
+  "actual_batch_manifest": "storage/runs/p09_05_univariate_qc/manifest.json",
+  "qc_issue_csv": "storage/runs/p09_05_univariate_qc/cleaning/qc_issues.csv",
+  "suspect_csv": "storage/runs/p09_05_univariate_qc/cleaning/suspect_records.csv",
+  "rejected_csv": "storage/runs/p09_05_univariate_qc/cleaning/rejected_records.csv"
+}

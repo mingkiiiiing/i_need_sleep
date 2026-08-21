@@ -1,0 +1,26 @@
+{
+  "run_id": "quality_report_20260818T120058Z",
+  "status": "completed",
+  "input": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp3lk1bwxq\\cleaned_observations.csv",
+  "files": {
+    "quality_report": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp3lk1bwxq\\report\\quality_report.csv",
+    "overall": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp3lk1bwxq\\report\\quality_report_overall.json",
+    "database": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp3lk1bwxq\\data.db"
+  },
+  "overall": {
+    "cleaned_rows": 1,
+    "variable_groups": 1,
+    "sources": 1,
+    "rejected_rows": 0,
+    "pending_imputation_rows": 0,
+    "issue_rows": 0,
+    "duplicate_key_rows": 0,
+    "available_groups": 1,
+    "low_frequency_groups": 0,
+    "stale_groups": 0,
+    "missing_groups": 0,
+    "as_of": null,
+    "max_staleness_days": 30.0,
+    "low_frequency_hours": 24.0
+  }
+}

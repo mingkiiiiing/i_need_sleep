@@ -1,0 +1,5 @@
+Directed: python -m pytest -q tests/test_ecmwf_open_data.py tests/test_license_registry.py
+7 passed in 5.55s
+
+Full: python -m pytest -q
+128 passed in 23.71s

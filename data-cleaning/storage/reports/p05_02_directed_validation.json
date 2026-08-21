@@ -1,0 +1,27 @@
+{
+  "task_id": "P05-02",
+  "status": "passed",
+  "real_input": "storage/silver/forecast/ecmwf/ecmwf_2026-08-18_18z_area_mean.csv",
+  "real_output": {
+    "forecast_values_csv": "storage/silver/forecast/ecmwf/forecast_values.csv",
+    "daily_summary_csv": "storage/silver/forecast/ecmwf/forecast_daily_summary.csv",
+    "sqlite": "storage/databases/ecmwf_forecast_values.sqlite",
+    "input_rows": 21,
+    "forecast_value_rows": 21,
+    "daily_summary_rows": 21,
+    "reference_time": "2026-08-18T18:00:00+00:00",
+    "valid_time_start": "2026-08-18T18:00:00+00:00",
+    "valid_time_end": "2026-08-21T18:00:00+00:00",
+    "max_lead_hours": 72.0,
+    "ensemble_members": [0]
+  },
+  "checks": [
+    "reference_time and valid_time are separate columns",
+    "lead_hours equals (valid_time-reference_time) in hours",
+    "ensemble_member is retained in CSV and SQLite primary key",
+    "daily mean/max/min are generated per local Asia/Shanghai date",
+    "precipitation cumulative_value uses non-negative increments from ECMWF accumulated tp",
+    "p05/p50/p95 fields are generated from member-day values and are deterministic for one member",
+    "no interpolation or future-to-reference-time leakage"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "task_id": "P09-08",
+  "directed_command": "python -m pytest tests/test_conflict_dedup.py tests/test_spatial_qc.py tests/test_multivariate_qc.py tests/test_univariate_qc.py tests/test_temporal_qc.py tests/test_qc.py tests/test_physical_range_qc.py -q",
+  "directed_result": "22 passed in 5.81s",
+  "directed_log": "reports/p09_08_directed_pytest.txt",
+  "full_command": "python -m pytest -q",
+  "full_result": "222 passed in 55.05s",
+  "full_log": "reports/p09_08_full_pytest.txt",
+  "actual_batch_manifest": "storage/runs/p09_08_dedup_conflict_qc/manifest.json",
+  "pending_conflicts_csv": "storage/runs/p09_08_dedup_conflict_qc/cleaning/pending_conflicts.csv",
+  "duplicate_audit_csv": "storage/runs/p09_08_dedup_conflict_qc/cleaning/duplicate_audit.csv",
+  "qc_issue_csv": "storage/runs/p09_08_dedup_conflict_qc/cleaning/qc_issues.csv"
+}

@@ -1,0 +1,10 @@
+P08-03 command:
+python -m pipeline waterstation-preflight-issues --preflight-root storage/runs/waterstation_preflight --input-root storage/raw/authorized_waterstation/inbox --output storage/reports/waterstation_preflight_issues.csv --summary storage/reports/waterstation_preflight_issues_summary.json
+
+Result status: blocked
+Preflight status: blocked_no_valid_files
+Issue rows: 1
+Issue counts: authorization_gap=1
+P0 blocking issues: 1
+Manifest: storage/manifests/waterstation_preflight_issues_20260819T062318Z.json
+Expected process exit: 2 (P0 issues remain)
