@@ -13,7 +13,11 @@
 - 站点坐标已有 `coord: { lon, lat }`，太湖区域约 119.18-119.41E, 31.22-31.39N
 
 ## 文件结构要点
-- `src/main.js` - 路由定义 + sentinel history hack
+- `src/main.js` - 路由定义 + sentinel history hack + scrollBehavior 支持 hash 锚点
+- `src/App.vue` - 引入 GlobalNav 全局导航栏 + RouterView 转场动画
+- `src/components/GlobalNav.vue` - 全局导航栏 (Logo + 8页面入口 + 时钟 + 主题切换)
+  - "项目概览"使用 `{ path: '/', hash: '#project-overview' }` 锚点滚动到首页区块
+- `src/pages/Home.vue` - 首页包含 hero + 路由卡片(2×2网格) + 项目概览区块(id=project-overview) + footer
 - `src/components/cockpit/LakeMap.vue` - 卫星地图核心组件
 - `src/data/points.js` - 站点/热力/事件数据
 - `src/stores/cockpit.js` - 跨页状态 (stageKey, selectedPoint, playing, speed)
@@ -22,7 +26,8 @@
 
 ## 已知问题
 - 两套设计 token 并存 (--home-color-* 和 --teal/--coral)
-- 无全局导航栏 (App.vue 仅 RouterView)
+- ~~无全局导航栏~~ → 已修复 (GlobalNav.vue)
 - 6处 image-slot 占位符待处理
 - 无 404 路由
-- JS bundle 936KB (ECharts+Leaflet+Vue)，可做代码分割优化
+- JS bundle 945KB (ECharts+Leaflet+Vue)，可做代码分割优化
+- package.json 的 build 脚本应为 `vite build` 而非 `vite`
