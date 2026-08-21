@@ -1,0 +1,12 @@
+{
+  "task_id": "P04-06",
+  "status": "BLOCKED_DATA",
+  "implemented": true,
+  "module": "pipeline/sources/research_center_files.py",
+  "cli": "python -m pipeline research-center-file --input <file> --output <standard.csv> --metadata <authorization.json> --manifest <manifest.json>",
+  "supported_input": ["CSV", "TXT", "TSV", "ZIP containing CSV/TXT/TSV"],
+  "metadata_contract": ["dataset_id", "doi", "license_tag", "redistribution_allowed", "commercial_use", "application_number", "native_frequency", "source_timezone", "authorization_evidence_path"],
+  "real_data_verified": false,
+  "blocker": "等待合法下载的国家数据中心文件及其 DOI、许可和申请单号；不得编造授权信息。",
+  "next_action": "取得真实文件后先运行 research-center-file 预检，核对原生月/季度频率和许可字段，再进入正式清洗批次。"
+}

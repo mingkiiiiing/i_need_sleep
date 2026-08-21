@@ -1,0 +1,71 @@
+{
+  "task_id": "P09-09",
+  "phase": "P09",
+  "name": "统一质量报告",
+  "status": "completed",
+  "completed_at": "2026-08-19T08:28:47.8109003Z",
+  "implementation": {
+    "module": "pipeline/quality_report.py",
+    "cli": "python -m pipeline quality-report",
+    "batch_integration": "pipeline/batch.py",
+    "report_granularity": "source_id + variable_code + unit",
+    "metrics": [
+      "input/raw/cleaned/suspect/rejected/pending-conflict rows",
+      "missing count and rate",
+      "anomaly count, rate and issue-code distribution",
+      "imputation and proxy count/rate",
+      "duplicate and conflict audit counts",
+      "time coverage, median interval and freshness",
+      "source coverage summary"
+    ],
+    "provenance_inputs": [
+      "normalized_observations.csv",
+      "cleaned_observations.csv",
+      "suspect_records.csv",
+      "rejected_records.csv",
+      "imputation_candidates.csv",
+      "pending_conflicts.csv",
+      "duplicate_audit.csv",
+      "qc_issues.csv"
+    ]
+  },
+  "actual_controlled_run": {
+    "run_id": "p09_09_quality_report",
+    "input_rows": 43922,
+    "cleaned_rows": 43693,
+    "suspect_rows": 229,
+    "rejected_rows": 0,
+    "pending_imputation_rows": 0,
+    "pending_conflict_rows": 0,
+    "issue_rows": 229,
+    "anomaly_rate": 0.005214,
+    "missing_rate": 0.0,
+    "sources": 2,
+    "variable_groups": 6,
+    "freshness_status": "all 6 groups stale against 2026-08-19T00:00:00Z because the controlled inputs are 2020/2025 snapshots",
+    "source_coverage": {
+      "copernicus_sentinel2_stac": {"input_rows": 2, "cleaned_rows": 2, "variable_groups": 1},
+      "nasa_power_hourly": {"input_rows": 43920, "cleaned_rows": 43691, "variable_groups": 5}
+    }
+  },
+  "outputs": {
+    "manifest": "storage/runs/p09_09_quality_report/manifest.json",
+    "csv": "storage/runs/p09_09_quality_report/report/quality_report.csv",
+    "overall_json": "storage/runs/p09_09_quality_report/report/quality_report_overall.json",
+    "sqlite": "storage/runs/p09_09_quality_report/quality_report.db"
+  },
+  "verification": {
+    "directed_pytest": "27 passed",
+    "full_pytest": "224 passed, 2 warnings",
+    "directed_log": "reports/p09_09_directed_pytest.txt",
+    "full_log": "reports/p09_09_full_pytest.txt",
+    "actual_run_log": "reports/p09_09_actual_run.txt"
+  },
+  "acceptance": [
+    "按来源和变量输出缺失、异常、插补、代理、覆盖和新鲜度",
+    "纳入 P09-03 至 P09-08 的物理、时间、单变量、多变量、空间、冲突/去重证据",
+    "CLI 和批处理均可显式传入全部质量产物路径",
+    "CSV、JSON、SQLite 三种结果可供后续插补和特征工程使用"
+  ],
+  "data_truth": "本轮未伪造实时水站/浮标数据；实际验证使用已授权边界内的 NASA POWER 与 Sentinel-2 STAC 控制批次。"
+}

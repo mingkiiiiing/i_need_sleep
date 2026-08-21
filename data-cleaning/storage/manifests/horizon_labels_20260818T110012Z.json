@@ -1,0 +1,61 @@
+{
+  "run_id": "horizon_labels_20260818T110012Z",
+  "status": "completed",
+  "input": "storage\\exports\\experiment_20260818T104457Z\\experiment_dataset.csv",
+  "target_variable": "phytoplankton_biomass",
+  "selected_rows": 576,
+  "series_count": 9,
+  "files": {
+    "dataset": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\horizon_labels_20260818T110012Z\\forecast_label_dataset.csv",
+    "summary": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\horizon_labels_20260818T110012Z\\forecast_label_summary.csv",
+    "audit": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\horizon_labels_20260818T110012Z\\forecast_label_audit.json",
+    "database": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\data_cleaning.db"
+  },
+  "summary": [
+    {
+      "target_variable": "phytoplankton_biomass",
+      "horizon": "horizon_1_3d",
+      "lower_days": 1.0,
+      "upper_days": 3.0,
+      "input_rows": 576,
+      "accepted_rows": 0,
+      "availability_rate": 0.0,
+      "mean_gap_days": null,
+      "min_gap_days": null,
+      "max_gap_days": null,
+      "status_counts": "{\"no_observation_in_window\": 567, \"no_future_observation\": 9}",
+      "split_boundary_count": 0,
+      "overall_status": "blocked_no_labels"
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "horizon": "horizon_7_15d",
+      "lower_days": 7.0,
+      "upper_days": 15.0,
+      "input_rows": 576,
+      "accepted_rows": 0,
+      "availability_rate": 0.0,
+      "mean_gap_days": null,
+      "min_gap_days": null,
+      "max_gap_days": null,
+      "status_counts": "{\"no_observation_in_window\": 567, \"no_future_observation\": 9}",
+      "split_boundary_count": 0,
+      "overall_status": "blocked_no_labels"
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "horizon": "horizon_30_90d",
+      "lower_days": 30.0,
+      "upper_days": 90.0,
+      "input_rows": 576,
+      "accepted_rows": 144,
+      "availability_rate": 0.25,
+      "mean_gap_days": 89.25,
+      "min_gap_days": 89.0,
+      "max_gap_days": 90.0,
+      "status_counts": "{\"accepted\": 144, \"no_observation_in_window\": 423, \"no_future_observation\": 9}",
+      "split_boundary_count": 0,
+      "overall_status": "ready"
+    }
+  ]
+}

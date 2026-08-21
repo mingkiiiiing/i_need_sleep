@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "source_ids": [
+    "gpm_imerg",
+    "nasa_lance_modis_viirs",
+    "nasa_oceancolor"
+  ],
+  "generated_at_utc": "2026-08-18T23:24:22Z",
+  "endpoint": "https://urs.earthdata.nasa.gov/api/users/tokens",
+  "required_env": [
+    "TAIHU_EARTHDATA_TOKEN"
+  ],
+  "present_env": {
+    "TAIHU_EARTHDATA_TOKEN": false
+  },
+  "token_request_attempted": false,
+  "token_validated": false,
+  "http_status": null,
+  "status": "BLOCKED_AUTH",
+  "error_class": "MissingEarthdataToken",
+  "redaction": "Token value and response body are never persisted or printed."
+}

@@ -1,0 +1,19 @@
+{
+  "task_id": "P07-02",
+  "source_id": "mwr_hfc",
+  "source_url": "https://hfc.mwr.cn/",
+  "status": "BLOCKED_POLICY",
+  "data_truth": "no_input_page_or_export",
+  "input_path": null,
+  "authorization_evidence_path": null,
+  "machine_api_verified": false,
+  "interface_class": "official_entry_page_endpoint_unverified",
+  "raw_asset_path": null,
+  "asset_manifest": null,
+  "output_csv": null,
+  "records": 0,
+  "warnings": [],
+  "retrieved_at_utc": "2026-08-19T04:45:10.548611+00:00",
+  "browser_observation": "official HFC entry page is reachable; static machine API and reuse permission remain unverified",
+  "next_action": "obtain documented public endpoint permission or a legally exported CSV/JSON/XLSX file; do not reverse-engineer Ajax"
+}

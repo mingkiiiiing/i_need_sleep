@@ -1,0 +1,17 @@
+{
+  "source_id": "taihu_thqbca_history",
+  "listing_manifest": "storage\\manifests\\thqbca_archive_listing.json",
+  "output_csv": "storage\\raw\\taihu_thqbca_parsed\\thqbca_remote_product_index.csv",
+  "records": 146,
+  "by_family": {
+    "aquatic_vegetation": 21,
+    "chlorophyll_a": 36,
+    "floating_algae_cover": 20,
+    "secchi_depth": 35,
+    "trophic_state_index": 34
+  },
+  "unmatched_raster_members": [],
+  "value_status": "not_extracted",
+  "asset_status": "archive_member_only",
+  "data_truth": "real_external_metadata"
+}

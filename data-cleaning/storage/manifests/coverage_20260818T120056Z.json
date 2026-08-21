@@ -1,0 +1,18 @@
+{
+  "run_id": "coverage_20260818T120056Z",
+  "status": "completed",
+  "input": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp0lm1gqkc\\observations.csv",
+  "rows": 2,
+  "short_term_ready": false,
+  "operational_short_term_ready": false,
+  "target_ready": false,
+  "required_drivers_ready": false,
+  "files": {
+    "matrix": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp0lm1gqkc\\coverage\\coverage_matrix.csv",
+    "gaps": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp0lm1gqkc\\coverage\\coverage_gaps.csv",
+    "audit": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp0lm1gqkc\\coverage\\coverage_audit.json",
+    "database": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp0lm1gqkc\\data.db"
+  },
+  "gap_count": 10,
+  "as_of": "2025-01-03T00:00:00+00:00"
+}

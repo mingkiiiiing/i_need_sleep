@@ -1,0 +1,96 @@
+{
+  "task_id": "P10-07",
+  "status": "completed",
+  "directed_tests": "19 passed",
+  "full_tests": "247 passed, 2 warnings",
+  "frequency_runs": {
+    "auto": {
+      "input_rows": 43922,
+      "resampled_rows": 43922,
+      "gap_rows": 0,
+      "sqlite_rows": 43922,
+      "sqlite_gap_rows": 0,
+      "has_gap_table": true,
+      "schema_fields": true,
+      "output_sha256": {
+        "resampled": "b3eba5c320548628a7195609941f3dd80d4580808704074e102fd187c5513249",
+        "gaps": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "manifest": "87a902b3fcf510097c9cfcd43fb520fe8fdb1d0f5ca564280909cc71b0f2124a"
+      },
+      "status_counts": {
+        "native_frequency": 2,
+        "aggregated": 43920
+      },
+      "target_frequency_counts": {
+        "native": 2,
+        "hourly": 43920
+      }
+    },
+    "daily": {
+      "input_rows": 43922,
+      "resampled_rows": 1837,
+      "gap_rows": 0,
+      "sqlite_rows": 1837,
+      "sqlite_gap_rows": 0,
+      "has_gap_table": true,
+      "schema_fields": true,
+      "output_sha256": {
+        "resampled": "b5e82e939ee77fa79fbb48871b3ebf80390771c9489c9cde62d86b2d010fff8f",
+        "gaps": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "manifest": "af941237c9e0133bcc16b589950b597f478bd4eccf883bc27d6a8f9a46e8cd43"
+      },
+      "status_counts": {
+        "no_upsampling": 2,
+        "aggregated": 43920
+      },
+      "target_frequency_counts": {
+        "native": 2,
+        "daily": 43920
+      }
+    },
+    "decadal": {
+      "input_rows": 43922,
+      "resampled_rows": 187,
+      "gap_rows": 0,
+      "sqlite_rows": 187,
+      "sqlite_gap_rows": 0,
+      "has_gap_table": true,
+      "schema_fields": true,
+      "output_sha256": {
+        "resampled": "638e13427cf8c068c3fea1715e382c6a5a860366d031e6ae175ddf1783d98ef7",
+        "gaps": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "manifest": "95d54f40a3d55728048883dd034f4d06145ff6d1b23273978adb3a8a9b7b5456"
+      },
+      "status_counts": {
+        "no_upsampling": 2,
+        "aggregated": 43920
+      },
+      "target_frequency_counts": {
+        "native": 2,
+        "decadal": 43920
+      }
+    },
+    "monthly": {
+      "input_rows": 43922,
+      "resampled_rows": 67,
+      "gap_rows": 0,
+      "sqlite_rows": 67,
+      "sqlite_gap_rows": 0,
+      "has_gap_table": true,
+      "schema_fields": true,
+      "output_sha256": {
+        "resampled": "55226ae18b1c9d3f887025d14dd481421c72732c51d34e5e0dfdd9e7a0d6733e",
+        "gaps": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "manifest": "37ca413ec85526030faf357d5af9192807a380aab4344f7fd271867f918aa226"
+      },
+      "status_counts": {
+        "no_upsampling": 2,
+        "aggregated": 43920
+      },
+      "target_frequency_counts": {
+        "native": 2,
+        "monthly": 43920
+      }
+    }
+  }
+}

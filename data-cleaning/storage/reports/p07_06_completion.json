@@ -1,0 +1,31 @@
+{
+  "task_id": "P07-06",
+  "phase": "P07",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-19T05:35:00Z",
+  "deliverables": [
+    "pipeline/sources/hydrology_consistency.py",
+    "pipeline/sources/__init__.py",
+    "pipeline/cli.py",
+    "tests/test_hydrology_consistency.py",
+    "storage/reports/hydrology_consistency.csv",
+    "storage/reports/hydrology_consistency.json",
+    "storage/manifests/hydrology_consistency_p07_06.json",
+    "storage/reports/p07_06_directed_validation.json"
+  ],
+  "real_input": {
+    "source": "THQBCA Taihu historical observations",
+    "value_origin": "observed",
+    "water_level_rows": 6210,
+    "precipitation_rows": 23820
+  },
+  "explicit_gaps": [
+    "TBA web snapshot/export remains BLOCKED_POLICY",
+    "MWR HFC export remains BLOCKED_POLICY",
+    "GloFAS discharge remains BLOCKED_AUTH",
+    "No discharge observations were present, so flow-sign result is not_available"
+  ],
+  "directed_pytest": "18 passed in 3.41s",
+  "full_pytest": "188 passed in 28.28s",
+  "next_eligible_task": "P08-01"
+}

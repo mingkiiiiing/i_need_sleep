@@ -1,0 +1,132 @@
+{
+  "status": "completed",
+  "output_parquet": "storage\\silver\\geo\\static_features.parquet",
+  "output_dem": "storage\\silver\\geo\\copernicus_dem_glo30_taihu.tif",
+  "output_slope": "storage\\silver\\geo\\copernicus_dem_glo30_taihu_slope.tif",
+  "output_worldcover": "storage\\silver\\geo\\worldcover_2021_taihu.tif",
+  "boundary_package": "storage\\silver\\geo\\hydrolakes_hydrobasins.gpkg",
+  "feature_count": 52,
+  "dem_shape": [
+    5831,
+    6096
+  ],
+  "worldcover_shape": [
+    19438,
+    20320
+  ],
+  "crop_bounds_wgs84": [
+    119.39257399407315,
+    30.428188548722215,
+    121.0858667026918,
+    32.04804059579083
+  ],
+  "buffer_deg": 0.5,
+  "class_map": {
+    "10": "tree",
+    "20": "shrubland",
+    "30": "grassland",
+    "40": "cropland",
+    "50": "built_up",
+    "60": "bare_sparse",
+    "70": "snow_ice",
+    "80": "permanent_water",
+    "90": "herbaceous_wetland",
+    "95": "mangroves",
+    "100": "moss_lichen"
+  },
+  "sources": {
+    "dem": {
+      "dataset": "Copernicus DEM GLO-30 Public",
+      "urls": [
+        "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N30_00_E119_00_DEM/Copernicus_DSM_COG_10_N30_00_E119_00_DEM.tif",
+        "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N30_00_E120_00_DEM/Copernicus_DSM_COG_10_N30_00_E120_00_DEM.tif",
+        "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N31_00_E119_00_DEM/Copernicus_DSM_COG_10_N31_00_E119_00_DEM.tif",
+        "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N31_00_E120_00_DEM/Copernicus_DSM_COG_10_N31_00_E120_00_DEM.tif"
+      ],
+      "license": "COPERNICUS_DEM_FREE_PUBLIC_LICENSE_WITH_ATTRIBUTION"
+    },
+    "landcover": {
+      "dataset": "ESA WorldCover 2021 v200",
+      "urls": [
+        "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N30E117_Map.tif",
+        "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N30E120_Map.tif"
+      ],
+      "license": "CC-BY-4.0"
+    }
+  },
+  "data_truth": "real_external_copernicus_dem_and_esa_worldcover",
+  "task_id": "P07-05",
+  "download_assets": {
+    "dem": [
+      {
+        "status": "skipped_existing",
+        "source_id": "copernicus_dem_glo30",
+        "asset_id": "Copernicus_DSM_COG_10_N30_00_E119_00_DEM",
+        "path": "storage\\raw\\static_geo\\copernicus_dem_glo30\\Copernicus_DSM_COG_10_N30_00_E119_00_DEM.tif",
+        "checksum_sha256": "6ec4f2aa21cfcdc23fdeeace4b42fdc0ce7244757ff7bb91dff01cb38f20b234",
+        "size_bytes": 50707008,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_copernicus_dem_glo30_Copernicus_DSM_COG_10_N30_00_E119_00_DEM.json"
+      },
+      {
+        "status": "skipped_existing",
+        "source_id": "copernicus_dem_glo30",
+        "asset_id": "Copernicus_DSM_COG_10_N30_00_E120_00_DEM",
+        "path": "storage\\raw\\static_geo\\copernicus_dem_glo30\\Copernicus_DSM_COG_10_N30_00_E120_00_DEM.tif",
+        "checksum_sha256": "929b54f8bb3a51910e4a6b4ac9f052a607245fd0e43a0846b5501663d18af010",
+        "size_bytes": 47859448,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_copernicus_dem_glo30_Copernicus_DSM_COG_10_N30_00_E120_00_DEM.json"
+      },
+      {
+        "status": "skipped_existing",
+        "source_id": "copernicus_dem_glo30",
+        "asset_id": "Copernicus_DSM_COG_10_N31_00_E119_00_DEM",
+        "path": "storage\\raw\\static_geo\\copernicus_dem_glo30\\Copernicus_DSM_COG_10_N31_00_E119_00_DEM.tif",
+        "checksum_sha256": "7b0982cbf2bb80e48157ad8ea3b825a908d2a0e2ae6428d5f14f6d2387a9c5fb",
+        "size_bytes": 48619711,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_copernicus_dem_glo30_Copernicus_DSM_COG_10_N31_00_E119_00_DEM.json"
+      },
+      {
+        "status": "skipped_existing",
+        "source_id": "copernicus_dem_glo30",
+        "asset_id": "Copernicus_DSM_COG_10_N31_00_E120_00_DEM",
+        "path": "storage\\raw\\static_geo\\copernicus_dem_glo30\\Copernicus_DSM_COG_10_N31_00_E120_00_DEM.tif",
+        "checksum_sha256": "9a8f5720819f197227db92b4f2abadb5dcc7ab14652f07c0ce02d59611feab5c",
+        "size_bytes": 40599423,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_copernicus_dem_glo30_Copernicus_DSM_COG_10_N31_00_E120_00_DEM.json"
+      }
+    ],
+    "worldcover": [
+      {
+        "status": "skipped_existing",
+        "source_id": "esa_worldcover_2021_v200",
+        "asset_id": "ESA_WorldCover_10m_2021_v200_N30E117_Map",
+        "path": "storage\\raw\\static_geo\\esa_worldcover_2021_v200\\ESA_WorldCover_10m_2021_v200_N30E117_Map.tif",
+        "checksum_sha256": "2ecba0b373296bd1f2641503065648e80d2adc33cdea1b8d2e8247e77fa97426",
+        "size_bytes": 136218188,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_esa_worldcover_2021_v200_ESA_WorldCover_10m_2021_v200_N30E117_Map.json"
+      },
+      {
+        "status": "skipped_existing",
+        "source_id": "esa_worldcover_2021_v200",
+        "asset_id": "ESA_WorldCover_10m_2021_v200_N30E120_Map",
+        "path": "storage\\raw\\static_geo\\esa_worldcover_2021_v200\\ESA_WorldCover_10m_2021_v200_N30E120_Map.tif",
+        "checksum_sha256": "f3859c80b7bd8d61a82f0adafee02378d418a2f1bafe32d8229b84301329c814",
+        "size_bytes": 93443932,
+        "resumed": false,
+        "attempts": 0,
+        "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\download_esa_worldcover_2021_v200_ESA_WorldCover_10m_2021_v200_N30E120_Map.json"
+      }
+    ]
+  },
+  "retrieved_at_utc": "2026-08-19T05:24:27.438380+00:00"
+}

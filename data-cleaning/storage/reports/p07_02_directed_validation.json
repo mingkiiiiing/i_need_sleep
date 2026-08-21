@@ -1,0 +1,19 @@
+{
+  "task_id": "P07-02",
+  "status": "BLOCKED_POLICY",
+  "directed_command": "python -m pytest -q tests/test_mwr_hfc.py tests/test_tba_hydrology.py tests/test_lake_geodata.py tests/test_config_sources.py tests/test_web_collection_policy.py tests/test_provenance_manifest.py",
+  "directed_result": "17 passed in 0.68s",
+  "checks": {
+    "official_entry_url": "https://hfc.mwr.cn/",
+    "machine_api_verified": false,
+    "static_page_classification": "PUBLIC_HTML_SHELL_ENDPOINT_UNVERIFIED",
+    "private_ajax_reverse_engineering": "not performed",
+    "station_enumeration": "not performed",
+    "manual_export_formats": ["CSV", "JSON", "XLSX"],
+    "manual_export_unit_policy": "source unit retained; no implicit conversion",
+    "manual_export_time_policy": "explicit source timezone required for naive timestamps",
+    "authorization_gate": "without evidence raw file may be preserved but normalized CSV is not published"
+  },
+  "evidence": "tests/test_mwr_hfc.py",
+  "policy_source": "config/web_collection_policy.yml"
+}

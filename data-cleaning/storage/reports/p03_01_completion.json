@@ -1,0 +1,26 @@
+{
+  "task_id": "P03-01",
+  "status": "DONE",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "pipeline/provenance.py",
+    "pipeline/sources/common.py",
+    "pipeline/sources/lake_geodata.py",
+    "tests/test_provenance_manifest.py",
+    "storage/reports/p03_01_directed_validation.json",
+    "storage/reports/p03_01_pytest.txt"
+  ],
+  "acceptance": {
+    "url_redaction": true,
+    "http_status_recorded": true,
+    "retrieval_time_recorded": true,
+    "response_headers_recorded_and_redacted": true,
+    "checksum_and_size_recorded": true,
+    "license_fields_present": true,
+    "retry_count_present": true,
+    "shared_writer_used_by_common_ingest_path": true
+  },
+  "next_task": "P03-02",
+  "next_task_status": "TODO",
+  "scope_note": "P03-02 resumable and idempotent downloads were not executed in this single-task round."
+}

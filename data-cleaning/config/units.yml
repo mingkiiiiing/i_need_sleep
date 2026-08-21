@@ -1,0 +1,126 @@
+version: "0.1.0"
+
+# 所有转换必须保留原单位和转换记录；禁止根据字段名猜单位。
+canonical_units:
+  temperature: degC
+  concentration_nutrient: mg/L
+  concentration_chlorophyll: ug/L
+  algae_density: cells/L
+  biomass: mg/L
+  precipitation: mm
+  wind_speed: m/s
+  wind_direction: degree
+  pressure: hPa
+  radiation: W/m2
+  par: umol_photons_m2_s
+  water_level: m
+  discharge: m3/s
+  velocity: m/s
+  depth: m
+  area: km2
+  reflectance: reflectance
+  probability: percent
+  fraction: fraction
+
+conversions:
+  - from: "ug/L"
+    to: "mg/L"
+    multiplier: 0.001
+  - from: "mg/L"
+    to: "ug/L"
+    multiplier: 1000.0
+  - from: "mg/m3"
+    to: "ug/L"
+    multiplier: 1.0
+    note: "mg/m3 is numerically equivalent to ug/L for dilute water samples"
+  - from: "cells/mL"
+    to: "cells/L"
+    multiplier: 1000.0
+  - from: "cells/m3"
+    to: "cells/L"
+    multiplier: 0.001
+  - from: "m3/s"
+    to: "L/s"
+    multiplier: 1000.0
+  - from: "cm/s"
+    to: "m/s"
+    multiplier: 0.01
+  - from: "km"
+    to: "m"
+    multiplier: 1000.0
+  - from: "m"
+    to: "km"
+    multiplier: 0.001
+  - from: "cm"
+    to: "m"
+    multiplier: 0.01
+  - from: "mm"
+    to: "m"
+    multiplier: 0.001
+  - from: "ft"
+    to: "m"
+    multiplier: 0.3048
+  - from: "Pa"
+    to: "hPa"
+    multiplier: 0.01
+  - from: "kPa"
+    to: "hPa"
+    multiplier: 10.0
+  - from: "mm/day"
+    to: "mm"
+    multiplier: 1.0
+    note: "daily accumulation only; do not apply to an instantaneous rate"
+  - from: "mm/h"
+    to: "mm"
+    multiplier: 1.0
+    note: "hourly accumulation only; interval must be one hour"
+  - from: "Wh/m2"
+    to: "W/m2"
+    multiplier: 1.0
+    note: "one-hour accumulation treated as hourly mean"
+  - from: "kWh/m2"
+    to: "W/m2"
+    multiplier: 1000.0
+    note: "one-hour accumulation treated as hourly mean"
+
+unit_aliases:
+  degC: ["°C", "℃", "C", "deg C", "degree C", "摄氏度"]
+  mg/L: ["mg l-1", "mg/l", "mg·L-1", "毫克/升"]
+  ug/L: ["μg/L", "µg/L", "ug l-1", "μg l-1", "微克/升"]
+  cells/L: ["cells l-1", "cell/L", "个/L", "细胞/升"]
+  cells/mL: ["cells ml-1", "cell/mL", "个/mL", "细胞/毫升"]
+  cells/m3: ["cells m-3", "cell/m3", "个/m3", "细胞/立方米"]
+  m/s: ["m s-1", "m·s-1", "米/秒"]
+  m3/s: ["m³/s", "m3 s-1", "立方米/秒"]
+  W/m2: ["W m-2", "W·m-2", "瓦/平方米"]
+  Wh/m2: ["Wh m-2", "Wh·m-2", "Wh/m²", "瓦时/平方米"]
+  kWh/m2: ["kWh m-2", "kWh·m-2", "kWh/m²", "千瓦时/平方米"]
+  mg/m3: ["mg m-3", "mg·m-3", "mg/m³", "毫克/立方米"]
+  cm: ["厘米", "cm"]
+  mm: ["毫米", "mm"]
+  ft: ["英尺", "ft"]
+  mm/day: ["mm d-1", "mm·d-1", "毫米/天"]
+  mm/h: ["mm h-1", "mm·h-1", "毫米/小时"]
+  hPa: ["hPa", "百帕"]
+  percent: ["%", "百分比"]
+  degree: ["°", "deg", "度"]
+
+# Rate/accumulation units are only convertible when the source time bucket is
+# known. The first release keeps the raw unit and records the rule in
+# conversion_rule; callers must not apply these entries to instantaneous rates.
+contextual_conversion_rules:
+  - rule_id: precipitation_daily_accumulation
+    variable_code: precipitation
+    source_unit: mm/day
+    target_unit: mm
+    required_interval: 1 day
+  - rule_id: precipitation_hourly_accumulation
+    variable_code: precipitation
+    source_unit: mm/h
+    target_unit: mm
+    required_interval: 1 hour
+  - rule_id: radiation_hourly_accumulation
+    variable_code: shortwave_radiation
+    source_unit: Wh/m2
+    target_unit: W/m2
+    required_interval: 1 hour

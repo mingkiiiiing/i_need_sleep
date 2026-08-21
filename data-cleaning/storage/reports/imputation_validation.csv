@@ -1,0 +1,19 @@
+﻿variable_code,mask_rate,method,status,masked_count,imputed_count,blocked_count,coverage,mae,rmse,series_count,complete_series_count,complete_row_count,seed,notes
+air_temperature,0.05,linear_time,evaluated,439,439,0,1.0,0.151446469,0.232782712,1,1,8784,20273883,scores use only masked rows successfully reconstructed by the production imputer
+air_temperature,0.1,linear_time,evaluated,878,878,0,1.0,0.153164389,0.240261497,1,1,8784,20273933,scores use only masked rows successfully reconstructed by the production imputer
+air_temperature,0.2,linear_time,evaluated,1757,1721,36,0.979510529,0.171586287,0.255550519,1,1,8784,20274033,scores use only masked rows successfully reconstructed by the production imputer
+cloud_cover,0.05,linear_time,skipped_no_complete_series,0,0,0,,,,2,0,0,20267962,no complete high-frequency series met the minimum length
+cloud_cover,0.1,linear_time,skipped_no_complete_series,0,0,0,,,,2,0,0,20268012,no complete high-frequency series met the minimum length
+cloud_cover,0.2,linear_time,skipped_no_complete_series,0,0,0,,,,2,0,0,20268112,no complete high-frequency series met the minimum length
+precipitation,0.05,linear_time,evaluated,439,439,0,1.0,0.057601873,0.198989769,1,1,8784,20270718,scores use only masked rows successfully reconstructed by the production imputer
+precipitation,0.1,linear_time,evaluated,878,874,4,0.995444191,0.045397438,0.146096119,1,1,8784,20270768,scores use only masked rows successfully reconstructed by the production imputer
+precipitation,0.2,linear_time,evaluated,1757,1701,56,0.96812749,0.044580557,0.168148707,1,1,8784,20270868,scores use only masked rows successfully reconstructed by the production imputer
+shortwave_radiation,0.05,linear_time,evaluated,439,439,0,1.0,15.2288041,27.57634862,1,1,8784,20281129,scores use only masked rows successfully reconstructed by the production imputer
+shortwave_radiation,0.1,linear_time,evaluated,878,878,0,1.0,17.701987472,30.736424414,1,1,8784,20281179,scores use only masked rows successfully reconstructed by the production imputer
+shortwave_radiation,0.2,linear_time,evaluated,1757,1724,33,0.981217985,19.33641338,34.650446293,1,1,8784,20281279,scores use only masked rows successfully reconstructed by the production imputer
+wind_direction,0.05,uv_linear_interpolation,evaluated,439,439,0,1.0,2.198379309,3.950532297,1,1,8784,20272068,scores use only masked rows successfully reconstructed by the production imputer; wind_direction uses circular shortest-angle error
+wind_direction,0.1,uv_linear_interpolation,evaluated,878,874,4,0.995444191,2.816126629,7.029631129,1,1,8784,20272118,scores use only masked rows successfully reconstructed by the production imputer; wind_direction uses circular shortest-angle error
+wind_direction,0.2,uv_linear_interpolation,evaluated,1757,1735,22,0.987478657,2.963312394,6.84222853,1,1,8784,20272218,scores use only masked rows successfully reconstructed by the production imputer; wind_direction uses circular shortest-angle error
+wind_speed,0.05,uv_linear_interpolation,evaluated,439,439,0,1.0,0.130484214,0.199476372,1,1,8784,20266594,scores use only masked rows successfully reconstructed by the production imputer
+wind_speed,0.1,uv_linear_interpolation,evaluated,878,869,9,0.989749431,0.148090785,0.211440658,1,1,8784,20266644,scores use only masked rows successfully reconstructed by the production imputer
+wind_speed,0.2,uv_linear_interpolation,evaluated,1757,1707,50,0.971542402,0.168129581,0.241016383,1,1,8784,20266744,scores use only masked rows successfully reconstructed by the production imputer

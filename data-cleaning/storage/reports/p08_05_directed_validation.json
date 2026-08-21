@@ -1,0 +1,20 @@
+{
+  "task_id": "P08-05",
+  "phase": "P08",
+  "status": "BLOCKED_AUTH",
+  "run_id": "waterstation_batch_dir_20260819T063058Z",
+  "input_root": "storage/raw/authorized_waterstation/inbox",
+  "output_root": "storage/runs/waterstation_directory_batch",
+  "manifest": "storage/manifests/waterstation_batch_dir_20260819T063058Z.json",
+  "inventory": "storage/runs/waterstation_directory_batch/input_inventory.csv",
+  "files_discovered": 0,
+  "files_parsed": 0,
+  "duplicate_files_skipped": 0,
+  "parse_failures": 0,
+  "formal_cleaning_entered": false,
+  "database_created_by_this_run": false,
+  "validation_status": "blocked_no_valid_files",
+  "directed_pytest": "23 passed in 3.05s",
+  "full_pytest": "194 passed in 26.60s",
+  "validated_at_utc": "2026-08-19T06:30:58Z"
+}

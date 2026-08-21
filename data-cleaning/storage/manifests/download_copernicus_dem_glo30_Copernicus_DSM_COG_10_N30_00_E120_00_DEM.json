@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "copernicus_dem_glo30",
+  "asset_id": "Copernicus_DSM_COG_10_N30_00_E120_00_DEM",
+  "request_url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N30_00_E120_00_DEM/Copernicus_DSM_COG_10_N30_00_E120_00_DEM.tif",
+  "local_path": "storage\\raw\\static_geo\\copernicus_dem_glo30\\Copernicus_DSM_COG_10_N30_00_E120_00_DEM.tif",
+  "requested_at_utc": null,
+  "retrieved_at_utc": null,
+  "http_status": null,
+  "response_headers": {},
+  "checksum_sha256": "929b54f8bb3a51910e4a6b4ac9f052a607245fd0e43a0846b5501663d18af010",
+  "size_bytes": 47859448,
+  "license": {
+    "license_tag": "COPERNICUS_DEM_FREE_PUBLIC_LICENSE_WITH_ATTRIBUTION",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "skipped_existing",
+  "error": null
+}

@@ -1,0 +1,12 @@
+{
+  "task_id": "P10-05",
+  "directed_tests": "32 passed",
+  "full_tests": "242 passed, 2 warnings",
+  "directed_report": "reports/p10_05_directed_pytest.txt",
+  "full_report": "reports/p10_05_full_pytest.txt",
+  "integration_fixture_status": "completed",
+  "integration_fixture_rows": 12,
+  "sqlite_wind_columns": true,
+  "sqlite_wind_rows": 12,
+  "sqlite_wind_audit_rows": 0
+}

@@ -1,0 +1,18 @@
+{
+  "run_id": "coverage_20260819T064821Z",
+  "status": "completed",
+  "input": "storage\\runs\\waterstation_coverage\\empty_observations.csv",
+  "rows": 0,
+  "short_term_ready": false,
+  "operational_short_term_ready": false,
+  "target_ready": false,
+  "required_drivers_ready": false,
+  "files": {
+    "matrix": "storage\\runs\\waterstation_coverage\\coverage_matrix.csv",
+    "gaps": "storage\\runs\\waterstation_coverage\\coverage_gaps.csv",
+    "audit": "storage\\runs\\waterstation_coverage\\coverage_audit.json",
+    "database": "storage\\runs\\waterstation_coverage\\coverage.db"
+  },
+  "gap_count": 11,
+  "as_of": "2026-08-19T06:35:00+00:00"
+}

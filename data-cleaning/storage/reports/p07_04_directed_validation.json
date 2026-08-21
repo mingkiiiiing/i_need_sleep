@@ -1,0 +1,44 @@
+{
+  "task_id": "P07-04",
+  "status": "completed",
+  "real_input": {
+    "hydrobasins_archive": "storage/raw/hydrobasins/hybas_as_lev08_v1c.zip",
+    "hydrobasins_source_url": "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_as_lev08_v1c.zip",
+    "hydrolakes_boundary": "storage/silver/geo/taihu_boundary.gpkg",
+    "hydrolakes_source_url": "https://zenodo.org/records/17503891/files/HydroLAKES_Asia.zip?download=1"
+  },
+  "package": {
+    "path": "storage/silver/geo/hydrolakes_hydrobasins.gpkg",
+    "layers": [
+      "taihu_boundary_wgs84",
+      "taihu_boundary_utm51n",
+      "hydrobasins_level08_wgs84",
+      "hydrobasins_centroids_wgs84",
+      "boundary_metadata"
+    ],
+    "feature_counts": {
+      "taihu_boundary_wgs84": 1,
+      "taihu_boundary_utm51n": 1,
+      "hydrobasins_level08_wgs84": 2909,
+      "hydrobasins_centroids_wgs84": 2909,
+      "boundary_metadata": 11
+    },
+    "geometry_types": {
+      "hydrobasins_level08_wgs84": "MultiPolygon",
+      "hydrobasins_centroids_wgs84": "Point"
+    },
+    "valid_geometries": 5810,
+    "spatial_index_verified": true
+  },
+  "topology": {
+    "path": "storage/reports/hydrobasins_topology.csv",
+    "rows": 2909,
+    "base_basin_count": 52,
+    "upstream_next_down_chain_rows": 2857,
+    "rule": "intersects Taihu buffer or follows upstream NEXT_DOWN chain"
+  },
+  "license": "HydroLAKES CC-BY-4.0; HydroBASINS HydroSHEDS license with attribution required",
+  "data_truth": "real_external_hydrolakes_boundary_and_hydrobasins_archive",
+  "directed_pytest": "12 passed in 1.62s",
+  "full_pytest": "182 passed in 26.75s"
+}

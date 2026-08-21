@@ -1,0 +1,29 @@
+{
+  "task_id": "P09-04",
+  "status": "completed",
+  "completed_at_utc": "2026-08-19T07:31:33Z",
+  "rules_version": "1.0.0",
+  "checks": {
+    "duplicate_timestamp": "Q13/high/rejected",
+    "out_of_order": "Q14/high/rejected",
+    "future_timestamp": "Q15/high/rejected against explicit as_of or current UTC",
+    "interval_gap_or_jump": "Q16/medium/suspect; max gap and median-ratio jump",
+    "sensor_stuck": "Q17/medium/suspect; water-quality/hydrology variables only"
+  },
+  "false_positive_guard": "meteorological zero-runs are excluded from sensor-stuck detection; water-quality variables remain covered",
+  "actual_controlled_batch": {
+    "run_manifest": "storage/runs/p09_04_time_quality_qc/manifest.json",
+    "input_rows": 43922,
+    "clean_rows": 43922,
+    "rejected_rows": 0,
+    "suspect_rows": 0,
+    "temporal_issue_counts": {}
+  },
+  "fixture_evidence": {
+    "duplicate_and_order": "Q13/Q14 detected",
+    "future": "Q15 rejected",
+    "gap_and_interval_jump": "Q16 suspect and retained",
+    "constant_water_temperature": "Q17 suspect and retained",
+    "invalid_timestamp": "Q03 rejected"
+  }
+}

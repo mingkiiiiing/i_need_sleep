@@ -1,0 +1,76 @@
+{
+  "snapshot_version": "P00-04-v1",
+  "task_id": "P00-04",
+  "generated_at_utc": "2026-08-18T22:24:43.4283800Z",
+  "scope": "config/*.yml, config/*.yaml, config/*.csv",
+  "workspace": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning",
+  "config_file_count": 7,
+  "files": [
+    {
+      "path": "config\\aliases.yml",
+      "extension": ".yml",
+      "size_bytes": 5740,
+      "modified_at_utc": "2026-08-18T11:29:13.3066882Z",
+      "sha256": "634C37A92FB0C2FA77F2D8389A24B7BF698131F566EDA7145544D65A2F7A477C"
+    },
+    {
+      "path": "config\\data_source_registry.csv",
+      "extension": ".csv",
+      "size_bytes": 15876,
+      "modified_at_utc": "2026-08-18T15:07:22.4687967Z",
+      "sha256": "776138101321ED0A0D3D4D97AD2814590509B00F7981FA4FDF911C8D6B87F27B"
+    },
+    {
+      "path": "config\\luna_execution_checklist.csv",
+      "extension": ".csv",
+      "size_bytes": 16429,
+      "modified_at_utc": "2026-08-18T22:24:25.5040366Z",
+      "sha256": "E95645596EC86DB1CE03DD762CA2F05D00CA9B4E999C636BCAFCFD46DBEC4694"
+    },
+    {
+      "path": "config\\qc_rules.yml",
+      "extension": ".yml",
+      "size_bytes": 2245,
+      "modified_at_utc": "2026-08-18T12:32:02.7808147Z",
+      "sha256": "DECD549EE6A7BA2FB3457F79772289EFFE9F6C8C334F5913C54EE9D27930B4A9"
+    },
+    {
+      "path": "config\\sources.yml",
+      "extension": ".yml",
+      "size_bytes": 9970,
+      "modified_at_utc": "2026-08-18T11:42:57.8594861Z",
+      "sha256": "414AC56F2B0091E13C0423F42AFA2ED205782194C5B134D6F79DBA511AFAF5B6"
+    },
+    {
+      "path": "config\\units.yml",
+      "extension": ".yml",
+      "size_bytes": 1512,
+      "modified_at_utc": "2026-08-18T08:46:27.2672683Z",
+      "sha256": "4A6EB8AF783A269958DFFE954D58D04DD37AEB1BE63D9E8F2B98B7B404C806DE"
+    },
+    {
+      "path": "config\\variables.yml",
+      "extension": ".yml",
+      "size_bytes": 30142,
+      "modified_at_utc": "2026-08-18T08:48:31.0004772Z",
+      "sha256": "400A4A43DF30AADA1AF0ED85959E9AAC70EE3B5BC801082187BC4D594398896E"
+    }
+  ],
+  "credential_scan": {
+    "method": "literal secret assignment pattern scan",
+    "pattern_count": 0,
+    "findings": [],
+    "status": "passed_no_literal_findings"
+  },
+  "excluded_files": [
+    ".env",
+    ".env.*",
+    "credential caches",
+    "OAuth responses"
+  ],
+  "notes": [
+    "Snapshot records metadata and SHA-256 only; it does not copy config content.",
+    "No credentials are written to this snapshot.",
+    "P00-04 is a configuration snapshot, not a network or data ingestion run."
+  ]
+}

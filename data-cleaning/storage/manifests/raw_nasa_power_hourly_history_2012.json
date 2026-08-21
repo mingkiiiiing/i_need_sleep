@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "nasa_power_hourly",
+  "asset_id": "history_2012",
+  "request_url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M%2CWS10M%2CWD10M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN&community=RE&longitude=120.300000&latitude=31.200000&start=20120101&end=20121231&time-standard=UTC&format=JSON",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\nasa_power_hourly\\history_2012.json",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-19T00:17:35.118428+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "application/json"
+  },
+  "checksum_sha256": "a6155d45757ea4d60e0a5b2011c54255482b68599fbc12a8b98fb7e535bb13c3",
+  "size_bytes": 1371542,
+  "license": {
+    "license_tag": "NASA-data-policy",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

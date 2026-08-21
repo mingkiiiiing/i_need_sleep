@@ -1,0 +1,23 @@
+{
+  "task_id": "P05-03",
+  "status": "DONE",
+  "implemented": true,
+  "module": "pipeline/sources/noaa_gfs.py",
+  "cli": "python -m pipeline noaa-gfs --run-date 2026-08-18 --cycle 18 --steps 0 6 12 18 24 30 36 42 48 54 60 66 72 --manifest storage/manifests/noaa_gfs_20260818_18z.json",
+  "real_batch_verified": true,
+  "real_batch": {
+    "run": "2026-08-18T18:00:00Z",
+    "lead_hours": "0-72 at 6-hour intervals",
+    "bbox": [119.9, 30.9, 120.75, 31.65],
+    "assets": 13,
+    "records": 89,
+    "coverage_hours": 72,
+    "errors": 0
+  },
+  "tests": {
+    "directed": "3 passed",
+    "full_pytest": "134 passed"
+  },
+  "next_task": "P05-04",
+  "notes": "NOAA GFS is available as the ECMWF backup source. The parser maps TMP, wind, APCP, shortwave radiation, cloud cover, and pressure into the shared forecast schema; source_id and model_name remain NOAA-specific."
+}

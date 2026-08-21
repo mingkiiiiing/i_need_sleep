@@ -1,0 +1,66 @@
+{
+  "run_id": "resample_20260819T123515Z",
+  "status": "completed_with_gap_masks",
+  "input": "storage\\runs\\thqbca_integrated_cleaning_v2\\cleaned_observations.csv",
+  "input_rows": 772814,
+  "resampled_rows": 772814,
+  "gap_rows": 206353,
+  "granularity_counts": {
+    "overpass": 16,
+    "hourly": 698586,
+    "quarterly": 5421,
+    "annual": 742,
+    "daily": 68049
+  },
+  "target_frequency": "auto",
+  "target_frequency_counts": {
+    "native": 6179,
+    "hourly": 698586,
+    "daily": 68049
+  },
+  "resample_status_counts": {
+    "native_frequency": 6179,
+    "aggregated": 766635
+  },
+  "timezone": "Asia/Shanghai for daily/decadal/monthly buckets; UTC for hourly/storage",
+  "rules": {
+    "flux_variables": [
+      "discharge",
+      "evaporation",
+      "inflow",
+      "outflow",
+      "precipitation",
+      "rainfall",
+      "runoff",
+      "water_flux"
+    ],
+    "median_state_variables": [
+      "algae_density",
+      "ammonia_nitrogen",
+      "chlorophyll_a",
+      "nitrate_nitrogen",
+      "nitrite_nitrogen",
+      "pH",
+      "phosphate_phosphorus",
+      "total_nitrogen",
+      "total_phosphorus",
+      "turbidity"
+    ],
+    "wind_direction": "circular_mean",
+    "other_numeric": "mean",
+    "low_frequency": "native_only_no_upsampling",
+    "supported_frequencies": [
+      "auto",
+      "hourly",
+      "daily",
+      "decadal",
+      "monthly"
+    ],
+    "missing_buckets": "separate resample_gaps.csv with Q01+Q22"
+  },
+  "files": {
+    "resampled_observations": "storage\\runs\\thqbca_integrated_resampling\\resampled_observations.csv",
+    "resample_gaps": "storage\\runs\\thqbca_integrated_resampling\\resample_gaps.csv",
+    "database": "storage\\databases\\thqbca_integrated_resampling.sqlite"
+  }
+}

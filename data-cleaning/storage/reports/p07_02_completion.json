@@ -1,0 +1,30 @@
+{
+  "task_id": "P07-02",
+  "phase": "P07",
+  "status": "BLOCKED_POLICY",
+  "completed_at_utc": "2026-08-19T04:46:00Z",
+  "deliverables": [
+    "pipeline/sources/mwr_hfc.py",
+    "pipeline/sources/__init__.py",
+    "pipeline/cli.py",
+    "tests/test_mwr_hfc.py",
+    "storage/manifests/mwr_hfc_probe.json"
+  ],
+  "official_source": {
+    "url": "https://hfc.mwr.cn/",
+    "authority": "Ministry of Water Resources, National Water/Rain Situation Information Public Service",
+    "observed_boundary": "official entry page reachable; static page does not verify reusable machine API"
+  },
+  "adapter_contract": {
+    "supported_manual_exports": ["CSV", "JSON", "XLSX"],
+    "variables": ["water_level", "precipitation", "discharge", "inflow_discharge", "outflow_discharge"],
+    "quality": "missing codes and source quality fields preserved",
+    "authorization": "evidence file required before normalized export is published"
+  },
+  "data_truth": "official entry URL verified in browser; no live HFC records or machine API downloaded in this run",
+  "real_cli_status": "BLOCKED_POLICY",
+  "directed_pytest": "17 passed in 0.68s",
+  "full_pytest": "175 passed in 25.49s",
+  "next_eligible_task": "P07-03",
+  "blocker": "web_collection_policy.yml requires manual review/explicit permission; documented public HFC API was not verified"
+}

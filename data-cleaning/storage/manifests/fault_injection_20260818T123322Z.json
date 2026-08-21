@@ -1,0 +1,30 @@
+{
+  "expected_faults": {
+    "fault_missing": "Q01",
+    "fault_outlier": "Q04",
+    "fault_duplicate": "Q08",
+    "fault_timestamp": "Q03"
+  },
+  "detected_faults": {
+    "fault_missing": "Q01",
+    "fault_outlier": "Q04",
+    "fault_duplicate": "Q08",
+    "fault_timestamp": "Q03"
+  },
+  "false_negatives": [],
+  "recall": 1.0,
+  "qc_flag_counts": {
+    "Q00": 2,
+    "Q01": 1,
+    "Q04": 1,
+    "Q99": 3,
+    "Q08": 1,
+    "Q03": 1
+  },
+  "rejected_rows": 3,
+  "issue_rows": 4,
+  "run_id": "fault_injection_20260818T123322Z",
+  "status": "passed",
+  "output": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\fault_injection_20260818T123322Z\\fault_injection_result.json",
+  "manifest": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\manifests\\fault_injection_20260818T123322Z.json"
+}

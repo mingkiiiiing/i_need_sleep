@@ -1,0 +1,18 @@
+{
+  "source_id": "zenodo_taihu_satellite_ground_insitu",
+  "status": "completed",
+  "input_files": [
+    "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20201222_Water_dataset.xlsx",
+    "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20221213_Water_dataset.xlsx",
+    "storage\\raw\\zenodo_taihu_insitu\\Lake Taihu_20231017_Water_dataset.xlsx"
+  ],
+  "rows": 41,
+  "chlorophyll_rows": 41,
+  "date_count": 3,
+  "outputs": {
+    "csv": "storage\\silver\\taihu_insitu\\taihu_insitu_calibration_samples.csv",
+    "parquet": "storage\\silver\\taihu_insitu\\taihu_insitu_calibration_samples.parquet",
+    "database": "storage\\databases\\taihu_insitu.sqlite"
+  },
+  "manifest": "storage\\manifests\\taihu_insitu_parse.json"
+}

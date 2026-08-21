@@ -1,0 +1,30 @@
+{
+  "task_id": "P04-06",
+  "status": "passed_on_synthetic_fixture",
+  "fixture": {
+    "format": "GB18030 CSV and ZIP member",
+    "native_frequency": "quarterly",
+    "input_rows": 2,
+    "standard_long_records": 4,
+    "station_id": "TH-01",
+    "variables": ["TN", "TP"],
+    "missing_records": 1,
+    "metadata": {
+      "doi": "10.1234/taihu.example",
+      "license_tag": "dataset-specific-research-only",
+      "application_number": "NESDC-TEST-001"
+    }
+  },
+  "assertions": [
+    "DOI/license/application number are copied into the manifest",
+    "native quarterly cadence is retained on every observation",
+    "no daily upsampling or interpolation occurs",
+    "missing code remains auditable and clean_value is null",
+    "ZIP member lineage and SHA-256 are recorded",
+    "missing authorization metadata yields BLOCKED_METADATA rather than invented values"
+  ],
+  "real_batch": {
+    "available": false,
+    "reason": "No legally downloaded national data-centre file and authorization metadata were present in the workspace."
+  }
+}

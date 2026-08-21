@@ -1,0 +1,22 @@
+{
+  "run_id": "p10_04_low_frequency_nutrients",
+  "status": "completed",
+  "task_id": "P10-04",
+  "input": "storage\\runs\\p09_08_dedup_conflict_qc\\cleaning\\normalized_observations.csv",
+  "input_rows": 43922,
+  "nutrient_row_count": 0,
+  "untouched_row_count": 43922,
+  "row_count_before": 43922,
+  "row_count_after": 43922,
+  "low_frequency_series": 0,
+  "frequency_counts": {},
+  "native_frequency_preserved": true,
+  "as_of": "2026-08-19T00:00:00+00:00",
+  "generated_at_utc": "2026-08-19T09:51:47.977414+00:00",
+  "data_truth": "real_external_normalized_observations_from_p09_08_controlled_batch",
+  "outputs": {
+    "processed_observations": "storage\\runs\\p10_04_low_frequency_nutrients\\processed_observations.csv",
+    "latest_value_table": "storage\\runs\\p10_04_low_frequency_nutrients\\low_frequency_latest_values.csv",
+    "summary": "storage\\runs\\p10_04_low_frequency_nutrients\\summary.json"
+  }
+}
