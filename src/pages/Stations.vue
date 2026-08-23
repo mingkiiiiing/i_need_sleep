@@ -8,42 +8,77 @@
       </p>
     </section>
 
-    <TimeAxisBar :stages="stages" />
     <CockpitSubTabs />
-    <section class="kpi-grid">
-      <article>
-        <div class="kpi-label">监测点位</div>
-        <div class="kpi-value">{{ summary.totalStations }} 个</div>
-        <div class="kpi-trend flat">覆盖湖体四向 + 上下游</div>
-      </article>
-      <article>
-        <div class="kpi-label">高风险</div>
-        <div class="kpi-value" style="color: var(--coral);">{{ summary.riskCounts.high }} 个</div>
-        <div class="kpi-trend up">当前档位风险较高</div>
-      </article>
-      <article>
-        <div class="kpi-label">关注档位</div>
-        <div class="kpi-value">{{ stageLabel }}</div>
-        <div class="kpi-trend flat">可逐档切换对比</div>
-      </article>
-      <article>
-        <div class="kpi-label">选中点位</div>
-        <div class="kpi-value">{{ (selectedPoint.short || dash) }}</div>
-        <div class="kpi-trend down">{{ (selectedPoint.risk || dash) }}</div>
-      </article>
-    </section>
-
     <div class="dashboard-layout cockpit-stage dashboard-stacked">
-      <LakeMap
-        :model-value="store.selectedPoint"
-        :point-list="pointList"
-        :positions="positions"
-        :stage-label="stageLabel"
-        title="湖区监测点位全景"
-        active-tab="stations"
-        @update:model-value="setPoint"
-        :show-tabs="false"
-      />
+      <div class="map-with-kpi">
+        <LakeMap
+          :model-value="store.selectedPoint"
+          :point-list="pointList"
+          :positions="positions"
+          :stage-label="stageLabel"
+          title="湖区监测点位全景"
+          active-tab="stations"
+          @update:model-value="setPoint"
+          :show-tabs="false"
+        />
+
+        <section class="kpi-grid kpi-side">
+          <article>
+            <div class="kpi-label">监测点位</div>
+            <div class="kpi-value">{{ summary.totalStations }} 个</div>
+            <div class="kpi-trend flat">覆盖湖体四向 + 上下游</div>
+          </article>
+          <article>
+            <div class="kpi-label">高风险</div>
+            <div class="kpi-value" style="color: var(--coral);">{{ summary.riskCounts.high }} 个</div>
+            <div class="kpi-trend up">当前档位风险较高</div>
+          </article>
+          <article>
+            <div class="kpi-label">关注档位</div>
+            <div class="kpi-value">{{ stageLabel }}</div>
+            <div class="kpi-trend flat">可逐档切换对比</div>
+          </article>
+          <article>
+            <div class="kpi-label">选中点位</div>
+            <div class="kpi-value">{{ (selectedPoint.short || dash) }}</div>
+            <div class="kpi-trend down">{{ (selectedPoint.risk || dash) }}</div>
+          </article>
+
+          <div class="side-card point-risk-card">
+            <header>
+              <h4>选中点位风险</h4>
+              <span class="risk-badge" :class="(selectedPoint.riskClass || '')">{{ (selectedPoint.risk || dash) }}</span>
+            </header>
+            <div class="point-metrics">
+              <div><span>点位名称</span><strong>{{ (selectedPoint.name || dash) }}</strong></div>
+              <div><span>藻细胞密度</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.density) || dash) }}</strong></div>
+              <div><span>叶绿素 a</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.chla) || dash) }}</strong></div>
+              <div><span>总磷</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.phosphorus) || dash) }}</strong></div>
+              <div><span>水温</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.temp) || dash) }}</strong></div>
+            </div>
+            <p class="point-summary">{{ (selectedPoint.summary || dash) }}</p>
+          </div>
+
+          <div class="side-card threshold-card">
+            <header>
+              <h4>预警阈值状态</h4>
+              <span class="threshold-count">{{ thresholdStats.alert }}/{{ thresholdRows.length }} 超阈</span>
+            </header>
+            <ul class="threshold-list">
+              <li v-for="row in thresholdRows" :key="row.label">
+                <i class="threshold-light" :class="row.level"></i>
+                <div class="threshold-meta">
+                  <span>{{ row.label }}</span>
+                  <small>{{ row.limit }}</small>
+                </div>
+                <strong>{{ row.value }}</strong>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <TimeAxisBar :stages="stages" variant="axis" />
 
       <aside class="panel detail-panel">
         <header class="panel-head detail-head">
@@ -51,17 +86,7 @@
             <p class="panel-kicker">POINT DETAIL</p>
             <h2>{{ (selectedPoint.name || dash) }}</h2>
           </div>
-          <span class="risk-badge" :class="(selectedPoint.riskClass || '')">{{ (selectedPoint.risk || dash) }}</span>
         </header>
-
-        <p class="detail-summary">{{ (selectedPoint.summary || dash) }}</p>
-
-        <div class="metrics-grid">
-          <article><span>藻细胞密度</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.density) || dash) }}</strong></article>
-          <article><span>叶绿素 a</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.chla) || dash) }}</strong></article>
-          <article><span>总磷</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.phosphorus) || dash) }}</strong></article>
-          <article><span>水温</span><strong>{{ ((selectedPoint.metrics && selectedPoint.metrics.temp) || dash) }}</strong></article>
-        </div>
 
         <section class="detail-section">
           <div class="section-line">
@@ -240,6 +265,38 @@ const stageLabel = computed(() => {
 })
 
 const riskClassFromLevel = (level) => SEVERITY_TO_CLASS[level] || 'low'
+
+// 预警阈值状态：叶绿素 a / 总磷 / 水温，超阈亮红灯
+const thresholdRows = computed(() => {
+  const m = (selectedPoint.value && selectedPoint.value.metrics) || {}
+  const chla = parseFloat(m.chla) || 0
+  const tp = parseFloat(m.phosphorus) || 0
+  const temp = parseFloat(m.temp) || 0
+  return [
+    {
+      label: '叶绿素 a',
+      value: m.chla || dash,
+      limit: '阈值 40 ug/L',
+      level: chla >= 40 ? 'high' : chla >= 25 ? 'mid' : 'low'
+    },
+    {
+      label: '总磷',
+      value: m.phosphorus || dash,
+      limit: '阈值 0.10 mg/L',
+      level: tp >= 0.1 ? 'high' : tp >= 0.05 ? 'mid' : 'low'
+    },
+    {
+      label: '水温',
+      value: m.temp || dash,
+      limit: '阈值 30 ℃',
+      level: temp >= 30 ? 'high' : temp >= 28 ? 'mid' : 'low'
+    }
+  ]
+})
+
+const thresholdStats = computed(() => ({
+  alert: thresholdRows.value.filter((r) => r.level === 'high').length
+}))
 
 function setPoint(id) {
   store.selectedPoint = id
@@ -434,6 +491,90 @@ onMounted(async () => {
   width: 100%;
 }
 
+/* 地图 + 右侧 KPI 卡片列 */
+.map-with-kpi {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 16px;
+  align-items: stretch;
+}
+.kpi-side {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 12px;
+}
+
+/* 右侧栏附加卡片 */
+.side-card {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  background: var(--c-surface-soft);
+}
+.side-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.side-card h4 { margin: 0; font-size: 13px; }
+
+.point-risk-card .point-metrics { display: grid; gap: 6px; }
+.point-risk-card .point-metrics div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.point-risk-card .point-metrics span { color: var(--c-muted); }
+.point-risk-card .point-summary {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-soft);
+  border-top: 1px dashed var(--c-line);
+  padding-top: 10px;
+}
+
+.threshold-card .threshold-count { font-size: 11px; color: var(--c-muted); }
+.threshold-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.threshold-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.threshold-light {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.threshold-light.low { background: var(--c-stable); box-shadow: 0 0 6px var(--c-stable); }
+.threshold-light.mid { background: var(--c-watch); box-shadow: 0 0 6px var(--c-watch); }
+.threshold-light.high { background: var(--c-alert); box-shadow: 0 0 8px var(--c-alert); animation: threshold-blink 1.2s ease-in-out infinite; }
+@keyframes threshold-blink { 50% { opacity: 0.45; } }
+.threshold-meta { display: grid; gap: 2px; min-width: 0; }
+.threshold-meta span { font-size: 12px; font-weight: 600; }
+.threshold-meta small { font-size: 10px; color: var(--c-muted); }
+.threshold-list strong {
+  margin-left: auto;
+  font-size: 12px;
+  white-space: nowrap;
+}
+@media (max-width: 1024px) {
+  .map-with-kpi { grid-template-columns: minmax(0, 1fr); }
+  .kpi-side { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}@media (max-width: 560px) {
+  .kpi-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* 详情面板内部：分区更有节奏 */
 .detail-panel {
   padding: 24px 26px;
@@ -445,19 +586,6 @@ onMounted(async () => {
   margin: 0;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--panel-line);
-}
-.detail-panel .detail-summary {
-  margin: 0;
-  color: var(--text-soft);
-  line-height: 1.7;
-}
-
-/* 关键指标：单行 4 列横排 */
-.detail-panel .metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0;
 }
 
 /* 分区标题行 */
@@ -474,11 +602,8 @@ onMounted(async () => {
   border-top: 1px dashed var(--panel-line);
 }
 
-@media (max-width: 1024px) {
-  .detail-panel .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 @media (max-width: 560px) {
-  .detail-panel .metrics-grid { grid-template-columns: 1fr; }
+  .kpi-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .ai-placeholder {

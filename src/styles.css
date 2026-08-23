@@ -309,6 +309,82 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   .time-axis .play-controls { margin-left: 0; }
 }
 
+/* ---- 轴线形式 ---- */
+.time-axis.axis-mode { gap: 16px; padding: 16px 22px; }
+.time-axis.axis-mode .play-controls { margin-left: 0; flex: none; }
+.time-axis.axis-mode .stage-axis {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+  height: 72px;
+  margin: 0 34px;
+}
+.time-axis.axis-mode .axis-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: var(--c-line);
+}
+.time-axis.axis-mode .axis-progress {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--c-accent), var(--c-accent-deep));
+  box-shadow: 0 0 12px var(--c-accent-glow);
+  transition: width 0.25s ease;
+}
+.time-axis.axis-mode .axis-node {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.time-axis.axis-mode .node-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-surface);
+  border: 2px solid var(--c-line-strong);
+  transition: all 0.15s ease;
+}
+.time-axis.axis-mode .axis-node:hover .node-dot { border-color: var(--c-accent); }
+.time-axis.axis-mode .axis-node.active .node-dot {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 4px var(--c-accent-soft), 0 0 14px var(--c-accent-glow);
+}
+.time-axis.axis-mode .node-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-soft);
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.time-axis.axis-mode .axis-node:hover .node-label { color: var(--c-text); }
+.time-axis.axis-mode .axis-node.active .node-label { color: var(--c-accent); }
+.time-axis.axis-mode .node-sub {
+  font-size: 10px;
+  color: var(--c-muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .time-axis.axis-mode { flex-direction: column; align-items: stretch; }
+  .time-axis.axis-mode .play-controls { justify-content: center; }
+  .time-axis.axis-mode .stage-axis { min-width: 0; }
+}
+
 /* ===================== 驾驶舱主舞台 ===================== */
 .cockpit-stage {
   position: relative;
