@@ -27,3 +27,17 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 .workbuddy/memory/2026-08-17.md
+# Data cleaning — 大数据与派生结果不入库(入库的仅 manifests/ reports/ authorization/ 清单与报告)
+data-cleaning/storage/raw_organized/
+data-cleaning/storage/cleaned/
+data-cleaning/storage/rasters/
+data-cleaning/storage/raw/
+data-cleaning/storage/silver/
+data-cleaning/storage/gold/
+data-cleaning/storage/runs/
+data-cleaning/storage/exports/
+data-cleaning/storage/databases/
+data-cleaning/storage/releases/
+data-cleaning/storage/staging/
+data-cleaning/storage/THQBCA-V2/
+data-cleaning/storage/THQBCA-V2.rar

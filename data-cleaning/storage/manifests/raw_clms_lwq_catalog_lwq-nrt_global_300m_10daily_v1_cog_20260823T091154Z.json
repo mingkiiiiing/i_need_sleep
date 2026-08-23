@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "clms_lwq_catalog",
+  "asset_id": "lwq-nrt_global_300m_10daily_v1_cog",
+  "request_url": "https://s3.waw3-1.cloudferro.com/swift/v1/CatalogueCSV/bio-geophysical/lake_water_quality/lwq-nrt_global_300m_10daily_v1/lwq-nrt_global_300m_10daily_v1_cog.csv",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\clms_lwq_catalog\\20260823T091154Z_lwq-nrt_global_300m_10daily_v1_cog.csv",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-23T09:11:54.121298+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "text/csv; charset=utf-8"
+  },
+  "checksum_sha256": "4e9393b4bfda4ea7bc83232da6c8228457ea5bed3ed9449da7fa840fde4a7cc3",
+  "size_bytes": 137074,
+  "license": {
+    "license_tag": "COPERNICUS_TERMS_REVIEW_REQUIRED",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

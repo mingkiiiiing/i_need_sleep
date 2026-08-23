@@ -1,0 +1,533 @@
+{
+  "source_id": "clms_lwq_300m_v2_taihu_batch",
+  "status": "completed",
+  "retrieved_at_utc": "2026-08-23T09:16:57.176359+00:00",
+  "requested_range": {
+    "start": "2022-01-01T00:00:00Z",
+    "end": "2026-08-23T23:59:59Z"
+  },
+  "actual_catalog_range": {
+    "start": "2024-09-01",
+    "end": "2026-08-01"
+  },
+  "bands": [
+    "CHLAMEAN",
+    "CHLAUNC",
+    "FCBPROB",
+    "QFLAG"
+  ],
+  "band_order": {
+    "1": "CHLAMEAN",
+    "2": "CHLAUNC",
+    "3": "FCBPROB",
+    "4": "QFLAG"
+  },
+  "nodata_conventions": {
+    "CHLAMEAN_CHLAUNC_FCBPROB": "values >= 1e30 or non-finite",
+    "QFLAG": "65535"
+  },
+  "official_documentation": "https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/clms/bio-geophysical-parameters/water-bodies/lake-water-quality/lwq-nrt_global_300m_10daily_v2.html",
+  "resolution_m": 300,
+  "temporal_resolution": "10-daily",
+  "width": 320,
+  "height": 320,
+  "records": 70,
+  "downloaded": 0,
+  "existing": 70,
+  "failed": 0,
+  "total_bytes": 19212438,
+  "output_root": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2",
+  "catalog": "storage\\raw\\clms_lwq_catalog\\20260819T040951Z_lwq-nrt_global_300m_10daily_v2_cog.csv",
+  "results": [
+    {
+      "date": "2024-09-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20240901.tif",
+      "bytes": 288131,
+      "sha256": "4db1b1eb2788eb16b1863139bad1c6b635134ec3abf8de235128e2a8da5f852b"
+    },
+    {
+      "date": "2024-09-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20240911.tif",
+      "bytes": 277136,
+      "sha256": "702eff88458d5d0b0e30e2538bd9a7048a9c9a44bf26e98810ee7db11098759b"
+    },
+    {
+      "date": "2024-09-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20240921.tif",
+      "bytes": 278912,
+      "sha256": "e9de126802b5a5c7d0470fb45a2570d5bad5d0f636020dd57425aa441b07efb4"
+    },
+    {
+      "date": "2024-10-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241001.tif",
+      "bytes": 275405,
+      "sha256": "bbde714eb5313b0a7105a2778a0bbd6ff4a992d32c1f2ffb143d77daad7838a9"
+    },
+    {
+      "date": "2024-10-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241011.tif",
+      "bytes": 222801,
+      "sha256": "a724acdae468087cbd2a107f01722cfa6cb3e3cc6c2fa2df5f79e6d82987094f"
+    },
+    {
+      "date": "2024-10-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241021.tif",
+      "bytes": 221431,
+      "sha256": "122ed06ce99bb1836d83206b42457e9a15132eaed4c88a8ce2d700828bd5916c"
+    },
+    {
+      "date": "2024-11-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241101.tif",
+      "bytes": 308400,
+      "sha256": "d065ff2783ec71571d2c3ae98fd54055bbe12f1b49f1d29b55189d324942d274"
+    },
+    {
+      "date": "2024-11-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241111.tif",
+      "bytes": 284142,
+      "sha256": "4bee8430c32a4134a8f34c0cf5c96b0ba50d13792a8f1e55e5ad586a97347138"
+    },
+    {
+      "date": "2024-11-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241121.tif",
+      "bytes": 303845,
+      "sha256": "2184d52726f49ed3af8837330dd325aa0db240df6e14d4c479b86a9f694b2542"
+    },
+    {
+      "date": "2024-12-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241201.tif",
+      "bytes": 302918,
+      "sha256": "4730412dacb012c54c5a45ba427096c7a38656b6137ee3ff6bd6eacfef33a6ad"
+    },
+    {
+      "date": "2024-12-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241211.tif",
+      "bytes": 287584,
+      "sha256": "c909030cfb944d49ca1166bf691da9825effe783adb72ae7e6090dd42be047af"
+    },
+    {
+      "date": "2024-12-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2024\\taihu_lwq300_v2_20241221.tif",
+      "bytes": 280883,
+      "sha256": "a29330fb2d98ede9554faf76e174f8af7daab58471e09fc1057ef588ef910e78"
+    },
+    {
+      "date": "2025-01-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250101.tif",
+      "bytes": 279088,
+      "sha256": "d3bd687a0259a13cd36a213c14f2bd45b52e2c24afd787ce0cfb981f10a9864a"
+    },
+    {
+      "date": "2025-01-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250111.tif",
+      "bytes": 282658,
+      "sha256": "75274cec45858e26b24a463fb641dec4fe27aad18520fc997fea006d19298a02"
+    },
+    {
+      "date": "2025-01-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250121.tif",
+      "bytes": 279998,
+      "sha256": "7083dfb5ce77628f9d763afd2e95a21f9e86e514418ee7c24aa028d25a726825"
+    },
+    {
+      "date": "2025-02-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250201.tif",
+      "bytes": 272877,
+      "sha256": "48ac5164fba5afc202417d66d0591078e5cd5f9e67db397a54f7f52e3aada888"
+    },
+    {
+      "date": "2025-02-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250211.tif",
+      "bytes": 260811,
+      "sha256": "981d06aae051065f1feb72738e0750d1f84320fb950c1f7a363a3da5efaa0aa5"
+    },
+    {
+      "date": "2025-02-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250221.tif",
+      "bytes": 234464,
+      "sha256": "9e2f9a53444c5748f3aa841d0a1b28b812b05a64fc173c46713aa5631fe4b6e3"
+    },
+    {
+      "date": "2025-03-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250301.tif",
+      "bytes": 251853,
+      "sha256": "f51905e70a74a007ca9861a88d8c5e9f09e5375f7c6b884ca0ab376e5d075641"
+    },
+    {
+      "date": "2025-03-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250311.tif",
+      "bytes": 279760,
+      "sha256": "74a72f0fa694737170c0146d182cc8b6197470455da911912a71fe6f367eb089"
+    },
+    {
+      "date": "2025-03-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250321.tif",
+      "bytes": 286843,
+      "sha256": "20c48a32442e6cfb33c86205d74617b75112b033d3109be86142d3fa20d36a16"
+    },
+    {
+      "date": "2025-04-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250401.tif",
+      "bytes": 288085,
+      "sha256": "7a328aa9079466888cb6f753c5b7fe2271fc60f6b09732e29fb827ded63ddf76"
+    },
+    {
+      "date": "2025-04-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250411.tif",
+      "bytes": 283977,
+      "sha256": "bbb77f6137e9efc363b228c8a1a0f373be3ff64ee41249d2ac30b8cfba390a2e"
+    },
+    {
+      "date": "2025-04-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250421.tif",
+      "bytes": 282857,
+      "sha256": "18c0f2506d48444261f2d0e9fe5c28acce37de760dbc444e6e59c05303483fda"
+    },
+    {
+      "date": "2025-05-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250501.tif",
+      "bytes": 257971,
+      "sha256": "668f6274fab30cf85a5d28805da78e32e5aa6252a928f2bb87105a5bd310fc15"
+    },
+    {
+      "date": "2025-05-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250511.tif",
+      "bytes": 284109,
+      "sha256": "52ecac8938fba15e44af11d26a3cabfe93a1c81b8d782ee385ec4be444ff5de1"
+    },
+    {
+      "date": "2025-05-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250521.tif",
+      "bytes": 295422,
+      "sha256": "fac3b1d25d68a9cb735ac9c15a6c526e50332607da2f30b5defcbf8aa3b6481d"
+    },
+    {
+      "date": "2025-06-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250601.tif",
+      "bytes": 289292,
+      "sha256": "ce51565a4b9799850590588b60781f4811f680139e18caf5f83ac2860dcd3d0d"
+    },
+    {
+      "date": "2025-06-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250611.tif",
+      "bytes": 289562,
+      "sha256": "1e7d2803d3330affafcdaa0dd6f0c27e10f1c2ddbcf467c3aeb5afebb198107e"
+    },
+    {
+      "date": "2025-06-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250621.tif",
+      "bytes": 294428,
+      "sha256": "3f488bdb2db6d78f5754777ea33290c362bcb295639c3c5c49bc62ed9d322b35"
+    },
+    {
+      "date": "2025-07-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250701.tif",
+      "bytes": 294150,
+      "sha256": "63ce5e83c6373b801507a443ddd195cad4a88d3c6589b9892501f6a2643578d3"
+    },
+    {
+      "date": "2025-07-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250711.tif",
+      "bytes": 294327,
+      "sha256": "e2b1ae93bc7aa71a1699cc651f80cfbc8a4d4b81baa831e773fc62bd6dc41191"
+    },
+    {
+      "date": "2025-07-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250721.tif",
+      "bytes": 259528,
+      "sha256": "e423554ae5e58e0b41baf974099cebfe91cd9f00cd4f45d032e28d96655546e4"
+    },
+    {
+      "date": "2025-08-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250801.tif",
+      "bytes": 289026,
+      "sha256": "862f258e2ad8481f2a2f951ad90e200f9f3e98e89c5db3d94d4ffbd5c61c3175"
+    },
+    {
+      "date": "2025-08-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250811.tif",
+      "bytes": 292382,
+      "sha256": "b848380573d4e840c7b61613ebb9abde3e82eb80c12fca940ed87568c478022a"
+    },
+    {
+      "date": "2025-08-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250821.tif",
+      "bytes": 296360,
+      "sha256": "209e7ec551582ace26dfa2e9270e9bcc360466876ad62564fce7c3c8355568d0"
+    },
+    {
+      "date": "2025-09-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250901.tif",
+      "bytes": 290945,
+      "sha256": "2f24416f90dcce5932e1ddb87f5529b76807018bcd63475def0ee727e61c58cb"
+    },
+    {
+      "date": "2025-09-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250911.tif",
+      "bytes": 288784,
+      "sha256": "3915c1908e6814fddc95a8437e9ff5e58e72f0c1c4c3649722f18b828d8a036c"
+    },
+    {
+      "date": "2025-09-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20250921.tif",
+      "bytes": 234748,
+      "sha256": "29d87d69008f0c288cea86110c7930bcca08494f40afd0c917adf237e3fc56f0"
+    },
+    {
+      "date": "2025-10-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251001.tif",
+      "bytes": 289939,
+      "sha256": "2949220f6e8853ef9a9e4e892c2f7adc2f23310079f2ac33c7ec32354017be2e"
+    },
+    {
+      "date": "2025-10-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251011.tif",
+      "bytes": 241722,
+      "sha256": "9ee5f5ae9a73769f517d1285654378ae2366819f195c638e0051dd7f9b66b05f"
+    },
+    {
+      "date": "2025-10-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251021.tif",
+      "bytes": 286492,
+      "sha256": "b8273700df6f43e632e7cd321f7357d0455954c91c3197327fa145bd4cfdc5cd"
+    },
+    {
+      "date": "2025-11-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251101.tif",
+      "bytes": 256708,
+      "sha256": "81fa9d246776649bf20e3ca8c1e7ee472d0a773ba3eb1afa97891c838e6bb653"
+    },
+    {
+      "date": "2025-11-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251111.tif",
+      "bytes": 290761,
+      "sha256": "fe847340a25501440d059d7bdab78932598d4d4276af94b87893e742ff8782ef"
+    },
+    {
+      "date": "2025-11-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251121.tif",
+      "bytes": 294190,
+      "sha256": "348061ec42a5d03bfb63cbc42655fdd62a4e2ff39a48b10647654256ca51b52f"
+    },
+    {
+      "date": "2025-12-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251201.tif",
+      "bytes": 289384,
+      "sha256": "70960e874cb0a2283ccb8c27433acec0504a55601f21378d9dcc9bd81987251f"
+    },
+    {
+      "date": "2025-12-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251211.tif",
+      "bytes": 279252,
+      "sha256": "bf52cd061a5373467e56b3a36135ceee83fe3fbd691349308314647f6f6b21f7"
+    },
+    {
+      "date": "2025-12-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2025\\taihu_lwq300_v2_20251221.tif",
+      "bytes": 276883,
+      "sha256": "5192f1277d93d34654fc81da2dbed5d763bac1b2453c926f29797c21bbee0dc5"
+    },
+    {
+      "date": "2026-01-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260101.tif",
+      "bytes": 278414,
+      "sha256": "c9fb931189087fd23fa410920f91f165b14bd276bc2a1e84f8c1402d448ca082"
+    },
+    {
+      "date": "2026-01-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260111.tif",
+      "bytes": 284373,
+      "sha256": "3dec04ed99e58da3a3ee0daa226c01089a6eb106888b43c3e20f94f7afb80e94"
+    },
+    {
+      "date": "2026-01-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260121.tif",
+      "bytes": 261458,
+      "sha256": "246471307087d3e7e5c1c3bbb72778e82bd4eceeeeb168d1d75311a92c602dc4"
+    },
+    {
+      "date": "2026-02-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260201.tif",
+      "bytes": 258874,
+      "sha256": "28bbdbbf9e3c359767cada71757257f015a8ee8e7911c79dc359d5da866d1f6c"
+    },
+    {
+      "date": "2026-02-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260211.tif",
+      "bytes": 285124,
+      "sha256": "a5a1deb579b430da4dba2c8a8f63c0f1ebb7b9a2aa9485f7dc15e4506b241945"
+    },
+    {
+      "date": "2026-02-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260221.tif",
+      "bytes": 244886,
+      "sha256": "bc207f8dfe88b58ad3614c4304a00b5eb0706408c6a010c90a66c9988c9474b2"
+    },
+    {
+      "date": "2026-03-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260301.tif",
+      "bytes": 256611,
+      "sha256": "9948515e995b81c3a060348b55d16abe3c6573e0602b0f031ee2dac8dd330643"
+    },
+    {
+      "date": "2026-03-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260311.tif",
+      "bytes": 273874,
+      "sha256": "c6747d96c9949b8ac48be61294c793d148fce3536208746425a1e928520e3cd9"
+    },
+    {
+      "date": "2026-03-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260321.tif",
+      "bytes": 281603,
+      "sha256": "fc63cd722d3676cfc2b1c43bdc3924349220b8499399fa31dfd5e2ca256ec7bd"
+    },
+    {
+      "date": "2026-04-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260401.tif",
+      "bytes": 282914,
+      "sha256": "1ea44057418251bf0756bb2fc992081bf75eff78be0c6f916362afe17714e3fe"
+    },
+    {
+      "date": "2026-04-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260411.tif",
+      "bytes": 229747,
+      "sha256": "f2e295aad541d0b14835d86f92664e385460c4d9de99fb47d4b7e3470f8da5f7"
+    },
+    {
+      "date": "2026-04-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260421.tif",
+      "bytes": 271433,
+      "sha256": "984ed78b1c719f69faa90b7440c4886574fd6b66e4d830ab072902694cc926ff"
+    },
+    {
+      "date": "2026-05-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260501.tif",
+      "bytes": 295531,
+      "sha256": "25ab393e0a055c2708993117186e1ca1ce0eba5d9ce96ac0d37dcd8af4799ad4"
+    },
+    {
+      "date": "2026-05-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260511.tif",
+      "bytes": 268741,
+      "sha256": "823156fb0caae8d3d95bfba6101a75baa8d98b72e016179e9dade9603485ff93"
+    },
+    {
+      "date": "2026-05-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260521.tif",
+      "bytes": 214625,
+      "sha256": "89fce7a5909106851f29b7e634586a75dd3782c0e57352161d9d6dae446a20b1"
+    },
+    {
+      "date": "2026-06-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260601.tif",
+      "bytes": 300278,
+      "sha256": "0968d111bec61622d2927b9775799c8f5864eb880c64fa85ecbe79d00fc38aab"
+    },
+    {
+      "date": "2026-06-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260611.tif",
+      "bytes": 181364,
+      "sha256": "9a64fccbed712181f0b937c0d6ed249b8bf4c2c9d18e4f75c623286fa02cebb6"
+    },
+    {
+      "date": "2026-06-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260621.tif",
+      "bytes": 268198,
+      "sha256": "39585f2c16e23058a059a4a7960698cc74a61960de724e56d096c649f59b17e7"
+    },
+    {
+      "date": "2026-07-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260701.tif",
+      "bytes": 233463,
+      "sha256": "ef52e01fd535173e197ea552267e5e3ef10b6437f60e6df491ad8cc7034a0179"
+    },
+    {
+      "date": "2026-07-11",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260711.tif",
+      "bytes": 276039,
+      "sha256": "9b588b1ffa7c584557cf2d15e74ed6ca6485bfa07b7ac8061950af56d39016dd"
+    },
+    {
+      "date": "2026-07-21",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260721.tif",
+      "bytes": 299287,
+      "sha256": "b524f8bae8db8fb40c2c72d74386445b8ef2905714f0ee143bdea34bb0a16b19"
+    },
+    {
+      "date": "2026-08-01",
+      "status": "existing",
+      "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\clms_lwq_300m_v2\\2026\\taihu_lwq300_v2_20260801.tif",
+      "bytes": 294377,
+      "sha256": "fc99d7fb7e3a2b0f16c4014f3e754018899bc226e486fd8f2f0c3d87fb977819"
+    }
+  ]
+}

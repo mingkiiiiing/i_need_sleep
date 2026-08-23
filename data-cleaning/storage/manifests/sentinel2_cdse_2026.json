@@ -1,0 +1,459 @@
+{
+  "run_id": "sentinel2_monthly_cdse_20260823T102732Z",
+  "status": "completed",
+  "source_id": "copernicus_sentinel2_l2a_cdse_process_api",
+  "period": [
+    "2026-01-01",
+    "2026-08-23"
+  ],
+  "process_api": "https://sh.dataspace.copernicus.eu/api/v1/process",
+  "oauth_secret_recorded": false,
+  "grid": {
+    "crs": "EPSG:32651",
+    "resolution_m": 30.0,
+    "width": 2192,
+    "height": 2297,
+    "bounds": [
+      203970.0,
+      3424890.0,
+      269730.0,
+      3493800.0
+    ]
+  },
+  "month_count": 8,
+  "completed_months": 8,
+  "failed_months": [],
+  "inventory_csv": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\sentinel2_monthly_inventory.csv",
+  "months": [
+    {
+      "month": "2026-01",
+      "range": [
+        "2026-01-01",
+        "2026-01-31"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 9,
+      "selected_date": "2026-01-07",
+      "scene_ids": [
+        "S2B_T50RQV_20260107T024007_L2A",
+        "S2B_T50SQA_20260107T024007_L2A",
+        "S2B_T51RTQ_20260107T024007_L2A",
+        "S2B_T51STR_20260107T024007_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_multiband_30m.tif",
+      "raw_bytes": 42196505,
+      "raw_sha256": "babd4f653c3ba638e0b588aba1f8b1f6811b92e5a0b6be46df8380e871942bdf",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_B03_30m.tif",
+          "bytes": 2893191,
+          "sha256": "68b0e501a9ece463f03442aba5faaf207eea441e8a2dada70f79328498553838"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_B04_30m.tif",
+          "bytes": 2980274,
+          "sha256": "7d410b01bcf16c7bec5fc4b0e593605e34f0036f7860321323b9d39de6d5551b"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_B05_30m.tif",
+          "bytes": 3092820,
+          "sha256": "345173969d1f111ed17a961d477929c6f5070fcc55b624b7c4c6c4314759ca1e"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_B08_30m.tif",
+          "bytes": 3007351,
+          "sha256": "0a4ac75eebe3c3f3688c7134eb8c57bd19317a823ce9a59d197c2fa342fdd1bc"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_B11_30m.tif",
+          "bytes": 2073366,
+          "sha256": "422316d41ecd27f3ccc83f9e19cf990e1df425d61998d6b8745703e751e88d44"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-01\\taihu_s2_l2a_2026-01_SCL_30m.tif",
+          "bytes": 55490,
+          "sha256": "d144b6412adb0425cd5180f2626ee5e0ae3a03dd1c5f61cca9e06a8e90bc790f"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.9991928678729731
+    },
+    {
+      "month": "2026-02",
+      "range": [
+        "2026-02-01",
+        "2026-02-28"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 8,
+      "selected_date": "2026-02-21",
+      "scene_ids": [
+        "S2C_T50SQA_20260221T023729_L2A",
+        "S2C_T51STR_20260221T023729_L2A",
+        "S2C_T51RTQ_20260221T023729_L2A",
+        "S2C_T50RQV_20260221T023729_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_multiband_30m.tif",
+      "raw_bytes": 41774418,
+      "raw_sha256": "0eb380dce81fcac3157c06234539257a45d999b35a69d3244daaf03789bc920e",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_B03_30m.tif",
+          "bytes": 2773723,
+          "sha256": "69c51cf516dc44137c3495fb435cd2b27749635839d4a599cf1ac72e0cb3f736"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_B04_30m.tif",
+          "bytes": 2874034,
+          "sha256": "3cce1b4c800af8652e749401c598c132f1ced47a63b3347e50def3dabc2b49c8"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_B05_30m.tif",
+          "bytes": 2977718,
+          "sha256": "ea4ef53d3e1a1cdad880198b6ef79435fc7e0458b7104c5dbfeab6e1e9d3f5dd"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_B08_30m.tif",
+          "bytes": 2696543,
+          "sha256": "b9ffe1694b562a76dcfadfc25eb2998ac00dc191a498247ebbc1ab8eb00902d5"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_B11_30m.tif",
+          "bytes": 1911550,
+          "sha256": "3d188370e08c41702b11e8813385ac246c0a08481d69adf751c9a38f1263df6c"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-02\\taihu_s2_l2a_2026-02_SCL_30m.tif",
+          "bytes": 55224,
+          "sha256": "e704d8d6c88f499120b9fb83b94f2a09acdac97c7dcd4d7c93b5a614f1ca09b8"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.9998006317962921
+    },
+    {
+      "month": "2026-03",
+      "range": [
+        "2026-03-01",
+        "2026-03-31"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 9,
+      "selected_date": "2026-03-13",
+      "scene_ids": [
+        "S2C_T50RQV_20260313T024732_L2A",
+        "S2C_T50SQA_20260313T024732_L2A",
+        "S2C_T51STR_20260313T024732_L2A",
+        "S2C_T51RTQ_20260313T024732_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_multiband_30m.tif",
+      "raw_bytes": 42378625,
+      "raw_sha256": "47cd09c616fd5f6309ac09cc416440710839d53fdb44eea69a812214697160dd",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_B03_30m.tif",
+          "bytes": 2901463,
+          "sha256": "6121963d2d5dfa0f942c096a0b86bd52fee0c7c8f2501e8d43f3c58b2346541b"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_B04_30m.tif",
+          "bytes": 2905630,
+          "sha256": "dcf58aa4362b633438a753477aa57633f5f05c5c06c51c94e4498cd0dda1c4cd"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_B05_30m.tif",
+          "bytes": 2984850,
+          "sha256": "640a207af5b84afba7b7ebf7add4f9e4ba2d65681449f05bb1856bec479f7833"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_B08_30m.tif",
+          "bytes": 2753819,
+          "sha256": "c3baecedf6aeda7cbfa2ce08fd0e58270edc8193bed249bcc480f269004e5a05"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_B11_30m.tif",
+          "bytes": 2012101,
+          "sha256": "9a704ae18bfb147c7d63b13546a012a32a41a88cf0328bef5299c674796cf236"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-03\\taihu_s2_l2a_2026-03_SCL_30m.tif",
+          "bytes": 59207,
+          "sha256": "ab2b3c84e883546215dd723e136dcd94330b3d1f9eca03f93c0be887a0704573"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.9970674328175518
+    },
+    {
+      "month": "2026-04",
+      "range": [
+        "2026-04-01",
+        "2026-04-30"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 13,
+      "selected_date": "2026-04-07",
+      "scene_ids": [
+        "S2B_T51STR_20260407T024516_L2A",
+        "S2B_T50SQA_20260407T024516_L2A",
+        "S2B_T51RTQ_20260407T024516_L2A",
+        "S2B_T50RQV_20260407T024516_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_multiband_30m.tif",
+      "raw_bytes": 43687136,
+      "raw_sha256": "a5f9c051df2991964f4f1b2aed8440318f059d8f7d395b465b2b5cc2e753d291",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_B03_30m.tif",
+          "bytes": 2986030,
+          "sha256": "135c0684522c7e5e698b129d93cf16861e6532ee85b9e1b310d64d775a854b15"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_B04_30m.tif",
+          "bytes": 3084880,
+          "sha256": "f9aef4b107356d0159df6505b13cd497a0c7be27e96695fd11688c813d1cd78e"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_B05_30m.tif",
+          "bytes": 3139132,
+          "sha256": "98d3d641a5c7a56eece28596cbf20cb927fdee7d04801153b2cee0786d382112"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_B08_30m.tif",
+          "bytes": 3063961,
+          "sha256": "5819b2c268315e816cad7cf59da2c81bd92acc24a1ff73b077cfb373b2b225a4"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_B11_30m.tif",
+          "bytes": 2662084,
+          "sha256": "728da29633da230659a8697e770a0b22e4c8489928a45300274c4ba288d7ecd0"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-04\\taihu_s2_l2a_2026-04_SCL_30m.tif",
+          "bytes": 62183,
+          "sha256": "e3179121cd6cc21558136f16ba76e230623bd6c4df9107ba37cfe6befa2eefc0"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.9788294922756412
+    },
+    {
+      "month": "2026-05",
+      "range": [
+        "2026-05-01",
+        "2026-05-31"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 5,
+      "selected_date": "2026-05-12",
+      "scene_ids": [
+        "S2C_T51STR_20260512T023823_L2A",
+        "S2C_T50SQA_20260512T023823_L2A",
+        "S2C_T51RTQ_20260512T023823_L2A",
+        "S2C_T50RQV_20260512T023823_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_multiband_30m.tif",
+      "raw_bytes": 44315474,
+      "raw_sha256": "a6bd1e525a7aeb903fd6b2c6bd804d5d5aa1b8190afe5c2500a82c84a9f40104",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_B03_30m.tif",
+          "bytes": 3090325,
+          "sha256": "083ffdb03296231fdd0963b1fb85fd085efb245148711c0989b36de2351eb54e"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_B04_30m.tif",
+          "bytes": 3068222,
+          "sha256": "e3234186d5f07c8629b452144c3eb21c1f0425f3753213294fa79fa77ae4a48a"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_B05_30m.tif",
+          "bytes": 3300658,
+          "sha256": "8eb18bef364151c705ab3ebd12e8cf76818751b2dc7fa4553f1d761e765abec5"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_B08_30m.tif",
+          "bytes": 3309548,
+          "sha256": "23cd908493e0c51443fe30b4fd14c4e048e7156bd1f3eea1f9478b5758184037"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_B11_30m.tif",
+          "bytes": 2934612,
+          "sha256": "033735ba4c54199a4e98258ec0b2fea532b3a5976b3ee864807d3ed60692aefa"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-05\\taihu_s2_l2a_2026-05_SCL_30m.tif",
+          "bytes": 78450,
+          "sha256": "825af167dbf680939826ca5c04a66e049eade091206581e93afa5d25aaf58dd3"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.3980946427136331
+    },
+    {
+      "month": "2026-06",
+      "range": [
+        "2026-06-01",
+        "2026-06-30"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 1,
+      "selected_date": "2026-06-26",
+      "scene_ids": [
+        "S2B_T51RTQ_20260626T024728_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_multiband_30m.tif",
+      "raw_bytes": 46670396,
+      "raw_sha256": "acd5ab5efc56b8cd5551cb29ecc7f2f3ba8eb2824d3639f4ce67f5366c2f0c99",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_B03_30m.tif",
+          "bytes": 3609457,
+          "sha256": "8b1e6bb4d1dd974ff45c3b97214cb5c4c1d7e394d2d03eb82a787c98c04404e5"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_B04_30m.tif",
+          "bytes": 3383341,
+          "sha256": "3886f318725995991d9038844293d1cb9d0f12eb7e51efd32128bb6271505068"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_B05_30m.tif",
+          "bytes": 3705928,
+          "sha256": "0017f30a60e8bbc605906fece38d0fcdf50ebe92289df9388e5b5bfd51c8fa9c"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_B08_30m.tif",
+          "bytes": 3800733,
+          "sha256": "31bace4abeaf7fa8a4d2e171e92ff40e7a00bf22e3f29ecd8cebc1c5c4176db6"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_B11_30m.tif",
+          "bytes": 3315329,
+          "sha256": "d1bac6f8abaa0ad1b2679a0d3c24bef9880185ecec062255cc0e45decad37847"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-06\\taihu_s2_l2a_2026-06_SCL_30m.tif",
+          "bytes": 115870,
+          "sha256": "172a0ca93aea6ed2ccf1b2d733a773a3018b9a9202d1b2b31d55fd1f96b217fc"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.7560625707061652
+    },
+    {
+      "month": "2026-07",
+      "range": [
+        "2026-07-01",
+        "2026-07-31"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 6,
+      "selected_date": "2026-07-31",
+      "scene_ids": [
+        "S2C_T51RTQ_20260731T024816_L2A",
+        "S2C_T50SQA_20260731T024816_L2A",
+        "S2C_T50RQV_20260731T024816_L2A",
+        "S2C_T51STR_20260731T024816_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_multiband_30m.tif",
+      "raw_bytes": 45558912,
+      "raw_sha256": "e1a22a86ec2c481ecc53da1e7cf38b616d7463e2b74f12f718207ba597ff6e39",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_B03_30m.tif",
+          "bytes": 3486901,
+          "sha256": "f1bac59cc146621606deb82621554297d58d5585ab49944bf097baaad889e364"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_B04_30m.tif",
+          "bytes": 3214430,
+          "sha256": "b49cedea49abffd66dd02e7ed157f61696b3fafa160a76ddb171a20eebff9f45"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_B05_30m.tif",
+          "bytes": 3633499,
+          "sha256": "3d22d3693cd001b0add4240e53c3fd8bdb77a1f5840feabad5ee1699b30f49d4"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_B08_30m.tif",
+          "bytes": 3578542,
+          "sha256": "6dd530902adaea120735005125ce82d49cf34786e11bbfabbf795db6b8a23721"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_B11_30m.tif",
+          "bytes": 3059582,
+          "sha256": "905d2dc84eca9b788cdeb54905ed332aa6009b02eba42c561f8400afc3a081e3"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-07\\taihu_s2_l2a_2026-07_SCL_30m.tif",
+          "bytes": 86378,
+          "sha256": "e09be619f0d67e71b0359efc52c62833d9546e1e98b11d8a7f9151f4df9c6ee9"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.997443759620675
+    },
+    {
+      "month": "2026-08",
+      "range": [
+        "2026-08-01",
+        "2026-08-23"
+      ],
+      "cloud_threshold": 30.0,
+      "candidate_scenes": 4,
+      "selected_date": "2026-08-02",
+      "scene_ids": [
+        "S2A_T50RQV_20260802T024146_L2A",
+        "S2A_T51RTQ_20260802T024146_L2A",
+        "S2A_T50SQA_20260802T024146_L2A",
+        "S2A_T51STR_20260802T024146_L2A"
+      ],
+      "status": "completed",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_multiband_30m.tif",
+      "raw_bytes": 44767817,
+      "raw_sha256": "c45727a3fafdee13f8ef30329382128a93a7995b86579565a2cb6bcb58811b7e",
+      "outputs": {
+        "green": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_B03_30m.tif",
+          "bytes": 3234733,
+          "sha256": "3af8bf536a26275a4871dbbce6606d253321138e303b79da4a7f2edf0a58a54d"
+        },
+        "red": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_B04_30m.tif",
+          "bytes": 3181290,
+          "sha256": "e43fb3ad0cea806e89d12da0477c8ecf5ef6c4ce499e3f6d40a36cf52fa64395"
+        },
+        "rededge1": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_B05_30m.tif",
+          "bytes": 3367905,
+          "sha256": "3f9ff364047c371cfa1fdb5113de4130f7aadc47795b4ebb66cb1ca55159fc36"
+        },
+        "nir": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_B08_30m.tif",
+          "bytes": 3242951,
+          "sha256": "f811d72fa2b4038917c251f8247a12dd476bfc820046aa6f6d7e203b44baf2fa"
+        },
+        "swir16": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_B11_30m.tif",
+          "bytes": 2940230,
+          "sha256": "8b5e3579dd777eb75fef03f4d541bfa7f31476894402b9c31142c0b5e8ed1bef"
+        },
+        "scl": {
+          "path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\rasters\\sentinel2_monthly_30m_cdse\\2026-08\\taihu_s2_l2a_2026-08_SCL_30m.tif",
+          "bytes": 75837,
+          "sha256": "dc7030a08a85a6487f34173965408c174007e9f9c9c46a4150a396d064b81500"
+        }
+      },
+      "data_mask_fraction": 1.0,
+      "clear_lake_fraction": 0.9884663948665006
+    }
+  ],
+  "license_note": "Contains modified Copernicus Sentinel data."
+}

@@ -1,6 +1,6 @@
 import unittest
 
-from pipeline.sources.earth_search_sentinel2 import DEFAULT_ASSETS, build_search_payload, select_scene
+from pipeline.sources.earth_search_sentinel2 import DEFAULT_ASSETS, build_search_payload, select_scene, select_scene_set
 
 
 class EarthSearchSentinel2Tests(unittest.TestCase):
@@ -10,7 +10,20 @@ class EarthSearchSentinel2Tests(unittest.TestCase):
         self.assertEqual(len(payload["bbox"]), 4)
         self.assertEqual(payload["query"]["eo:cloud_cover"]["lt"], 20)
 
+    def test_payload_can_target_historical_collection(self):
+        payload = build_search_payload("2022-05-01", "2022-05-31", collection="sentinel-2-l2a")
+        self.assertEqual(payload["collections"], ["sentinel-2-l2a"])
+
     def test_scene_requires_every_requested_asset(self):
         incomplete = {"id": "bad", "assets": {"red": {"href": "x"}}, "properties": {}}
         complete = {"id": "ok", "assets": {name: {"href": f"https://example/{name}.tif"} for name in DEFAULT_ASSETS}, "properties": {}}
         self.assertEqual(select_scene([incomplete, complete])["id"], "ok")
+
+    def test_scene_set_prefers_same_day_with_more_tiles(self):
+        assets = {name: {"href": f"https://example/{name}.tif"} for name in DEFAULT_ASSETS}
+        features = [
+            {"id": "S2A_50RQV_20220503_0_L2A", "assets": assets, "properties": {"datetime": "2022-05-03T02:00:00Z", "eo:cloud_cover": 2}},
+            {"id": "S2A_51RTQ_20220503_0_L2A", "assets": assets, "properties": {"datetime": "2022-05-03T02:00:00Z", "eo:cloud_cover": 3}},
+            {"id": "S2A_50RQV_20220508_0_L2A", "assets": assets, "properties": {"datetime": "2022-05-08T02:00:00Z", "eo:cloud_cover": 0}},
+        ]
+        self.assertEqual([item["id"] for item in select_scene_set(features)], ["S2A_50RQV_20220503_0_L2A", "S2A_51RTQ_20220503_0_L2A"])

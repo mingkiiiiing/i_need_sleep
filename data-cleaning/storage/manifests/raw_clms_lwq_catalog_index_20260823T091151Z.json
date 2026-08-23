@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "clms_lwq_catalog",
+  "asset_id": "index",
+  "request_url": "https://csv.dataspace.copernicus.eu/CLMS/bio-geophysical/lake_water_quality/",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\clms_lwq_catalog\\20260823T091151Z_index.html",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-23T09:11:51.104002+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "checksum_sha256": "6437aaf5fc8edf744e68d262d6e9865b8414d24e1c9ef8e87bf34afd7a82ef5e",
+  "size_bytes": 2467,
+  "license": {
+    "license_tag": "COPERNICUS_TERMS_REVIEW_REQUIRED",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

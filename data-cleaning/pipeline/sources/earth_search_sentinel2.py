@@ -12,16 +12,17 @@ import requests
 
 API = "https://earth-search.aws.element84.com/v1/search"
 COLLECTION = "sentinel-2-c1-l2a"
+COLLECTION_FALLBACKS = (COLLECTION, "sentinel-2-l2a", "sentinel-2-pre-c1-l2a")
 TAIHU_BBOX = (119.8, 30.9, 120.8, 31.6)
 DEFAULT_ASSETS = ("blue", "green", "red", "rededge1", "nir", "swir16", "scl")
 
 
-def build_search_payload(start: str, end: str, *, max_cloud: float = 30.0, limit: int = 20) -> dict[str, Any]:
-    return {"collections": [COLLECTION], "bbox": list(TAIHU_BBOX), "datetime": f"{start}T00:00:00Z/{end}T23:59:59Z", "limit": limit, "query": {"eo:cloud_cover": {"lt": max_cloud}}}
+def build_search_payload(start: str, end: str, *, max_cloud: float = 30.0, limit: int = 20, collection: str = COLLECTION) -> dict[str, Any]:
+    return {"collections": [collection], "bbox": list(TAIHU_BBOX), "datetime": f"{start}T00:00:00Z/{end}T23:59:59Z", "limit": limit, "query": {"eo:cloud_cover": {"lt": max_cloud}}}
 
 
-def search_scenes(start: str, end: str, *, max_cloud: float = 30.0, limit: int = 20, timeout: int = 60) -> list[dict[str, Any]]:
-    response = requests.post(API, json=build_search_payload(start, end, max_cloud=max_cloud, limit=limit), timeout=timeout)
+def search_scenes(start: str, end: str, *, max_cloud: float = 30.0, limit: int = 20, timeout: int = 60, collection: str = COLLECTION) -> list[dict[str, Any]]:
+    response = requests.post(API, json=build_search_payload(start, end, max_cloud=max_cloud, limit=limit, collection=collection), timeout=timeout)
     response.raise_for_status()
     features = response.json().get("features") or []
     return sorted(features, key=lambda item: (float(item.get("properties", {}).get("eo:cloud_cover") or 100.0), str(item.get("properties", {}).get("datetime") or "")))
@@ -29,6 +30,41 @@ def search_scenes(start: str, end: str, *, max_cloud: float = 30.0, limit: int =
 
 def select_scene(features: list[dict[str, Any]], assets: tuple[str, ...] = DEFAULT_ASSETS) -> dict[str, Any] | None:
     return next((feature for feature in features if all(name in (feature.get("assets") or {}) and feature["assets"][name].get("href") for name in assets)), None)
+
+
+def _mgrs_tile(feature: dict[str, Any]) -> str:
+    properties = feature.get("properties") or {}
+    tile = properties.get("s2:mgrs_tile") or properties.get("mgrs:tile")
+    if tile:
+        return str(tile)
+    parts = str(feature.get("id") or "").split("_")
+    return parts[1] if len(parts) > 1 else "unknown"
+
+
+def select_scene_set(features: list[dict[str, Any]], assets: tuple[str, ...] = DEFAULT_ASSETS) -> list[dict[str, Any]]:
+    """Select the lowest-cloud same-day tile set intersecting the Taihu bbox."""
+
+    complete = [feature for feature in features if all(name in (feature.get("assets") or {}) and feature["assets"][name].get("href") for name in assets)]
+    by_day: dict[str, dict[str, dict[str, Any]]] = {}
+    for feature in complete:
+        observed = str((feature.get("properties") or {}).get("datetime") or "")[:10]
+        tile = _mgrs_tile(feature)
+        current = by_day.setdefault(observed, {}).get(tile)
+        cloud = float((feature.get("properties") or {}).get("eo:cloud_cover") or 100.0)
+        current_cloud = float((current.get("properties") or {}).get("eo:cloud_cover") or 100.0) if current else float("inf")
+        if current is None or cloud < current_cloud:
+            by_day[observed][tile] = feature
+    if not by_day:
+        return []
+    _, chosen = min(
+        by_day.items(),
+        key=lambda item: (
+            -len(item[1]),
+            sum(float((scene.get("properties") or {}).get("eo:cloud_cover") or 100.0) for scene in item[1].values()) / len(item[1]),
+            item[0],
+        ),
+    )
+    return [chosen[tile] for tile in sorted(chosen)]
 
 
 def _sha256(path: Path) -> str:
@@ -59,7 +95,15 @@ def crop_cog(href: str, output: Path, bbox: tuple[float, float, float, float] = 
 
 
 def run_earth_search_sentinel2(start: str, end: str, output_root: Path, *, max_cloud: float = 30.0, assets: tuple[str, ...] = DEFAULT_ASSETS, manifest_path: Path | None = None) -> dict[str, Any]:
-    scenes = search_scenes(start, end, max_cloud=max_cloud)
+    scenes: list[dict[str, Any]] = []
+    selected_collection = COLLECTION
+    search_attempts: list[dict[str, Any]] = []
+    for collection in COLLECTION_FALLBACKS:
+        scenes = search_scenes(start, end, max_cloud=max_cloud, collection=collection)
+        search_attempts.append({"collection": collection, "scene_count": len(scenes)})
+        if scenes:
+            selected_collection = collection
+            break
     selected = select_scene(scenes, assets)
     outputs: dict[str, Any] = {}
     status = "completed" if selected else "BLOCKED_DATA"
@@ -77,10 +121,59 @@ def run_earth_search_sentinel2(start: str, end: str, output_root: Path, *, max_c
     manifest_path = manifest_path or output_root / "manifest.json"
     manifest = {
         "run_id": f"earth_search_s2_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}", "source_id": "earth_search_sentinel2_l2a",
-        "status": status, "authorization": "none", "api": API, "collection": COLLECTION,
-        "query": build_search_payload(start, end, max_cloud=max_cloud), "scene_count": len(scenes),
+        "status": status, "authorization": "none", "api": API, "collection": selected_collection,
+        "query": build_search_payload(start, end, max_cloud=max_cloud, collection=selected_collection), "search_attempts": search_attempts, "scene_count": len(scenes),
         "selected_scene": {"id": selected.get("id"), "datetime": selected.get("properties", {}).get("datetime"), "cloud_cover": selected.get("properties", {}).get("eo:cloud_cover")} if selected else None,
         "outputs": outputs, "warnings": warnings, "license_note": "Copernicus Sentinel data free and open; preserve attribution and source metadata", "manifest": str(manifest_path),
+    }
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    return manifest
+
+
+def run_earth_search_sentinel2_mosaic(start: str, end: str, output_root: Path, *, max_cloud: float = 30.0, assets: tuple[str, ...] = DEFAULT_ASSETS, manifest_path: Path | None = None, limit: int = 100) -> dict[str, Any]:
+    """Download a same-day, multi-tile Taihu scene set instead of one partial tile."""
+
+    scenes: list[dict[str, Any]] = []
+    selected_collection = COLLECTION
+    search_attempts: list[dict[str, Any]] = []
+    for collection in COLLECTION_FALLBACKS:
+        scenes = search_scenes(start, end, max_cloud=max_cloud, limit=limit, collection=collection)
+        search_attempts.append({"collection": collection, "scene_count": len(scenes)})
+        if scenes:
+            selected_collection = collection
+            break
+    selected = select_scene_set(scenes, assets)
+    outputs: dict[str, Any] = {}
+    warnings: list[str] = []
+    for scene in selected:
+        scene_id = str(scene["id"])
+        scene_outputs: dict[str, Any] = {}
+        for asset in assets:
+            try:
+                scene_outputs[asset] = crop_cog(scene["assets"][asset]["href"], output_root / scene_id / f"{asset}.tif")
+            except Exception as exc:
+                scene_outputs[asset] = {"status": "failed", "error": f"{type(exc).__name__}: {exc}"}
+                warnings.append(f"{scene_id}:{asset}_crop_failed")
+        outputs[scene_id] = scene_outputs
+    complete = bool(selected) and all(item.get("path") for scene_outputs in outputs.values() for item in scene_outputs.values())
+    status = "completed" if complete else "completed_with_warnings" if selected else "BLOCKED_DATA"
+    manifest_path = manifest_path or output_root / "manifest.json"
+    manifest = {
+        "run_id": f"earth_search_s2_mosaic_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
+        "source_id": "earth_search_sentinel2_l2a",
+        "status": status,
+        "authorization": "none",
+        "api": API,
+        "collection": selected_collection,
+        "query": build_search_payload(start, end, max_cloud=max_cloud, limit=limit, collection=selected_collection),
+        "search_attempts": search_attempts,
+        "scene_count": len(scenes),
+        "selected_scenes": [{"id": scene["id"], "tile": _mgrs_tile(scene), "datetime": (scene.get("properties") or {}).get("datetime"), "cloud_cover": (scene.get("properties") or {}).get("eo:cloud_cover")} for scene in selected],
+        "outputs": outputs,
+        "warnings": warnings,
+        "license_note": "Copernicus Sentinel data free and open; preserve attribution and source metadata",
+        "manifest": str(manifest_path),
     }
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
