@@ -1,14 +1,14 @@
 <template>
   <main class="shell">
-    <section class="panel" style="padding: 26px 28px;">
-      <p class="eyebrow">COCKPIT · HISTORY</p>
-      <h1>历史事件回放</h1>
-      <p style="max-width: 880px; margin-top: 14px;">
-        按时间倒序回放系统入库的事件流。点击事件可同步驱动顶部档位、左侧 KPI 与右侧详情卡，方便讲解时一键跳转关键节点。
-      </p>
+    <section class="panel title-card">
+      <div>
+        <p class="eyebrow">COCKPIT · HISTORY</p>
+        <h1>历史事件回放</h1>
+      </div>
+      <p class="title-note">按时间倒序回放入库事件，点击事件联动档位与详情</p>
     </section>
 
-    <TimeAxisBar :stages="stages" />
+    <TimeAxisBar :stages="stages" variant="axis" />
     <CockpitSubTabs />
 
     <section class="kpi-grid">
@@ -98,10 +98,12 @@
           </article>
         </div>
 
+        <!-- 推送功能暂未接入真实渠道，先隐藏（后端接口待实现）
         <div class="event-actions">
-          <button type="button" class="action-btn" :disabled="handleLoading" @click="doHandle">{{ handleLoading ? '推送中…' : '立即推送（短信+邮件）' }}</button>
+          <button type="button" class="button action-btn" :disabled="handleLoading" @click="doHandle">{{ handleLoading ? '推送中…' : '立即推送（短信+邮件）' }}</button>
           <span v-if="handleResult" class="action-result">推送成功 @ {{ handleResult.pushed_at }}</span>
         </div>
+        -->
 
         <div class="event-body">
           <h3>事件说明</h3>
@@ -133,16 +135,9 @@
           </div>
           <div class="factor-list" v-if="matchedPoint">
             <div v-for="contrib in matchedPoint.explainability" :key="contrib.driver" class="factor-row">
-              <div class="factor-meta">
-                <span>{{ contrib.driver }} · {{ contrib.direction }}向贡献</span>
-                <strong>{{ Math.round(contrib.contribution * 100) }}%</strong>
-              </div>
-              <div class="factor-track">
-                <div
-                  class="factor-fill"
-                  :style="{ width: Math.round(contrib.contribution * 100) + '%' }"
-                ></div>
-              </div>
+              <div class="factor-fill" :style="{ width: Math.round(contrib.contribution * 100) + '%' }"></div>
+              <span class="factor-tag">{{ contrib.driver }} · {{ contrib.direction }}向贡献</span>
+              <strong class="factor-value">{{ Math.round(contrib.contribution * 100) }}%</strong>
             </div>
           </div>
         </section>
@@ -318,3 +313,74 @@ onMounted(async () => {
   loadTimeline()
 })
 </script>
+
+<style scoped>
+.title-card {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+}
+.title-card h1 { margin: 0; font-size: 20px; }
+.title-card .eyebrow { margin-bottom: 2px; }
+.title-note {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.action-btn {
+  min-height: 36px;
+  font-size: 13px;
+  background: linear-gradient(135deg, #22314a, #121c2e);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e8eef8;
+}
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+.action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* 机制 + AI 因果链：热力图同款长条样式 */
+.factor-list { display: grid; gap: 8px; }
+.factor-row {
+  position: relative;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--c-line);
+  overflow: hidden;
+}
+.factor-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--c-watch), var(--c-alert));
+}
+.factor-tag {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.factor-value {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+</style>

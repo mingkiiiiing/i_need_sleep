@@ -1,19 +1,5 @@
 <template>
-  <section class="panel time-axis">
-    <div class="stage-list" role="tablist" aria-label="预测时间档位">
-      <button
-        v-for="s in stages"
-        :key="s.key"
-        type="button"
-        class="stage-btn"
-        :class="{ active: s.key === stageKey }"
-        @click="selectStage(s.key)"
-      >
-        {{ s.label }}
-        <span class="stage-btn-sub">{{ stageSubLabel(s.key) }}</span>
-      </button>
-    </div>
-
+  <section class="panel time-axis" :class="{ 'axis-mode': variant === 'axis' }">
     <div class="play-controls">
       <button type="button" class="play-btn" :disabled="!hasPrev" @click="step(-1)" aria-label="上一档">‹</button>
       <button type="button" class="play-btn primary" @click="toggle" :aria-label="playing ? '暂停' : '播放'">
@@ -32,6 +18,39 @@
         >{{ sp }}×</button>
       </div>
     </div>
+
+    <div v-if="variant === 'axis'" class="stage-axis" role="tablist" aria-label="预测时间档位">
+      <div class="axis-track"><div class="axis-progress" :style="{ width: progressPct + '%' }"></div></div>
+      <button
+        v-for="(s, i) in stages"
+        :key="s.key"
+        type="button"
+        class="axis-node"
+        :class="{ active: s.key === stageKey }"
+        :style="{ left: nodePct(i) + '%' }"
+        role="tab"
+        :aria-selected="s.key === stageKey"
+        @click="selectStage(s.key)"
+      >
+        <span class="node-label">{{ s.label }}</span>
+        <span class="node-dot"></span>
+        <span class="node-sub">{{ stageSubLabel(s.key) }}</span>
+      </button>
+    </div>
+
+    <div v-else class="stage-list" role="tablist" aria-label="预测时间档位">
+      <button
+        v-for="s in stages"
+        :key="s.key"
+        type="button"
+        class="stage-btn"
+        :class="{ active: s.key === stageKey }"
+        @click="selectStage(s.key)"
+      >
+        {{ s.label }}
+        <span class="stage-btn-sub">{{ stageSubLabel(s.key) }}</span>
+      </button>
+    </div>
   </section>
 </template>
 
@@ -42,7 +61,9 @@ import { cockpitState } from '../../stores/cockpit.js'
 const props = defineProps({
   stages: { type: Array, required: true },
   // 用于播放器选择 stage 的可选项，默认 stages 全部
-  autoRange: { type: Boolean, default: true }
+  autoRange: { type: Boolean, default: true },
+  // default: 按钮列表；axis: 轴线节点形式
+  variant: { type: String, default: 'default' }
 })
 
 const state = cockpitState()
@@ -59,6 +80,18 @@ const hasNext = computed(() => indexOf(state.stageKey) < props.stages.length - 1
 
 function indexOf(key) {
   return props.stages.findIndex((s) => s.key === key)
+}
+
+const progressPct = computed(() => {
+  const n = props.stages.length
+  if (n <= 1) return 100
+  return (indexOf(state.stageKey) / (n - 1)) * 100
+})
+
+function nodePct(i) {
+  const n = props.stages.length
+  if (n <= 1) return 50
+  return (i / (n - 1)) * 100
 }
 
 function selectStage(key) {

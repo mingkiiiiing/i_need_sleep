@@ -49,7 +49,7 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 - 接口根：http://127.0.0.1:8000
 - 接口文档：/docs（Swagger）、/redoc
-- 已配 CORS *，支持 Vite 代理跨域调用
+- CORS 已配置白名单（localhost:5173 / 127.0.0.1:5173），配合 Vite 代理跨域调用
 
 ### 3.2 前端（Vue 3 + Vite）
 
@@ -74,14 +74,20 @@ vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统
 
 ### 3.3 切换数据源
 
-是否走真实接口由 src/services/api.js 中的总开关控制：
+是否走真实接口由环境变量 VITE_USE_MOCK 控制（见 src/services/api.js）：
 
 ```js
-const USE_MOCK = false   // true = 全 mock；false = 接后端（带降级）
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 ```
 
-- false（默认）：正常调 /api/*，失败时按接口降级到 mock
+- 未设置 / false（默认）：正常调 /api/*，失败时按接口降级到 mock
 - true：完全不调后端，所有数据走前端 mock
+
+强制全 mock 时，在项目根目录创建 `.env.local` 写入：
+
+```
+VITE_USE_MOCK=true
+```
 
 排错与字段差异详见 [INTEGRATION.md](./INTEGRATION.md)。
 ---
@@ -94,12 +100,13 @@ src/
 ├─ main.js                       # 入口，注册路由
 ├─ styles.css                    # 全局设计系统（暗色玻璃 + 动效）
 ├─ components/
-│  ├─ HeroShell.vue              # 通用页眉组件（带入场动效 + meta slot）
-│  └─ cockpit/                   # 驾驶舱三件套专用组件
-│     ├─ TimeAxisBar.vue         # 顶部时间轴播放器
-│     ├─ LakeMap.vue             # 点位地图
-│     ├─ EChart.vue              # ECharts 容器
-│     └─ echartsTheme.js         # ECharts 暗色主题常量
+│  ├─ GlobalNav.vue               # 全局导航栏
+│  ├─ HeroShell.vue               # 通用页眉组件（带入场动效 + meta slot）
+│  ├─ TimeAxisBar.vue             # 时间轴播放器（default 按钮列表 / axis 轴线两种形式）
+│  ├─ CockpitSubTabs.vue          # 驾驶舱子页签切换
+│  ├─ LakeMap.vue                 # 点位地图（Leaflet + 热力层）
+│  ├─ EChart.vue                  # ECharts 容器
+│  └─ echartsTheme.js             # ECharts 暗色主题常量
 ├─ pages/
 │  ├─ Home.vue                   # 主页（Marquee Hero + 右侧入口边栏）
 │  ├─ ProjectOverview.vue        # 项目概览（01 / 03）
