@@ -344,6 +344,12 @@ onMounted(async () => {
 }
 .action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+@media (max-width: 640px) {
+  .title-card { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  .title-note { white-space: normal; font-size: 11px; }
+  .history-stage { grid-template-columns: 1fr; }
+}
+
 /* 机制 + AI 因果链：热力图同款长条样式 */
 .factor-list { display: grid; gap: 8px; }
 .factor-row {

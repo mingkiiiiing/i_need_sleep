@@ -136,7 +136,7 @@
           <small>切换预测尺度</small>
         </div>
       </div>
-      <TimeAxisBar :stages="stages" />
+      <TimeAxisBar :stages="stages" variant="axis" />
       <RouterLink class="dock-back" to="/cockpit" aria-label="返回驾驶舱" title="返回驾驶舱">←</RouterLink>
     </section>
     <footer class="cockpit-foot heatmap-foot">
@@ -497,5 +497,12 @@ onMounted(async () => {
 
 @media (max-width: 1180px) { .cockpit-grid { grid-template-columns: 210px minmax(450px, 1fr); }.right-rail { grid-column: 1 / -1; display: grid; grid-template-columns: 180px 1fr 1fr; gap: 18px; }.right-rail .rail-heading { grid-row: span 2; }.right-rail .rail-section { padding-top: 0; }.right-rail .hotspot-section { grid-column: 1; grid-row: span 2; }.right-rail .chart-section { grid-column: 2 / -1; border-top: 0; border-left: 1px dashed var(--c-line); padding-left: 18px; } }
 @media (max-width: 760px) { .heatmap-header { display: grid; align-items: start; }.header-status { min-width: 0; }.cockpit-grid { display: flex; flex-direction: column; }.map-stage { order: -1; }.map-stage :deep(.map-panel) { min-height: 560px; }.left-rail, .right-rail { display: block; }.right-rail .rail-heading, .right-rail .rail-section { padding-top: 16px; }.right-rail .chart-section { border-top: 1px dashed var(--c-line); border-left: 0; padding-left: 0; }.timeline-dock { grid-template-columns: 1fr 34px; }.timeline-dock :deep(.time-axis-bar) { grid-column: 1 / -1; grid-row: 2; }.dock-label { grid-column: 1; }.dock-back { grid-column: 2; grid-row: 1; } }
+@media (max-width: 640px) {
+  .heatmap-header { gap: 14px; padding-bottom: 16px; }
+  .header-status { padding: 10px 12px; }
+  .heatmap-subtitle { font-size: 12px; }
+  .map-stage :deep(.map-panel) { min-height: 420px; }
+  .timeline-dock { padding: 10px 12px; }
+}
 
 </style>

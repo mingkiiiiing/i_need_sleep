@@ -571,8 +571,11 @@ onMounted(async () => {
 @media (max-width: 1024px) {
   .map-with-kpi { grid-template-columns: minmax(0, 1fr); }
   .kpi-side { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}@media (max-width: 560px) {
+}
+@media (max-width: 560px) {
   .kpi-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi-side .side-card { grid-column: 1 / -1; }
+  .threshold-list li { flex-wrap: wrap; }
 }
 
 /* 详情面板内部：分区更有节奏 */
