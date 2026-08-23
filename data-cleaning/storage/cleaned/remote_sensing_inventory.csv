@@ -1,0 +1,881 @@
+﻿date,month,product,variable,band,file_path,crs,resolution_m,width,height,valid_pixel_ratio,cloud_ratio,quality_flag,notes
+2024-09-01,2024-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20240901.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-09-11,2024-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20240911.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-09-21,2024-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20240921.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-10-01,2024-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241001.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-10-11,2024-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241011.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-10-21,2024-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241021.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-11-01,2024-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241101.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-11-11,2024-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241111.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-11-21,2024-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241121.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-12-01,2024-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241201.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-12-11,2024-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241211.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2024-12-21,2024-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2024\taihu_lwq300_v2_20241221.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-01-01,2025-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250101.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-01-11,2025-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250111.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-01-21,2025-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250121.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-02-01,2025-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250201.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-02-11,2025-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250211.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-02-21,2025-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250221.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-03-01,2025-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250301.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-03-11,2025-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250311.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-03-21,2025-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250321.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-04-01,2025-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250401.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-04-11,2025-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250411.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-04-21,2025-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250421.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-05-01,2025-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250501.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-05-11,2025-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250511.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-05-21,2025-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250521.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-06-01,2025-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250601.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-06-11,2025-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250611.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-06-21,2025-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250621.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-07-01,2025-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250701.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-07-11,2025-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250711.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-07-21,2025-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250721.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-08-01,2025-08,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250801.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-08-11,2025-08,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250811.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-08-21,2025-08,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250821.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-09-01,2025-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250901.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-09-11,2025-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250911.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-09-21,2025-09,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20250921.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-10-01,2025-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251001.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-10-11,2025-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251011.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-10-21,2025-10,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251021.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-11-01,2025-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251101.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-11-11,2025-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251111.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-11-21,2025-11,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251121.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-12-01,2025-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251201.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-12-11,2025-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251211.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2025-12-21,2025-12,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2025\taihu_lwq300_v2_20251221.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-01-01,2026-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260101.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-01-11,2026-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260111.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-01-21,2026-01,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260121.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-02-01,2026-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260201.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-02-11,2026-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260211.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-02-21,2026-02,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260221.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-03-01,2026-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260301.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-03-11,2026-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260311.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-03-21,2026-03,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260321.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-04-01,2026-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260401.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-04-11,2026-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260411.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-04-21,2026-04,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260421.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-05-01,2026-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260501.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-05-11,2026-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260511.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-05-21,2026-05,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260521.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-06-01,2026-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260601.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-06-11,2026-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260611.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-06-21,2026-06,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260621.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-07-01,2026-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260701.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-07-11,2026-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260711.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-07-21,2026-07,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260721.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+2026-08-01,2026-08,clms_lwq_300m_10daily,,,storage\rasters\clms_lwq_300m_v2\2026\taihu_lwq300_v2_20260801.tif,EPSG:4326,0.0027,320,320,1.0,,Q00,COG填充值>1e20判为无效
+,,earth_search_annual_mosaic,mosaic_band,green,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\green.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,nir,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\nir.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,red,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\red.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,rededge1,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\rededge1.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,scl,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\scl.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,swir16,storage\raw\earth_search_sentinel2_annual\2022\S2A_51STR_20221010_0_L2A\swir16.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,green,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\green.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,nir,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\nir.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,red,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\red.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,rededge1,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\rededge1.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,scl,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\scl.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,swir16,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50RQV_20220503_0_L2A\swir16.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,green,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\green.tif,EPSG:32650,10.0,4410,1218,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,nir,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\nir.tif,EPSG:32650,10.0,4410,1218,0.9999,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,red,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\red.tif,EPSG:32650,10.0,4410,1218,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,rededge1,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\rededge1.tif,EPSG:32650,20.0,2205,609,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,scl,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\scl.tif,EPSG:32650,20.0,2205,609,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,swir16,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_50SQA_20220503_0_L2A\swir16.tif,EPSG:32650,20.0,2205,609,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,green,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\green.tif,EPSG:32651,10.0,9129,7944,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,nir,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\nir.tif,EPSG:32651,10.0,9129,7944,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,red,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\red.tif,EPSG:32651,10.0,9129,7944,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,rededge1,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\rededge1.tif,EPSG:32651,20.0,4564,3972,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,scl,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\scl.tif,EPSG:32651,20.0,4564,3972,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,swir16,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51RTQ_20220503_0_L2A\swir16.tif,EPSG:32651,20.0,4564,3972,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,green,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\green.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,nir,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\nir.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,red,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\red.tif,EPSG:32651,10.0,9129,1035,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,rededge1,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\rededge1.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,scl,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\scl.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_annual_mosaic,mosaic_band,swir16,storage\raw\earth_search_sentinel2_annual\2022_mosaic\S2A_51STR_20220503_0_L2A\swir16.tif,EPSG:32651,20.0,4564,518,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,blue,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\blue.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,green,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\green.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,nir,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\nir.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,red,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\red.tif,EPSG:32650,10.0,4410,7815,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,rededge1,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\rededge1.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,scl,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\scl.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+,,earth_search_scene,scene_band,swir16,storage\raw\earth_search_sentinel2\S2A_T50RQV_20260802T024146_L2A\swir16.tif,EPSG:32650,20.0,2205,3908,1.0,,Q00,EarthSearch 原始块(未做湖内统计)
+2022-01-01,2022-01,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,9.93043925907801e-05,Q00,
+2022-01-01,2022-01,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-01\taihu_s2_l2a_2022-01_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,9.93043925907801e-05,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5133,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5133,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5133,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5133,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.00026375246672111197,Q00,
+2022-02-01,2022-02,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-02\taihu_s2_l2a_2022-02_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00026375246672111197,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5123,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5123,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5123,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5123,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0009227364159535287,Q00,
+2022-03-01,2022-03,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-03\taihu_s2_l2a_2022-03_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0009227364159535287,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,6.593811668027799e-05,Q00,
+2022-04-01,2022-04,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-04\taihu_s2_l2a_2022-04_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,6.593811668027799e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5124,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5118,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5118,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5118,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5118,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.780522992541843e-05,Q00,
+2022-05-01,2022-05,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-05\taihu_s2_l2a_2022-05_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.780522992541843e-05,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4417,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4417,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4417,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4417,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.07169578536269142,Q00,
+2022-06-01,2022-06,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-06\taihu_s2_l2a_2022-06_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.07169578536269142,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.4931,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.5123,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4235,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4235,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4235,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4235,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.08705718185255919,Q00,
+2022-07-01,2022-07,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-07\taihu_s2_l2a_2022-07_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.08705718185255919,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4892,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4892,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4892,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4892,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.024142486709100096,Q00,
+2022-08-01,2022-08,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-08\taihu_s2_l2a_2022-08_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.024142486709100096,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5132,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.3244,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3244,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3244,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.3244,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.18827397843585253,Q00,
+2022-09-01,2022-09,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-09\taihu_s2_l2a_2022-09_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.18827397843585253,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4966,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4966,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4966,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4966,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.01693815163542418,Q00,
+2022-10-01,2022-10,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-10\taihu_s2_l2a_2022-10_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.01693815163542418,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5124,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.0914,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.0914,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.0914,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.0914,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.4207352338340393,Q00,
+2022-11-01,2022-11,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-11\taihu_s2_l2a_2022-11_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4207352338340393,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.001005754888159421,Q00,
+2022-12-01,2022-12,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2022-12\taihu_s2_l2a_2022-12_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001005754888159421,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0001487579801009886,Q00,
+2023-01-01,2023-01,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-01\taihu_s2_l2a_2023-01_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001487579801009886,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.003909613936299012,Q00,
+2023-02-01,2023-02,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-02\taihu_s2_l2a_2023-02_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003909613936299012,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.513,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,4.985080508057161e-05,Q00,
+2023-03-01,2023-03,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-03\taihu_s2_l2a_2023-03_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,4.985080508057161e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5134,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5134,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5134,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5134,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.2442792725516302e-05,Q00,
+2023-04-01,2023-04,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-04\taihu_s2_l2a_2023-04_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2442792725516302e-05,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5084,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5084,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5084,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5084,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.003997796236919625,Q00,
+2023-05-01,2023-05,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-05\taihu_s2_l2a_2023-05_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003997796236919625,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4484,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4484,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4484,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4484,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.06532163501107442,Q00,
+2023-06-01,2023-06,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-06\taihu_s2_l2a_2023-06_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06532163501107442,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5121,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4979,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4979,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4979,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4979,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.014028334323729142,Q00,
+2023-07-01,2023-07,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-07\taihu_s2_l2a_2023-07_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.014028334323729142,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.505,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.505,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.505,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.505,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.008239484062042206,Q00,
+2023-08-01,2023-08,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-08\taihu_s2_l2a_2023-08_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.008239484062042206,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5126,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5126,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5126,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5126,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0008148918455999415,Q00,
+2023-09-01,2023-09,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-09\taihu_s2_l2a_2023-09_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0008148918455999415,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5037,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5037,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5037,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5037,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,1.012904804425957e-05,Q00,
+2023-10-01,2023-10,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-10\taihu_s2_l2a_2023-10_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.012904804425957e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.14497487996085e-05,Q00,
+2023-11-01,2023-11,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-11\taihu_s2_l2a_2023-11_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.14497487996085e-05,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.00030625474674996584,Q00,
+2023-12-01,2023-12,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2023-12\taihu_s2_l2a_2023-12_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00030625474674996584,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.899688263650779e-05,Q00,
+2024-01-01,2024-01,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-01\taihu_s2_l2a_2024-01_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.899688263650779e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.025809608851914e-05,Q00,
+2024-02-01,2024-02,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-02\taihu_s2_l2a_2024-02_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.025809608851914e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.2641401510697864e-05,Q00,
+2024-03-01,2024-03,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-03\taihu_s2_l2a_2024-03_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.2641401510697864e-05,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.0179,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.0179,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.0179,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.0179,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.4960014093279396,Q00,
+2024-04-01,2024-04,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-04\taihu_s2_l2a_2024-04_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.4960014093279396,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4596,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4596,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4596,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4596,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.05339954685419573,Q00,
+2024-05-01,2024-05,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-05\taihu_s2_l2a_2024-05_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.05339954685419573,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5046,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.3111,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3111,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3111,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.3111,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.19286025250326513,Q00,
+2024-06-01,2024-06,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-06\taihu_s2_l2a_2024-06_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.19286025250326513,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5119,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5108,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5108,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5108,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5108,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0003557083342601743,Q00,
+2024-07-01,2024-07,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-07\taihu_s2_l2a_2024-07_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003557083342601743,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5113,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5075,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5075,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5075,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5075,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0033366275910502114,Q00,
+2024-08-01,2024-08,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-08\taihu_s2_l2a_2024-08_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0033366275910502114,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5083,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4449,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4449,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4449,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4449,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.06329066157380779,Q00,
+2024-09-01,2024-09,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-09\taihu_s2_l2a_2024-09_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06329066157380779,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5135,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5116,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5116,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5116,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5116,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0018305771730184404,Q00,
+2024-10-01,2024-10,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-10\taihu_s2_l2a_2024-10_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0018305771730184404,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,1.8073399451521978e-05,Q00,
+2024-11-01,2024-11,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-11\taihu_s2_l2a_2024-11_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.8073399451521978e-05,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.51,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.51,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.51,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.51,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.003982503360460645,Q00,
+2024-12-01,2024-12,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2024-12\taihu_s2_l2a_2024-12_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.003982503360460645,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5122,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5122,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5122,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5122,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.001716972947894588,Q00,
+2025-01-01,2025-01,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-01\taihu_s2_l2a_2025-01_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.001716972947894588,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.3865,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3865,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3865,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.3865,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.12720217421009314,Q00,
+2025-02-01,2025-02,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-02\taihu_s2_l2a_2025-02_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.12720217421009314,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,1.6285920384887937e-05,Q00,
+2025-03-01,2025-03,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-03\taihu_s2_l2a_2025-03_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,1.6285920384887937e-05,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5114,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5114,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5114,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5114,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0020830089389842037,Q00,
+2025-04-01,2025-04,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-04\taihu_s2_l2a_2025-04_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0020830089389842037,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.00013406092999755314,Q00,
+2025-05-01,2025-05,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-05\taihu_s2_l2a_2025-05_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00013406092999755314,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4817,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4817,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4817,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4817,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.030796874056608272,Q00,
+2025-06-01,2025-06,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-06\taihu_s2_l2a_2025-06_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.030796874056608272,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4869,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4869,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4869,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4869,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.02579908258629949,Q00,
+2025-07-01,2025-07,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-07\taihu_s2_l2a_2025-07_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.02579908258629949,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5069,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5069,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5069,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5069,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.005729267626132468,Q00,
+2025-08-01,2025-08,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-08\taihu_s2_l2a_2025-08_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.005729267626132468,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5131,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,2.879827385132623e-05,Q00,
+2025-09-01,2025-09,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-09\taihu_s2_l2a_2025-09_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,2.879827385132623e-05,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5096,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0034043531867971235,Q00,
+2025-10-01,2025-10,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-10\taihu_s2_l2a_2025-10_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0034043531867971235,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5138,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0001378344969160028,Q00,
+2025-11-01,2025-11,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-11\taihu_s2_l2a_2025-11_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0001378344969160028,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,7.229359780608791e-05,Q00,
+2025-12-01,2025-12,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2025-12\taihu_s2_l2a_2025-12_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.229359780608791e-05,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5136,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0003358474557420183,Q00,
+2026-01-01,2026-01,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-01\taihu_s2_l2a_2026-01_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0003358474557420183,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5139,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,7.130055388018011e-05,Q00,
+2026-02-01,2026-02,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-02\taihu_s2_l2a_2026-02_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,7.130055388018011e-05,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5125,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0010967177117725754,Q00,
+2026-03-01,2026-03,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-03\taihu_s2_l2a_2026-03_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0010967177117725754,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5032,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5032,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5032,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5032,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.010308788994848883,Q00,
+2026-04-01,2026-04,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-04\taihu_s2_l2a_2026-04_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.010308788994848883,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5127,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.4452,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4452,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.4452,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.4452,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.06728806059315705,Q00,
+2026-05-01,2026-05,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-05\taihu_s2_l2a_2026-05_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.06728806059315705,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5137,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.3886,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3886,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.3886,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.3886,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.1248448865387732,Q00,
+2026-06-01,2026-06,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-06\taihu_s2_l2a_2026-06_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.1248448865387732,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5104,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5092,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5092,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5092,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5092,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.00015908563693042973,Q00,
+2026-07-01,2026-07,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-07\taihu_s2_l2a_2026-07_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.00015908563693042973,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,B03,B03,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_B03_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,B04,B04,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_B04_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,B05,B05,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_B05_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,B08,B08,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_B08_30m.tif,EPSG:32651,30.0,2192,2297,0.5124,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,B11,B11,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_B11_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,FAI,FAI,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_FAI_30m.tif,EPSG:32651,30.0,2192,2297,0.5064,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,MCI,MCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_MCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5064,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,NDCI,NDCI,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_NDCI_30m.tif,EPSG:32651,30.0,2192,2297,0.5064,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,NDWI,NDWI,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_NDWI_30m.tif,EPSG:32651,30.0,2192,2297,0.5064,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,multiband,multiband,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_multiband_30m.tif,EPSG:32651,30.0,2192,2297,1.0,0.0049721709370203595,Q00,
+2026-08-01,2026-08,sentinel2_cdse_monthly,scl,scl,storage\rasters\sentinel2_monthly_30m_cdse\2026-08\taihu_s2_l2a_2026-08_SCL_30m.tif,EPSG:32651,30.0,2192,2297,0.514,0.0049721709370203595,Q00,
+2022-01-01,2022-01,sentinel2_monthly_20m,B03,B03,storage\rasters\sentinel2_monthly_20m\2022-01\taihu_s2_l2a_2022-01_B03_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2022-01-01,2022-01,sentinel2_monthly_20m,B04,B04,storage\rasters\sentinel2_monthly_20m\2022-01\taihu_s2_l2a_2022-01_B04_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2022-01-01,2022-01,sentinel2_monthly_20m,B05,B05,storage\rasters\sentinel2_monthly_20m\2022-01\taihu_s2_l2a_2022-01_B05_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2026-01-01,2026-01,sentinel2_monthly_20m,B03,B03,storage\rasters\sentinel2_monthly_20m\2026-01\taihu_s2_l2a_2026-01_B03_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2026-01-01,2026-01,sentinel2_monthly_20m,B04,B04,storage\rasters\sentinel2_monthly_20m\2026-01\taihu_s2_l2a_2026-01_B04_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2026-01-01,2026-01,sentinel2_monthly_20m,B05,B05,storage\rasters\sentinel2_monthly_20m\2026-01\taihu_s2_l2a_2026-01_B05_20m.tif,EPSG:32651,20.0,3289,3445,0.514,,Q00,
+2026-08-02,2026-08,sentinel2_retrieval_20260802,chlorophyll_a_experimental_ug_l,chlorophyll_a_experimental_ug_l,storage\gold\sentinel2_retrieval_20260802\chlorophyll_a_experimental_ug_l.tif,EPSG:32650,20.0,2205,3908,0.4417,,Q00,Sentinel-2 单景(20260802) 反演实验指数
+2026-08-02,2026-08,sentinel2_retrieval_20260802,fai,fai,storage\gold\sentinel2_retrieval_20260802\fai.tif,EPSG:32650,20.0,2205,3908,0.4417,,Q00,Sentinel-2 单景(20260802) 反演实验指数
+2026-08-02,2026-08,sentinel2_retrieval_20260802,mci,mci,storage\gold\sentinel2_retrieval_20260802\mci.tif,EPSG:32650,20.0,2205,3908,0.4417,,Q00,Sentinel-2 单景(20260802) 反演实验指数
+2026-08-02,2026-08,sentinel2_retrieval_20260802,ndci,ndci,storage\gold\sentinel2_retrieval_20260802\ndci.tif,EPSG:32650,20.0,2205,3908,0.4417,,Q00,Sentinel-2 单景(20260802) 反演实验指数
+2026-08-02,2026-08,sentinel2_retrieval_20260802,ndwi,ndwi,storage\gold\sentinel2_retrieval_20260802\ndwi.tif,EPSG:32650,20.0,2205,3908,0.4417,,Q00,Sentinel-2 单景(20260802) 反演实验指数
+1984-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1984.tif,EPSG:32651,30.0,1696,2341,0.5223,,Q00,THQBCA-V2 chla 年度产品
+1985-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1985.tif,EPSG:32651,30.0,1696,2341,0.5231,,Q00,THQBCA-V2 chla 年度产品
+1986-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1986.tif,EPSG:32651,30.0,1696,2341,0.5218,,Q00,THQBCA-V2 chla 年度产品
+1986-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1986.tif,EPSG:4326,0.0003,1908,2302,0.558,,Q00,THQBCA-V2 sdd 年度产品
+1986-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1986.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1987-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1987.tif,EPSG:32651,30.0,1696,2341,0.5233,,Q00,THQBCA-V2 chla 年度产品
+1987-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1987.tif,EPSG:4326,0.0003,1908,2302,0.5581,,Q00,THQBCA-V2 sdd 年度产品
+1987-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1987.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1988-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1988.tif,EPSG:32651,30.0,1696,2341,0.5256,,Q00,THQBCA-V2 chla 年度产品
+1988-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1988.tif,EPSG:4326,0.0003,1908,2302,0.5581,,Q00,THQBCA-V2 sdd 年度产品
+1988-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1988.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1989-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1989.tif,EPSG:32651,30.0,1696,2341,0.526,,Q00,THQBCA-V2 chla 年度产品
+1989-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1989.tif,EPSG:4326,0.0003,1908,2302,0.5568,,Q00,THQBCA-V2 sdd 年度产品
+1989-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1989.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1990-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1990.tif,EPSG:32651,30.0,1696,2341,0.5253,,Q00,THQBCA-V2 chla 年度产品
+1990-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1990.tif,EPSG:4326,0.0003,1908,2302,0.5576,,Q00,THQBCA-V2 sdd 年度产品
+1990-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1990.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1991-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1991.tif,EPSG:32651,30.0,1696,2341,0.5272,,Q00,THQBCA-V2 chla 年度产品
+1991-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1991.tif,EPSG:4326,0.0003,1908,2302,0.5577,,Q00,THQBCA-V2 sdd 年度产品
+1991-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1991.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1992-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1992.tif,EPSG:32651,30.0,1696,2341,0.5269,,Q00,THQBCA-V2 chla 年度产品
+1992-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1992.tif,EPSG:4326,0.0003,1908,2302,0.5581,,Q00,THQBCA-V2 sdd 年度产品
+1992-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1992.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1993-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1993.tif,EPSG:32651,30.0,1696,2341,0.5256,,Q00,THQBCA-V2 chla 年度产品
+1993-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1993.tif,EPSG:4326,0.0003,1908,2302,0.5582,,Q00,THQBCA-V2 sdd 年度产品
+1993-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1993.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1994-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1994.tif,EPSG:32651,30.0,1696,2341,0.5279,,Q00,THQBCA-V2 chla 年度产品
+1994-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1994.tif,EPSG:4326,0.0003,1908,2302,0.5576,,Q00,THQBCA-V2 sdd 年度产品
+1994-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1994.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1995-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1995.tif,EPSG:32651,30.0,1696,2341,0.5262,,Q00,THQBCA-V2 chla 年度产品
+1995-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1995.tif,EPSG:4326,0.0003,1908,2302,0.5575,,Q00,THQBCA-V2 sdd 年度产品
+1995-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1995.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1996-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1996.tif,EPSG:32651,30.0,1696,2341,0.5259,,Q00,THQBCA-V2 chla 年度产品
+1996-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1996.tif,EPSG:4326,0.0003,1908,2302,0.5576,,Q00,THQBCA-V2 sdd 年度产品
+1996-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1996.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1997-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1997.tif,EPSG:32651,30.0,1696,2341,0.5269,,Q00,THQBCA-V2 chla 年度产品
+1997-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1997.tif,EPSG:4326,0.0003,1908,2302,0.5582,,Q00,THQBCA-V2 sdd 年度产品
+1997-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1997.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1998-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1998.tif,EPSG:32651,30.0,1696,2341,0.5263,,Q00,THQBCA-V2 chla 年度产品
+1998-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1998.tif,EPSG:4326,0.0003,1908,2302,0.5578,,Q00,THQBCA-V2 sdd 年度产品
+1998-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1998.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+1999-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_1999.tif,EPSG:32651,30.0,1696,2341,0.5271,,Q00,THQBCA-V2 chla 年度产品
+1999-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_1999.tif,EPSG:4326,0.0003,1908,2302,0.557,,Q00,THQBCA-V2 sdd 年度产品
+1999-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_1999.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2000-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2000-08-08.tif,EPSG:4326,0.0003,2780,2305,0.9955,,Q00,THQBCA-V2 vege 年度产品
+2000-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2000.tif,EPSG:32651,30.0,1696,2341,0.5264,,Q00,THQBCA-V2 chla 年度产品
+2000-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2000.tif,EPSG:4326,0.0003,1908,2302,0.5577,,Q00,THQBCA-V2 sdd 年度产品
+2000-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2000.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2001-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2001-09-28.tif,EPSG:4326,0.0003,2780,2305,0.9946,,Q00,THQBCA-V2 vege 年度产品
+2001-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2001.tif,EPSG:32651,30.0,1696,2341,0.5268,,Q00,THQBCA-V2 chla 年度产品
+2001-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2001.tif,EPSG:4326,0.0003,1908,2302,0.5582,,Q00,THQBCA-V2 sdd 年度产品
+2001-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2001.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2002-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2002-07-13.tif,EPSG:4326,0.0003,2780,2305,0.9849,,Q00,THQBCA-V2 vege 年度产品
+2002-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2002.tif,EPSG:32651,30.0,1696,2341,0.5291,,Q00,THQBCA-V2 chla 年度产品
+2002-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2002.tif,EPSG:4326,0.0003,1908,2302,0.5582,,Q00,THQBCA-V2 sdd 年度产品
+2002-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2002.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2003-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2003-07-24.tif,EPSG:4326,0.0003,2780,2305,0.9975,,Q00,THQBCA-V2 vege 年度产品
+2003-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2003.tif,EPSG:32651,30.0,1696,2341,0.5267,,Q00,THQBCA-V2 chla 年度产品
+2003-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2003.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2003-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2003.tif,EPSG:4326,0.0003,1908,2302,0.5577,,Q00,THQBCA-V2 sdd 年度产品
+2003-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2003.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2004-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2004-10-14.tif,EPSG:4326,0.0003,2780,2305,0.9842,,Q00,THQBCA-V2 vege 年度产品
+2004-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2004.tif,EPSG:32651,30.0,1696,2341,0.5265,,Q00,THQBCA-V2 chla 年度产品
+2004-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2004.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2004-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2004.tif,EPSG:4326,0.0003,1908,2302,0.5574,,Q00,THQBCA-V2 sdd 年度产品
+2004-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2004.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2005-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2005-10-17.tif,EPSG:4326,0.0003,2780,2305,0.9161,,Q00,THQBCA-V2 vege 年度产品
+2005-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2005.tif,EPSG:32651,30.0,1696,2341,0.524,,Q00,THQBCA-V2 chla 年度产品
+2005-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2005.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2005-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2005.tif,EPSG:4326,0.0003,1908,2302,0.5574,,Q00,THQBCA-V2 sdd 年度产品
+2005-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2005.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2006-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2006-09-18.tif,EPSG:4326,0.0003,2780,2305,0.991,,Q00,THQBCA-V2 vege 年度产品
+2006-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2006.tif,EPSG:32651,30.0,1696,2341,0.5248,,Q00,THQBCA-V2 chla 年度产品
+2006-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2006.tif,EPSG:4326,0.0022,231,278,0.5151,,Q00,THQBCA-V2 fac 年度产品
+2006-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2006.tif,EPSG:4326,0.0003,1908,2302,0.5548,,Q00,THQBCA-V2 sdd 年度产品
+2006-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2006.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2007-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2007-03-28.tif,EPSG:4326,0.0003,2780,2305,0.9984,,Q00,THQBCA-V2 vege 年度产品
+2007-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2007.tif,EPSG:32651,30.0,1696,2341,0.524,,Q00,THQBCA-V2 chla 年度产品
+2007-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2007.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2007-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2007.tif,EPSG:4326,0.0003,1908,2302,0.5559,,Q00,THQBCA-V2 sdd 年度产品
+2007-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2007.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2008-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2008-10-09.tif,EPSG:4326,0.0003,2780,2305,0.9892,,Q00,THQBCA-V2 vege 年度产品
+2008-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2008.tif,EPSG:32651,30.0,1696,2341,0.5263,,Q00,THQBCA-V2 chla 年度产品
+2008-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2008.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2008-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2008.tif,EPSG:4326,0.0003,1908,2302,0.5571,,Q00,THQBCA-V2 sdd 年度产品
+2009-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2009-08-25.tif,EPSG:4326,0.0003,2780,2305,0.9756,,Q00,THQBCA-V2 vege 年度产品
+2009-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2009.tif,EPSG:32651,30.0,1696,2341,0.5279,,Q00,THQBCA-V2 chla 年度产品
+2009-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2009.tif,EPSG:4326,0.0022,231,278,0.5151,,Q00,THQBCA-V2 fac 年度产品
+2009-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2009.tif,EPSG:4326,0.0003,1908,2302,0.5458,,Q00,THQBCA-V2 sdd 年度产品
+2009-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2009.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2010-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2010-08-12.tif,EPSG:4326,0.0003,2780,2305,0.9564,,Q00,THQBCA-V2 vege 年度产品
+2010-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2010.tif,EPSG:32651,30.0,1696,2341,0.5262,,Q00,THQBCA-V2 chla 年度产品
+2010-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2010.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2010-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2010.tif,EPSG:4326,0.0009,594,717,0.5562,,Q00,THQBCA-V2 sdd 年度产品
+2010-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2010.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2011-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2011-09-16.tif,EPSG:4326,0.0003,2780,2305,0.9079,,Q00,THQBCA-V2 vege 年度产品
+2011-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2011.tif,EPSG:32651,30.0,1696,2341,0.5265,,Q00,THQBCA-V2 chla 年度产品
+2011-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2011.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2011-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2011.tif,EPSG:4326,0.0003,1908,2302,0.5572,,Q00,THQBCA-V2 sdd 年度产品
+2011-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2011.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2012-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2012-10-12.tif,EPSG:4326,0.0003,2780,2305,0.9912,,Q00,THQBCA-V2 vege 年度产品
+2012-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2012.tif,EPSG:32651,30.0,1696,2341,0.5253,,Q00,THQBCA-V2 chla 年度产品
+2012-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2012.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2012-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2012.tif,EPSG:4326,0.0003,1908,2302,0.5575,,Q00,THQBCA-V2 sdd 年度产品
+2012-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2012.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2013-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2013-10-23.tif,EPSG:4326,0.0003,2780,2305,0.9876,,Q00,THQBCA-V2 vege 年度产品
+2013-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2013.tif,EPSG:32651,30.0,1696,2341,0.5261,,Q00,THQBCA-V2 chla 年度产品
+2013-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2013.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2013-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2013.tif,EPSG:4326,0.0003,1908,2302,0.5559,,Q00,THQBCA-V2 sdd 年度产品
+2013-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2013.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2014-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2014-07-22.tif,EPSG:4326,0.0003,2780,2305,0.9837,,Q00,THQBCA-V2 vege 年度产品
+2014-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2014.tif,EPSG:32651,30.0,1696,2341,0.5252,,Q00,THQBCA-V2 chla 年度产品
+2014-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2014.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2014-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2014.tif,EPSG:4326,0.0003,1908,2302,0.5569,,Q00,THQBCA-V2 sdd 年度产品
+2014-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2014.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2015-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2015-09-26.tif,EPSG:4326,0.0003,2780,2305,0.9814,,Q00,THQBCA-V2 vege 年度产品
+2015-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2015.tif,EPSG:32651,30.0,1696,2341,0.5256,,Q00,THQBCA-V2 chla 年度产品
+2015-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2015.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2015-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2015.tif,EPSG:4326,0.0003,1908,2302,0.5528,,Q00,THQBCA-V2 sdd 年度产品
+2015-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2015.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2016-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2016-08-28.tif,EPSG:4326,0.0003,2780,2305,0.9926,,Q00,THQBCA-V2 vege 年度产品
+2016-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2016.tif,EPSG:32651,30.0,1696,2341,0.5262,,Q00,THQBCA-V2 chla 年度产品
+2016-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2016.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2016-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2016.tif,EPSG:4326,0.0003,1908,2302,0.5575,,Q00,THQBCA-V2 sdd 年度产品
+2016-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2016.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2017-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2017-09-17.tif,EPSG:4326,0.0003,2780,2305,0.9865,,Q00,THQBCA-V2 vege 年度产品
+2017-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2017.tif,EPSG:32651,30.0,1696,2341,0.5256,,Q00,THQBCA-V2 chla 年度产品
+2017-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2017.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2017-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2017.tif,EPSG:4326,0.0003,1908,2302,0.5569,,Q00,THQBCA-V2 sdd 年度产品
+2017-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2017.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2018-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2018-11-22.tif,EPSG:4326,0.0003,2780,2305,0.9886,,Q00,THQBCA-V2 vege 年度产品
+2018-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2018.tif,EPSG:32651,30.0,1696,2341,0.5263,,Q00,THQBCA-V2 chla 年度产品
+2018-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2018.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2018-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2018.tif,EPSG:4326,0.0003,1908,2302,0.557,,Q00,THQBCA-V2 sdd 年度产品
+2018-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2018.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2019-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2019-08-21.tif,EPSG:4326,0.0003,2780,2305,0.9457,,Q00,THQBCA-V2 vege 年度产品
+2019-01-01,,thqbca_v2_biooptics,chla_retrieval_annual,chla_retrieval_annual,storage\THQBCA-V2\2.Bio-optics\2.4Chla\TH_Chla_2019.tif,EPSG:32651,30.0,1696,2341,0.5266,,Q00,THQBCA-V2 chla 年度产品
+2019-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2019.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2019-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2019.tif,EPSG:4326,0.0003,1908,2302,0.5565,,Q00,THQBCA-V2 sdd 年度产品
+2019-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2019.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2020-01-01,,thqbca_v2_biooptics,aquatic_vegetation_class,aquatic_vegetation_class,storage\THQBCA-V2\2.Bio-optics\2.1AquaticVegetation\TH_vege_2020-09-08.tif,EPSG:4326,0.0003,2780,2305,0.9588,,Q00,THQBCA-V2 vege 年度产品
+2020-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2020.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2020-01-01,,thqbca_v2_biooptics,sdd_annual,sdd_annual,storage\THQBCA-V2\2.Bio-optics\2.3SDD\TH_SDD_2020.tif,EPSG:4326,0.0003,1908,2302,0.5561,,Q00,THQBCA-V2 sdd 年度产品
+2020-01-01,,thqbca_v2_biooptics,tsi_annual,tsi_annual,storage\THQBCA-V2\2.Bio-optics\2.5TSI\TH_TSI_2020.tif,EPSG:4326,0.0003,1907,2302,0.5625,,Q00,THQBCA-V2 tsi 年度产品
+2021-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2021.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品
+2022-01-01,,thqbca_v2_biooptics,fac,fac,storage\THQBCA-V2\2.Bio-optics\2.2FAC\TH_FAC_2022.tif,EPSG:4326,0.0022,231,278,0.5152,,Q00,THQBCA-V2 fac 年度产品

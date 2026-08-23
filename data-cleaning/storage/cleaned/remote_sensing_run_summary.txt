@@ -1,0 +1,10 @@
+files=880 monthly_rows=712 elapsed_s=25
+products:
+product
+clms_lwq_300m_10daily            70
+earth_search_annual_mosaic       30
+earth_search_scene                7
+sentinel2_cdse_monthly          616
+sentinel2_monthly_20m             6
+sentinel2_retrieval_20260802      5
+thqbca_v2_biooptics             146
