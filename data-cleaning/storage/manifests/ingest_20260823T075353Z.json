@@ -1,0 +1,48 @@
+{
+  "run_id": "ingest_20260823T075353Z",
+  "results": [
+    {
+      "source_id": "nasa_power_hourly",
+      "status": "ingested",
+      "request_url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M%2CWS10M%2CWD10M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN&community=RE&longitude=120.300000&latitude=31.200000&start=20260101&end=20260821&format=JSON",
+      "raw_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\nasa_power_hourly\\20260823T075353Z.json",
+      "records": 5592,
+      "retrieved_at": "2026-08-23T07:53:51.220603+00:00",
+      "error": null,
+      "metadata": {
+        "longitude": 120.3,
+        "latitude": 31.2,
+        "parameters": [
+          "ALLSKY_SFC_SW_DWN",
+          "PRECTOTCORR",
+          "T2M",
+          "WD10M",
+          "WS10M"
+        ],
+        "units": {
+          "T2M": {
+            "units": "C",
+            "longname": "Temperature at 2 Meters"
+          },
+          "WS10M": {
+            "units": "m/s",
+            "longname": "Wind Speed at 10 Meters"
+          },
+          "WD10M": {
+            "units": "Degrees",
+            "longname": "Wind Direction at 10 Meters"
+          },
+          "PRECTOTCORR": {
+            "units": "mm/day",
+            "longname": "Precipitation Corrected"
+          },
+          "ALLSKY_SFC_SW_DWN": {
+            "units": "Wh/m^2",
+            "longname": "All Sky Surface Shortwave Downward Irradiance"
+          }
+        },
+        "time_standard": "LST"
+      }
+    }
+  ]
+}

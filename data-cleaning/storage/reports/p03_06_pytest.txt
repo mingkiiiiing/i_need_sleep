@@ -1,0 +1,3 @@
+P03-06 full pytest validation
+Command: python -m pytest -q
+Result: 112 passed in 12.01s

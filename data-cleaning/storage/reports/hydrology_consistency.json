@@ -1,0 +1,80 @@
+{
+  "task_id": "P07-06",
+  "status": "completed",
+  "data_truth": "real_external_historical_observations_plus_explicit_blocked_source_inventory",
+  "input_paths": [
+    "storage\\raw\\taihu_thqbca_parsed\\thqbca_observations.csv"
+  ],
+  "output_csv": "storage\\reports\\hydrology_consistency.csv",
+  "rows": 84180,
+  "observation_rows": 84174,
+  "source_inventory": {
+    "taihu_thqbca_history": {
+      "source_class": "observed",
+      "proxy_flag": 0,
+      "default_status": "available",
+      "default_reason": "historical THQBCA observation file",
+      "status": "available",
+      "reason": "historical THQBCA observation file"
+    },
+    "tba_current_level": {
+      "source_class": "web",
+      "proxy_flag": 0,
+      "default_status": "BLOCKED_POLICY",
+      "default_reason": "TBA page snapshot or export not authorized",
+      "status": "BLOCKED_POLICY",
+      "reason": "在条款/书面许可允许后保存一份TBA页面HTML，或提供人工导出的公开水情文件；当前不自动轮询",
+      "manifest": "storage\\manifests\\tba_hydrology_p07_01.json"
+    },
+    "mwr_hfc": {
+      "source_class": "web",
+      "proxy_flag": 0,
+      "default_status": "BLOCKED_POLICY",
+      "default_reason": "MWR machine endpoint/export not authorized",
+      "status": "BLOCKED_POLICY",
+      "reason": "obtain documented public endpoint permission or a legally exported CSV/JSON/XLSX file; do not reverse-engineer Ajax",
+      "manifest": "storage\\manifests\\mwr_hfc_probe.json"
+    },
+    "glofas_forecast": {
+      "source_class": "proxy",
+      "proxy_flag": 1,
+      "default_status": "BLOCKED_AUTH",
+      "default_reason": "EWDS credentials absent; request plan only",
+      "status": "BLOCKED_AUTH",
+      "reason": "配置CDS/EWDS凭证并按官方request下载区域GloFAS文件；或提供合法NetCDF/GRIB/CSV/JSON导出并登记授权",
+      "manifest": "storage\\manifests\\glofas_p07_03.json"
+    }
+  },
+  "checks": {
+    "water_level_jump": {
+      "status": "available",
+      "rows": 6210,
+      "jump_flags": 9,
+      "threshold_m_per_day": 0.3
+    },
+    "rainfall_to_water_level_lag": {
+      "status": "available",
+      "best_lag_days": 1,
+      "best_correlation": 0.26172834660139854,
+      "sample_count": 5705,
+      "tested_lag_days": 30
+    },
+    "flow_sign": {
+      "status": "not_available",
+      "rows": 0,
+      "sign_flags": 0,
+      "policy": "inflow positive; outflow negative in signed canonical representation"
+    }
+  },
+  "datum_policy": "vertical datum is never inferred; TBA/web values remain pending confirmation",
+  "flow_sign_policy": "inflow positive; outflow negative in signed canonical representation",
+  "proxy_policy": "GloFAS remains proxy_flag=1 and is never placed in observed_value",
+  "unit_policy": {
+    "water_level": "m",
+    "precipitation": "mm",
+    "discharge": "m3/s",
+    "inflow_discharge": "m3/s",
+    "outflow_discharge": "m3/s"
+  },
+  "retrieved_at_utc": "2026-08-19T05:34:00.601052+00:00"
+}

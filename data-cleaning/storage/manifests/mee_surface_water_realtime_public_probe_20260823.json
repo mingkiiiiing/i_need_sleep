@@ -1,0 +1,18 @@
+{
+  "run_id": "mee_realtime_public_page_20260823",
+  "retrieved_at_utc": "2026-08-23T09:59:19.918025+00:00",
+  "request_count": 2,
+  "policy": "one-time low-frequency public page and robots verification; no private Ajax reverse engineering",
+  "results": [
+    {
+      "name": "robots",
+      "url": "https://szzdjc.cnemc.cn:8070/robots.txt",
+      "error": "TypeError: unsupported operand type(s) for +: 'WindowsPath' and 'str'"
+    },
+    {
+      "name": "public_page",
+      "url": "https://szzdjc.cnemc.cn:8070/GJZ/Business/Publish/Main.html",
+      "error": "TypeError: unsupported operand type(s) for +: 'WindowsPath' and 'str'"
+    }
+  ]
+}

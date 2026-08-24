@@ -1,0 +1,21 @@
+{
+  "task_id": "P01-01",
+  "validated_at_utc": "2026-08-18T22:30:30Z",
+  "checks": {
+    "p00_04_done": true,
+    "p01_01_in_progress_before_validation": true,
+    "only_one_active": true,
+    "sources_yaml_parses": true,
+    "copernicus_source_unique": true,
+    "endpoint_is_official_v1_search": true,
+    "method_is_get": true,
+    "sample_request_contains_collection_bbox_datetime_limit": true,
+    "old_catalogue_endpoint_absent": true,
+    "verified_status_is_200": true,
+    "verified_content_type_is_geojson": true,
+    "live_endpoint_probe_status_200": true,
+    "offline_config_test_passed": true
+  },
+  "overall": true,
+  "next_task": "P01-02"
+}

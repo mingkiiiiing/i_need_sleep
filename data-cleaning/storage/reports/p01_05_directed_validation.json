@@ -1,0 +1,23 @@
+{
+  "task_id": "P01-05",
+  "validated_at_utc": "2026-08-18T22:55:30Z",
+  "checks": {
+    "p01_04_done": true,
+    "p01_05_in_progress_before_validation": true,
+    "only_one_active": true,
+    "units_yaml_parses": true,
+    "canonical_unit_groups_present": true,
+    "conversion_rules_explicit": true,
+    "contextual_accumulation_rules_present": true,
+    "chlorophyll_a_conversion_passed": true,
+    "algae_density_conversion_passed": true,
+    "water_level_conversion_passed": true,
+    "precipitation_conversion_passed": true,
+    "radiation_conversion_passed": true,
+    "unknown_unit_not_guessed": true,
+    "source_unit_and_conversion_rule_preserved": true,
+    "offline_unit_tests_passed": true
+  },
+  "overall": true,
+  "next_task": "P01-06"
+}

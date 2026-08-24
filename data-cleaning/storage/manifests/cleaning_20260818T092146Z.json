@@ -1,0 +1,31 @@
+{
+  "run_id": "cleaning_20260818T092146Z",
+  "status": "completed",
+  "input_files": [
+    "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\copernicus_sentinel2_stac\\20260818T091134Z.json",
+    "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\nasa_power_hourly\\20260818T091136Z.json",
+    "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\taihu_thqbca_zenodo\\20260818T091138Z.json",
+    "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\taihu_thqbca_zenodo\\20260818T091243Z.json"
+  ],
+  "input_rows": 242,
+  "clean_rows": 242,
+  "imputed_rows": 0,
+  "pending_imputation_rows": 0,
+  "rejected_rows": 0,
+  "issue_count": 0,
+  "catalog_rows": 2,
+  "archive_rows": 2,
+  "flag_counts": {
+    "Q00": 242
+  },
+  "files": {
+    "normalized_observations": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\silver\\normalized_observations.csv",
+    "cleaned_observations": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\cleaned_observations.csv",
+    "rejected_records": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\rejected_records.csv",
+    "qc_issues": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\qc_issues.csv",
+    "remote_scene_catalog": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\remote_scene_catalog.csv",
+    "source_archives": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\source_archives.csv",
+    "database": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\data_cleaning.db",
+    "imputation_candidates": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\cleaning_20260818T092146Z\\imputation_candidates.csv"
+  }
+}

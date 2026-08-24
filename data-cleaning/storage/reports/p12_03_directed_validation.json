@@ -1,0 +1,8 @@
+{
+  "task_id": "P12-03",
+  "status": "passed",
+  "command": "python -m pytest -q tests/test_features.py",
+  "result": "4 passed",
+  "actual_batch": {"rows": 368, "temperature_rows": 367, "nutrient_rows": 0, "light_rows": 367, "wind_rows": 367, "water_level_rows": 0, "phenology_rows": 368},
+  "truth_note": "No nutrient, water-level or shoreline-normal observations were fabricated."
+}

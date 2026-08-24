@@ -1,0 +1,17 @@
+{
+  "task_id": "P08-01",
+  "status": "BLOCKED_AUTH",
+  "inbox_root": "storage/raw/authorized_waterstation/inbox",
+  "delivery_count": 0,
+  "inventory": "storage/reports/waterstation_delivery_inventory.csv",
+  "manifest": "storage/manifests/waterstation_delivery_p08_01.json",
+  "root_policy": "only inbox/<delivery_id>/ is eligible; root templates and README are never treated as data",
+  "required_evidence": [
+    "non-template authorization/permission document",
+    "delivery_manifest with delivery_id and file list",
+    "SHA-256 for each data/evidence file"
+  ],
+  "actual_result": "empty delivery inbox correctly returns BLOCKED_AUTH; no file entered formal cleaning",
+  "directed_pytest": "21 passed in 7.60s",
+  "full_pytest": "191 passed in 25.90s"
+}

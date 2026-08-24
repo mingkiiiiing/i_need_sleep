@@ -1,0 +1,63 @@
+{
+  "task_id": "P10-03",
+  "phase": "P10",
+  "name": "长缺口不确定性处理",
+  "status": "completed",
+  "completed_at": "2026-08-19T09:01:51.9200731Z",
+  "implementation": {
+    "module": "pipeline/impute.py",
+    "config": "config/qc_rules.yml",
+    "method": "local_donor_envelope",
+    "rules": [
+      "temporal_gap_long never writes a value into clean_value",
+      "observed_flag=0 and imputation_flag=1 for uncertainty candidates",
+      "two original donors produce widened lower/center/upper bounds",
+      "missing donors leave bounds null and status unbounded_no_donors",
+      "short-gap imputed records retain their original temporal_gap_short lineage",
+      "edge, quality-rejected and other mechanisms remain non-observed without being mislabeled long gaps"
+    ],
+    "fields": [
+      "observed_flag",
+      "imputation_flag",
+      "uncertainty_model",
+      "uncertainty_method",
+      "uncertainty_status",
+      "uncertainty_center",
+      "uncertainty_lower",
+      "uncertainty_upper",
+      "uncertainty_width"
+    ]
+  },
+  "actual_controlled_run": {
+    "run_id": "p10_03_long_gap_uncertainty",
+    "input": "storage/runs/p09_08_dedup_conflict_qc/cleaning/normalized_observations.csv",
+    "input_rows": 43922,
+    "long_gap_rows": 0,
+    "bounded_rows": 0,
+    "unbounded_rows": 0,
+    "audit_rows": 0,
+    "mechanism_counts": {"not_missing": 43922},
+    "data_truth": "real_external_normalized_observations_from_p09_08_controlled_batch",
+    "interpretation": "The real controlled snapshot has no missing values; long-gap uncertainty behavior is verified with reproducible offline fixtures."
+  },
+  "outputs": {
+    "summary": "storage/runs/p10_03_long_gap_uncertainty/summary.json",
+    "processed_observations": "storage/runs/p10_03_long_gap_uncertainty/processed_observations.csv",
+    "audit": "storage/runs/p10_03_long_gap_uncertainty/long_gap_uncertainty_audit.csv",
+    "actual_run_log": "reports/p10_03_actual_run.txt"
+  },
+  "verification": {
+    "directed_pytest": "26 passed in 3.43s",
+    "full_pytest": "232 passed, 2 warnings in 103.11s",
+    "directed_log": "reports/p10_03_directed_pytest.txt",
+    "full_log": "reports/p10_03_full_pytest.txt",
+    "test_file": "tests/test_long_gap_uncertainty.py"
+  },
+  "acceptance": [
+    "无静默前向填充",
+    "长缺口保留 clean_value=NULL",
+    "长缺口输出 observed_flag=0、imputation_flag=1",
+    "不确定性上下界、中心值、宽度和供体血缘可追溯"
+  ],
+  "next_task": "P10-04"
+}

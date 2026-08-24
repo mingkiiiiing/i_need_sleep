@@ -1,0 +1,8 @@
+{
+  "task_id": "P12-04",
+  "status": "DONE",
+  "directed_test": "5 passed",
+  "full_test": "260 passed, 2 warnings",
+  "output_manifest": "storage/gold/reliability_features/manifest.json",
+  "next_task": "P12-05"
+}

@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+storage/auth/
+storage/tokens/
+storage/oauth/
+storage/**/oauth*.json
+storage/**/*token*.json
+storage/raw/
+storage/bronze/
+storage/silver/
+storage/gold/
+storage/exports/
+storage/staging/
+storage/data_cleaning.db
+storage/*.db
+# 数据产物体积大（百 MB 级），不入库
+storage/databases/
+storage/runs/
+storage/releases/

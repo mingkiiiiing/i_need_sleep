@@ -1,0 +1,24 @@
+{
+  "task_id": "P02-07",
+  "status": "DONE",
+  "gate_status": "BLOCKED_POLICY",
+  "completed_at": "2026-08-19",
+  "artifacts": [
+    "config/web_collection_policy.yml",
+    "tests/test_web_collection_policy.py",
+    "storage/reports/p02_07_directed_validation.json",
+    "storage/reports/p02_07_pytest.txt"
+  ],
+  "acceptance": {
+    "mee_tba_mwr_covered": true,
+    "terms_recorded": true,
+    "robots_recorded": true,
+    "frequency_and_contact_rules_recorded": true,
+    "prohibited_actions_recorded": true,
+    "crawler_written": false,
+    "private_ajax_reversed": false
+  },
+  "next_task": "P03-01",
+  "next_task_status": "TODO",
+  "scope_note": "P03-01 raw-asset manifest work was not executed in this single-task round."
+}

@@ -1,0 +1,41 @@
+{
+  "task_id": "P00-03",
+  "generated_at_utc": "2026-08-18T15:36:20.181994+00:00",
+  "inventory_path": "storage/exports/asset_truth_inventory.csv",
+  "candidate_file_count": 292,
+  "missing_roots": [
+    "tests/fixtures"
+  ],
+  "truth_class_counts": {
+    "synthetic_fixture": 3,
+    "official_metadata": 108,
+    "real_external": 181
+  },
+  "training_use_counts": {
+    "no": 112,
+    "yes": 3,
+    "review_required": 177
+  },
+  "asset_role_counts": {
+    "authorization_template_or_dropzone_document": 3,
+    "official_catalog_snapshot": 1,
+    "public_metadata_probe": 41,
+    "raw_api_response": 1,
+    "raw_forecast_response": 3,
+    "parsed_external_observations": 1,
+    "official_record_or_download_manifest": 4,
+    "raw_archive": 1,
+    "pipeline_manifest": 60,
+    "derived_pipeline_output": 174,
+    "sample_source_envelope": 2,
+    "sample_api_response": 1
+  },
+  "synthetic_training_eligible_count": 0,
+  "real_external_count": 181,
+  "official_metadata_count": 108,
+  "notes": [
+    "truth_class describes evidence basis; derived outputs retain the external-source basis",
+    "review_required outputs are not automatically eligible for formal training",
+    "missing tests/fixtures is recorded rather than silently treated as empty data"
+  ]
+}

@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Nuxt UI generated files
+.nuxt-ui/
+auto-imports.d.ts
+components.d.ts
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+.workbuddy/memory/2026-08-17.md
+# Data cleaning — 大数据与派生结果不入库(入库的仅 manifests/ reports/ authorization/ 清单与报告)
+data-cleaning/storage/raw_organized/
+data-cleaning/storage/cleaned/
+data-cleaning/storage/rasters/
+data-cleaning/storage/raw/
+data-cleaning/storage/silver/
+data-cleaning/storage/gold/
+data-cleaning/storage/runs/
+data-cleaning/storage/exports/
+data-cleaning/storage/databases/
+data-cleaning/storage/releases/
+data-cleaning/storage/staging/
+data-cleaning/storage/THQBCA-V2/
+data-cleaning/storage/THQBCA-V2.rar

@@ -1,0 +1,40 @@
+{
+  "task_id": "P07-05",
+  "phase": "P07",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-19T05:25:00Z",
+  "deliverables": [
+    "pipeline/sources/static_features.py",
+    "pipeline/sources/__init__.py",
+    "pipeline/cli.py",
+    "tests/test_static_features.py",
+    "storage/silver/geo/static_features.parquet",
+    "storage/silver/geo/copernicus_dem_glo30_taihu.tif",
+    "storage/silver/geo/copernicus_dem_glo30_taihu_slope.tif",
+    "storage/silver/geo/worldcover_2021_taihu.tif",
+    "storage/manifests/static_features_p07_05.json",
+    "storage/reports/p07_05_directed_validation.json"
+  ],
+  "official_sources": {
+    "copernicus_dem": "https://registry.opendata.aws/copernicus-dem/",
+    "copernicus_dem_readme": "https://copernicus-dem-30m.s3.amazonaws.com/readme.html",
+    "esa_worldcover": "https://esa-worldcover.org/en/data-access",
+    "esa_worldcover_license": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "real_cli_status": "completed",
+  "feature_rows": 52,
+  "derived_features": [
+    "elevation_mean_m",
+    "elevation_min_m",
+    "elevation_max_m",
+    "elevation_std_m",
+    "slope_mean_deg",
+    "slope_max_deg",
+    "landcover_*_pct",
+    "distance_to_taihu_boundary_km"
+  ],
+  "quality_flags": ["dem_quality_flag", "landcover_quality_flag", "dem_valid_fraction", "landcover_valid_fraction"],
+  "directed_pytest": "15 passed in 2.79s",
+  "full_pytest": "185 passed in 28.49s",
+  "next_eligible_task": "P07-06"
+}

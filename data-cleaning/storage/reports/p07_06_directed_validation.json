@@ -1,0 +1,42 @@
+{
+  "task_id": "P07-06",
+  "status": "completed_with_explicit_source_gaps",
+  "input": "storage/raw/taihu_thqbca_parsed/thqbca_observations.csv",
+  "output": "storage/reports/hydrology_consistency.csv",
+  "rows": 84180,
+  "observation_rows": 84174,
+  "check_type_counts": {
+    "observation": 84174,
+    "source_availability": 4,
+    "rainfall_lag_summary": 1,
+    "flow_sign_summary": 1
+  },
+  "water_level_jump": {
+    "rows": 6210,
+    "threshold_m_per_day": 0.3,
+    "jump_flags": 9
+  },
+  "rainfall_to_water_level_lag": {
+    "status": "available",
+    "best_lag_days": 1,
+    "best_correlation": 0.26172834660139854,
+    "sample_count": 5705
+  },
+  "flow_sign": {
+    "status": "not_available",
+    "rows": 0,
+    "policy": "inflow positive; outflow negative in signed canonical representation"
+  },
+  "source_separation": {
+    "observed_value_column": true,
+    "web_value_column": true,
+    "proxy_value_column": true,
+    "proxy_flag_column": true,
+    "tba_status": "BLOCKED_POLICY",
+    "mwr_status": "BLOCKED_POLICY",
+    "glofas_status": "BLOCKED_AUTH"
+  },
+  "datum_policy": "vertical datum is never inferred; web values remain pending confirmation",
+  "directed_pytest": "18 passed in 3.41s",
+  "full_pytest": "188 passed in 28.28s"
+}

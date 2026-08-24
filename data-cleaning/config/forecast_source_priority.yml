@@ -1,0 +1,29 @@
+schema_version: "1.0"
+purpose: "Taihu forecast source priority and deterministic failover"
+selection:
+  default_environment: production
+  minimum_coverage_hours: 72
+  source_rows_must_not_mix: true
+  preserve_source_and_model_identity: true
+sources:
+  - source_id: ecmwf_open_ifs_aifs
+    model_name: ECMWF
+    role: primary
+    priority: 1
+    environments: [production, development]
+    authorization_status: open_data
+    required_variables: [air_temperature, wind_u, wind_v, precipitation, shortwave_radiation, cloud_cover, air_pressure]
+  - source_id: noaa_gfs
+    model_name: NOAA_GFS
+    role: backup
+    priority: 2
+    environments: [production, development]
+    authorization_status: public_numerical_weather_prediction
+    required_variables: [air_temperature, wind_u, wind_v, precipitation, shortwave_radiation, cloud_cover, air_pressure]
+  - source_id: open_meteo_forecast
+    model_name: Open-Meteo
+    role: development_fallback
+    priority: 3
+    environments: [development]
+    authorization_status: public_proxy
+    required_variables: [air_temperature, wind_u, wind_v, precipitation, shortwave_radiation]

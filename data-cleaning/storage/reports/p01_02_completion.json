@@ -1,0 +1,30 @@
+{
+  "task_id": "P01-02",
+  "status": "DONE",
+  "completed_at_utc": "2026-08-18T22:35:48Z",
+  "inputs": [
+    "config/sources.yml",
+    "config/data_source_registry.csv",
+    "config/luna_execution_checklist.csv"
+  ],
+  "outputs": [
+    "config/data_source_registry.csv",
+    "tests/test_source_registry_consistency.py",
+    "storage/reports/p01_02_directed_validation.json",
+    "storage/reports/p01_02_pytest.txt",
+    "config/luna_execution_checklist.csv"
+  ],
+  "runtime_source_count": 8,
+  "registry_source_count": 49,
+  "orphan_runtime_source_count": 0,
+  "automation_status_counts": {
+    "runtime_configured": 4,
+    "config_only_pending_adapter": 4,
+    "registry_only_not_implemented": 41
+  },
+  "full_pytest": "61 passed in 10.63s",
+  "registry_sha256": "F3D26C7A7F5CF2105456A65509800881EB8B0A3A80354F18BB9BBAEC53972162",
+  "sources_yaml_sha256": "CFC479458EF4462D6C98C36219B3136EAA6539183FB8C5B471513B5C6E3654A5",
+  "next_task": "P01-03",
+  "execution_boundary": "No P01-03 or later task was executed"
+}

@@ -1,0 +1,20 @@
+{
+  "task_id": "P06-06",
+  "status": "BLOCKED_AUTH",
+  "selected_product": "c_gls_LWQ300_202608010000_GLOBE_OLCI_V2.1.1_cog",
+  "product_window": ["2026-08-01T00:00:00+00:00", "2026-08-10T23:59:59.999000+00:00"],
+  "collection_id": "5c2c9b2c-2893-41d9-b2bc-fbd6e5b8b31d",
+  "data_type": "byoc-5c2c9b2c-2893-41d9-b2bc-fbd6e5b8b31d",
+  "target_bands": ["CHLAMEAN", "CHLAUNC", "FCBPROB", "FOBS", "LOBS", "NOBS", "QFLAG"],
+  "taihu_boundary_geometry_included": true,
+  "request_output": {"width": 320, "height": 320, "format": "image/tiff"},
+  "credentials_present": {"access_token": false, "client_id": false, "client_secret": false},
+  "token_requested": false,
+  "token_received": false,
+  "raster_written": false,
+  "manifest": "storage/manifests/clms_lwq_byoc_p06_06.json",
+  "data_truth": "official CLMS catalogue plus reproducible Process API request plan; no raster bytes",
+  "directed_tests": "reports/p06_06_directed_pytest.txt",
+  "full_tests": "reports/p06_06_full_pytest.txt",
+  "next_action": "配置CDSE OAuth后重跑同一请求，接收CHLAMEAN/CHLAUNC/FCBPROB等太湖GeoTIFF"
+}

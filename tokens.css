@@ -1,0 +1,280 @@
+/* ============================================================
+   澜镜 A23 · 设计 token 体系（唯一事实来源）
+   ------------------------------------------------------------
+   设计语言「深湖微光 · LAKE TWIN」：
+   以"太湖水体"为母题——深水层次（深蓝→湖青→藻绿）+ 微光玻璃 + 孪生扫描栅格。
+   预警用珊瑚红、关注用琥珀、稳定用薄荷绿、AI 用紫罗兰。
+
+   语义 token（--c-*）为唯一来源，其余均为别名：
+     · --teal / --coral / --amber / --green / --violet …  兼容全局组件
+     · --home-* …                                         兼容主页 Home.vue
+   三主题通过 <html data-theme="dark|light|sunrise"> 驱动，
+   仅需覆盖 --c-* 语义 token，别名与 --home-* 自动跟随。
+   ============================================================ */
+
+/* ============ 基础（非主题相关） ============ */
+:root {
+  --font-display: "Bahnschrift", "PingFang SC", "Microsoft YaHei", "Segoe UI Variable Text", sans-serif;
+  --font-body: "Microsoft YaHei", "PingFang SC", "Segoe UI Variable Text", sans-serif;
+  --font-mono: "Cascadia Mono", "JetBrains Mono", "Consolas", "SFMono-Regular", monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-short: 180ms;
+  --dur-reveal: 560ms;
+
+  /* —— 玻璃拟态核心参数 —— */
+  --glass-blur: 22px;
+  --glass-saturate: 150%;
+}
+
+/* ============================================================
+   暗色主题「深湖 Midnight」（默认）
+   ============================================================ */
+:root,
+:root[data-theme="dark"] {
+  /* —— 语义 token —— */
+  --c-accent:        #2bc4b4;                 /* 湖青 · 主色 */
+  --c-accent-deep:   #12a094;
+  --c-accent-soft:   rgba(43, 196, 180, 0.16);
+  --c-accent-border: rgba(43, 196, 180, 0.46);
+  --c-accent-ink:    #06201d;                 /* 主色底上的文字 */
+  --c-accent-glow:   rgba(43, 196, 180, 0.35);
+
+  --c-alert:        #ff6b6b;                  /* 预警 · 珊瑚红 */
+  --c-alert-soft:   rgba(255, 107, 107, 0.16);
+  --c-alert-border: rgba(255, 107, 107, 0.46);
+  --c-watch:        #f5b45d;                  /* 关注 · 琥珀 */
+  --c-watch-soft:   rgba(245, 180, 93, 0.14);
+  --c-stable:       #5fd6a4;                  /* 稳定 · 薄荷绿 */
+  --c-stable-soft:  rgba(95, 214, 164, 0.14);
+  --c-ai:           #a78bfa;                  /* AI · 紫罗兰 */
+
+  --c-bg-deep:   #060b16;                     /* 最深底 */
+  --c-bg-base:   #0a1420;
+  --c-bg-soft:   #0e1b2c;
+  --c-surface:        rgba(15, 27, 42, 0.72);
+  --c-surface-strong: rgba(20, 35, 54, 0.90);
+  --c-surface-soft:   rgba(122, 172, 205, 0.10);
+  --c-line:        rgba(96, 165, 190, 0.16);
+  --c-line-strong: rgba(130, 200, 220, 0.30);
+  --c-text:        #e8f1f8;
+  --c-text-soft:   #a6bccd;
+  --c-muted:       #6c8499;
+  --c-grid:        rgba(96, 165, 190, 0.07);
+
+  --shadow:    0 18px 48px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 6px 24px rgba(0, 0, 0, 0.35);
+
+  /* —— 玻璃面板（深色玻璃）—— */
+  --glass-bg:         rgba(24, 42, 64, 0.40);
+  --glass-bg-strong:  rgba(20, 36, 56, 0.52);
+  --glass-border:     rgba(255, 255, 255, 0.16);
+  --glass-border-strong: rgba(255, 255, 255, 0.26);
+  --glass-highlight:  rgba(255, 255, 255, 0.18);
+  --glass-shadow:     0 8px 32px rgba(0, 0, 0, 0.40);
+
+  /* —— 全局组件别名（styles.css 沿用） —— */
+  --bg-deep:   var(--c-bg-deep);
+  --bg-base:   var(--c-bg-base);
+  --bg-soft:   var(--c-bg-soft);
+  --panel:           var(--c-surface);
+  --panel-strong:    var(--c-surface-strong);
+  --panel-line:        var(--c-line);
+  --panel-line-strong: var(--c-line-strong);
+  --text:       var(--c-text);
+  --text-soft:  var(--c-text-soft);
+  --muted:      var(--c-muted);
+  --teal:       var(--c-accent);
+  --teal-deep:  var(--c-accent-deep);
+  --teal-glow:  var(--c-accent-glow);
+  --green:      var(--c-stable);
+  --amber:      var(--c-watch);
+  --coral:      var(--c-alert);
+  --violet:     var(--c-ai);
+  --grid-line:  var(--c-grid);
+
+  /* —— 主页别名（Home.vue 沿用 --home-*） —— */
+  --home-color-paper:        var(--c-bg-deep);
+  --home-color-paper-2:      var(--c-bg-base);
+  --home-color-surface:      rgba(15, 27, 42, 0.86);
+  --home-color-surface-soft: rgba(32, 52, 74, 0.34);
+  --home-color-ink:          var(--c-text);
+  --home-color-ink-soft:     var(--c-text-soft);
+  --home-color-muted:        var(--c-muted);
+  --home-color-rule:         var(--c-line);
+  --home-color-rule-strong:  var(--c-line-strong);
+  --home-color-accent:       var(--c-accent);
+  --home-color-accent-strong: var(--c-accent-deep);
+  --home-color-accent-soft:  var(--c-accent-soft);
+  --home-color-accent-border: var(--c-accent-border);
+  --home-color-accent-ink:   var(--c-accent-ink);
+  --home-color-focus:        #4fe3d4;
+  --home-color-alert:        var(--c-alert);
+  --home-color-alert-border: var(--c-alert-border);
+  --home-color-watch:        var(--c-watch);
+  --home-color-stable:       var(--c-stable);
+  --home-color-violet-border: rgba(167, 139, 250, 0.42);
+  --home-color-violet-soft:  rgba(167, 139, 250, 0.16);
+  --home-color-grid:         var(--c-grid);
+  --home-color-lake:         rgba(43, 196, 180, 0.46);
+  --home-color-lake-deep:    rgba(12, 72, 84, 0.72);
+  --home-color-lake-highlight: rgba(43, 196, 180, 0.20);
+  --home-color-lake-shadow:  rgba(3, 8, 16, 0.72);
+  --home-color-scan:         rgba(43, 196, 180, 0.20);
+  --home-color-label:        rgba(7, 14, 23, 0.86);
+  --home-color-label-strong: rgba(7, 14, 23, 0.95);
+  --home-color-transparent:  transparent;
+
+  --home-font-display: var(--font-display);
+  --home-font-body:    var(--font-body);
+  --home-font-mono:    var(--font-mono);
+
+  --home-space-3xs: 0.25rem;
+  --home-space-2xs: 0.5rem;
+  --home-space-xs:  0.75rem;
+  --home-space-sm:  1rem;
+  --home-space-md:  1.5rem;
+  --home-space-lg:  2rem;
+  --home-space-xl:  3rem;
+  --home-space-2xl: 4.5rem;
+
+  --home-text-xs: 0.75rem;
+  --home-text-sm: 0.875rem;
+  --home-text-md: 1.0625rem;
+  --home-text-lg: 1.375rem;
+  --home-text-xl: 1.75rem;
+
+  --home-ease-out:    var(--ease-out);
+  --home-ease-in-out: var(--ease-in-out);
+  --home-dur-short:   var(--dur-short);
+  --home-dur-reveal:  var(--dur-reveal);
+
+  --home-rule-hair:  1px;
+  --home-radius-sm:   var(--radius-sm);
+  --home-radius-md:   var(--radius-md);
+  --home-radius-card: var(--radius-card);
+  --home-radius-pill: var(--radius-pill);
+  --home-shadow-small: 0 12px 30px rgba(0, 0, 0, 0.38);
+  --home-shadow-panel: 0 28px 80px rgba(0, 0, 0, 0.46);
+}
+
+/* ============================================================
+   浅色主题「晨光 Daylight」
+   ============================================================ */
+:root[data-theme="light"] {
+  --c-accent:        #0aa99b;
+  --c-accent-deep:   #07877c;
+  --c-accent-soft:   rgba(10, 169, 155, 0.14);
+  --c-accent-border: rgba(10, 169, 155, 0.42);
+  --c-accent-ink:    #ffffff;
+  --c-accent-glow:   rgba(10, 169, 155, 0.30);
+
+  --c-alert:        #e04f4d;
+  --c-alert-soft:   rgba(224, 79, 77, 0.12);
+  --c-alert-border: rgba(224, 79, 77, 0.40);
+  --c-watch:        #c08a0a;
+  --c-watch-soft:   rgba(192, 138, 10, 0.12);
+  --c-stable:       #1f9d6b;
+  --c-stable-soft:  rgba(31, 157, 107, 0.12);
+  --c-ai:           #7c5cd6;
+
+  --c-bg-deep:   #e9eff4;
+  --c-bg-base:   #eef3f7;
+  --c-bg-soft:   #e2eaf1;
+  --c-surface:        rgba(255, 255, 255, 0.88);
+  --c-surface-strong: rgba(255, 255, 255, 0.96);
+  --c-surface-soft:   rgba(18, 56, 88, 0.05);
+  --c-line:        rgba(18, 56, 88, 0.14);
+  --c-line-strong: rgba(18, 56, 88, 0.26);
+  --c-text:        #13263a;
+  --c-text-soft:   #3a5068;
+  --c-muted:       #698199;
+  --c-grid:        rgba(18, 56, 88, 0.07);
+
+  --shadow:    0 18px 48px rgba(24, 48, 72, 0.16);
+  --shadow-sm: 0 6px 24px rgba(24, 48, 72, 0.12);
+
+  /* —— 玻璃面板（浅色玻璃）—— */
+  --glass-bg:         rgba(255, 255, 255, 0.52);
+  --glass-bg-strong:  rgba(255, 255, 255, 0.66);
+  --glass-border:     rgba(255, 255, 255, 0.75);
+  --glass-border-strong: rgba(255, 255, 255, 0.95);
+  --glass-highlight:  rgba(255, 255, 255, 0.95);
+  --glass-shadow:     0 8px 32px rgba(24, 48, 72, 0.16);
+
+  --home-color-surface:      rgba(255, 255, 255, 0.90);
+  --home-color-surface-soft: rgba(24, 56, 80, 0.06);
+  --home-color-focus:        #07877c;
+  --home-color-lake:         rgba(10, 169, 155, 0.42);
+  --home-color-lake-deep:    rgba(126, 208, 197, 0.60);
+  --home-color-lake-highlight: rgba(10, 169, 155, 0.16);
+  --home-color-lake-shadow:  rgba(150, 180, 190, 0.4);
+  --home-color-label:        rgba(255, 255, 255, 0.92);
+  --home-color-label-strong: rgba(255, 255, 255, 0.97);
+  --home-shadow-small: 0 12px 30px rgba(24, 48, 72, 0.14);
+  --home-shadow-panel: 0 28px 70px rgba(24, 48, 72, 0.18);
+}
+
+/* ============================================================
+   日式暖阳主题「暖阳 Sunrise」
+   ============================================================ */
+:root[data-theme="sunrise"] {
+  --c-accent:        #d9643b;
+  --c-accent-deep:   #b34a2a;
+  --c-accent-soft:   rgba(217, 100, 59, 0.14);
+  --c-accent-border: rgba(217, 100, 59, 0.42);
+  --c-accent-ink:    #fffaf2;
+  --c-accent-glow:   rgba(217, 100, 59, 0.32);
+
+  --c-alert:        #d9574f;
+  --c-alert-soft:   rgba(217, 87, 79, 0.12);
+  --c-alert-border: rgba(217, 87, 79, 0.40);
+  --c-watch:        #c8871f;
+  --c-watch-soft:   rgba(200, 135, 31, 0.12);
+  --c-stable:       #6f9e5a;
+  --c-stable-soft:  rgba(111, 158, 90, 0.14);
+  --c-ai:           #9a7fb8;
+
+  --c-bg-deep:   #f2e7d6;
+  --c-bg-base:   #f7efe3;
+  --c-bg-soft:   #ebdfcc;
+  --c-surface:        rgba(255, 252, 245, 0.90);
+  --c-surface-strong: rgba(255, 252, 245, 0.97);
+  --c-surface-soft:   rgba(122, 82, 42, 0.07);
+  --c-line:        rgba(122, 82, 42, 0.16);
+  --c-line-strong: rgba(122, 82, 42, 0.30);
+  --c-text:        #3a2e26;
+  --c-text-soft:   #6b5744;
+  --c-muted:       #9a8570;
+  --c-grid:        rgba(122, 82, 42, 0.06);
+
+  --shadow:    0 18px 48px rgba(122, 82, 42, 0.18);
+  --shadow-sm: 0 6px 24px rgba(122, 82, 42, 0.14);
+
+  /* —— 玻璃面板（暖阳玻璃）—— */
+  --glass-bg:         rgba(255, 252, 245, 0.55);
+  --glass-bg-strong:  rgba(255, 252, 245, 0.70);
+  --glass-border:     rgba(255, 255, 255, 0.80);
+  --glass-border-strong: rgba(255, 255, 255, 0.98);
+  --glass-highlight:  rgba(255, 255, 255, 0.95);
+  --glass-shadow:     0 8px 32px rgba(122, 82, 42, 0.18);
+
+  --home-color-surface:      rgba(255, 252, 245, 0.92);
+  --home-color-surface-soft: rgba(122, 82, 42, 0.07);
+  --home-color-focus:        #b34a2a;
+  --home-color-lake:         rgba(60, 140, 160, 0.44);
+  --home-color-lake-deep:    rgba(150, 190, 190, 0.58);
+  --home-color-lake-highlight: rgba(217, 100, 59, 0.14);
+  --home-color-lake-shadow:  rgba(200, 170, 130, 0.4);
+  --home-color-label:        rgba(255, 252, 245, 0.92);
+  --home-color-label-strong: rgba(255, 252, 245, 0.97);
+  --home-shadow-small: 0 12px 30px rgba(122, 82, 42, 0.16);
+  --home-shadow-panel: 0 28px 70px rgba(122, 82, 42, 0.20);
+}

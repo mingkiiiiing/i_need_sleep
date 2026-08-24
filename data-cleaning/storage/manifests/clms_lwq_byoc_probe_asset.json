@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "clms_lwq_byoc_taihu",
+  "asset_id": "c_gls_LWQ300_202608010000_GLOBE_OLCI_V2.1.1_cog",
+  "request_url": "https://sh.dataspace.copernicus.eu/api/v1/process",
+  "local_path": "storage\\rasters\\clms_lwq\\taihu_20260801_probe.tif",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-23T09:13:23.798861+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "image/tiff"
+  },
+  "checksum_sha256": "896d6442bfc9d1a726ffc80291d07a0106abc694db208d64c0776c8f6aeb44c5",
+  "size_bytes": 316198,
+  "license": {
+    "license_tag": "COPERNICUS_CLMS_TERMS",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

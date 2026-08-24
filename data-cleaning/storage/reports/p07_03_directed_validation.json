@@ -1,0 +1,18 @@
+{
+  "task_id": "P07-03",
+  "status": "BLOCKED_AUTH",
+  "directed_command": "python -m pytest -q tests/test_glofas.py tests/test_mwr_hfc.py tests/test_tba_hydrology.py tests/test_source_health.py tests/test_config_sources.py tests/test_provenance_manifest.py",
+  "directed_result": "20 passed in 1.25s",
+  "checks": {
+    "official_dataset": "cems-glofas-forecast",
+    "official_entry": "https://ewds.climate.copernicus.eu/datasets/cems-glofas-forecast?tab=download",
+    "official_request_fields": ["system_version", "hydrological_model", "product_type", "variable", "year", "month", "day", "leadtime_hour", "area", "data_format", "download_format"],
+    "spatial_selection": "Taihu vicinity area grid proxy; not a basin boundary or gauge",
+    "proxy_flag": 1,
+    "value_origin": "forecast_proxy",
+    "ensemble_statistics": ["mean", "std", "p10", "p50", "p90", "min", "max", "count"],
+    "supported_exports": ["NetCDF", "GRIB/GRIB2", "CSV", "JSON"],
+    "no_credentials_guard": "BLOCKED_AUTH with official request plan only"
+  },
+  "evidence": "tests/test_glofas.py"
+}

@@ -1,0 +1,11 @@
+P08-06 command:
+python -m pipeline coverage --input storage/runs/waterstation_coverage/empty_observations.csv --as-of 2026-08-19T06:35:00Z --output-root storage/runs/waterstation_coverage --database storage/runs/waterstation_coverage/coverage.db
+
+Result:
+rows=0
+target_ready=false
+required_drivers_ready=false
+short_term_ready=false
+gap_count=11
+formal water-station coverage gate: blocked (no authorized observations)
+Manifest: storage/manifests/coverage_20260819T064821Z.json

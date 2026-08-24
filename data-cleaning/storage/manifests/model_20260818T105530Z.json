@@ -1,0 +1,83 @@
+{
+  "run_id": "model_20260818T105530Z",
+  "status": "completed",
+  "target_variable": "phytoplankton_biomass",
+  "algorithm": "random_forest",
+  "fusion": "mechanistic_residual",
+  "random_state": 42,
+  "input_dir": "storage\\exports\\experiment_20260818T104457Z",
+  "train_rows": 396,
+  "validation_rows": 90,
+  "test_rows": 90,
+  "feature_count": 139,
+  "excluded_target_feature": "feature_phytoplankton_biomass",
+  "files": {
+    "predictions": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\model_20260818T105530Z\\predictions.csv",
+    "metrics": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\model_20260818T105530Z\\metrics.csv",
+    "feature_importance": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\model_20260818T105530Z\\feature_importance.csv",
+    "model": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\exports\\model_20260818T105530Z\\model.pkl",
+    "database": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\data_cleaning.db"
+  },
+  "metrics": [
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "ai_mechanistic_residual",
+      "dataset_split": "train",
+      "row_count": 396,
+      "r2": 0.7152943758286442,
+      "rmse": 3.7324650776010224,
+      "mae": 1.8411450731990429,
+      "smape": 0.6448074702980889
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "median_baseline",
+      "dataset_split": "train",
+      "row_count": 396,
+      "r2": -0.09427706356291798,
+      "rmse": 7.3174772004325925,
+      "mae": 3.5322144857228834,
+      "smape": 0.9533672769980577
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "ai_mechanistic_residual",
+      "dataset_split": "validation",
+      "row_count": 90,
+      "r2": -0.09123128785763668,
+      "rmse": 11.751781093891717,
+      "mae": 7.135618563608839,
+      "smape": 0.7711242322939633
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "median_baseline",
+      "dataset_split": "validation",
+      "row_count": 90,
+      "r2": -0.5456088993067669,
+      "rmse": 13.986050533371765,
+      "mae": 8.637906121209037,
+      "smape": 1.0030454511861704
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "ai_mechanistic_residual",
+      "dataset_split": "test",
+      "row_count": 90,
+      "r2": -0.5987427423012532,
+      "rmse": 5.675469880734354,
+      "mae": 4.516000870466775,
+      "smape": 0.9397857126986829
+    },
+    {
+      "target_variable": "phytoplankton_biomass",
+      "model": "median_baseline",
+      "dataset_split": "test",
+      "row_count": 90,
+      "r2": -0.1340992142117461,
+      "rmse": 4.78011180856755,
+      "mae": 2.743843954388558,
+      "smape": 0.7340537052238566
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+version: "1.0"
+study_area: "Taihu Lake"
+reviewed_at: "2026-08-19"
+policy_mode: "deny_by_default"
+purpose: "公开网页合规审查与低频快照；不替代授权 API、文件下载或正式数据申请"
+global_rules:
+  manual_confirmation_required: true
+  terms_and_robots_must_be_recorded_before_automation: true
+  reverse_engineering_private_ajax: false
+  login_bypass_or_captcha_bypass: false
+  bulk_download_without_written_permission: false
+  robots_disallowed_paths_must_not_be_requested: true
+  preserve_evidence:
+    - request_url
+    - http_status
+    - retrieved_at_utc
+    - page_last_updated_if_visible
+    - response_checksum
+    - license_and_attribution_text
+  default_decision_before_review: "BLOCKED_POLICY"
+  contact_rule: "只使用官网公布的数据服务、联系页面或人工联系人；不猜测邮箱，不保存个人敏感信息"
+sources:
+  - source_id: mee_surface_water_realtime
+    authority: "生态环境部国家地表水水质自动监测实时数据"
+    entry_urls:
+      - "https://szzdjc.cnemc.cn:8070/GJZ/Business/Publish/Main.html"
+    terms_url: "https://www.mee.gov.cn/"
+    robots_url: "https://szzdjc.cnemc.cn:8070/robots.txt"
+    terms_status: "manual_review_required"
+    robots_status: "not_verified"
+    page_update_field: "页面显示的发布时间/更新时间；不得用抓取时间替代观测时间"
+    allowed_actions_before_review:
+      - "人工浏览公开页面"
+      - "记录页面 URL、更新时间和条款证据"
+    allowed_actions_after_explicit_permission:
+      - "按许可范围低频获取页面或官方导出文件"
+    prohibited_actions:
+      - "逆向未公开 Ajax 或接口参数"
+      - "绕过登录、验证码或访问控制"
+      - "高频轮询或批量下载"
+      - "抓取 robots.txt 禁止路径"
+    minimum_interval_seconds_after_approval: 3600
+    max_requests_per_run_after_approval: 1
+    contact_url: "https://www.mee.gov.cn/"
+    contact_method: "官网公开联系渠道/数据服务联系人"
+    current_decision: "BLOCKED_POLICY"
+    fallback: "HJ 1404 授权站点接口、正式文件导出或公开历史数据集"
+
+  - source_id: tba_current_level
+    authority: "水利部太湖流域管理局"
+    entry_urls:
+      - "https://www.tba.gov.cn/"
+    terms_url: "https://www.tba.gov.cn/"
+    robots_url: "https://www.tba.gov.cn/robots.txt"
+    terms_status: "manual_review_required"
+    robots_status: "not_verified"
+    page_update_field: "水位页面显示时间/报送时间；保留页面快照时间"
+    allowed_actions_before_review:
+      - "人工浏览公开水位和水情栏目"
+      - "下载页面明确提供的公开文件"
+      - "记录栏目条款、页面时间和版本信息"
+    allowed_actions_after_explicit_permission:
+      - "按书面许可低频保存当前水位页面快照"
+    prohibited_actions:
+      - "逆向私有接口或前端未公开请求"
+      - "批量枚举站点 URL"
+      - "高频轮询、绕过访问限制或下载历史全量数据"
+      - "将页面水位当作已授权实时 API"
+    minimum_interval_seconds_after_approval: 3600
+    max_requests_per_run_after_approval: 1
+    contact_url: "https://www.tba.gov.cn/"
+    contact_method: "太湖流域管理局官网公开联系渠道/水情业务联系人"
+    current_decision: "BLOCKED_POLICY"
+    fallback: "TBA 公开水情月报/年报、人工导出或书面授权文件"
+
+  - source_id: tba_reports
+    authority: "水利部太湖流域管理局"
+    entry_urls:
+      - "https://www.tba.gov.cn/"
+    terms_url: "https://www.tba.gov.cn/"
+    robots_url: "https://www.tba.gov.cn/robots.txt"
+    terms_status: "manual_review_required"
+    robots_status: "not_verified"
+    page_update_field: "报告发布日期、报告期和版本号"
+    allowed_actions_before_review:
+      - "人工下载页面明确标注公开的 PDF/XLS 文件"
+      - "保存文件 URL、发布日期、版本和 checksum"
+    allowed_actions_after_explicit_permission:
+      - "按许可范围建立低频公开文件目录"
+    prohibited_actions:
+      - "猜测或枚举未公开文件地址"
+      - "绕过下载权限、验证码或登录"
+      - "批量抓取历史文件而不记录许可"
+    minimum_interval_seconds_after_approval: 86400
+    max_requests_per_run_after_approval: 1
+    contact_url: "https://www.tba.gov.cn/"
+    contact_method: "官网公开联系渠道/报告发布部门"
+    current_decision: "BLOCKED_POLICY"
+    fallback: "人工下载并登记的公开报告或授权数据订单"
+
+  - source_id: mwr_hfc
+    authority: "水利部全国水雨情信息公共服务"
+    entry_urls:
+      - "https://hfc.mwr.cn/"
+    terms_url: "https://www.mwr.gov.cn/"
+    robots_url: "https://hfc.mwr.cn/robots.txt"
+    terms_status: "manual_review_required"
+    robots_status: "not_verified"
+    page_update_field: "站点页面显示时间、发布时间和数据更新时间"
+    allowed_actions_before_review:
+      - "人工浏览公开站点页面"
+      - "记录页面 URL、公开更新时间和服务说明"
+    allowed_actions_after_explicit_permission:
+      - "按许可低频保存公开页面快照或官方导出文件"
+    prohibited_actions:
+      - "逆向私有 Ajax、接口或移动端请求"
+      - "批量枚举站点和历史时间范围"
+      - "高频轮询、绕过登录或验证码"
+      - "以页面展示推断可再分发 API 权限"
+    minimum_interval_seconds_after_approval: 3600
+    max_requests_per_run_after_approval: 1
+    contact_url: "https://www.mwr.gov.cn/"
+    contact_method: "水利部官网公开联系渠道/水雨情业务联系人"
+    current_decision: "BLOCKED_POLICY"
+    fallback: "人工导出、公开水情公报或授权水文站文件"
+
+  - source_id: tba_taihu_portal
+    authority: "水利部太湖流域管理局官方门户"
+    entry_urls:
+      - "https://www.tba.gov.cn/"
+    terms_url: "https://www.tba.gov.cn/"
+    robots_url: "https://www.tba.gov.cn/robots.txt"
+    terms_status: "manual_review_required"
+    robots_status: "not_verified"
+    page_update_field: "门户栏目页面更新时间和公告发布日期"
+    allowed_actions_before_review:
+      - "人工浏览公开栏目"
+      - "记录栏目、页面时间和公开下载链接"
+    allowed_actions_after_explicit_permission:
+      - "按书面许可执行低频页面快照"
+    prohibited_actions:
+      - "私有 Ajax 逆向、站点枚举和批量抓取"
+      - "绕过访问控制或忽略 robots 禁止路径"
+      - "将公开页面当作实时业务接口或授权数据源"
+    minimum_interval_seconds_after_approval: 3600
+    max_requests_per_run_after_approval: 1
+    contact_url: "https://www.tba.gov.cn/"
+    contact_method: "官网公开联系渠道/水情业务联系人"
+    current_decision: "BLOCKED_POLICY"
+    fallback: "TBA 公开报告、人工导出或书面授权接口"

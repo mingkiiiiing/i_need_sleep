@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "nasa_power_hourly",
+  "asset_id": "history_2023",
+  "request_url": "https://power.larc.nasa.gov/api/temporal/hourly/point?parameters=T2M%2CWS10M%2CWD10M%2CPRECTOTCORR%2CALLSKY_SFC_SW_DWN&community=RE&longitude=120.300000&latitude=31.200000&start=20230101&end=20231231&time-standard=UTC&format=JSON",
+  "local_path": "D:\\Project\\fuwai\\2026_sheng-fuwai\\data-cleaning\\storage\\raw\\nasa_power_hourly\\history_2023.json",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-08-23T07:52:43.153378+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "application/json"
+  },
+  "checksum_sha256": "982182fcf636258f6d891a82e86225e1104816e95c6394b80c9ab568c4aca612",
+  "size_bytes": 1368627,
+  "license": {
+    "license_tag": "NASA-data-policy",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "skipped_existing",
+  "error": null
+}

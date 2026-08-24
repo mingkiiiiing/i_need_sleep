@@ -1,0 +1,11 @@
+P08-05 command:
+python -m pipeline waterstation-batch-dir --input-root storage/raw/authorized_waterstation/inbox --source-id taihu_water_station --output-root storage/runs/waterstation_directory_batch --database storage/runs/waterstation_directory_batch/batch.db
+
+Result status: blocked_no_valid_files
+Files discovered: 0
+Files parsed: 0
+Duplicate files skipped: 0
+Parse failures: 0
+Formal cleaning/database stage: not entered
+Manifest: storage/manifests/waterstation_batch_dir_20260819T063058Z.json
+Expected process exit: 2 (no valid authorized files)

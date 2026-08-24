@@ -1,0 +1,20 @@
+{
+  "task_id": "P03-03",
+  "task": "SQLite schema迁移机制",
+  "result": "PASS",
+  "test_command": "python -m pytest -q tests/test_schema_migrations.py",
+  "tests_passed": 4,
+  "deliverable": "pipeline/schema_migrations.py",
+  "latest_schema_version": 2,
+  "verified_cases": [
+    "empty database creates schema_version and migrations from version 0",
+    "legacy tables and rows survive upgrade",
+    "repeated migration applies no migration twice",
+    "downgrade is rejected without mutation"
+  ],
+  "safety_rules": [
+    "migrations run inside SQLite savepoints",
+    "migration failure rolls back the step",
+    "no runtime DROP TABLE or silent table recreation"
+  ]
+}

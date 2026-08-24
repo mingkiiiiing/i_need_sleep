@@ -1,0 +1,22 @@
+{
+  "task_id": "P02-02",
+  "task": "验证CDSE凭证",
+  "result": "BLOCKED_AUTH",
+  "test_command": "python -m pytest -q tests/test_cdse_auth_probe.py",
+  "tests_passed": 2,
+  "probe_command": "python scripts/probe_cdse_auth.py --output storage/manifests/cdse_auth_probe.json",
+  "manifest": "storage/manifests/cdse_auth_probe.json",
+  "status": "BLOCKED_AUTH",
+  "token_request_attempted": false,
+  "token_received": false,
+  "missing_env": [
+    "TAIHU_CDSE_CLIENT_ID",
+    "TAIHU_CDSE_CLIENT_SECRET"
+  ],
+  "secret_leak_check": true,
+  "notes": [
+    "No CDSE OAuth client credentials are configured in the runtime environment.",
+    "The probe intentionally skipped the network request and recorded only redacted metadata.",
+    "Public STAC catalog work can continue; authenticated product download remains blocked until credentials are supplied."
+  ]
+}
