@@ -1,14 +1,31 @@
-"""FastAPI 服务：驾驶舱接口与后续数据接入的稳定边界。"""
-from datetime import datetime, timezone
-from typing import Any, Literal
+"""A23 backend entry point.
 
-from fastapi import FastAPI, HTTPException
+Run from the repository root: ``python -m uvicorn backend.main:app --reload``.
+Run from this directory: ``python -m uvicorn main:app --reload``.
+"""
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 
-app = FastAPI(title="蓝藻水华监测预警系统 API", version="1.1.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+try:  # Supports both documented start locations.
+    from .app.api import router
+    from .app.core import api_response
+except ImportError:  # pragma: no cover - used only when cwd is backend/
+    from app.api import router
+    from app.core import api_response
 
+app = FastAPI(
+    title="蓝藻水华监测预警系统 API",
+    description="P0 模拟数据联调服务。所有模拟值均带有数据版本和非决策声明。",
+    version="2.0.0",
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+app.include_router(router)
 
 def ok(data: Any) -> dict[str, Any]:
     return {"code": 200, "message": "success", "data": data}
@@ -82,42 +99,10 @@ repository = DataRepository()
 ingested_batches: list[dict[str, Any]] = []
 
 @app.get("/")
-async def root(): return ok({"name": "蓝藻水华监测预警系统 API", "docs": "/docs", "version": app.version})
+def root():
+    return api_response({"name": "蓝藻水华监测预警系统 API", "version": app.version, "docs": "/docs", "stage": "P0 simulated integration"})
+
 
 @app.get("/api/health")
-async def health(): return ok({"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat(), "dataMode": "demo"})
-
-@app.get("/api/v1/cockpit/time-stages")
-async def time_stages(): return ok(repository.stages)
-
-@app.get("/api/v1/cockpit/points")
-async def points(): return ok({"pointData": repository.points(), "pointPositions": repository.positions})
-
-@app.get("/api/v1/cockpit/points/{station_id}")
-async def point(station_id: str):
-    result = repository.points().get(station_id)
-    if not result: raise HTTPException(status_code=404, detail="station_id 不存在")
-    return ok(result)
-
-@app.get("/api/v1/cockpit/risk-heatmap")
-async def risk_heatmap(): return ok(repository.heat_fields())
-
-@app.get("/api/v1/cockpit/events")
-async def events(): return ok(repository.events())
-
-@app.get("/api/v1/cockpit/region-summary")
-async def region_summary(): return ok(repository.summary())
-
-@app.post("/api/v1/data/ingest", status_code=201)
-async def ingest(payload: IngestRequest):
-    batch = {"batchId": f"B{len(ingested_batches) + 1:04d}", "sourceType": payload.source_type, "sourceName": payload.source_name, "recordCount": len(payload.records), "receivedAt": datetime.now(timezone.utc).isoformat()}
-    ingested_batches.append(batch)
-    return ok(batch)
-
-@app.post("/api/v1/model/predict")
-async def predict(payload: PredictRequest):
-    point_data = repository.points().get(payload.station_id)
-    if not point_data: raise HTTPException(status_code=404, detail="station_id 不存在")
-    stage = next(stage for stage in repository.stages if stage["days"] == payload.horizon_days)
-    score = repository.summary()["intensity"][payload.station_id][stage["key"]]
-    return ok({"stationId": payload.station_id, "horizonDays": payload.horizon_days, "riskScore": score, "riskLevel": "high" if score >= 75 else "mid" if score >= 45 else "low", "model": "mechanism-ai-cascade-demo", "confidenceInterval": [max(0, score - 8), min(100, score + 8)], "featureContributions": point_data["explainability"]})
+def health():
+    return api_response({"status": "ok", "data_mode": "simulated", "service": "a23-backend"})

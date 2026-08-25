@@ -1,0 +1,13 @@
+{
+  "dataset_version": "DEMO-PRED-V1",
+  "observation_dataset_version": "DEMO-OBS-V1",
+  "claim_boundary": "simulation_only",
+  "zones": [
+    {"id":"northwest_hotspot","name":"西北热点区","short":"NW-01","position":{"top":"24%","left":"22%"},"risk":"high"},
+    {"id":"central_lake","name":"湖心演示分区","short":"CN-02","position":{"top":"45%","left":"52%"},"risk":"mid"},
+    {"id":"river_inlet","name":"入湖河口演示分区","short":"RI-03","position":{"top":"62%","left":"12%"},"risk":"mid"},
+    {"id":"southeast_station","name":"东南监测演示分区","short":"SE-04","position":{"top":"72%","left":"78%"},"risk":"low"},
+    {"id":"water_intake","name":"取水口演示分区","short":"WI-05","position":{"top":"30%","left":"84%"},"risk":"low"},
+    {"id":"south_channel","name":"南部通道演示分区","short":"SC-06","position":{"top":"82%","left":"40%"},"risk":"mid"}
+  ]
+}

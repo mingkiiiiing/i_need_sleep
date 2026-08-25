@@ -1,5 +1,7 @@
 # 后端联调说明
 
+当前为 **P0 演示数据联调阶段**：所有 API 响应都显式携带 `data_mode=simulated`、数据版本和 `simulation_only` 声明，不得用于真实监管或预警决策。
+
 ## 启动
 
 在项目根目录执行：
@@ -9,7 +11,7 @@ python -m pip install -r backend/requirements.txt
 python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-启动后访问 `http://127.0.0.1:8000/docs` 查看和调试接口。前端无需改地址：默认请求 `http://127.0.0.1:8000/api/v1`；后端未启动时自动回退本地 mock。若要始终只用 mock，在前端 `.env.local` 中设置 `VITE_USE_MOCK=true`。
+启动后访问 `http://127.0.0.1:8000/docs` 查看和调试接口。前端默认请求 `/api/v1`（由 Vite 代理到后端）；后端异常会直接暴露错误，避免静默切换到另一份 mock。仅在 `.env.local` 显式设置 `VITE_USE_MOCK=true` 时才使用本地 mock。
 
 ## 驾驶舱接口
 
@@ -27,6 +29,17 @@ python -m uvicorn backend.main:app --reload --port 8000
 | `GET /api/v1/cockpit/risk-heatmap` | 5 个档位的 11×19 风险网格 |
 | `GET /api/v1/cockpit/events` | 历史回放事件流 |
 | `GET /api/v1/cockpit/region-summary` | 站点汇总及分档风险强度 |
+
+核心业务契约还包括：
+
+| 接口 | 用途 |
+| --- | --- |
+| `GET /api/v1/system/capabilities` | 能力边界与外部阻塞项 |
+| `GET /api/v1/datasets/summary` | 演示数据版本与范围 |
+| `GET /api/v1/spatial-entities` | 区分真实站点与 `demo_zone` |
+| `GET /api/v1/spatial-entities/{id}/observations` | 带质量和来源的观测记录 |
+| `GET /api/v1/forecasts` | 1—15 天演示预测；30—90 天返回能力阻塞 |
+| `GET /api/v1/map/risk-grid` | 演示风险格网与空间分辨率 |
 
 ## 数据接入约定
 
