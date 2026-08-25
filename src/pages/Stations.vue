@@ -111,7 +111,7 @@
 
         <section class="detail-section">
           <div class="section-line">
-            <h3>AI 分析</h3>
+            <h3>模型能力</h3>
             <div class="tab-switch" v-if="prediction || aiLoading">
               <button type="button" :class="{ active: aiTab === 'predict' }" @click="aiTab = 'predict'">模型对比</button>
               <button type="button" :class="{ active: aiTab === 'explain' }" @click="aiTab = 'explain'">SHAP 解释</button>
@@ -121,7 +121,7 @@
 
           <div v-if="aiLoading" class="ai-placeholder ai-loading"><span class="ai-spinner" aria-hidden="true"></span><span>正在调用 /api/predict 加载模型输出…</span></div>
           <div v-else-if="aiError" class="ai-placeholder error">AI 加载失败：{{ aiError }}</div>
-          <div v-else-if="!prediction" class="ai-placeholder">当前点位无后端 ID，暂不支持 AI 分析</div>
+          <div v-else-if="!prediction" class="ai-placeholder">当前无真实模型输出；演示分区仅提供固定风险场，不提供模型对比或 SHAP。</div>
 
           <div v-else-if="aiTab === 'predict'" class="ai-panel">
             <div class="model-bars">
@@ -381,8 +381,7 @@ async function loadAi(stationId, token) {
     const pred = await getPrediction(stationId)
     if (token !== _aiToken) return
     prediction.value = pred
-    const fakePid = 'PRED-' + (pred.station_id || stationId) + '-' + Date.now()
-    const exp = await getExplanation(fakePid)
+    const exp = await getExplanation(pred.id)
     if (token !== _aiToken) return
     explanation.value = exp
   } catch (err) {

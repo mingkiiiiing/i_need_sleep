@@ -2,13 +2,20 @@ from __future__ import annotations
 
 from typing import Literal
 
+from datetime import date, timedelta
+
 from fastapi import APIRouter, Query
+from pydantic import BaseModel
 
 from .core import api_response, capability_unavailable, not_found, response_meta
 from .demo_provider import CLAIM_BOUNDARY, FORECAST_VERSION, OBSERVATION_VERSION
 from .services import service
 
 router = APIRouter(prefix="/api/v1")
+
+
+class SimulatedWarningHandleRequest(BaseModel):
+    event_id: str
 
 
 def simulated_meta(dataset_version: str = FORECAST_VERSION) -> dict:
@@ -118,3 +125,21 @@ def cockpit_events():
 def cockpit_region_summary():
     points = service.provider.zones
     return api_response({"totalStations": len(points), "riskCounts": {"high": 1, "mid": 3, "low": 2}, "intensity": {zone["id"]: {f"t{day}": service.provider.forecast(zone["id"], day)["risk_score"] for day in [1, 3, 7, 15, 30]} for zone in points}, "data_mode": "simulated"}, meta=simulated_meta())
+
+
+@router.post("/cockpit/handle-warning")
+def cockpit_handle_warning(payload: SimulatedWarningHandleRequest):
+    return api_response({"event_id": payload.event_id, "status": "simulated_dispatched", "channels": ["platform_simulation"], "data_mode": "simulated", "claim_boundary": CLAIM_BOUNDARY}, meta=simulated_meta())
+
+
+@router.get("/cockpit/timeline")
+def cockpit_timeline(start: date, end: date):
+    if end < start or (end - start).days > 90:
+        return api_response({"start_date": start.isoformat(), "end_date": end.isoformat(), "total_days": 0, "data": []}, meta=simulated_meta())
+    days = (end - start).days + 1
+    values = []
+    for index in range(days):
+        current = start + timedelta(days=index)
+        score = 34 + (index * 7) % 38
+        values.append({"date": current.isoformat(), "avg_chlorophyll": score, "risk_level": "high" if score >= 65 else "mid" if score >= 45 else "low", "data_mode": "simulated"})
+    return api_response({"start_date": start.isoformat(), "end_date": end.isoformat(), "total_days": days, "data": values}, meta=simulated_meta())

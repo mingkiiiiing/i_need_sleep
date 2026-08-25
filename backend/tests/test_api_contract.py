@@ -37,3 +37,11 @@ def test_cockpit_compatibility_view_has_simulated_metadata():
     body = response.json()
     assert body["data"]["pointData"]["northwest_hotspot"]["dataMode"] == "simulated"
     assert body["meta"]["dataset_version"] == "DEMO-PRED-V1"
+
+
+def test_cockpit_warning_action_is_explicitly_simulated():
+    response = client.post("/api/v1/cockpit/handle-warning", json={"event_id": "demo-event-0"})
+
+    assert response.status_code == 200
+    assert response.json()["data"]["status"] == "simulated_dispatched"
+    assert response.json()["data"]["channels"] == ["platform_simulation"]

@@ -49,19 +49,20 @@ export function getRegionSummary() {
 export function getPrediction(stationId, targetMetric = 'chlorophyll_a', forecastScale = 'short_term') {
   const horizonDays = { short_term: 3, mid_term: 7, long_term: 30 }[forecastScale] || 3
   return request(`/forecasts?spatial_entity_id=${encodeURIComponent(stationId)}&horizon_days=${horizonDays}&target_metric=${encodeURIComponent(targetMetric)}`)
+    .then((forecasts) => forecasts[0])
 }
 
 export function getExplanation(predictionId) {
-  return withFallback(() => request(`/model/explain/${encodeURIComponent(predictionId)}`), () => mock.fetchExplanation(predictionId))
+  return request(`/forecasts/${encodeURIComponent(predictionId)}/explanations`)
 }
 
 export function handleWarning(eventId) {
-  return withFallback(() => request('/cockpit/handle-warning', {
+  return request('/cockpit/handle-warning', {
     method: 'POST',
     body: JSON.stringify({ event_id: eventId })
-  }), () => mock.fetchHandleWarning(eventId))
+  })
 }
 
 export function getTimeline(startDate, endDate) {
-  return withFallback(() => request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`), () => mock.fetchTimeline(startDate, endDate))
+  return request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
 }

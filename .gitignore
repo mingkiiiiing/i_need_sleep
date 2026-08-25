@@ -26,6 +26,13 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+backend/.venv/
+.pytest_cache/
+.pnpm-store/
 .workbuddy/memory/2026-08-17.md
 # Data cleaning — 大数据与派生结果不入库(入库的仅 manifests/ reports/ authorization/ 清单与报告)
 data-cleaning/storage/raw_organized/
