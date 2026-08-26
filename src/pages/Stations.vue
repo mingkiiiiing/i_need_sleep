@@ -8,7 +8,6 @@
       </p>
     </section>
 
-    <CockpitSubTabs />
     <div class="dashboard-layout cockpit-stage dashboard-stacked">
       <div class="map-with-kpi">
         <LakeMap
@@ -17,9 +16,7 @@
           :positions="positions"
           :stage-label="stageLabel"
           title="湖区监测点位全景"
-          active-tab="stations"
           @update:model-value="setPoint"
-          :show-tabs="false"
         />
 
         <section class="kpi-grid kpi-side">
@@ -224,7 +221,7 @@
       </aside>
     </div>
     <footer class="cockpit-foot">
-      <RouterLink class="button secondary" to="/cockpit">← 返回驾驶舱</RouterLink>
+      <RouterLink class="button secondary" to="/">← 返回主页</RouterLink>
     </footer>
   </main>
 </template>
@@ -238,7 +235,6 @@ import { SEVERITY_TO_CLASS } from '../services/_mapping.js'
 import { palette } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
-import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import LakeMap from '../components/cockpit/LakeMap.vue'
 import EChart from '../components/cockpit/EChart.vue'
 

@@ -6,7 +6,7 @@
   const allLogs = [];
   p.on('console', m => allLogs.push('[' + m.type() + '] ' + m.text()));
   p.on('pageerror', e => allLogs.push('[pageerror] ' + e.message));
-  const paths = ['/#/','/#/project-overview','/#/tech-route','/#/demo-flow','/#/cockpit','/#/stations','/#/heatmap','/#/history'];
+  const paths = ['/#/','/#/stations','/#/heatmap','/#/history'];
   let totalErrs = 0;
   for (const path of paths) {
     allLogs.length = 0;

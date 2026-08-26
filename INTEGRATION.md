@@ -182,9 +182,6 @@ async function withFallback(primary, fallback) {
 | 页面 | 用到的接口 | 备注 |
 |---|---|---|
 | `/` Home | — | 纯静态 |
-| `/project-overview` | — | 纯静态 |
-| `/tech-route` | — | 纯静态 |
-| `/cockpit` | — | 列表入口 |
 | `/stations` | `/api/sites` + `/api/predict` + `/api/explain` | 双 Tab（模型对比 / SHAP 解释）+ 链式调用 |
 | `/heatmap` | `/api/sites` + `/api/dashboard/overview` + `/api/map/risk` | KPI / 网格 / 强度排行 |
 | `/history` | `/api/warnings` + `/api/warnings/{id}/handle` + `/api/timeline` | 事件流 + 推送 + 日期筛选 |

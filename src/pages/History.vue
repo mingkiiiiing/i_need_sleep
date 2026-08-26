@@ -8,9 +8,6 @@
       <p class="title-note">按时间倒序回放入库事件，点击事件联动档位与详情</p>
     </section>
 
-    <TimeAxisBar :stages="stages" variant="axis" />
-    <CockpitSubTabs />
-
     <section class="kpi-grid">
       <article>
         <div class="kpi-label">累计事件</div>
@@ -26,11 +23,6 @@
         <div class="kpi-label">关注事件</div>
         <div class="kpi-value" style="color: var(--amber);">{{ counts.mid }}</div>
         <div class="kpi-trend flat">滚动复核</div>
-      </article>
-      <article>
-        <div class="kpi-label">当前档位</div>
-        <div class="kpi-value">{{ stageLabel }}</div>
-        <div class="kpi-trend down">{{ currentEvent ? '已选中事件' : '未选事件' }}</div>
       </article>
     </section>
 
@@ -110,20 +102,9 @@
           <p>{{ currentEvent.summary }}</p>
         </div>
 
-        <section v-if="matchedPoint" class="event-body">
-          <h3>{{ matchedPoint.name }} 当前档位预测</h3>
-          <p>{{ matchedPoint.forecast.text[stageIndex] }}</p>
-          <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
-            <span class="risk-badge" :class="matchedPoint.riskClass">{{ matchedPoint.risk }}</span>
-            <span class="risk-badge low">藻密度 {{ matchedPoint.metrics.density }}</span>
-            <span class="risk-badge low">水温 {{ matchedPoint.metrics.temp }}</span>
-          </div>
-        </section>
-
         <section v-if="matchedPoint" class="chart-card">
           <div class="chart-title">
             <h3>点位时序曲线</h3>
-            <span>{{ stageLabel }}</span>
           </div>
           <EChart :option="trendOption" />
         </section>
@@ -157,7 +138,7 @@
       </section>
     </div>
     <footer class="cockpit-foot">
-      <RouterLink class="button secondary" to="/cockpit">← 返回驾驶舱</RouterLink>
+      <RouterLink class="button secondary" to="/">← 返回主页</RouterLink>
     </footer>
   </main>
 </template>
@@ -168,8 +149,6 @@ import { useCockpitStore, cockpitState } from '../stores/cockpit.js'
 import { getEvents, getPoints, getTimeStages, handleWarning, getTimeline } from '../services/api.js'
 import { palette } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
-import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
-import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 
 const cockpit = useCockpitStore()
@@ -187,12 +166,6 @@ const timelineSummary = ref(null)
 
 const currentEvent = computed(() => events.value.find((ev) => ev.id === cockpit.currentEventId) || null)
 const matchedPoint = computed(() => currentEvent.value ? pointsState.value.pointData[currentEvent.value.point] : null)
-
-const stageIndex = computed(() => stages.value.findIndex((s) => s.key === cockpit.stageKey))
-const stageLabel = computed(() => {
-  const item = stages.value.find((s) => s.key === cockpit.stageKey)
-  return item ? item.label : ''
-})
 
 const counts = computed(() => {
   const out = { high: 0, mid: 0, low: 0 }
@@ -329,6 +302,12 @@ onMounted(async () => {
   color: var(--c-muted);
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* 历史页 3 张 KPI 卡等宽填满 */
+.kpi-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 18px;
 }
 
 .action-btn {

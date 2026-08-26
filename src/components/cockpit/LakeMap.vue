@@ -10,11 +10,6 @@
           <button type="button" :class="{ active: activeLayer === 'satellite' }" @click="switchLayer('satellite')">卫星影像</button>
           <button type="button" :class="{ active: activeLayer === 'topo' }" @click="switchLayer('topo')">地形地图</button>
         </div>
-        <div v-if="showTabs" class="map-tools">
-          <RouterLink class="tool-chip" :class="{ active: activeTab === 'stations' }" to="/stations">监测站</RouterLink>
-          <RouterLink class="tool-chip" :class="{ active: activeTab === 'heatmap' }" to="/heatmap">风险分区</RouterLink>
-          <RouterLink class="tool-chip" :class="{ active: activeTab === 'history' }" to="/history">历史轨迹</RouterLink>
-        </div>
       </div>
     </header>
 
@@ -44,9 +39,7 @@ const props = defineProps({
   heatField: { type: Object, default: () => ({}) },
   heatStageKey: { type: String, default: '' },
   stageLabel: { type: String, default: '' },
-  title: { type: String, default: '监测点位全景' },
-  activeTab: { type: String, default: 'stations' },
-  showTabs: { type: Boolean, default: true }
+  title: { type: String, default: '监测点位全景' }
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -403,11 +396,6 @@ onBeforeUnmount(() => {
   background: var(--c-accent-soft);
   color: var(--teal);
   border-color: var(--c-accent-border);
-}
-
-.map-tools {
-  display: flex;
-  gap: 8px;
 }
 
 .leaflet-map-container {

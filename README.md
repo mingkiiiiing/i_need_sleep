@@ -108,10 +108,7 @@ src/
 │  ├─ EChart.vue                  # ECharts 容器
 │  └─ echartsTheme.js             # ECharts 暗色主题常量
 ├─ pages/
-│  ├─ Home.vue                   # 主页（Marquee Hero + 右侧入口边栏）
-│  ├─ ProjectOverview.vue        # 项目概览（01 / 03）
-│  ├─ TechRoute.vue              # 技术路线（02 / 03）
-│  ├─ Cockpit.vue                # 驾驶舱总览（03 / 03）
+│  ├─ Home.vue                   # 主页（Marquee Hero + 太湖监测网络可视化）
 │  ├─ Stations.vue               # 监测站档位研判
 │  ├─ Heatmap.vue                # 风险热力分区
 │  └─ History.vue                # 历史事件回放
@@ -131,9 +128,6 @@ src/
 | 路由 | 页面 |
 | --- | --- |
 | `/` | 主页 |
-| `/project-overview` | 项目概览 |
-| `/tech-route` | 技术路线 |
-| `/cockpit` | 驾驶舱总览 |
 | `/stations` | 监测站档位研判 |
 | `/heatmap` | 风险热力分区 |
 | `/history` | 历史事件回放 |

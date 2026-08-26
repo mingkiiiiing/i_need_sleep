@@ -16,8 +16,6 @@
       </div>
     </section>
 
-    <CockpitSubTabs />
-
     <section class="cockpit-grid">
       <aside class="panel cockpit-rail left-rail">
         <div class="rail-heading">
@@ -79,7 +77,6 @@
         :heat-stage-key="cockpit.stageKey"
         :stage-label="stageLabel"
         title="太湖风险热力分区"
-        active-tab="heatmap"
         @update:model-value="setPoint"
       />
 
@@ -137,7 +134,7 @@
         </div>
       </div>
       <TimeAxisBar :stages="stages" variant="axis" />
-      <RouterLink class="dock-back" to="/cockpit" aria-label="返回驾驶舱" title="返回驾驶舱">←</RouterLink>
+      <RouterLink class="dock-back" to="/" aria-label="返回主页" title="返回主页">←</RouterLink>
     </section>
     <footer class="cockpit-foot heatmap-foot">
       <span>数据源：机理模型 + AI 融合预测 · 当前视图：{{ stageTitle }}</span>
@@ -152,7 +149,6 @@ import { getHeatField, getPoints, getRegionSummary, getTimeStages } from '../ser
 import { palette } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
-import CockpitSubTabs from '../components/cockpit/CockpitSubTabs.vue'
 import EChart from '../components/cockpit/EChart.vue'
 import LakeMap from '../components/cockpit/LakeMap.vue'
 

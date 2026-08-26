@@ -12,12 +12,9 @@
         </p>
 
         <div class="home-actions" aria-label="首页主要操作">
-          <RouterLink class="home-action home-action-primary" to="/cockpit">
+          <RouterLink class="home-action home-action-primary" to="/stations">
             进入数字孪生驾驶舱
             <span aria-hidden="true">↗</span>
-          </RouterLink>
-          <RouterLink class="home-action home-action-secondary" to="/project-overview">
-            查看项目概览
           </RouterLink>
         </div>
 
@@ -74,131 +71,11 @@
         </div>
       </figure>
     </section>
-
-    <section class="home-index home-reveal" style="--reveal-index: 2" aria-labelledby="home-index-title">
-      <header class="home-index-head">
-        <div>
-          <p>系统入口</p>
-          <h2 id="home-index-title">选择你的起点</h2>
-        </div>
-        <p>从项目背景到实时研判，三个模块共同组成完整演示路径。</p>
-      </header>
-
-      <ol class="home-route-axis">
-        <li v-for="entry in entries" :key="entry.index" class="axis-step">
-          <RouterLink class="axis-node" :to="entry.to">
-            <span class="axis-marker" aria-hidden="true">{{ entry.index }}</span>
-            <span class="axis-body">
-              <small>{{ entry.voice }} · {{ entry.meta }}</small>
-              <strong>{{ entry.title }}</strong>
-              <span>{{ entry.summary }}</span>
-            </span>
-            <span class="axis-cta">进入模块 <i aria-hidden="true">→</i></span>
-          </RouterLink>
-        </li>
-      </ol>
-    </section>
-
-    <section id="project-overview" class="home-overview home-reveal" style="--reveal-index: 3" aria-labelledby="overview-title">
-      <header class="home-overview-head">
-        <div>
-          <p class="home-overview-kicker">PROJECT OVERVIEW · 01</p>
-          <h2 id="overview-title">项目概览</h2>
-        </div>
-        <p class="home-overview-lede">
-          面向新三湖（滇池、太湖、巢湖）与老三湖（太湖、巢湖、滆湖）等重点湖库，建立机理与 AI 融合的蓝藻水华监测预警模型，输出从早识别、早预报到早预警的全链条能力。
-        </p>
-      </header>
-
-      <div class="overview-meta-row">
-        <div class="overview-meta-card"><span>主题</span><strong>数据与计算</strong></div>
-        <div class="overview-meta-card"><span>赛题</span><strong>A23 · 应用类</strong></div>
-        <div class="overview-meta-card"><span>主办</span><strong>我有一点困</strong></div>
-        <div class="overview-meta-card"><span>核心</span><strong>机理 × AI 融合</strong></div>
-      </div>
-
-      <article class="overview-context">
-        <p class="overview-kicker">整体背景 · CONTEXT</p>
-        <h3 class="overview-h3">蓝藻水华是富营养化水体在特定水文气候条件下分发性增殖的生态灾变现象</h3>
-        <p class="overview-prose">
-          蓝藻水华严重威胁饮用水安全、水生态系统健康及流域经济社会的可持续发展。随着《水污染防治行动计划》深入推进及《"十四五"生态环境监测规划》明确要求在新老三湖等重点湖库开展蓝藻水华监测预警，传统"人工采样 + 实验室分析"的监测模式已难以满足"提前预警、精准防控"的管理需要。
-        </p>
-      </article>
-
-      <div class="overview-split">
-        <article class="overview-block">
-          <p class="overview-kicker">传统路径 · CLASSICAL</p>
-          <h4>水动力 - 水质 - 藻类生长耦合模型</h4>
-          <p>可刻画营养盐循环、藻类生理生态过程及物理迁移规律，具备可解释性强、外推能力好的优势，但参数率定困难、计算效率低，对突发扰动响应滞后。</p>
-        </article>
-        <article class="overview-block">
-          <p class="overview-kicker">数据驱动 · DATA-DRIVEN</p>
-          <h4>深度学习 / 物理信息神经网络</h4>
-          <p>能从多源异构监测数据中挖掘环境因子与藻华分发的非线性映射关系，实现短期预警与风险分级，但物理一致性约束弱、泛化性能不足。</p>
-        </article>
-      </div>
-
-      <article class="overview-solution">
-        <p class="overview-kicker">融合范式 · OUR ANSWER</p>
-        <h3 class="overview-h3">把藻类生长动力学方程、流体水力学守恒定律等物理机理嵌入神经网络架构</h3>
-        <p class="overview-prose">
-          或利用 AI 对机理模型参数进行实时校正，构建兼具物理可解释性与数据自适应性的混合智能模型，依托"空 - 天 - 地 - 水"多源数据融合驱动实现蓝藻水华早识别、早预报、早预警。模型需支撑监测数据实时映射、藻华风险分级预警可视化、历史场景回溯与未来情景推演。
-        </p>
-      </article>
-
-      <div class="overview-keyline">
-        <span>多源数据接入</span>
-        <span class="keyline-dot" aria-hidden="true"></span>
-        <span>数据质量控制</span>
-        <span class="keyline-dot" aria-hidden="true"></span>
-        <span>机理 + AI 建模</span>
-        <span class="keyline-dot" aria-hidden="true"></span>
-        <span>数字孪生预警</span>
-      </div>
-    </section>
-
-    <footer class="home-footer-v2 home-reveal" style="--reveal-index: 4">
-      <div>
-        <span>赛题 A23</span>
-        <span>数据与计算 · 应用类</span>
-      </div>
-      <div>
-        <span>承办：<strong>我有一点困</strong></span>
-        <span>机理 × AI 融合范式</span>
-      </div>
-    </footer>
   </main>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
-
-const entries = [
-  {
-    to: { path: '/', hash: '#project-overview' },
-    index: '01',
-    title: '项目概览',
-    voice: 'PROJECT OVERVIEW',
-    summary: '问题定义、应用场景与系统目标。',
-    meta: 'WHY'
-  },
-  {
-    to: '/tech-route',
-    index: '02',
-    title: '技术路线',
-    voice: 'TECH ROUTE',
-    summary: '机理模型、AI 校正与融合预测链路。',
-    meta: 'HOW'
-  },
-  {
-    to: '/cockpit',
-    index: '03',
-    title: '数字驾驶舱',
-    voice: 'COCKPIT',
-    summary: '进入站点、热力图与历史事件视图。',
-    meta: 'ENTER'
-  }
-]
 
 const facts = [
   { label: '监测网络', value: '6 个点位', note: '湖体四向 + 上下游' },
