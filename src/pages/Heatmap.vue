@@ -4,13 +4,13 @@
       <div>
         <p class="eyebrow">COCKPIT · RISK HEATMAP</p>
         <h1>太湖蓝藻风险综合驾驶舱</h1>
-        <p class="heatmap-subtitle">融合机理模型与 AI 推演，追踪蓝藻风险的空间聚集、扩散与收敛。</p>
+        <p class="heatmap-subtitle">固定种子演示风险场，用于前后端联调与情景展示，非实时监测或正式预测。</p>
       </div>
       <div class="header-status">
         <span class="status-light"></span>
         <div>
           <strong>{{ stageLabel || '数据加载中' }}</strong>
-          <small>模型在线 · 预测置信度 {{ summary.confidence }}%</small>
+          <small>SIMULATED · 非决策用途</small>
         </div>
         <span class="risk-badge" :class="stageRiskClass">{{ stageRiskLabel }}</span>
       </div>
@@ -61,12 +61,12 @@
         </div>
 
         <div class="rail-section rail-note">
-          <span class="note-mark">AI</span>
+          <span class="note-mark">SIM</span>
           <div>
-            <strong>融合模型共识度</strong>
-            <small>机理层与 AI 层联合校准</small>
+            <strong>演示风险场</strong>
+            <small>固定规则与样例数据，不代表模型置信度</small>
           </div>
-          <b>{{ summary.confidence }}%</b>
+          <b>DEMO</b>
         </div>
       </aside>
 
@@ -118,8 +118,8 @@
 
         <section class="rail-section chart-section confidence-section">
           <div class="section-line">
-            <h3>模型置信曲线</h3>
-            <span>跨档位对比</span>
+            <h3>演示风险指数</h3>
+            <span>固定样例</span>
           </div>
           <div class="chart-frame">
             <EChart :option="confidenceOption" :height="168" />
@@ -133,14 +133,14 @@
         <span class="dock-index">03</span>
         <div>
           <strong>时间推演</strong>
-          <small>切换预测尺度</small>
+          <small>切换演示时效 / 情景</small>
         </div>
       </div>
       <TimeAxisBar :stages="stages" variant="axis" />
       <RouterLink class="dock-back" to="/cockpit" aria-label="返回驾驶舱" title="返回驾驶舱">←</RouterLink>
     </section>
     <footer class="cockpit-foot heatmap-foot">
-      <span>数据源：机理模型 + AI 融合预测 · 当前视图：{{ stageTitle }}</span>
+      <span>数据源：SIMULATED 固定演示风险场 · 当前视图：{{ stageTitle }}</span>
     </footer>
   </main>
 </template>
@@ -185,11 +185,11 @@ const stageLabel = computed(() => {
 
 const stageTitle = computed(() => {
   switch (cockpit.stageKey) {
-    case 't1':  return '未来 1 天：紧急研判 / 立即响应'
-    case 't3':  return '未来 3 天：短期扩散 / 周内联动'
-    case 't7':  return '未来 7 天：中期研判 / 资源调度'
-    case 't15': return '未来 15 天：长期推演 / 滚动校准'
-    case 't30': return '未来 30 天：综合态势 / 战略复盘'
+    case 't1':  return '未来 1 天：模拟研判'
+    case 't3':  return '未来 3 天：模拟研判'
+    case 't7':  return '未来 7 天：模拟研判'
+    case 't15': return '未来 15 天：模拟研判'
+    case 't30': return '未来 30 天：模拟预演（非正式预测）'
     default:    return '风险热力分布'
   }
 })
@@ -210,15 +210,12 @@ const stageRiskClass = computed(() => {
 const stageSummary = computed(() => {
   switch (cockpit.stageKey) {
     case 't1':
-      return '西北热点聚集明显，北部入湖河口脉冲输入叠加。建议立即启动巡查与封湖评估，联动南部通道与取水口做近邻扩散研判。'
     case 't3':
-      return '风险高值开始沿西北-东南方向拓展，北部河口输入仍处高位，湖心校准点出现漂移。建议加密取水口与南部通道观测频次。'
     case 't7':
-      return '高风险网格在湖北侧连片，关注 7 天后是否向湖心延伸。机理层与 AI 层均提示取水口进入重点保障窗口。'
     case 't15':
-      return '长期视角下高值区趋于收敛，但仍需关注营养盐持续补给情景。建议保留切面用于下一轮窗口研判。'
+      return '当前为固定种子模拟风险场，仅用于页面联调与答辩情景展示，不代表真实监测、算法输出或处置建议。'
     case 't30':
-      return '整体进入稳态参考区间。30 天尺度适合作为应急资源复盘与机理模型参数更新窗口。'
+      return '30 天仅展示模拟预演情景；30—90 天正式预测因数据授权阻塞而不可用。'
     default:
       return '切换档位查看不同时间尺度的风险分布与建议。'
   }
@@ -226,7 +223,7 @@ const stageSummary = computed(() => {
 
 const summary = computed(() => {
   if (!currentGrid.value.length) {
-    return { highCells: 0, midCells: 0, lowCells: 0, highShare: 0, midShare: 0, lowShare: 0, confidence: 0 }
+    return { highCells: 0, midCells: 0, lowCells: 0, highShare: 0, midShare: 0, lowShare: 0 }
   }
   let high = 0, mid = 0, low = 0
   currentGrid.value.forEach((row) => row.forEach((v) => {
@@ -242,9 +239,6 @@ const summary = computed(() => {
     highShare: Math.round((high / total) * 100),
     midShare:  Math.round((mid  / total) * 100),
     lowShare:  Math.round((low  / total) * 100),
-    confidence: ['t1', 't3', 't7', 't15', 't30'].includes(cockpit.stageKey)
-      ? ({ t1: 86, t3: 82, t7: 78, t15: 71, t30: 68 }[cockpit.stageKey])
-      : 0
   }
 })
 
@@ -375,7 +369,7 @@ const confidenceOption = computed(() => {
       textStyle: { color: p.text }
     },
     legend: {
-      data: ['机理层置信', 'AI 层置信', '综合共识'],
+      data: ['演示风险指数'],
       textStyle: { color: p.textSoft, fontSize: 10 },
       top: 0,
       right: 4
@@ -397,34 +391,14 @@ const confidenceOption = computed(() => {
     },
     series: [
       {
-        name: '机理层置信',
+        name: '演示风险指数',
         type: 'line',
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
         lineStyle: { width: 2, color: p.accent },
         itemStyle: { color: p.accent },
-        data: [94, 90, 86, 82, 78]
-      },
-      {
-        name: 'AI 层置信',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        lineStyle: { width: 2, color: p.ai },
-        itemStyle: { color: p.ai },
-        data: [78, 80, 82, 80, 76]
-      },
-      {
-        name: '综合共识',
-        type: 'line',
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        lineStyle: { width: 3, color: p.alert },
-        itemStyle: { color: p.alert },
-        data: [86, 85, 84, 81, 77]
+        data: [86, 82, 78, 71, 68]
       }
     ]
   }

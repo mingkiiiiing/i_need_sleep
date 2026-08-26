@@ -4,13 +4,13 @@
       section-no="04 / 04"
       eyebrow="COCKPIT"
       title="驾驶舱总览"
-      description="驾驶舱由 3 个并列子页组成：监测站档位研判、风险热力分区、历史事件回放。顶部时间轴播放器跨页联动，模型输出可同时驱动 3 个视角。"
+      description="驾驶舱由 3 个并列子页组成：演示分区研判、模拟风险场与演示事件回放。当前阶段统一使用可追溯的模拟数据。"
     >
       <template #meta>
         <div class="meta-card"><span class="meta-key">子页数</span><span class="meta-value">3 个并列</span></div>
-        <div class="meta-card"><span class="meta-key">时间档位</span><span class="meta-value">未来 1 / 3 / 7 / 15 / 30 天</span></div>
-        <div class="meta-card"><span class="meta-key">监测点位</span><span class="meta-value">6 个</span></div>
-        <div class="meta-card"><span class="meta-key">实时状态</span><span class="meta-value">1 红色预警</span></div>
+        <div class="meta-card"><span class="meta-key">时间档位</span><span class="meta-value">1 / 3 / 7 / 15 天演示；30 天预演</span></div>
+        <div class="meta-card"><span class="meta-key">演示分区</span><span class="meta-value">6 个 demo_zone</span></div>
+        <div class="meta-card"><span class="meta-key">数据模式</span><span class="meta-value">SIMULATED</span></div>
       </template>
 
       <p class="cockpit-prose">

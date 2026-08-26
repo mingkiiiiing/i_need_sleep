@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
-from .core import api_response, capability_unavailable, not_found, response_meta
+from .core import api_response, capability_unavailable, data_mode_unavailable, invalid_query_range, not_found, response_meta
 from .demo_provider import CLAIM_BOUNDARY, FORECAST_VERSION, OBSERVATION_VERSION
 from .services import service
 
@@ -32,10 +32,16 @@ def get_datasets_summary(): return api_response(service.datasets_summary(), meta
 def get_latest_pipeline_run(): return api_response({"run_id": "DEMO-PIPELINE-V1", "status": "simulated", "dataset_versions": [OBSERVATION_VERSION, FORECAST_VERSION]}, meta=simulated_meta())
 
 @router.get("/dashboard/overview")
-def get_dashboard_overview(mode: Literal["historical", "simulated"] = "simulated"): return api_response(service.overview(), meta=simulated_meta())
+def get_dashboard_overview(mode: Literal["historical", "simulated"] = "simulated"):
+    if mode == "historical":
+        raise data_mode_unavailable("历史真实观测尚未接入业务 API；当前仅提供模拟演示总览")
+    return api_response(service.overview(), meta=simulated_meta())
 
 @router.get("/spatial-entities")
-def list_spatial_entities(entity_type: str | None = None, mode: Literal["observed", "simulated"] = "simulated"): return api_response(service.spatial_entities(entity_type), meta=simulated_meta())
+def list_spatial_entities(entity_type: str | None = None, mode: Literal["observed", "simulated"] = "simulated"):
+    if mode == "observed":
+        raise data_mode_unavailable("真实站点与历史观测尚未接入业务 API；当前仅提供 demo_zone")
+    return api_response(service.spatial_entities(entity_type), meta=simulated_meta())
 
 @router.get("/spatial-entities/{entity_id}")
 def get_spatial_entity(entity_id: str):
@@ -57,7 +63,9 @@ def get_quality(entity_id: str):
 def get_forecast_capabilities(): return api_response(service.capabilities()["capabilities"], meta=simulated_meta())
 
 @router.get("/forecasts")
-def list_forecasts(spatial_entity_id: str, horizon_days: int = Query(3)):
+def list_forecasts(spatial_entity_id: str, horizon_days: int = Query(3, ge=1, le=30)):
+    if horizon_days not in {1, 3, 7, 15, 30}:
+        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
     if horizon_days > 15: raise capability_unavailable("30—90 天预测尚未就绪，不能返回演示算法结果作为正式预测")
     forecast = service.provider.forecast(spatial_entity_id, horizon_days)
     if not forecast: raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
@@ -67,8 +75,11 @@ def list_forecasts(spatial_entity_id: str, horizon_days: int = Query(3)):
 def get_forecast(forecast_id: str):
     explanation = service.provider.explanation(forecast_id)
     if not explanation: raise not_found("FORECAST_NOT_FOUND", "预测记录不存在")
-    entity_id = forecast_id.removeprefix("demo-forecast-").rsplit("-", 1)[0]
-    horizon = int(forecast_id.rsplit("-", 1)[1].removesuffix("d"))
+    try:
+        entity_id = forecast_id.removeprefix("demo-forecast-").rsplit("-", 1)[0]
+        horizon = int(forecast_id.rsplit("-", 1)[1].removesuffix("d"))
+    except ValueError:
+        raise not_found("FORECAST_NOT_FOUND", "预测记录不存在")
     return api_response(service.provider.forecast(entity_id, horizon), meta=simulated_meta())
 
 @router.get("/forecasts/{forecast_id}/explanations")
@@ -81,10 +92,20 @@ def get_explanation(forecast_id: str):
 def get_map_layers(): return api_response([{"id": "demo-risk-grid", "layer_type": "simulated_scenario", "data_mode": "simulated", "operational_use": False, "description": "演示风险格网，非监管决策用途"}], meta=simulated_meta())
 
 @router.get("/map/risk-grid")
-def get_risk_grid(horizon_days: int = Query(3)): return api_response(service.risk_grid(horizon_days), meta=simulated_meta())
+def get_risk_grid(horizon_days: int = Query(3, ge=1, le=30)):
+    if horizon_days not in {1, 3, 7, 15, 30}:
+        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
+    data = service.risk_grid(horizon_days)
+    data["layer_type"] = "simulated_scenario"
+    data["operational_use"] = False
+    if horizon_days == 30:
+        data["capability_status"] = "long_term_forecast_blocked_simulation_only"
+    return api_response(data, meta=simulated_meta())
 
 @router.get("/map/risk-polygons")
-def get_risk_polygons(horizon_days: int = Query(3)):
+def get_risk_polygons(horizon_days: int = Query(3, ge=1, le=30)):
+    if horizon_days not in {1, 3, 7, 15, 30}:
+        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
     grid = service.risk_grid(horizon_days)
     return api_response({"type": "FeatureCollection", "features": [], "source": "simulated_grid", "horizon_days": grid["horizon_days"]}, meta=simulated_meta())
 
@@ -95,7 +116,19 @@ def get_events():
 
 # Existing cockpit pages consume these P0 compatibility views. They expose the same simulated provenance.
 @router.get("/cockpit/time-stages")
-def cockpit_time_stages(): return api_response([{"key": f"t{day}", "label": f"T+{day} 天", "short": f"T+{day}d", "days": day, "index": index} for index, day in enumerate([1, 3, 7, 15, 30])], meta=simulated_meta())
+def cockpit_time_stages():
+    return api_response([
+        {
+            "key": f"t{day}",
+            "label": "30 天模拟预演" if day == 30 else f"T+{day} 天演示预测",
+            "short": "T+30d 模拟" if day == 30 else f"T+{day}d",
+            "days": day,
+            "index": index,
+            "data_mode": "simulated",
+            "capability_status": "simulation_only" if day == 30 else "sample_interface_only",
+        }
+        for index, day in enumerate([1, 3, 7, 15, 30])
+    ], meta=simulated_meta())
 
 @router.get("/cockpit/points")
 def cockpit_points():
@@ -115,7 +148,16 @@ def cockpit_point(entity_id: str):
     return api_response(response, meta=simulated_meta())
 
 @router.get("/cockpit/risk-heatmap")
-def cockpit_heatmap(): return api_response({f"t{day}": service.risk_grid(day)["grid"] for day in [1, 3, 7, 15, 30]}, meta=simulated_meta())
+def cockpit_heatmap():
+    # Keep the existing t1/t3/... fields for the current frontend while exposing scenario provenance.
+    return api_response({
+        **{f"t{day}": service.risk_grid(day)["grid"] for day in [1, 3, 7, 15, 30]},
+        "_scenario": {
+            "layer_type": "simulated_scenario",
+            "operational_use": False,
+            "long_term_notice": "T+30 仅为模拟预演，不代表 30—90 天预测能力",
+        },
+    }, meta=simulated_meta())
 
 @router.get("/cockpit/events")
 def cockpit_events():

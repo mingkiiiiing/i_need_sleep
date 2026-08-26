@@ -48,21 +48,32 @@ export function getRegionSummary() {
 
 export function getPrediction(stationId, targetMetric = 'chlorophyll_a', forecastScale = 'short_term') {
   const horizonDays = { short_term: 3, mid_term: 7, long_term: 30 }[forecastScale] || 3
-  return request(`/forecasts?spatial_entity_id=${encodeURIComponent(stationId)}&horizon_days=${horizonDays}&target_metric=${encodeURIComponent(targetMetric)}`)
-    .then((forecasts) => forecasts[0])
+  return useConfiguredSource(
+    () => request(`/forecasts?spatial_entity_id=${encodeURIComponent(stationId)}&horizon_days=${horizonDays}&target_metric=${encodeURIComponent(targetMetric)}`).then((forecasts) => forecasts[0]),
+    mock.fetchPrediction
+  )
 }
 
 export function getExplanation(predictionId) {
-  return request(`/forecasts/${encodeURIComponent(predictionId)}/explanations`)
+  return useConfiguredSource(
+    () => request(`/forecasts/${encodeURIComponent(predictionId)}/explanations`),
+    mock.fetchExplanation
+  )
 }
 
 export function handleWarning(eventId) {
-  return request('/cockpit/handle-warning', {
-    method: 'POST',
-    body: JSON.stringify({ event_id: eventId })
-  })
+  return useConfiguredSource(
+    () => request('/cockpit/handle-warning', {
+      method: 'POST',
+      body: JSON.stringify({ event_id: eventId })
+    }),
+    () => mock.fetchHandleWarning(eventId)
+  )
 }
 
 export function getTimeline(startDate, endDate) {
-  return request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
+  return useConfiguredSource(
+    () => request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`),
+    () => mock.fetchTimeline(startDate, endDate)
+  )
 }

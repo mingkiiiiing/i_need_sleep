@@ -119,7 +119,7 @@
             <span v-else>{{ aiError || '切换点位自动加载' }}</span>
           </div>
 
-          <div v-if="aiLoading" class="ai-placeholder ai-loading"><span class="ai-spinner" aria-hidden="true"></span><span>正在调用 /api/predict 加载模型输出…</span></div>
+          <div v-if="aiLoading" class="ai-placeholder ai-loading"><span class="ai-spinner" aria-hidden="true"></span><span>正在检查模型能力…</span></div>
           <div v-else-if="aiError" class="ai-placeholder error">AI 加载失败：{{ aiError }}</div>
           <div v-else-if="!prediction" class="ai-placeholder">当前无真实模型输出；演示分区仅提供固定风险场，不提供模型对比或 SHAP。</div>
 
@@ -380,6 +380,7 @@ async function loadAi(stationId, token) {
   try {
     const pred = await getPrediction(stationId)
     if (token !== _aiToken) return
+    if (!pred) return
     prediction.value = pred
     const exp = await getExplanation(pred.id)
     if (token !== _aiToken) return

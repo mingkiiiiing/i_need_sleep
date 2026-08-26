@@ -13,7 +13,7 @@ class BackendService:
         return {
             "data_as_of": "2026-08-24T01:15:10+08:00",
             "capabilities": {
-                "historical_observation": "available",
+                "historical_observation": "dataset_available_backend_pending",
                 "short_term_forecast_1_3d": "dataset_ready_model_pending",
                 "medium_term_forecast_7_15d": "dataset_ready_model_pending",
                 "long_term_forecast_30_90d": "blocked_auth",

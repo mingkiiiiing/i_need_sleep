@@ -27,7 +27,31 @@ def test_long_term_forecast_is_blocked_instead_of_fabricated():
     response = client.get("/api/v1/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=30")
 
     assert response.status_code == 409
-    assert response.json()["detail"]["code"] == "CAPABILITY_UNAVAILABLE"
+    body = response.json()
+    assert body["errors"][0]["code"] == "CAPABILITY_UNAVAILABLE"
+    assert body["data"] is None
+
+
+def test_observed_mode_is_rejected_instead_of_returning_demo_data():
+    response = client.get("/api/v1/spatial-entities?entity_type=station&mode=observed")
+
+    assert response.status_code == 409
+    assert response.json()["errors"][0]["code"] == "DATA_MODE_UNAVAILABLE"
+
+
+def test_invalid_forecast_horizon_uses_the_public_validation_contract():
+    response = client.get("/api/v1/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=2")
+
+    assert response.status_code == 422
+    assert response.json()["errors"][0]["code"] == "INVALID_QUERY_RANGE"
+
+
+def test_t30_risk_grid_is_explicitly_a_simulated_scenario():
+    response = client.get("/api/v1/map/risk-grid?horizon_days=30")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["layer_type"] == "simulated_scenario"
+    assert response.json()["data"]["capability_status"] == "long_term_forecast_blocked_simulation_only"
 
 
 def test_cockpit_compatibility_view_has_simulated_metadata():
