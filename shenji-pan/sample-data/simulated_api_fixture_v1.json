@@ -1,0 +1,379 @@
+{
+  "fixture_version": "1.0.0",
+  "meta": {
+    "request_id": "req-demo-001",
+    "generated_at": "2026-08-24T08:00:05+08:00",
+    "data_mode": "simulated",
+    "dataset_version_id": "DEMO-OBS-V1",
+    "prediction_run_id": "DEMO-PRED-V1",
+    "as_of": "2026-08-24T08:00:00+08:00",
+    "model_version": "demo-rule-v1",
+    "claim_boundary": "simulation_only",
+    "quality_status": "good"
+  },
+  "capabilities": {
+    "historical_observation": "simulated_available",
+    "short_term_forecast_1_3d": "simulated_available",
+    "medium_term_forecast_7_15d": "simulated_available",
+    "long_term_forecast_30_90d": "simulated_only_real_blocked_auth",
+    "satellite_chlorophyll": "experimental_not_operational",
+    "demo_warning_dispatch": "available",
+    "real_warning_dispatch": "not_enabled",
+    "limitations": [
+      "所有数值用于前后端联调和答辩演示，不代表真实水华预测结果",
+      "切换真实 Provider 后，30—90 天能力必须按真实状态判断",
+      "六个空间对象均为演示分区，不是已核验真实站点"
+    ]
+  },
+  "dataset_summary": {
+    "dataset_version_id": "DEMO-OBS-V1",
+    "name": "A23 前后端联调演示数据 V1",
+    "data_mode": "simulated",
+    "spatial_entity_count": 6,
+    "variable_codes": [
+      "water_temperature",
+      "total_phosphorus",
+      "total_nitrogen",
+      "chlorophyll_a",
+      "algae_density",
+      "wind_speed"
+    ],
+    "time_start": "2026-08-20T08:00:00+08:00",
+    "time_end": "2026-08-24T08:00:00+08:00",
+    "source_name": "competition_demo_fixture",
+    "decision_grade": false
+  },
+  "spatial_entities": [
+    {
+      "id": "DEMO-NW",
+      "display_name": "西北热点区",
+      "entity_type": "demo_zone",
+      "longitude": 120.05,
+      "latitude": 31.35,
+      "risk_level": "high",
+      "risk_probability": 0.82,
+      "quality_status": "good"
+    },
+    {
+      "id": "DEMO-INLET",
+      "display_name": "入湖河口区",
+      "entity_type": "demo_zone",
+      "longitude": 119.95,
+      "latitude": 31.22,
+      "risk_level": "medium",
+      "risk_probability": 0.63,
+      "quality_status": "good"
+    },
+    {
+      "id": "DEMO-SE",
+      "display_name": "东南对照区",
+      "entity_type": "demo_zone",
+      "longitude": 120.42,
+      "latitude": 30.98,
+      "risk_level": "low",
+      "risk_probability": 0.24,
+      "quality_status": "good"
+    },
+    {
+      "id": "DEMO-CENTER",
+      "display_name": "湖心观测区",
+      "entity_type": "demo_zone",
+      "longitude": 120.20,
+      "latitude": 31.20,
+      "risk_level": "medium",
+      "risk_probability": 0.57,
+      "quality_status": "good"
+    },
+    {
+      "id": "DEMO-INTAKE",
+      "display_name": "取水口关注区",
+      "entity_type": "demo_zone",
+      "longitude": 120.45,
+      "latitude": 31.30,
+      "risk_level": "low",
+      "risk_probability": 0.31,
+      "quality_status": "good"
+    },
+    {
+      "id": "DEMO-SOUTH",
+      "display_name": "南部通道区",
+      "entity_type": "demo_zone",
+      "longitude": 120.18,
+      "latitude": 30.95,
+      "risk_level": "medium",
+      "risk_probability": 0.48,
+      "quality_status": "warning"
+    }
+  ],
+  "dashboard": {
+    "horizon_days": 7,
+    "highest_risk": {
+      "spatial_entity_id": "DEMO-NW",
+      "display_name": "西北热点区",
+      "risk_level": "high",
+      "risk_probability": 0.82,
+      "trend_delta": 0.12
+    },
+    "kpis": [
+      {
+        "code": "high_risk_zone_count",
+        "label": "高风险分区",
+        "value": 1,
+        "unit": "zone",
+        "quality_status": "good"
+      },
+      {
+        "code": "affected_zone_count",
+        "label": "关注及以上分区",
+        "value": 4,
+        "unit": "zone",
+        "quality_status": "good"
+      },
+      {
+        "code": "max_chlorophyll_a",
+        "label": "最高叶绿素a",
+        "value": 32.4,
+        "unit": "ug/L",
+        "quality_status": "good"
+      },
+      {
+        "code": "data_completeness",
+        "label": "演示数据完整率",
+        "value": 97.2,
+        "unit": "%",
+        "quality_status": "good"
+      }
+    ],
+    "active_warning_count": 1,
+    "recent_event_ids": ["DEMO-EVENT-001", "DEMO-EVENT-002"]
+  },
+  "observation_series": {
+    "spatial_entity_id": "DEMO-NW",
+    "series": [
+      {
+        "variable_code": "chlorophyll_a",
+        "unit": "ug/L",
+        "points": [
+          {"observed_at": "2026-08-20T08:00:00+08:00", "value": 24.8, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-21T08:00:00+08:00", "value": 26.7, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-22T08:00:00+08:00", "value": 28.9, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-23T08:00:00+08:00", "value": 30.6, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-24T08:00:00+08:00", "value": 32.4, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false}
+        ]
+      },
+      {
+        "variable_code": "total_phosphorus",
+        "unit": "mg/L",
+        "points": [
+          {"observed_at": "2026-08-20T08:00:00+08:00", "value": 0.071, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-21T08:00:00+08:00", "value": 0.075, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-22T08:00:00+08:00", "value": 0.079, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-23T08:00:00+08:00", "value": 0.083, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false},
+          {"observed_at": "2026-08-24T08:00:00+08:00", "value": 0.087, "quality_status": "good", "value_origin": "simulated_demo", "is_imputed": false}
+        ]
+      }
+    ]
+  },
+  "quality": {
+    "spatial_entity_id": "DEMO-NW",
+    "status": "good",
+    "completeness_pct": 100.0,
+    "imputed_fraction": 0.0,
+    "anomaly_count": 0,
+    "latest_observed_at": "2026-08-24T08:00:00+08:00",
+    "limitations": ["演示质量指标，不代表真实传感器运行状态"]
+  },
+  "forecast_capabilities": [
+    {"horizon_code": "h1_3d", "horizon_days": [1, 3], "simulated_status": "available", "real_status": "dataset_ready_model_pending"},
+    {"horizon_code": "h7_15d", "horizon_days": [7, 15], "simulated_status": "available", "real_status": "dataset_ready_model_pending"},
+    {"horizon_code": "h30_90d", "horizon_days": [30, 90], "simulated_status": "available", "real_status": "blocked_auth"}
+  ],
+  "forecasts": [
+    {
+      "forecast_id": "DEMO-FC-NW-001",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-08-25",
+      "horizon_days": 1,
+      "risk_probability": 0.68,
+      "risk_level": "medium",
+      "confidence": 0.86,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 34.2, "unit": "ug/L", "lower_bound": 31.8, "upper_bound": 36.6},
+        {"metric_code": "bloom_area", "value": 22.4, "unit": "km2", "lower_bound": 19.5, "upper_bound": 25.3}
+      ]
+    },
+    {
+      "forecast_id": "DEMO-FC-NW-003",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-08-27",
+      "horizon_days": 3,
+      "risk_probability": 0.74,
+      "risk_level": "high",
+      "confidence": 0.82,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 37.8, "unit": "ug/L", "lower_bound": 33.5, "upper_bound": 42.1},
+        {"metric_code": "bloom_area", "value": 28.9, "unit": "km2", "lower_bound": 23.6, "upper_bound": 34.2}
+      ]
+    },
+    {
+      "forecast_id": "DEMO-FC-NW-007",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-08-31",
+      "horizon_days": 7,
+      "risk_probability": 0.82,
+      "risk_level": "high",
+      "confidence": 0.76,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 42.8, "unit": "ug/L", "lower_bound": 35.1, "upper_bound": 50.5},
+        {"metric_code": "bloom_area", "value": 35.6, "unit": "km2", "lower_bound": 27.4, "upper_bound": 43.8}
+      ]
+    },
+    {
+      "forecast_id": "DEMO-FC-NW-015",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-09-08",
+      "horizon_days": 15,
+      "risk_probability": 0.79,
+      "risk_level": "high",
+      "confidence": 0.67,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 40.9, "unit": "ug/L", "lower_bound": 29.7, "upper_bound": 52.1},
+        {"metric_code": "bloom_area", "value": 33.2, "unit": "km2", "lower_bound": 21.0, "upper_bound": 45.4}
+      ]
+    },
+    {
+      "forecast_id": "DEMO-FC-NW-030",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-09-23",
+      "horizon_days": 30,
+      "risk_probability": 0.66,
+      "risk_level": "medium",
+      "confidence": 0.54,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 35.0, "unit": "ug/L", "lower_bound": 20.4, "upper_bound": 49.6},
+        {"metric_code": "bloom_area", "value": 26.0, "unit": "km2", "lower_bound": 11.2, "upper_bound": 40.8}
+      ]
+    },
+    {
+      "forecast_id": "DEMO-FC-NW-090",
+      "spatial_entity_id": "DEMO-NW",
+      "forecast_date": "2026-11-22",
+      "horizon_days": 90,
+      "risk_probability": 0.58,
+      "risk_level": "medium",
+      "confidence": 0.38,
+      "metrics": [
+        {"metric_code": "chlorophyll_a", "value": 29.4, "unit": "ug/L", "lower_bound": 10.2, "upper_bound": 48.6},
+        {"metric_code": "bloom_area", "value": 20.8, "unit": "km2", "lower_bound": 3.5, "upper_bound": 38.1}
+      ]
+    }
+  ],
+  "explanations": {
+    "forecast_id": "DEMO-FC-NW-007",
+    "method": "demo_rule_contribution",
+    "is_model_explanation": false,
+    "contributions": [
+      {"feature_code": "water_temperature", "importance": 0.31, "direction": "positive", "rank_no": 1},
+      {"feature_code": "total_phosphorus", "importance": 0.27, "direction": "positive", "rank_no": 2},
+      {"feature_code": "wind_speed", "importance": 0.20, "direction": "negative", "rank_no": 3},
+      {"feature_code": "total_nitrogen", "importance": 0.12, "direction": "positive", "rank_no": 4}
+    ],
+    "disclaimer": "演示规则贡献，不是 SHAP 或正式模型解释"
+  },
+  "risk_layer": {
+    "prediction_run_id": "DEMO-PRED-V1",
+    "horizon_days": 7,
+    "resolution": "demo_zone",
+    "feature_collection": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "id": "DEMO-RISK-NW-007",
+          "properties": {
+            "spatial_entity_id": "DEMO-NW",
+            "risk_level": "high",
+            "risk_probability": 0.82,
+            "confidence": 0.76,
+            "data_mode": "simulated"
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[[119.98,31.30],[120.12,31.30],[120.14,31.40],[120.00,31.42],[119.98,31.30]]]
+          }
+        }
+      ]
+    }
+  },
+  "warning": {
+    "id": "DEMO-WARN-001",
+    "prediction_run_id": "DEMO-PRED-V1",
+    "spatial_entity_id": "DEMO-NW",
+    "rule_id": "DEMO-RULE-HIGH-V1",
+    "warning_level": "high",
+    "title": "演示预警：西北热点区 T+7 风险升高",
+    "status": "published",
+    "simulated": true,
+    "triggered_at": "2026-08-24T08:05:00+08:00",
+    "evidence": [
+      {"evidence_type": "forecast", "evidence_ref_id": "DEMO-FC-NW-007"},
+      {"evidence_type": "quality", "evidence_ref_id": "DEMO-NW-QUALITY"}
+    ],
+    "dispatch": {
+      "dispatch_id": "DEMO-DISPATCH-001",
+      "channels": ["demo_sms", "demo_email"],
+      "recipient_group": "competition_demo_contacts",
+      "simulated": true,
+      "dispatched_at": "2026-08-24T08:10:00+08:00"
+    }
+  },
+  "events": [
+    {
+      "id": "DEMO-EVENT-001",
+      "event_type": "model",
+      "title": "演示预测运行完成",
+      "occurred_at": "2026-08-24T08:02:00+08:00",
+      "reference_id": "DEMO-PRED-V1",
+      "data_mode": "simulated"
+    },
+    {
+      "id": "DEMO-EVENT-002",
+      "event_type": "warning",
+      "title": "西北热点区演示预警已发布",
+      "occurred_at": "2026-08-24T08:05:00+08:00",
+      "reference_id": "DEMO-WARN-001",
+      "data_mode": "simulated"
+    },
+    {
+      "id": "DEMO-EVENT-003",
+      "event_type": "dispatch",
+      "title": "演示短信和邮件已记录",
+      "occurred_at": "2026-08-24T08:10:00+08:00",
+      "reference_id": "DEMO-DISPATCH-001",
+      "data_mode": "simulated"
+    }
+  ],
+  "plans": [
+    {
+      "id": "DEMO-PLAN-01",
+      "code": "BAY_INTENSIVE_MONITORING",
+      "name": "重点湖湾加密监测",
+      "applicable_levels": ["medium", "high"],
+      "steps": ["提高巡测频次", "复核叶绿素a与藻密度", "记录热点范围变化"]
+    },
+    {
+      "id": "DEMO-PLAN-02",
+      "code": "WATER_INTAKE_PROTECTION",
+      "name": "取水口联动保护",
+      "applicable_levels": ["high"],
+      "steps": ["检查取水口周边漂浮带", "联动热点区风向研判", "准备水厂应急联络"]
+    },
+    {
+      "id": "DEMO-PLAN-03",
+      "code": "RIVER_INLET_INSPECTION",
+      "name": "入湖河口巡查与控源",
+      "applicable_levels": ["medium", "high"],
+      "steps": ["复核总磷总氮变化", "排查上游异常输入", "安排雨后加密采样"]
+    }
+  ]
+}

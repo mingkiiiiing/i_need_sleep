@@ -1,0 +1,155 @@
+{
+  "station_id": "TH_CENTER",
+  "forecast_scale": "short_term",
+  "claim_boundary": "sample_interface_only",
+  "effect_claim_allowed": false,
+  "model_family": "mechanism_ai_fusion_framework_v0.1",
+  "results": [
+    {
+      "date": "2026-08-21",
+      "horizon_days": 1,
+      "metrics": [
+        {
+          "metric_code": "chlorophyll_a",
+          "metric_name": "叶绿素a",
+          "value": 45.327,
+          "unit": "ug/L",
+          "lower_bound": 43.887,
+          "upper_bound": 45.327
+        },
+        {
+          "metric_code": "bloom_area",
+          "metric_name": "水华面积",
+          "value": 4.582,
+          "unit": "km2",
+          "lower_bound": 4.222,
+          "upper_bound": 4.582
+        },
+        {
+          "metric_code": "risk_level",
+          "metric_name": "风险等级",
+          "value": "medium",
+          "unit": "level"
+        }
+      ],
+      "risk_probability": 0.5737,
+      "risk_level": "medium",
+      "model_outputs": {
+        "mechanism_score": 0.6603,
+        "ai_model_1": 0.6845,
+        "ai_model_2": 0.5721,
+        "cascade_fusion": 0.6074,
+        "residual_fusion": 0.5737
+      }
+    },
+    {
+      "date": "2026-08-22",
+      "horizon_days": 2,
+      "metrics": [
+        {
+          "metric_code": "chlorophyll_a",
+          "metric_name": "叶绿素a",
+          "value": 45.535,
+          "unit": "ug/L",
+          "lower_bound": 44.095,
+          "upper_bound": 45.535
+        },
+        {
+          "metric_code": "bloom_area",
+          "metric_name": "水华面积",
+          "value": 4.634,
+          "unit": "km2",
+          "lower_bound": 4.274,
+          "upper_bound": 4.634
+        },
+        {
+          "metric_code": "risk_level",
+          "metric_name": "风险等级",
+          "value": "medium",
+          "unit": "level"
+        }
+      ],
+      "risk_probability": 0.5853,
+      "risk_level": "medium",
+      "model_outputs": {
+        "mechanism_score": 0.6657,
+        "ai_model_1": 0.6845,
+        "ai_model_2": 0.5826,
+        "cascade_fusion": 0.6159,
+        "residual_fusion": 0.5853
+      }
+    },
+    {
+      "date": "2026-08-23",
+      "horizon_days": 3,
+      "metrics": [
+        {
+          "metric_code": "chlorophyll_a",
+          "metric_name": "叶绿素a",
+          "value": 45.74,
+          "unit": "ug/L",
+          "lower_bound": 44.3,
+          "upper_bound": 45.74
+        },
+        {
+          "metric_code": "bloom_area",
+          "metric_name": "水华面积",
+          "value": 4.685,
+          "unit": "km2",
+          "lower_bound": 4.325,
+          "upper_bound": 4.685
+        },
+        {
+          "metric_code": "risk_level",
+          "metric_name": "风险等级",
+          "value": "medium",
+          "unit": "level"
+        }
+      ],
+      "risk_probability": 0.5967,
+      "risk_level": "medium",
+      "model_outputs": {
+        "mechanism_score": 0.6709,
+        "ai_model_1": 0.6845,
+        "ai_model_2": 0.593,
+        "cascade_fusion": 0.6241,
+        "residual_fusion": 0.5967
+      }
+    }
+  ],
+  "explainability": {
+    "global_feature_importance": [
+      {
+        "feature": "mechanism_score",
+        "importance": 1.0,
+        "direction": "positive"
+      },
+      {
+        "feature": "wind_speed_m_s",
+        "importance": 0.985933157224692,
+        "direction": "negative"
+      },
+      {
+        "feature": "water_temperature_C",
+        "importance": 0.8686716998867293,
+        "direction": "positive"
+      },
+      {
+        "feature": "solar_radiation_MJ_m2_day",
+        "importance": 0.7872603002204589,
+        "direction": "positive"
+      }
+    ],
+    "uncertainty": {
+      "method": "empirical_prediction_interval",
+      "confidence": 0.8,
+      "lower": 0.5737009787500691,
+      "mean": 0.5852254461690053,
+      "upper": 0.5852950876987602
+    }
+  },
+  "notes": [
+    "Current output uses sample rows to verify member C interfaces.",
+    "Replace build_demo_rows with aligned real labels and features before training claims."
+  ]
+}
