@@ -210,14 +210,6 @@
             </div>
           </div>
         </section>
-
-        <section class="detail-section">
-          <div class="section-line">
-            <h3>湖区实景</h3>
-            <span>现场照片位</span>
-          </div>
-          <div class="image-slot" data-label="点位实景图 · 待替换为 <img>"></div>
-        </section>
       </aside>
     </div>
     <footer class="cockpit-foot">
