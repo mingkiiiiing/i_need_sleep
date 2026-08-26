@@ -53,6 +53,7 @@
           <span>平均叶绿素 {{ timelineSummary.avgChl }}</span>
           <span>高风险 {{ timelineSummary.highDays }} 天</span>
         </div>
+        <p v-else-if="timelineError" class="timeline-error">时间轴加载失败：{{ timelineError }}</p>
         <div class="history-list">
           <article
             v-for="ev in events"
@@ -184,6 +185,7 @@ const handleResult = ref(null)
 const dateStart = ref('2026-07-21')
 const dateEnd = ref('2026-07-28')
 const timelineSummary = ref(null)
+const timelineError = ref('')
 
 const currentEvent = computed(() => events.value.find((ev) => ev.id === cockpit.currentEventId) || null)
 const matchedPoint = computed(() => currentEvent.value ? pointsState.value.pointData[currentEvent.value.point] : null)
@@ -239,6 +241,7 @@ async function doHandle() {
 
 async function loadTimeline() {
   if (!dateStart.value || !dateEnd.value) return
+  timelineError.value = ''
   try {
     const r = await getTimeline(dateStart.value, dateEnd.value)
     const highDays = r.data.filter(d => d.risk_level === 'high').length
@@ -249,6 +252,7 @@ async function loadTimeline() {
     }
   } catch (e) {
     timelineSummary.value = null
+    timelineError.value = e && e.message ? e.message : '请求未能完成'
   }
 }
 

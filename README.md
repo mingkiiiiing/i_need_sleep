@@ -70,7 +70,7 @@ npm run preview
 
 启动后控制台会输出 **Local** 与 **Network** 两个地址，局域网内其他设备可通过 Network 地址访问（如 http://192.168.x.x:5173/）。
 
-vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统一使用 /api 相对路径，必须先启动后端，否则页面会走 mock 兜底。
+vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统一使用 `/api/v1` 相对路径。默认必须先启动后端；后端异常会显示调用错误，不会自动切换为 mock。
 
 ### 3.3 切换数据源
 
@@ -80,7 +80,7 @@ vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 ```
 
-- 未设置 / false（默认）：正常调 /api/*，失败时按接口降级到 mock
+- 未设置 / false（默认）：正常调 `/api/v1/*`，失败时显式报错
 - true：完全不调后端，所有数据走前端 mock
 
 强制全 mock 时，在项目根目录创建 `.env.local` 写入：
@@ -89,7 +89,7 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 VITE_USE_MOCK=true
 ```
 
-排错与字段差异详见 [INTEGRATION.md](./INTEGRATION.md)。
+P0 数据均为 `SIMULATED` 演示数据；六个对象为 `demo_zone`，不是实时站点。1/3/7/15 天仅为样例接口，30 天仅为模拟预演，30—90 天正式预测不可用。详见 [INTEGRATION.md](./INTEGRATION.md)。
 ---
 
 ## 4. 目录速览

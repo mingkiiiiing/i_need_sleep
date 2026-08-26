@@ -1,0 +1,7 @@
+spatial_entity_id,observed_at,variable_code,clean_value,unit,value_origin,quality_status,is_imputed
+northwest_hotspot,2026-08-21T08:00:00+08:00,total_phosphorus,0.091,mg/L,simulated,pass,false
+northwest_hotspot,2026-08-21T08:00:00+08:00,air_temperature,29.6,degC,simulated,pass,false
+central_lake,2026-08-21T08:00:00+08:00,total_phosphorus,0.063,mg/L,simulated,pass,false
+river_inlet,2026-08-21T08:00:00+08:00,total_phosphorus,0.082,mg/L,simulated,pass,false
+southeast_station,2026-08-21T08:00:00+08:00,total_phosphorus,0.041,mg/L,simulated,pass,false
+south_channel,2026-08-21T08:00:00+08:00,total_phosphorus,0.058,mg/L,simulated,pass,false

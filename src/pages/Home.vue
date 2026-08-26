@@ -201,9 +201,9 @@ const entries = [
 ]
 
 const facts = [
-  { label: '监测网络', value: '6 个点位', note: '湖体四向 + 上下游' },
-  { label: '预测档位', value: '未来 1 — 30 天', note: '短 / 中 / 长期尺度' },
-  { label: '当前态势', value: '1 处红色预警', note: '融合模型实时研判' }
+  { label: '演示分区', value: '6 个', note: 'SIMULATED / 非真实站点' },
+  { label: '演示时效', value: '1 — 15 天', note: '样例接口；30 天仅模拟预演' },
+  { label: '当前状态', value: '演示风险场', note: '算法待接入，不是实时预警' }
 ]
 
 const monitorPoints = [
