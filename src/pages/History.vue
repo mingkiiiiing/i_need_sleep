@@ -54,7 +54,7 @@
           >
             <div class="history-meta">
               <span>{{ ev.time }}</span>
-              <span :class="['risk-badge', severityClass(ev.severity)]" style="padding: 3px 10px; font-size: 11px;">{{ severityLabel(ev.severity) }}</span>
+              <span :class="['risk-badge', severityClass(ev.severity)]" style="padding: 3px 10px; font-size: 12px;">{{ severityLabel(ev.severity) }}</span>
             </div>
             <strong>{{ ev.title }}</strong>
             <p>{{ ev.summary }}</p>
@@ -137,9 +137,6 @@
         <div class="image-slot banner" style="margin-top: 16px;" data-label="历史回放封面 · 待替换为 <img>"></div>
       </section>
     </div>
-    <footer class="cockpit-foot">
-      <RouterLink class="button secondary" to="/">← 返回主页</RouterLink>
-    </footer>
   </main>
 </template>
 
@@ -325,7 +322,7 @@ onMounted(async () => {
 
 @media (max-width: 640px) {
   .title-card { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
-  .title-note { white-space: normal; font-size: 11px; }
+  .title-note { white-space: normal; font-size: 12px; }
   .history-stage { grid-template-columns: 1fr; }
 }
 
@@ -352,7 +349,7 @@ onMounted(async () => {
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
@@ -363,7 +360,7 @@ onMounted(async () => {
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);

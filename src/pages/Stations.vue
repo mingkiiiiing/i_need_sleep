@@ -212,9 +212,6 @@
         </section>
       </aside>
     </div>
-    <footer class="cockpit-foot">
-      <RouterLink class="button secondary" to="/">← 返回主页</RouterLink>
-    </footer>
   </main>
 </template>
 
@@ -525,7 +522,7 @@ onMounted(async () => {
   padding-top: 10px;
 }
 
-.threshold-card .threshold-count { font-size: 11px; color: var(--c-muted); }
+.threshold-card .threshold-count { font-size: 12px; color: var(--c-muted); }
 .threshold-list {
   list-style: none;
   margin: 0;
@@ -550,7 +547,7 @@ onMounted(async () => {
 @keyframes threshold-blink { 50% { opacity: 0.45; } }
 .threshold-meta { display: grid; gap: 2px; min-width: 0; }
 .threshold-meta span { font-size: 12px; font-weight: 600; }
-.threshold-meta small { font-size: 10px; color: var(--c-muted); }
+.threshold-meta small { font-size: 11px; color: var(--c-muted); }
 .threshold-list strong {
   margin-left: auto;
   font-size: 12px;

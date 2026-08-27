@@ -144,7 +144,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   margin: 0 0 6px;
   color: var(--c-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 3px;
   font-weight: 700;
   text-transform: uppercase;
@@ -249,7 +249,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
 .time-axis .stage-btn .stage-btn-sub {
   display: block;
   color: var(--c-muted);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 1px;
   margin-top: 2px;
 }
@@ -573,7 +573,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   color: var(--c-accent);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
 }
 .factor-row.negative .factor-rank {
   background: var(--c-alert-soft);
@@ -600,7 +600,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   gap: 6px;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  font-size: 11px;
+  font-size: 12px;
   border: 1px solid transparent;
 }
 .factor-impact.positive {
@@ -677,7 +677,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   line-height: 1.1;
 }
 .factor-summary-stat .lbl {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--c-muted);
   letter-spacing: 0.04em;
 }
@@ -769,7 +769,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   background: var(--c-surface);
   backdrop-filter: blur(8px);
   color: var(--c-text-soft);
-  font-size: 13px;
+  font-size: 14px;
   display: grid;
   gap: 8px;
 }
@@ -814,7 +814,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--c-muted);
   letter-spacing: 1px;
 }
@@ -837,7 +837,7 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
 .history-event-card .event-meta span {
   display: block;
   color: var(--c-muted);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 2px;
 }
 .history-event-card .event-meta strong { font-size: 16px; margin-top: 6px; display: block; }

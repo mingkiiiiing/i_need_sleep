@@ -219,7 +219,7 @@ onBeforeUnmount(() => {
 }
 .gnav-brand-copy small {
   color: var(--c-muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 /* ============ 导航链接 ============ */
@@ -257,7 +257,7 @@ onBeforeUnmount(() => {
 
 .gnav-link-num {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--c-muted);
   letter-spacing: 1px;
 }

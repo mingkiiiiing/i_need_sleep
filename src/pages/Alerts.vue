@@ -91,7 +91,7 @@
       <article class="log-panel"><header><h2>处置记录</h2><span>当前预警 {{ selectedAlert.id }}</span></header><div class="log-table"><div class="log-head"><span>时间</span><span>处置节点</span><span>处置内容</span><span>处置人</span><span>备注</span></div><div v-for="record in selectedAlert.records.slice(0, 4)" :key="record.time + record.node" class="log-row"><span>{{ record.time }}</span><span>{{ record.node }}</span><span>{{ record.content }}</span><span>{{ record.actor }}</span><span>{{ record.note }}</span></div></div></article>
       <article class="log-panel"><header><h2>审计日志</h2><span>操作留痕</span></header><div class="log-table"><div class="log-head"><span>时间</span><span>操作人</span><span>操作内容</span><span>结果</span><span>IP地址</span></div><div v-for="item in selectedAlert.audit.slice(0, 4)" :key="item.time + item.content" class="log-row"><span>{{ item.time }}</span><span>{{ item.actor }}</span><span>{{ item.content }}</span><span class="success">{{ item.result }}</span><span>{{ item.ip }}</span></div></div></article>
     </section>
-    <footer class="alerts-footer"><RouterLink class="button secondary" to="/history">← 查看历史事件</RouterLink><span>最后同步：{{ runtime }}</span></footer>
+    <footer class="alerts-footer"><span>最后同步：{{ runtime }}</span></footer>
   </main>
 </template>
 
@@ -233,4 +233,38 @@ onMounted(refreshAlerts)
 @media (max-width: 900px){.alerts-shell{padding:14px}.alerts-runtime{display:none}.alert-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.alert-workbench{grid-template-columns:1fr}.alert-queue{min-height:0}.queue-list{max-height:none}.logs-grid{grid-template-columns:1fr}.detail-split{grid-template-columns:1fr}}
 @media (max-width: 560px){.alert-kpis{grid-template-columns:1fr}.alert-kpi{min-height:86px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-heading{display:block}.detail-tabs{margin-top:12px}.action-bar{grid-template-columns:repeat(2,1fr)}.process-track{min-width:0}.process-track:before{left:9%;right:9%}.process-step{min-width:0;gap:3px}.process-step span{width:24px;height:24px;font-size:11px}.process-step b{font-size:9px;white-space:nowrap}.process-step small{font-size:8px}.trend-panel-head{display:block}.trend-panel-head strong{display:inline-block;margin-top:8px}.trend-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.task-heading,.task-row{grid-template-columns:1.4fr .7fr .7fr}.alerts-footer{align-items:flex-start;gap:10px;flex-direction:column}}
 @media (prefers-reduced-motion: reduce){.queue-item,.action{transition:none}}
+
+/* 展示字号：辅助信息保持紧凑，但不低于可读的 11px；正文标签统一提高一级 */
+.alerts-shell .alerts-eyebrow { font-size: 11px; }
+.alerts-shell .alerts-runtime { font-size: 13px; }
+.alerts-shell .queue-summary,
+.alerts-shell .queue-item-top,
+.alerts-shell .queue-item-bottom,
+.alerts-shell .queue-item small,
+.alerts-shell .queue-pagination,
+.alerts-shell .alerts-footer { font-size: 12px; }
+.alerts-shell .severity-tag { font-size: 11px; }
+.alerts-shell .severity-tag.large { font-size: 12px; }
+.alerts-shell .detail-heading p,
+.alerts-shell .metric-grid span,
+.alerts-shell .metric-grid strong small,
+.alerts-shell .factor-line small,
+.alerts-shell .source-panel dl,
+.alerts-shell .process-step small,
+.alerts-shell .trend-panel-head p,
+.alerts-shell .trend-summary,
+.alerts-shell .action-message,
+.alerts-shell .plan-card a,
+.alerts-shell .plan-card p,
+.alerts-shell .task-heading,
+.alerts-shell .task-row,
+.alerts-shell .plan-footer,
+.alerts-shell .log-panel header span,
+.alerts-shell .log-head,
+.alerts-shell .log-row { font-size: 11px; }
+.alerts-shell .queue-item strong { font-size: 14px; }
+@media (max-width: 560px) {
+  .alerts-shell .process-step b { font-size: 10px; }
+  .alerts-shell .process-step small { font-size: 10px; }
+}
 </style>

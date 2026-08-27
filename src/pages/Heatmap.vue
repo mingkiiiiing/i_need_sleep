@@ -134,7 +134,6 @@
         </div>
       </div>
       <TimeAxisBar :stages="stages" variant="axis" />
-      <RouterLink class="dock-back" to="/" aria-label="返回主页" title="返回主页">←</RouterLink>
     </section>
     <footer class="cockpit-foot heatmap-foot">
       <span>数据源：机理模型 + AI 融合预测 · 当前视图：{{ stageTitle }}</span>
@@ -454,7 +453,7 @@ onMounted(async () => {
 .header-status { display: flex; align-items: center; gap: 12px; min-width: 275px; padding: 12px 14px; border: 1px solid var(--c-line); background: var(--glass-bg); }
 .header-status > div { display: grid; gap: 3px; flex: 1; }
 .header-status strong { font-size: 13px; }
-.header-status small { color: var(--c-muted); font-size: 11px; }
+.header-status small { color: var(--c-muted); font-size: 12px; }
 .status-light { width: 8px; height: 8px; border-radius: 50%; background: var(--c-stable); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-stable) 16%, transparent); }
 .cockpit-grid { display: grid; grid-template-columns: 238px minmax(560px, 1fr) 312px; gap: 14px; align-items: stretch; margin-top: 14px; }
 .cockpit-rail { min-width: 0; padding: 18px 16px; overflow: hidden; }
@@ -462,37 +461,37 @@ onMounted(async () => {
 .rail-heading h2 { margin: 4px 0 0; font-size: 18px; }
 .rail-index, .dock-index { color: var(--c-accent); font-family: var(--font-display); font-size: 11px; letter-spacing: .12em; }
 .risk-score { display: grid; gap: 5px; padding: 18px 0; border-bottom: 1px solid var(--c-line); }
-.score-label, .score-caption { color: var(--c-muted); font-size: 11px; }
+.score-label, .score-caption { color: var(--c-muted); font-size: 12px; }
 .risk-score strong { color: var(--c-alert); font-family: var(--font-display); font-size: 26px; }
 .metric-stack { padding: 8px 0; border-bottom: 1px solid var(--c-line); }
 .metric-row { display: grid; grid-template-columns: 1fr auto 34px; align-items: center; gap: 6px; padding: 10px 0; }
 .metric-row span { display: flex; align-items: center; gap: 7px; font-size: 12px; }
 .metric-row i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .metric-row strong { font-family: var(--font-display); font-size: 18px; }
-.metric-row small { color: var(--c-muted); text-align: right; font-size: 10px; }
+.metric-row small { color: var(--c-muted); text-align: right; font-size: 11px; }
 .metric-high { color: var(--c-alert); }.metric-mid { color: var(--c-watch); }.metric-low { color: var(--c-stable); }
 .rail-section { padding-top: 16px; }
 .section-line { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
-.section-line h3 { margin: 0; font-size: 13px; }.section-line span { color: var(--c-muted); font-size: 10px; white-space: nowrap; }
+.section-line h3 { margin: 0; font-size: 13px; }.section-line span { color: var(--c-muted); font-size: 11px; white-space: nowrap; }
 .rail-summary { margin: 0; color: var(--c-text-soft); font-size: 12px; line-height: 1.75; }
 .rail-note { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; margin-top: 15px; padding: 12px 0 0; border-top: 1px dashed var(--c-line); }
-.note-mark { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid var(--c-accent); color: var(--c-accent); font: 10px var(--font-display); }
-.rail-note div { display: grid; gap: 3px; }.rail-note strong { font-size: 11px; }.rail-note small { color: var(--c-muted); font-size: 9px; }.rail-note b { color: var(--c-accent); font: 16px var(--font-display); }
+.note-mark { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid var(--c-accent); color: var(--c-accent); font: 11px var(--font-display); }
+.rail-note div { display: grid; gap: 3px; }.rail-note strong { font-size: 12px; }.rail-note small { color: var(--c-muted); font-size: 11px; }.rail-note b { color: var(--c-accent); font: 16px var(--font-display); }
 .map-stage { min-width: 0; }.map-stage :deep(.map-panel) { min-height: 720px; height: 100%; }
 .right-rail { padding-bottom: 10px; }.hotspot-section { padding-bottom: 4px; }
 .factor-list { display: grid; gap: 8px; }
 .factor-track { position: relative; height: 24px; border-radius: 12px; background: var(--c-line); overflow: hidden; }
 .factor-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 12px; background: linear-gradient(90deg, var(--c-watch), var(--c-alert)); }
 .factor-fill.is-top { background: linear-gradient(90deg, var(--c-alert), #ffb3a6); box-shadow: 0 0 8px var(--c-alert-soft); }
-.factor-tag { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 11px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.factor-tag { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 2; font-size: 12px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
 .factor-value { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); z-index: 2; color: #fff; font: 12px var(--font-display); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
 .chart-section { border-top: 1px dashed var(--c-line); }.chart-frame { height: 200px; }
 .left-rail .confidence-section { padding-top: 14px; }
 .left-rail .confidence-section .chart-frame { height: 168px; }
-.timeline-dock { display: grid; grid-template-columns: 130px minmax(0, 1fr) 34px; align-items: center; gap: 16px; margin-top: 14px; padding: 12px 14px 12px 16px; border: 1px solid var(--c-line); background: var(--glass-bg); }.timeline-dock :deep(.time-axis-bar) { margin: 0; border: 0; padding: 0; }.dock-label { display: flex; align-items: center; gap: 10px; }.dock-label div { display: grid; gap: 3px; }.dock-label strong { font-size: 12px; }.dock-label small { color: var(--c-muted); font-size: 10px; }.dock-back { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--c-line-strong); color: var(--c-text-soft); font-size: 18px; }.heatmap-foot { justify-content: center; color: var(--c-muted); font-size: 10px; }
+.timeline-dock { display: grid; grid-template-columns: 130px minmax(0, 1fr); align-items: center; gap: 16px; margin-top: 14px; padding: 12px 14px 12px 16px; border: 1px solid var(--c-line); background: var(--glass-bg); }.timeline-dock :deep(.time-axis-bar) { margin: 0; border: 0; padding: 0; }.dock-label { display: flex; align-items: center; gap: 10px; }.dock-label div { display: grid; gap: 3px; }.dock-label strong { font-size: 12px; }.dock-label small { color: var(--c-muted); font-size: 11px; }.heatmap-foot { justify-content: center; color: var(--c-muted); font-size: 11px; }
 
 @media (max-width: 1180px) { .cockpit-grid { grid-template-columns: 210px minmax(450px, 1fr); }.right-rail { grid-column: 1 / -1; display: grid; grid-template-columns: 180px 1fr 1fr; gap: 18px; }.right-rail .rail-heading { grid-row: span 2; }.right-rail .rail-section { padding-top: 0; }.right-rail .hotspot-section { grid-column: 1; grid-row: span 2; }.right-rail .chart-section { grid-column: 2 / -1; border-top: 0; border-left: 1px dashed var(--c-line); padding-left: 18px; } }
-@media (max-width: 760px) { .heatmap-header { display: grid; align-items: start; }.header-status { min-width: 0; }.cockpit-grid { display: flex; flex-direction: column; }.map-stage { order: -1; }.map-stage :deep(.map-panel) { min-height: 560px; }.left-rail, .right-rail { display: block; }.right-rail .rail-heading, .right-rail .rail-section { padding-top: 16px; }.right-rail .chart-section { border-top: 1px dashed var(--c-line); border-left: 0; padding-left: 0; }.timeline-dock { grid-template-columns: 1fr 34px; }.timeline-dock :deep(.time-axis-bar) { grid-column: 1 / -1; grid-row: 2; }.dock-label { grid-column: 1; }.dock-back { grid-column: 2; grid-row: 1; } }
+@media (max-width: 760px) { .heatmap-header { display: grid; align-items: start; }.header-status { min-width: 0; }.cockpit-grid { display: flex; flex-direction: column; }.map-stage { order: -1; }.map-stage :deep(.map-panel) { min-height: 560px; }.left-rail, .right-rail { display: block; }.right-rail .rail-heading, .right-rail .rail-section { padding-top: 16px; }.right-rail .chart-section { border-top: 1px dashed var(--c-line); border-left: 0; padding-left: 0; }.timeline-dock { grid-template-columns: 1fr; }.timeline-dock :deep(.time-axis-bar) { grid-column: 1; grid-row: 2; }.dock-label { grid-column: 1; } }
 @media (max-width: 640px) {
   .heatmap-header { gap: 14px; padding-bottom: 16px; }
   .header-status { padding: 10px 12px; }

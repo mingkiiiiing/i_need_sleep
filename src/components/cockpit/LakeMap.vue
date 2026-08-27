@@ -446,7 +446,7 @@ onBeforeUnmount(() => {
 .leaflet-control-attribution {
   background: var(--c-surface) !important;
   color: var(--c-muted) !important;
-  font-size: 10px !important;
+  font-size: 11px !important;
   border-radius: 6px 0 0 0 !important;
   padding: 3px 8px !important;
 }
@@ -539,7 +539,7 @@ onBeforeUnmount(() => {
 
 .lake-marker-label span {
   color: var(--c-text-soft);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.2;
 }
 
