@@ -81,11 +81,11 @@ class DataRepository:
 
     def alerts(self) -> list[dict[str, Any]]:
         base = [
-            ("AL202505200015", "贡湖湾叶绿素a高风险", "江苏省 / 无锡市 / 滨湖区", "northwest_hotspot", "high", "new", "10:15", 58.7, 40.0, 82, "未指派"),
-            ("AL202505200014", "梅梁湖蓝藻水华风险", "江苏省 / 无锡市 / 滨湖区", "central_lake", "mid", "processing", "09:52", 44.2, 40.0, 68, "处置组"),
-            ("AL202505200013", "蠡湖总磷超标风险", "江苏省 / 无锡市 / 滨湖区", "river_inlet", "high", "processing", "09:41", 0.112, 0.08, 76, "处置组"),
-            ("AL202505200012", "长广溪水体富营养化风险", "江苏省 / 无锡市 / 惠山区", "south_channel", "mid", "assigned", "09:28", 36.8, 40.0, 54, "巡查组"),
-            ("AL202505200011", "绿化河道藻类聚集风险", "江苏省 / 无锡市 / 新吴区", "southeast_station", "low", "resolved", "08:55", 22.4, 40.0, 31, "监测组"),
+            ("AL202505200015", "贡湖湾叶绿素 a 高风险", "太湖 / 贡湖湾 / 西北热点区", "northwest_hotspot", "high", "new", "10:15", 58.7, 40.0, 82, "未指派"),
+            ("AL202505200014", "梅梁湖叶绿素 a 关注", "太湖 / 梅梁湖 / 湖心浮标", "central_lake", "mid", "processing", "09:52", 44.2, 40.0, 68, "处置组"),
+            ("AL202505200013", "蠡湖入湖总磷超标", "太湖 / 蠡湖 / 入湖河口", "river_inlet", "high", "processing", "09:41", 0.112, 0.08, 76, "处置组"),
+            ("AL202505200012", "长广溪叶绿素 a 早期聚集", "太湖 / 长广溪 / 南部通道", "south_channel", "mid", "assigned", "09:28", 36.8, 40.0, 54, "巡查组"),
+            ("AL202505200011", "东太湖叶绿素 a 稳定", "太湖 / 东太湖 / 东南监测站", "southeast_station", "low", "resolved", "08:55", 22.4, 40.0, 31, "监测组"),
         ]
         status_index = {"new": 0, "confirmed": 1, "assigned": 1, "processing": 2, "resolved": 3, "closed": 4}
         factors = [[("水温偏高", 38), ("总磷浓度偏高", 28), ("风速降低", 18)], [("水温偏高", 32), ("水动力减弱", 24), ("营养盐累积", 16)], [("上游来水增加", 36), ("降雨冲刷", 27), ("交换流减弱", 15)], [("水温偏高", 28), ("风速降低", 19), ("交换流减弱", 13)], [("水温偏高", 18), ("历史聚集惯性", 12), ("风场稳定", 8)]]
@@ -93,18 +93,32 @@ class DataRepository:
         for index, (alert_id, title, area, point, severity, status, alert_time, value, threshold, probability, owner) in enumerate(base):
             metric = "总磷" if alert_id.endswith("13") else "叶绿素 a"
             unit = "mg/L" if metric == "总磷" else "μg/L"
-            task_defs = [("monitor", "加强监测频次（每3小时）", "监测组", "05-20 13:00", True), ("inspect", "开展藻情巡查与样品采集", "巡查组", "05-20 12:00", index < 3), ("control", "投加生态控藻剂（按规范）", "处置组", "05-20 16:00", index == 0), ("device", "启动增氧设备运行", "运维组", "05-20 14:00", False), ("public", "发布风险提示与科普宣传", "宣传组", "05-20 15:00", False)]
+            trend = {
+                "AL202505200015": [39.8, 41.2, 43.6, 46.1, 49.8, 54.3, 58.7],
+                "AL202505200014": [35.1, 36.4, 37.8, 39.2, 40.8, 42.5, 44.2],
+                "AL202505200013": [0.071, 0.075, 0.079, 0.084, 0.091, 0.101, 0.112],
+                "AL202505200012": [29.3, 30.1, 31.4, 32.6, 33.8, 35.2, 36.8],
+                "AL202505200011": [27.6, 26.8, 25.9, 24.8, 24.1, 23.2, 22.4],
+            }[alert_id]
+            lake = area.split(" / ")[1]
+            task_defs = [
+                ("monitor", f"{lake}加密监测（每3小时）", "监测组", "05-20 13:00", True),
+                ("inspect", f"复核{lake}藻情与现场样品", "巡查组", "05-20 12:00", index < 3),
+                ("control", f"评估{lake}生态控藻措施（按规范）", "处置组", "05-20 16:00", index == 0),
+                ("device", f"核查{lake}应急设备状态", "运维组", "05-20 14:00", False),
+                ("public", f"发布{lake}风险提示", "宣传组", "05-20 15:00", False),
+            ]
             flow_labels = ["新预警", "已确认", "处理中", "已解决", "已关闭"]
             current = status_index[status]
             flow = [{"label": label, "time": alert_time if step == 0 else "—", "done": step <= current} for step, label in enumerate(flow_labels)]
             output.append({
                 "id": alert_id, "title": title, "area": area, "point": point, "severity": severity, "status": status,
                 "time": alert_time, "date": "2025-05-20", "metric": metric, "value": value, "unit": unit,
-                "threshold": threshold, "exceedance": round(value / threshold, 2), "probability": probability,
-                "source": "监测站 + 通感气象", "model": "藻类风险预测模型 v2.3", "updatedAt": "2025-05-20 09:50",
+                "threshold": threshold, "exceedance": round(value / threshold, 2), "probability": probability, "trend": trend,
+                "source": f"{area.split(' / ')[1]}监测站 + 湖面风场", "model": "太湖蓝藻风险预测模型 v2.3", "updatedAt": "2025-05-20 09:50",
                 "confidence": "较高" if probability >= 70 else "中等", "owner": owner, "responseTime": "18分钟" if index else "—",
                 "factors": [{"name": name, "value": contribution} for name, contribution in factors[index]], "flow": flow,
-                "plan": {"name": f"{title[:4]}应急预案（{'III' if severity == 'high' else 'II' if severity == 'mid' else 'I'}级）", "match": 92 - index * 6, "target": "蓝藻水华风险、营养盐异常与局地聚集风险", "tasks": [{"id": task_id, "label": label, "owner": task_owner, "due": due, "checked": checked} for task_id, label, task_owner, due, checked in task_defs], "updatedAt": "2025-04-18"},
+                "plan": {"name": f"{area.split(' / ')[1]}蓝藻监测应急预案（{'III' if severity == 'high' else 'II' if severity == 'mid' else 'I'}级）", "match": 92 - index * 6, "target": "蓝藻水华风险、叶绿素 a / 总磷异常与局地聚集", "tasks": [{"id": task_id, "label": label, "owner": task_owner, "due": due, "checked": checked} for task_id, label, task_owner, due, checked in task_defs], "updatedAt": "2025-04-18"},
                 "records": [{"time": f"2025-05-20 {alert_time}", "node": "新预警", "content": "系统自动生成预警", "actor": "系统", "note": f"预测值{value} {unit}，概率{probability}%"}],
                 "audit": [{"time": f"2025-05-20 {alert_time}:32", "actor": "系统", "content": f"生成预警（{alert_id}）", "result": "成功", "ip": "10.0.1.10"}],
             })
