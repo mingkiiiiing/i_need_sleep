@@ -97,7 +97,8 @@ const navItems = [
   { num: '00', to: '/',                 label: '首页' },
   { num: '01', to: '/stations',         label: '监测站' },
   { num: '02', to: '/heatmap',          label: '热力图' },
-  { num: '03', to: '/history',          label: '历史事件' }
+  { num: '03', to: '/history',          label: '历史事件' },
+  { num: '04', to: '/alerts',           label: '预警应急' }
 ]
 
 const now = ref(new Date())
@@ -111,10 +112,10 @@ const liveTime = computed(() => {
 const isoTime = computed(() => now.value.toISOString())
 
 const themeAriaLabel = computed(() =>
-  theme.value === 'dark' ? '切换到浅色主题' : theme.value === 'light' ? '切换到日式暖阳主题' : '切换到深色主题'
+  theme.value === 'dark' ? '切换到浅色主题' : '切换到深色主题'
 )
 const themeTitle = computed(() =>
-  theme.value === 'dark' ? '深色主题 · 点击切换浅色' : theme.value === 'light' ? '浅色主题 · 点击切换日式暖阳' : '日式暖阳 · 点击切换深色'
+  theme.value === 'dark' ? '深色主题 · 点击切换浅色' : '浅色主题 · 点击切换深色'
 )
 
 function isActive(item) {

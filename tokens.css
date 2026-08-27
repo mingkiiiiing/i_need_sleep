@@ -8,7 +8,7 @@
    语义 token（--c-*）为唯一来源，其余均为别名：
      · --teal / --coral / --amber / --green / --violet …  兼容全局组件
      · --home-* …                                         兼容主页 Home.vue
-   三主题通过 <html data-theme="dark|light|sunrise"> 驱动，
+   两套主题通过 <html data-theme="dark|light"> 驱动，
    仅需覆盖 --c-* 语义 token，别名与 --home-* 自动跟随。
    ============================================================ */
 
@@ -55,6 +55,9 @@
   --c-stable:       #5fd6a4;                  /* 稳定 · 薄荷绿 */
   --c-stable-soft:  rgba(95, 214, 164, 0.14);
   --c-ai:           #a78bfa;                  /* AI · 紫罗兰 */
+  --c-on-alert:     #ffffff;
+  --c-on-watch:     #241803;
+  --c-on-stable:    #062016;
 
   --c-bg-deep:   #060b16;                     /* 最深底 */
   --c-bg-base:   #0a1420;
@@ -184,6 +187,9 @@
   --c-stable:       #1f9d6b;
   --c-stable-soft:  rgba(31, 157, 107, 0.12);
   --c-ai:           #7c5cd6;
+  --c-on-alert:     #ffffff;
+  --c-on-watch:     #2d2000;
+  --c-on-stable:    #063523;
 
   --c-bg-deep:   #e9eff4;
   --c-bg-base:   #eef3f7;
@@ -220,61 +226,4 @@
   --home-color-label-strong: rgba(255, 255, 255, 0.97);
   --home-shadow-small: 0 12px 30px rgba(24, 48, 72, 0.14);
   --home-shadow-panel: 0 28px 70px rgba(24, 48, 72, 0.18);
-}
-
-/* ============================================================
-   日式暖阳主题「暖阳 Sunrise」
-   ============================================================ */
-:root[data-theme="sunrise"] {
-  --c-accent:        #d9643b;
-  --c-accent-deep:   #b34a2a;
-  --c-accent-soft:   rgba(217, 100, 59, 0.14);
-  --c-accent-border: rgba(217, 100, 59, 0.42);
-  --c-accent-ink:    #fffaf2;
-  --c-accent-glow:   rgba(217, 100, 59, 0.32);
-
-  --c-alert:        #d9574f;
-  --c-alert-soft:   rgba(217, 87, 79, 0.12);
-  --c-alert-border: rgba(217, 87, 79, 0.40);
-  --c-watch:        #c8871f;
-  --c-watch-soft:   rgba(200, 135, 31, 0.12);
-  --c-stable:       #6f9e5a;
-  --c-stable-soft:  rgba(111, 158, 90, 0.14);
-  --c-ai:           #9a7fb8;
-
-  --c-bg-deep:   #f2e7d6;
-  --c-bg-base:   #f7efe3;
-  --c-bg-soft:   #ebdfcc;
-  --c-surface:        rgba(255, 252, 245, 0.90);
-  --c-surface-strong: rgba(255, 252, 245, 0.97);
-  --c-surface-soft:   rgba(122, 82, 42, 0.07);
-  --c-line:        rgba(122, 82, 42, 0.16);
-  --c-line-strong: rgba(122, 82, 42, 0.30);
-  --c-text:        #3a2e26;
-  --c-text-soft:   #6b5744;
-  --c-muted:       #9a8570;
-  --c-grid:        rgba(122, 82, 42, 0.06);
-
-  --shadow:    0 18px 48px rgba(122, 82, 42, 0.18);
-  --shadow-sm: 0 6px 24px rgba(122, 82, 42, 0.14);
-
-  /* —— 玻璃面板（暖阳玻璃）—— */
-  --glass-bg:         rgba(255, 252, 245, 0.55);
-  --glass-bg-strong:  rgba(255, 252, 245, 0.70);
-  --glass-border:     rgba(255, 255, 255, 0.80);
-  --glass-border-strong: rgba(255, 255, 255, 0.98);
-  --glass-highlight:  rgba(255, 255, 255, 0.95);
-  --glass-shadow:     0 8px 32px rgba(122, 82, 42, 0.18);
-
-  --home-color-surface:      rgba(255, 252, 245, 0.92);
-  --home-color-surface-soft: rgba(122, 82, 42, 0.07);
-  --home-color-focus:        #b34a2a;
-  --home-color-lake:         rgba(60, 140, 160, 0.44);
-  --home-color-lake-deep:    rgba(150, 190, 190, 0.58);
-  --home-color-lake-highlight: rgba(217, 100, 59, 0.14);
-  --home-color-lake-shadow:  rgba(200, 170, 130, 0.4);
-  --home-color-label:        rgba(255, 252, 245, 0.92);
-  --home-color-label-strong: rgba(255, 252, 245, 0.97);
-  --home-shadow-small: 0 12px 30px rgba(122, 82, 42, 0.16);
-  --home-shadow-panel: 0 28px 70px rgba(122, 82, 42, 0.20);
 }

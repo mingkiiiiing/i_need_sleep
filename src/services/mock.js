@@ -6,8 +6,10 @@ import {
   heatGrid,
   regionSummary
 } from '../data/points.js'
+import { cloneAlerts } from '../data/alerts.js'
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+let alertsState = cloneAlerts()
 
 export async function fetchTimeStages() {
   await delay(40)
@@ -32,6 +34,31 @@ export async function fetchHeatField() {
 export async function fetchEvents() {
   await delay(60)
   return eventStream
+}
+
+export async function fetchAlerts() {
+  await delay(70)
+  return alertsState
+}
+
+export async function fetchAlertAction(alertId, action, payload = {}) {
+  await delay(120)
+  const alert = alertsState.find((item) => item.id === alertId)
+  if (!alert) throw new Error('预警不存在')
+  const now = new Date().toLocaleString('zh-CN', { hour12: false })
+  const actor = payload.actor || '当前用户'
+  const labels = { confirm: '确认预警', assign: '指派处置', start: '开始处置', push: '模拟推送', resolve: '标记已解决', close: '关闭预警' }
+  if (action === 'confirm') alert.status = 'confirmed'
+  if (action === 'assign') { alert.status = 'assigned'; alert.owner = payload.owner || '处置组' }
+  if (action === 'start') { alert.status = 'processing'; alert.owner = payload.owner || alert.owner || '处置组' }
+  if (action === 'resolve') alert.status = 'resolved'
+  if (action === 'close') alert.status = 'closed'
+  if (action === 'push') alert.status = alert.status === 'new' ? 'confirmed' : alert.status
+  const statusIndex = { new: 0, confirmed: 1, assigned: 1, processing: 2, resolved: 3, closed: 4 }[alert.status] ?? 0
+  alert.flow = alert.flow.map((step, index) => ({ ...step, done: index <= statusIndex, time: index <= statusIndex && step.time === '—' ? now.slice(11, 16) : step.time }))
+  alert.records.unshift({ time: now, node: labels[action] || '更新预警', content: labels[action] || action, actor, note: action === 'push' ? '已模拟推送至短信、邮件、平台通知' : '操作已写入处置记录' })
+  alert.audit.unshift({ time: now, actor, content: labels[action] || action, result: '成功', ip: '10.0.1.23' })
+  return alert
 }
 
 export async function fetchRegionSummary() {

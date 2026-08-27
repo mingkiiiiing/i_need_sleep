@@ -1,11 +1,11 @@
-// 全局主题管理：dark（默认）/ light / sunrise（日式暖阳）。
-// 通过 <html data-theme="dark|light|sunrise"> 驱动三套 CSS token 切换，
+// 全局主题管理：dark（默认）/ light。
+// 通过 <html data-theme="dark|light"> 驱动两套 CSS token 切换，
 // 状态持久化到 localStorage，未显式选择时跟随系统 prefers-color-scheme。
 
 import { reactive, computed } from 'vue'
 
 const STORAGE_KEY = 'i-need-sleep-theme'
-const THEMES = ['dark', 'light', 'sunrise']
+const THEMES = ['dark', 'light']
 
 const state = reactive({
   theme: 'dark'
@@ -41,7 +41,7 @@ export function initTheme() {
 }
 
 export function useTheme() {
-  // 循环切换：dark → light → sunrise → dark
+  // 循环切换：dark → light → dark
   const cycleTheme = () => {
     const idx = THEMES.indexOf(state.theme)
     const next = THEMES[(idx + 1) % THEMES.length]

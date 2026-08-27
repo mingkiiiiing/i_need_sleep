@@ -27,6 +27,12 @@ class PredictRequest(BaseModel):
     features: dict[str, float] | None = None
 
 
+class AlertActionRequest(BaseModel):
+    action: Literal["confirm", "assign", "start", "push", "resolve", "close"]
+    actor: str = "当前用户"
+    owner: str | None = None
+
+
 class DataRepository:
     """演示数据仓库；真实数据到位后替换为 JSON/数据库实现，路由无需变更。"""
     stages = [
@@ -73,6 +79,37 @@ class DataRepository:
         station_ids = list(self.points())
         return [{"id": f"e{i + 1}", "time": f"08-{16 + i:02d} 09:00", "stageKey": self.stages[i % 5]["key"], "point": station_ids[i % len(station_ids)], "title": "风险研判事件", "summary": "多源观测数据完成质控，系统已更新预警结果。", "severity": ["low", "mid", "high"][i % 3]} for i in range(15)]
 
+    def alerts(self) -> list[dict[str, Any]]:
+        base = [
+            ("AL202505200015", "贡湖湾叶绿素a高风险", "江苏省 / 无锡市 / 滨湖区", "northwest_hotspot", "high", "new", "10:15", 58.7, 40.0, 82, "未指派"),
+            ("AL202505200014", "梅梁湖蓝藻水华风险", "江苏省 / 无锡市 / 滨湖区", "central_lake", "mid", "processing", "09:52", 44.2, 40.0, 68, "处置组"),
+            ("AL202505200013", "蠡湖总磷超标风险", "江苏省 / 无锡市 / 滨湖区", "river_inlet", "high", "processing", "09:41", 0.112, 0.08, 76, "处置组"),
+            ("AL202505200012", "长广溪水体富营养化风险", "江苏省 / 无锡市 / 惠山区", "south_channel", "mid", "assigned", "09:28", 36.8, 40.0, 54, "巡查组"),
+            ("AL202505200011", "绿化河道藻类聚集风险", "江苏省 / 无锡市 / 新吴区", "southeast_station", "low", "resolved", "08:55", 22.4, 40.0, 31, "监测组"),
+        ]
+        status_index = {"new": 0, "confirmed": 1, "assigned": 1, "processing": 2, "resolved": 3, "closed": 4}
+        factors = [[("水温偏高", 38), ("总磷浓度偏高", 28), ("风速降低", 18)], [("水温偏高", 32), ("水动力减弱", 24), ("营养盐累积", 16)], [("上游来水增加", 36), ("降雨冲刷", 27), ("交换流减弱", 15)], [("水温偏高", 28), ("风速降低", 19), ("交换流减弱", 13)], [("水温偏高", 18), ("历史聚集惯性", 12), ("风场稳定", 8)]]
+        output = []
+        for index, (alert_id, title, area, point, severity, status, alert_time, value, threshold, probability, owner) in enumerate(base):
+            metric = "总磷" if alert_id.endswith("13") else "叶绿素 a"
+            unit = "mg/L" if metric == "总磷" else "μg/L"
+            task_defs = [("monitor", "加强监测频次（每3小时）", "监测组", "05-20 13:00", True), ("inspect", "开展藻情巡查与样品采集", "巡查组", "05-20 12:00", index < 3), ("control", "投加生态控藻剂（按规范）", "处置组", "05-20 16:00", index == 0), ("device", "启动增氧设备运行", "运维组", "05-20 14:00", False), ("public", "发布风险提示与科普宣传", "宣传组", "05-20 15:00", False)]
+            flow_labels = ["新预警", "已确认", "处理中", "已解决", "已关闭"]
+            current = status_index[status]
+            flow = [{"label": label, "time": alert_time if step == 0 else "—", "done": step <= current} for step, label in enumerate(flow_labels)]
+            output.append({
+                "id": alert_id, "title": title, "area": area, "point": point, "severity": severity, "status": status,
+                "time": alert_time, "date": "2025-05-20", "metric": metric, "value": value, "unit": unit,
+                "threshold": threshold, "exceedance": round(value / threshold, 2), "probability": probability,
+                "source": "监测站 + 通感气象", "model": "藻类风险预测模型 v2.3", "updatedAt": "2025-05-20 09:50",
+                "confidence": "较高" if probability >= 70 else "中等", "owner": owner, "responseTime": "18分钟" if index else "—",
+                "factors": [{"name": name, "value": contribution} for name, contribution in factors[index]], "flow": flow,
+                "plan": {"name": f"{title[:4]}应急预案（{'III' if severity == 'high' else 'II' if severity == 'mid' else 'I'}级）", "match": 92 - index * 6, "target": "蓝藻水华风险、营养盐异常与局地聚集风险", "tasks": [{"id": task_id, "label": label, "owner": task_owner, "due": due, "checked": checked} for task_id, label, task_owner, due, checked in task_defs], "updatedAt": "2025-04-18"},
+                "records": [{"time": f"2025-05-20 {alert_time}", "node": "新预警", "content": "系统自动生成预警", "actor": "系统", "note": f"预测值{value} {unit}，概率{probability}%"}],
+                "audit": [{"time": f"2025-05-20 {alert_time}:32", "actor": "系统", "content": f"生成预警（{alert_id}）", "result": "成功", "ip": "10.0.1.10"}],
+            })
+        return output
+
     def summary(self) -> dict[str, Any]:
         points = self.points()
         return {"totalStations": len(points), "riskCounts": {"high": 1, "mid": 3, "low": 2}, "intensity": {sid: {stage["key"]: min(98, point["factors"][0]["value"] - stage["index"] * 5) for stage in self.stages} for sid, point in points.items()}}
@@ -80,6 +117,7 @@ class DataRepository:
 
 repository = DataRepository()
 ingested_batches: list[dict[str, Any]] = []
+alerts_state = repository.alerts()
 
 @app.get("/")
 async def root(): return ok({"name": "蓝藻水华监测预警系统 API", "docs": "/docs", "version": app.version})
@@ -104,6 +142,27 @@ async def risk_heatmap(): return ok(repository.heat_fields())
 
 @app.get("/api/v1/cockpit/events")
 async def events(): return ok(repository.events())
+
+@app.get("/api/v1/cockpit/alerts")
+async def alerts(): return ok(alerts_state)
+
+@app.post("/api/v1/cockpit/alerts/{alert_id}/actions")
+async def alert_actions(alert_id: str, payload: AlertActionRequest):
+    alert = next((item for item in alerts_state if item["id"] == alert_id), None)
+    if not alert: raise HTTPException(status_code=404, detail="alert_id 不存在")
+    labels = {"confirm": "确认预警", "assign": "指派处置", "start": "开始处置", "push": "模拟推送", "resolve": "标记已解决", "close": "关闭预警"}
+    transitions = {"confirm": "confirmed", "assign": "assigned", "start": "processing", "resolve": "resolved", "close": "closed"}
+    if payload.action in transitions: alert["status"] = transitions[payload.action]
+    if payload.action in {"assign", "start"}: alert["owner"] = payload.owner or "处置组"
+    if payload.action == "push" and alert["status"] == "new": alert["status"] = "confirmed"
+    now = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S")
+    current = {"new": 0, "confirmed": 1, "assigned": 1, "processing": 2, "resolved": 3, "closed": 4}[alert["status"]]
+    for index, step in enumerate(alert["flow"]):
+        step["done"] = index <= current
+        if step["done"] and step["time"] == "—": step["time"] = now[11:16]
+    alert["records"].insert(0, {"time": now, "node": labels[payload.action], "content": labels[payload.action], "actor": payload.actor, "note": "操作已写入处置记录"})
+    alert["audit"].insert(0, {"time": now, "actor": payload.actor, "content": labels[payload.action], "result": "成功", "ip": "10.0.1.23"})
+    return ok(alert)
 
 @app.get("/api/v1/cockpit/region-summary")
 async def region_summary(): return ok(repository.summary())

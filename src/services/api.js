@@ -46,6 +46,17 @@ export function getEvents() {
   return withFallback(() => request('/cockpit/events'), mock.fetchEvents)
 }
 
+export function getAlerts() {
+  return withFallback(() => request('/cockpit/alerts'), mock.fetchAlerts)
+}
+
+export function alertAction(alertId, action, payload = {}) {
+  return withFallback(
+    () => request(`/cockpit/alerts/${encodeURIComponent(alertId)}/actions`, { method: 'POST', body: JSON.stringify({ action, ...payload }) }),
+    () => mock.fetchAlertAction(alertId, action, payload)
+  )
+}
+
 export function getRegionSummary() {
   return withFallback(() => request('/cockpit/region-summary'), mock.fetchRegionSummary)
 }

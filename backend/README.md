@@ -26,6 +26,8 @@ python -m uvicorn backend.main:app --reload --port 8000
 | `GET /api/v1/cockpit/points/{station_id}` | 单站详情 |
 | `GET /api/v1/cockpit/risk-heatmap` | 5 个档位的 11×19 风险网格 |
 | `GET /api/v1/cockpit/events` | 历史回放事件流 |
+| `GET /api/v1/cockpit/alerts` | 活动预警、应急预案、处置记录与审计日志 |
+| `POST /api/v1/cockpit/alerts/{alert_id}/actions` | 执行确认、指派、开始处置、模拟推送、解决或关闭 |
 | `GET /api/v1/cockpit/region-summary` | 站点汇总及分档风险强度 |
 
 ## 数据接入约定

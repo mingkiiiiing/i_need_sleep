@@ -111,7 +111,8 @@ src/
 │  ├─ Home.vue                   # 主页（Marquee Hero + 太湖监测网络可视化）
 │  ├─ Stations.vue               # 监测站档位研判
 │  ├─ Heatmap.vue                # 风险热力分区
-│  └─ History.vue                # 历史事件回放
+│  ├─ History.vue                # 历史事件回放
+│  └─ Alerts.vue                 # 预警与应急预案中心（实时处置）
 ├─ stores/
 │  └─ cockpit.js                 # 跨页共享状态
 ├─ services/
@@ -131,6 +132,7 @@ src/
 | `/stations` | 监测站档位研判 |
 | `/heatmap` | 风险热力分区 |
 | `/history` | 历史事件回放 |
+| `/alerts` | 预警与应急预案中心 |
 
 ---
 

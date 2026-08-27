@@ -11,12 +11,14 @@ import Home from './pages/Home.vue'
 import Stations from './pages/Stations.vue'
 import Heatmap from './pages/Heatmap.vue'
 import History from './pages/History.vue'
+import Alerts from './pages/Alerts.vue'
 
 const routes = [
   { path: '/', component: Home },
   { path: '/stations', component: Stations },
   { path: '/heatmap', component: Heatmap },
-  { path: '/history', component: History }
+  { path: '/history', component: History },
+  { path: '/alerts', component: Alerts }
 ]
 
 const router = createRouter({
