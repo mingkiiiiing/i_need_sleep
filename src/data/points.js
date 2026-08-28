@@ -287,7 +287,7 @@ export const heatField = {
 // Heatmap 网格坐标 (相对坐标 0-100)，用于驱动可视化几何分布
 // 行 row：上下分层；列 col：左右分层；val 越大越热
 export const heatGrid = (() => {
-  // 19 列 x 11 行的网格，按 stage 给出风险值
+  // 80 列 x 60 行的高分辨率风险场，按 stage 给出风险值
   const stages = {}
   const presets = {
     t1:  { center: [55, 80], northwest: [82, 60], inlet: [18, 70], channel: [40, 92], intake: [88, 40], southeast: [78, 90] },
@@ -299,11 +299,11 @@ export const heatGrid = (() => {
   Object.keys(presets).forEach((stageKey) => {
     const grid = []
     const def = presets[stageKey]
-    for (let row = 0; row < 11; row++) {
+    for (let row = 0; row < 60; row++) {
       const rowArr = []
-      for (let col = 0; col < 19; col++) {
-        const x = (col + 0.5) / 19 * 100
-        const y = (row + 0.5) / 11 * 100
+      for (let col = 0; col < 80; col++) {
+        const x = (col + 0.5) / 80 * 100
+        const y = (row + 0.5) / 60 * 100
         let val = 0
         // 叠加多个高斯热点，体现阶段扩散
         const hotspots = [

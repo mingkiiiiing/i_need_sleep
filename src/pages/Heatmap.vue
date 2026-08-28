@@ -76,6 +76,7 @@
         :heat-field="heatField"
         :heat-stage-key="cockpit.stageKey"
         :stage-label="stageLabel"
+        default-layer="heat"
         title="太湖风险热力分区"
         @update:model-value="setPoint"
       />

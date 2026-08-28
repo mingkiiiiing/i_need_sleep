@@ -43,21 +43,22 @@ class DataRepository:
         {"key": "t30", "label": "未来 30 天", "short": "30 天", "days": 30, "index": 4},
     ]
     specs = [
-        ("northwest_hotspot", "西北热点区", "NW-01", "红色预警", "high", [88, 76, 72, 64], ["1.25e6 cells/L", "42.8 ug/L", "0.091 mg/L", "29.6 ℃"]),
-        ("central_lake", "湖心浮标", "CN-02", "橙色关注", "mid", [72, 68, 54, 46], ["8.5e5 cells/L", "18.9 ug/L", "0.063 mg/L", "28.4 ℃"]),
-        ("river_inlet", "入湖河口", "RI-03", "橙色关注", "mid", [84, 71, 58, 49], ["9.4e5 cells/L", "24.6 ug/L", "0.082 mg/L", "27.8 ℃"]),
-        ("southeast_station", "东南监测站", "SE-04", "绿色稳定", "low", [48, 42, 36, 32], ["4.7e5 cells/L", "11.4 ug/L", "0.041 mg/L", "26.9 ℃"]),
-        ("water_intake", "取水口", "WI-05", "绿色稳定", "low", [66, 59, 35, 33], ["5.0e5 cells/L", "14.2 ug/L", "0.048 mg/L", "27.1 ℃"]),
-        ("south_channel", "南部通道", "SC-06", "橙色关注", "mid", [77, 63, 42, 37], ["7.4e5 cells/L", "17.3 ug/L", "0.058 mg/L", "27.6 ℃"]),
+        ("northwest_hotspot", "西北热点区", "NW-01", "红色预警", "high", [88, 76, 72, 64], ["1.25e6 cells/L", "42.8 ug/L", "0.091 mg/L", "29.6 ℃"], (31.34, 120.02)),
+        ("central_lake", "湖心浮标", "CN-02", "橙色关注", "mid", [72, 68, 54, 46], ["8.5e5 cells/L", "18.9 ug/L", "0.063 mg/L", "28.4 ℃"], (31.18, 120.16)),
+        ("river_inlet", "入湖河口", "RI-03", "橙色关注", "mid", [84, 71, 58, 49], ["9.4e5 cells/L", "24.6 ug/L", "0.082 mg/L", "27.8 ℃"], (31.24, 119.94)),
+        ("southeast_station", "东南监测站", "SE-04", "绿色稳定", "low", [48, 42, 36, 32], ["4.7e5 cells/L", "11.4 ug/L", "0.041 mg/L", "26.9 ℃"], (31.02, 120.30)),
+        ("water_intake", "取水口", "WI-05", "绿色稳定", "low", [66, 59, 35, 33], ["5.0e5 cells/L", "14.2 ug/L", "0.048 mg/L", "27.1 ℃"], (31.30, 120.25)),
+        ("south_channel", "南部通道", "SC-06", "橙色关注", "mid", [77, 63, 42, 37], ["7.4e5 cells/L", "17.3 ug/L", "0.058 mg/L", "27.6 ℃"], (31.00, 120.10)),
     ]
     positions = {"northwest_hotspot": {"top": "24%", "left": "22%"}, "river_inlet": {"top": "62%", "left": "12%"}, "southeast_station": {"top": "72%", "left": "78%"}, "central_lake": {"top": "45%", "left": "52%"}, "water_intake": {"top": "30%", "left": "84%"}, "south_channel": {"top": "82%", "left": "40%"}}
 
     def points(self) -> dict[str, dict[str, Any]]:
         names = ["水温", "风速", "营养盐", "历史聚集惯性"]
         data = {}
-        for index, (sid, name, short, risk, risk_class, values, metrics) in enumerate(self.specs):
+        for index, (sid, name, short, risk, risk_class, values, metrics, coord) in enumerate(self.specs):
             data[sid] = {
                 "id": sid, "name": name, "short": short, "risk": risk, "riskClass": risk_class,
+                "coord": {"lat": coord[0], "lon": coord[1]},
                 "summary": f"{name}是湖区重要监测点位，当前由水质、气象和水动力因子共同驱动，建议按预警档位滚动复核。",
                 "metrics": dict(zip(["density", "chla", "phosphorus", "temp"], metrics)),
                 "forecast": {"window": ["未来 1 天", "未来 3 天", "未来 7 天", "未来 15 天", "未来 30 天"], "title": ["紧急研判", "短期预警", "中期趋势", "长期推演", "综合复盘"], "text": [f"{name}未来 {day} 天预测已生成，请结合现场监测数据滚动校准。" for day in [1, 3, 7, 15, 30]]},
@@ -69,10 +70,31 @@ class DataRepository:
         return data
 
     def heat_fields(self) -> dict[str, list[list[int]]]:
+        # 高分辨率 IDW 风险场：前端只负责地理投影与 Canvas 渲染。
+        rows, cols = 60, 80
+        # 包络覆盖真实 HydroLAKES 太湖边界，避免风险场只覆盖中西部。
+        south, north, west, east = 30.90, 31.56, 119.88, 120.60
         output = {}
         for stage in self.stages:
-            x, y = [(4, 2), (5, 3), (7, 4), (9, 5), (10, 5)][stage["index"]]
-            output[stage["key"]] = [[max(8, min(96, round(92 - (abs(col - x) + abs(row - y) * 1.4) * 10 - stage["index"] * 3))) for col in range(19)] for row in range(11)]
+            grid = []
+            for row in range(rows):
+                lat = north - (row + 0.5) / rows * (north - south)
+                row_values = []
+                for col in range(cols):
+                    lon = west + (col + 0.5) / cols * (east - west)
+                    weighted, weight_sum = 0.0, 0.0
+                    for sid, _name, _short, _risk, _risk_class, values, _metrics, (plat, plon) in self.specs:
+                        intensity = max(8, min(96, values[0] - stage["index"] * 5))
+                        # 经纬度归一化，避免经度尺度造成明显偏差。
+                        dx = (lon - plon) / 0.18
+                        dy = (lat - plat) / 0.16
+                        distance = (dx * dx + dy * dy) ** 0.5
+                        influence = 1.0 / max(distance ** 2, 0.012)
+                        weighted += intensity * influence
+                        weight_sum += influence
+                    row_values.append(round(max(4, min(100, weighted / weight_sum))))
+                grid.append(row_values)
+            output[stage["key"]] = grid
         return output
 
     def events(self) -> list[dict[str, str]]:
