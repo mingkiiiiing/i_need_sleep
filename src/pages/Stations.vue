@@ -1,10 +1,10 @@
 ﻿<template>
   <main class="shell">
-    <section class="panel" style="padding: 26px 28px;">
+    <section class="panel stations-intro">
       <p class="eyebrow">COCKPIT · STATIONS</p>
       <h1>监测站点档位研判</h1>
-      <p style="max-width: 880px; margin-top: 14px;">
-        点击地图点位可联动右侧详情、当前档位预测与可解释因子分析。底部时间轴播放器同步驱动三页系统。
+      <p>
+        点击地图点位可联动右侧详情、当前档位预测与可解释因子分析。
       </p>
     </section>
 
@@ -464,36 +464,85 @@ onMounted(async () => {
 
 
 <style scoped>
-/* Stations 页面：地图与点位详情改为单列堆叠 */
+/* Stations 页面：桌面端采用单屏三域工作台，减少页面级纵向滚动 */
+.stations-intro {
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+:global(.shell:has(.stations-intro)) {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: calc(100vh - 60px);
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 18px;
+  overflow: hidden;
+}
+.stations-intro .eyebrow { margin: 0; }
+.stations-intro h1 { margin: 0; font-size: clamp(22px, 2vw, 30px); }
+.stations-intro > p:last-child { margin: 0; max-width: none; color: var(--c-text-soft); }
+
 .dashboard-stacked {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 22px;
-  margin-top: 22px;
-}
-.dashboard-stacked > .panel,
-.dashboard-stacked > aside {
-  width: 100%;
-}
-
-/* 地图 + 右侧 KPI 卡片列 */
-.map-with-kpi {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 16px;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(0, 2fr) minmax(340px, 0.95fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 14px;
+  margin-top: 14px;
+  min-height: 0;
+  overflow: hidden;
   align-items: stretch;
 }
+.dashboard-stacked > aside { grid-column: 3; grid-row: 1; min-width: 0; min-height: 0; }
+.dashboard-stacked > .time-axis {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-height: 92px;
+  margin: 0;
+}
+
+/* 将地图和左侧指标提升为工作台的两个独立区域 */
+.map-with-kpi {
+  display: contents;
+}
 .kpi-side {
+  grid-column: 1;
+  grid-row: 1;
   grid-template-columns: minmax(0, 1fr);
   align-content: start;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+.map-with-kpi > .map-panel {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.map-with-kpi > .map-panel,
+.map-with-kpi > .map-panel :deep(.leaflet-map-container) {
+  min-height: 0 !important;
+}
+.map-with-kpi > .map-panel :deep(.leaflet-map-container) {
+  height: auto;
+  flex: 1 1 auto;
 }
 
 /* 右侧栏附加卡片 */
 .side-card {
   border: 1px solid var(--c-line);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: var(--c-surface-soft);
 }
 .side-card header {
@@ -528,7 +577,7 @@ onMounted(async () => {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 .threshold-list li {
   display: flex;
@@ -554,10 +603,22 @@ onMounted(async () => {
   white-space: nowrap;
 }
 @media (max-width: 1024px) {
-  .map-with-kpi { grid-template-columns: minmax(0, 1fr); }
-  .kpi-side { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  :global(.shell:has(.stations-intro)) { height: auto; min-height: 100vh; overflow: visible; }
+  .dashboard-stacked { grid-template-columns: 210px minmax(0, 1fr); grid-template-rows: auto auto; }
+  .dashboard-stacked > aside { grid-column: 1 / -1; grid-row: 3; max-height: none; overflow: visible; }
+  .dashboard-stacked > .time-axis { grid-column: 1 / -1; grid-row: 2; }
+  .map-with-kpi > .map-panel { grid-column: 2; }
+  .kpi-side { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: none; overflow: visible; }
+  .kpi-side { grid-column: 1; }
 }
 @media (max-width: 560px) {
+  .stations-intro { grid-template-columns: 1fr; gap: 4px; padding: 16px 18px; }
+  .stations-intro h1 { font-size: 24px; }
+  .dashboard-stacked { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .dashboard-stacked > aside { grid-column: 1; grid-row: auto; }
+  .dashboard-stacked > .time-axis { grid-column: 1; grid-row: auto; }
+  .map-with-kpi > .map-panel { grid-column: 1; grid-row: 1; }
+  .kpi-side { grid-column: 1; grid-row: 2; }
   .kpi-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kpi-side .side-card { grid-column: 1 / -1; }
   .threshold-list li { flex-wrap: wrap; }
@@ -565,10 +626,12 @@ onMounted(async () => {
 
 /* 详情面板内部：分区更有节奏 */
 .detail-panel {
-  padding: 24px 26px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+  overflow-y: auto;
+  max-height: 100%;
 }
 .detail-panel .detail-head {
   margin: 0;
@@ -586,8 +649,24 @@ onMounted(async () => {
 }
 .detail-panel .detail-section {
   margin: 0;
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px dashed var(--panel-line);
+}
+
+/* Desktop detail is a compact reading column; dense content scrolls inside it. */
+@media (min-width: 1025px) {
+  .dashboard-stacked {
+    height: max(460px, min(720px, calc(100vh - 240px)));
+    max-height: max(460px, min(720px, calc(100vh - 240px)));
+    flex: none;
+    grid-template-rows: minmax(0, 1fr) 92px;
+  }
+  .dashboard-stacked > aside { height: 100%; min-height: 0; overflow-y: auto; }
+  .map-with-kpi > .map-panel { height: 100%; }
+  .map-with-kpi > .map-panel { min-height: 0 !important; }
+  .kpi-grid article { padding: 11px 12px; }
+  .kpi-grid article .kpi-value { font-size: 19px; margin-top: 4px; }
+  .kpi-grid article .kpi-trend { font-size: 11px; }
 }
 
 @media (max-width: 560px) {

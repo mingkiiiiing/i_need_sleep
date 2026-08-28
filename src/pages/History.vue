@@ -1,11 +1,11 @@
 <template>
   <main class="shell">
-    <section class="panel title-card">
+    <section class="history-header">
       <div>
         <p class="eyebrow">COCKPIT · HISTORY</p>
-        <h1>历史事件回放</h1>
+        <h1>太湖蓝藻历史事件回放</h1>
+        <p class="history-subtitle">按时间倒序回放入库事件，联动预警点位、时间档位与处置记录。</p>
       </div>
-      <p class="title-note">按时间倒序回放入库事件，点击事件联动档位与详情</p>
     </section>
 
     <section class="kpi-grid">
@@ -128,13 +128,13 @@
             <h3>现场影像</h3>
             <span>事件关联图位</span>
           </div>
-          <div class="image-slot" data-label="事件现场影像 · 待替换为 <img>"></div>
+          <img class="scene-img" :src="sceneImg" alt="事件现场影像" />
         </section>
       </section>
 
       <section v-else class="panel">
         <div class="event-empty">从左侧选择一条事件，回放档位、点位与因果链。</div>
-        <div class="image-slot banner" style="margin-top: 16px;" data-label="历史回放封面 · 待替换为 <img>"></div>
+        <img class="scene-img banner" :src="sceneImg" alt="历史回放封面" />
       </section>
     </div>
   </main>
@@ -147,6 +147,7 @@ import { getEvents, getPoints, getTimeStages, handleWarning, getTimeline } from 
 import { palette } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
 import EChart from '../components/cockpit/EChart.vue'
+import sceneImg from './task-mtbo5hxu2wgaa.png'
 
 const cockpit = useCockpitStore()
 const store = cockpitState()
@@ -285,20 +286,20 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.title-card {
+.history-header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding: 14px 22px;
+  gap: 24px;
+  padding: 10px 2px 22px;
+  border-bottom: 1px solid var(--c-line);
 }
-.title-card h1 { margin: 0; font-size: 20px; }
-.title-card .eyebrow { margin-bottom: 2px; }
-.title-note {
-  margin: 0;
+.history-header h1 { margin: 5px 0 0; font-size: clamp(24px, 3vw, 42px); }
+.history-subtitle {
+  margin: 10px 0 0;
   color: var(--c-muted);
-  font-size: 12px;
-  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 /* 历史页 3 张 KPI 卡等宽填满 */
@@ -321,8 +322,8 @@ onMounted(async () => {
 .action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 @media (max-width: 640px) {
-  .title-card { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
-  .title-note { white-space: normal; font-size: 12px; }
+  .history-header { gap: 14px; padding-bottom: 16px; }
+  .history-subtitle { font-size: 13px; }
   .history-stage { grid-template-columns: 1fr; }
 }
 
@@ -364,5 +365,18 @@ onMounted(async () => {
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.scene-img {
+  width: 100%;
+  aspect-ratio: 32 / 27;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--c-line-strong);
+  display: block;
+}
+.scene-img.banner {
+  aspect-ratio: 14 / 9;
+  margin-top: 16px;
 }
 </style>
