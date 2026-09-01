@@ -1,0 +1,59 @@
+{
+  "run_id": "resample-test",
+  "status": "completed",
+  "input": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp69ahh0p5\\input.csv",
+  "input_rows": 2,
+  "resampled_rows": 1,
+  "gap_rows": 0,
+  "granularity_counts": {
+    "daily": 2
+  },
+  "target_frequency": "daily",
+  "target_frequency_counts": {
+    "daily": 2
+  },
+  "resample_status_counts": {
+    "aggregated": 2
+  },
+  "timezone": "Asia/Shanghai for daily/decadal/monthly buckets; UTC for hourly/storage",
+  "rules": {
+    "flux_variables": [
+      "discharge",
+      "evaporation",
+      "inflow",
+      "outflow",
+      "precipitation",
+      "rainfall",
+      "runoff",
+      "water_flux"
+    ],
+    "median_state_variables": [
+      "algae_density",
+      "ammonia_nitrogen",
+      "chlorophyll_a",
+      "nitrate_nitrogen",
+      "nitrite_nitrogen",
+      "pH",
+      "phosphate_phosphorus",
+      "total_nitrogen",
+      "total_phosphorus",
+      "turbidity"
+    ],
+    "wind_direction": "circular_mean",
+    "other_numeric": "mean",
+    "low_frequency": "native_only_no_upsampling",
+    "supported_frequencies": [
+      "auto",
+      "hourly",
+      "daily",
+      "decadal",
+      "monthly"
+    ],
+    "missing_buckets": "separate resample_gaps.csv with Q01+Q22"
+  },
+  "files": {
+    "resampled_observations": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp69ahh0p5\\out\\resampled_observations.csv",
+    "resample_gaps": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp69ahh0p5\\out\\resample_gaps.csv",
+    "database": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp69ahh0p5\\resampled.sqlite"
+  }
+}

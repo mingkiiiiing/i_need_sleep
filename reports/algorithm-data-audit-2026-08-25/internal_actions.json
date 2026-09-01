@@ -1,0 +1,6 @@
+[
+  {"order":1,"priority":"P0","action":"修复 CLMS 多波段读取和 65535 填充值过滤","evidence":"chla_mean、chla_uncertainty、fcb_prob 三列完全相同；40 个概率值全部 >1","deliverable":"三波段独立统计；概率满足产品定义范围；按湖区/网格输出质量覆盖；重新生成月表和宽表"},
+  {"order":2,"priority":"P0","action":"从旧项目恢复/重跑同一 run_id 的四类产物","evidence":"当前合并目录缺失，旧项目 taihu_wp3_20260818_02—07 均存在","deliverable":"feature_dataset、forecast_label_dataset、temporal_alignments、resampled_observations 与 SQLite/manifest/SHA-256 同批次交付"},
+  {"order":3,"priority":"P0","action":"更正算法说明中的标签表述","evidence":"target_bloom 是全空值，不是全 0","deliverable":"未知、可信负样本、正样本三态明确；任何缺测不得自动填 0"},
+  {"order":4,"priority":"P1","action":"重建三个时域标准数据集和门禁","evidence":"旧批次 1–3 天、7–15 天均 0/576；30–90 天仅 144/576 且为浮游植物代理","deliverable":"dataset_h1_3d、dataset_h7_15d、dataset_h30_90d；逐时域报告样本数、正负样本数、时间范围、泄漏检查、标签可用率"}
+]

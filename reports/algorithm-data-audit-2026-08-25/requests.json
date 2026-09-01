@@ -1,0 +1,9 @@
+[
+  {"order":1,"priority":"P0","data":"水华真值标签（首选水华面积或可信 0/1）","period":"推荐 2022-01-01—2026-08-24；最低 2024-01-01—2025-12-31","frequency":"日尺度；1–3 天模型必须 ≤24 小时","required":"date/time、spatial_id、bloom_area_km2 或 bloom_label、label_status、正/负样本证据、覆盖率、质量旗标、来源","acceptance":"同一空间单元有正样本和经观测确认的负样本；unknown 不得写 0；至少覆盖两个完整年度/藻季"},
+  {"order":2,"priority":"P0","data":"地面 Chl-a 或蓝藻密度连续观测","period":"2022-01-01—2026-08-24","frequency":"日尺度首选；最多 7 天一次仅可支持 7–15/30–90 天","required":"chlorophyll_a_ug_L 或 blue_algae_density、采样时间、站点坐标、方法/仪器、检出限、单位、质量旗标","acceptance":"与水华标签同地点或有明确空间映射；至少一个目标形成连续序列；不可只给 4 个孤立采样日"},
+  {"order":3,"priority":"P0","data":"水温","period":"历史特征前置 2021-10-03—2021-12-31；正式 2022-01-01—2026-08-24","frequency":"小时或日尺度；至少与标签同日","required":"water_temperature_C、深度、站点/网格、时间、仪器、质量旗标","acceptance":"与起报时刻对齐；不能用气温永久替代；若多深度需保留 depth_m"},
+  {"order":4,"priority":"P0","data":"历史气象预报归档（不是事后观测）","period":"起报 2022-01-01—2026-08-24","frequency":"每日固定起报；1–15 天逐小时/逐 3–6 小时","required":"forecast_reference_time、valid_time、lead_hours、ensemble_member、气温、风速/风向、降雨、辐射、云量、经纬度、模式版本","acceptance":"每个样本只使用当时已经发布的预报；覆盖 lead 1–72h 和 168–360h；保留原始起报版本"},
+  {"order":5,"priority":"P1","data":"同期水质与水文驱动","period":"历史前置 2021-10-03—2021-12-31；正式 2022-01-01—2026-08-24","frequency":"TP/TN/NH4-N/DO/pH 至少周尺度、最好日尺度；水位/流量小时或日尺度","required":"TP、TN、NH4-N、DO、pH、水位、流量/流速、单位、站点、时间、质量旗标","acceptance":"与标签空间可映射；不能只交 2005–2020 的季度数据；单位和采样方法一致或可追溯"},
+  {"order":6,"priority":"P1","data":"30–90 天季节预报/hindcast","period":"起报 2022-01-01—2026-05-26；建议补到 2026-08-24 供后续滚动预测","frequency":"旬/月起报，保留全部集合成员","required":"reference_time、valid_time、lead_days、ensemble_member、温度/降雨/风/辐射、水文趋势、模式版本","acceptance":"输出概率/等级或窗口事件，不把旬/月数据伪造成逐日确定值"},
+  {"order":7,"priority":"P0-元数据","data":"空间、标签与血缘元数据","period":"覆盖上述所有日期","frequency":"随数据版本交付","required":"站点坐标/网格边界、CRS、Asia/Shanghai 与 UTC、数据字典、单位、source_file、source_row、SHA-256、版本、授权范围","acceptance":"空间粒度不混用；如混用必须有 station-grid-region 映射；同一 run_id 可复跑"}
+]

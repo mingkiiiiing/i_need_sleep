@@ -1,0 +1,69 @@
+{
+  "release_id": "TAIHU_CLEAN_FINAL_V1_20260831",
+  "validated_at": "2026-09-01T15:45:50+08:00",
+  "gates": [
+    {
+      "gate": "G1",
+      "name": "文件清单覆盖率=100%",
+      "passed": true,
+      "detail": "清单 11794 / 结论 11794 / 唯一路径 11794"
+    },
+    {
+      "gate": "G2",
+      "name": "每个文件结论均为 6 种合法终态",
+      "passed": true,
+      "detail": "非法结论 0 个"
+    },
+    {
+      "gate": "G3",
+      "name": "零字节/不可读文件进入有效记录数=0",
+      "passed": true,
+      "detail": "0 条泄漏记录"
+    },
+    {
+      "gate": "G4",
+      "name": "同哈希重复文件未重复计入观测",
+      "passed": true,
+      "detail": "重复组 415 组，非法记录 0 条"
+    },
+    {
+      "gate": "G5",
+      "name": "provenance 合法且真值标识一致",
+      "passed": true,
+      "detail": "非法 0，误标真值 0，漏标真值 0"
+    },
+    {
+      "gate": "G6",
+      "name": "有效记录时间可解析率=100%",
+      "passed": true,
+      "detail": "有效记录 151468，不可解析 0"
+    },
+    {
+      "gate": "G7",
+      "name": "校验和逐个复核（不匹配=0）",
+      "passed": true,
+      "detail": "全部一致"
+    },
+    {
+      "gate": "G8",
+      "name": "record_id 唯一且非空",
+      "passed": true,
+      "detail": "重复 0，空 0"
+    },
+    {
+      "gate": "G9",
+      "name": "主表不残留失效的旧目录绝对路径",
+      "passed": true,
+      "detail": "0 条记录仍引用旧路径"
+    },
+    {
+      "gate": "G10",
+      "name": "source_file_sha256 语义正确",
+      "passed": true,
+      "detail": "直接匹配 151308 / AGGREGATE 666 / HARVEST 806 / 其他 0 / 不一致 0"
+    }
+  ],
+  "all_passed": true,
+  "record_count": 152780,
+  "file_count": 11794
+}

@@ -1,0 +1,30 @@
+﻿rule_id,priority,partitions,exclude_partitions,path_regex,formats,is_fallback,cleaner_name,output_table,cleaner_status,expected_terminal_status,notes
+R010,10,*,07_采集过程临时资料,,empty,False,exception_zero_byte,rejections,EXCEPTION,REJECTED,零字节文件，禁止进入有效数据
+R011,11,*,07_采集过程临时资料,(^|/)~\$,*,False,exception_lockfile,rejections,EXCEPTION,REJECTED,Excel 临时锁文件（~$ 前缀），非数据
+R012,12,*,07_采集过程临时资料,^(?!.*/~\$),probe_failed|unknown_binary|unreadable,False,exception_unreadable,rejections,EXCEPTION,REJECTED,打不开或格式无法识别，禁止进入有效数据
+R013,13,*,07_采集过程临时资料,(^|/)\.[^/]+$,*,False,exception_temporary,rejections,EXCEPTION,REJECTED,隐藏文件与采集临时产物（如 .curl_cookies），非数据
+R020,20,07_采集过程临时资料,,,*,False,exception_temporary,rejections,EXCEPTION,REJECTED,验证码与采集临时资料，不进入数据模型
+R030,30,04_公开数据目录检索原始响应,,,*,False,clean_catalog_responses,source_registry,NEW,METADATA_ONLY,公开数据目录检索响应，只作目录元数据，不冒充观测值
+R031,31,06_主数据采集与来源清单,,,*,False,clean_source_registry,source_registry,EXISTING,METADATA_ONLY,采集与来源清单，形成来源/授权/下载血缘表
+R040,40,*,,/quarantine/,*,False,review_quarantined_assets,remote_sensing,NEW,QUARANTINED,隔离栅格复核：可修复则回表，否则 REJECTED
+R050,50,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/).*/bloom/,7z|rar|zip_container,False,clean_bloom_archive,labels,NEW,CLEANED,蓝藻压缩包，先安全解包与模式识别再判定标签来源
+R051,51,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/bloom/),7z|rar,False,inspect_data_archive,source_registry,NEW,METADATA_ONLY,其余 RAR/7Z 数据包（如 THQBCA-V2.rar），安全清点后登记内容与来源
+R052,52,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*\.(xlsx|xlsm|zip|docx|gpkg|shp)$),zip_container,False,clean_zip_wrapped_netcdf,observations,NEW,CLEANED,扩展名是数据格式但实为 zip 容器（如 CDS 异步下载的 .nc），安全解包后再按内容清洗
+R100,100,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/ocean_color/,hdf5|netcdf3_64bit_data|netcdf3_64bit_offset|netcdf3_classic,False,clean_modis_ocean_color,remote_sensing,NEW,CLEANED,MODIS 海色叶绿素 nc，需校验缩放系数/填充值/QA/太湖裁剪
+R101,101,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(modis_aqua_extended|modis_l2_2020)/,hdf4|hdf5,False,clean_modis_ocean_color,remote_sensing,NEW,CLEANED,MODIS L2/L3 扩展数据（含旧版 .0 扩展名），先判真实格式
+R110,110,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(land_surface|modis_lst)/,hdf4,False,clean_modis_land_surface,surface_features,NEW,CLEANED,MODIS 地表温度 HDF4 子数据集，应用 scale/offset 与质量位
+R120,120,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(earth_search_sentinel2|copernicus_sentinel2_stac|sentinel2_monthly),*,False,clean_sentinel2_assets,remote_sensing,EXISTING,CLEANED,Sentinel-2 影像与年度镶嵌，校验波段/云量/范围/日期
+R121,121,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/clms_lwq,delimited_text|html|json|tiff_be|tiff_le,False,clean_clms_lwq,remote_sensing,EXISTING,CLEANED,CLMS 湖泊水质产品与目录，保留产品版本与反演属性
+R130,130,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/sentinel3_olci,*,False,clean_sentinel3_status,source_registry,NEW,BLOCKED_AUTH,Sentinel-3 仅清单无栅格时记 BLOCKED_AUTH，不伪造影像
+R141,141,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(meteorology|mwr_hfc|nasa_power|open_meteo|era5_land),delimited_text|grib|hdf5|json|netcdf3_64bit_data|netcdf3_64bit_offset|netcdf3_classic|parquet|text,False,clean_meteorology,observations,EXISTING,CLEANED,气象统一清洗：统一时区/单位，区分历史观测与预报输入
+R150,150,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.)(?!.*/mwr_hfc).*/(tba_hydrology|hydrology),*,False,clean_hydrology,observations,EXISTING,CLEANED,太湖流域管理局水文资料，仅有元数据时转 METADATA_ONLY
+R151,151,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(water_quality|authorized_waterstation|water_station),*,False,clean_water_quality,observations,EXISTING,CLEANED,水质站与授权数据；授权失败单独登记 BLOCKED_AUTH
+R152,152,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(zenodo_taihu_insitu|field_samples),*,False,clean_field_samples,observations,EXISTING,CLEANED,太湖现场样本，稀疏且必须标记 ground_truth
+R160,160,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(taihu_thqbca_zenodo|THQBCA|解压内容),tiff_be|tiff_le,False,clean_thqbca_raster,remote_sensing,EXISTING,CLEANED,THQBCA 生物光学与人类活动栅格，保留版本来源
+R161,161,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(taihu_thqbca_zenodo|THQBCA|解压内容),delimited_text|html|json|sqlite|text|zip_container,False,clean_thqbca_tables,observations,EXISTING,CLEANED,THQBCA 水质/藻类表格（xlsx 为 zip 容器；txt/csv 为表格）
+R170,170,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/(static_geo|hydrobasins|geo|static_features),*,False,clean_static_features,static_features,EXISTING,CLEANED,静态地理、湖界、HydroBASINS，统一 CRS/像元/空间 ID
+R180,180,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/mee_surface_water_monthly/,pdf,False,clean_mee_monthly_pdf,observations,NEW,CLEANED,生态环境部月度地表水扫描 PDF；OCR 低置信度只入 document_metadata
+R182,182,*,,^(?!04_公开数据目录检索原始响应)(?!06_主数据采集与来源清单)(?!07_采集过程临时资料)(?!.*/quarantine/)(?!.*/~\$)(?!.*\.(rar|7z)$)(?!.*/\.).*/lake_geodata_probe/,*,False,clean_catalog_responses,source_registry,NEW,METADATA_ONLY,数据门户探测页，仅登记来源可达性元数据
+R900,900,05_旧版整理区_混合留存,,/remote_sensing/,*,True,classify_and_deduplicate_legacy,remote_sensing,NEW,CLEANED,旧版遥感整理区兜底：先判原始/派生/重复再分流
+R901,901,05_旧版整理区_混合留存,,/reports/,*,True,classify_and_deduplicate_legacy,document_metadata,NEW,METADATA_ONLY,旧版报告区兜底：PDF 原件与已解析文本分开处理
+R902,902,05_旧版整理区_混合留存,,,*,True,classify_and_deduplicate_legacy,mixed,NEW,CLEANED,旧版混合区兜底：分类去重后按类别分流

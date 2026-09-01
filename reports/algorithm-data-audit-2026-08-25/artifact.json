@@ -1,0 +1,360 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "蓝藻模型数据缺口与补交日期核验",
+    "description": "对算法说明、当前合并项目和同级旧项目数据产物的交叉核验。",
+    "generatedAt": "2026-08-25T12:00:00+08:00",
+    "cards": [],
+    "charts": [
+      {
+        "id": "coverage_chart",
+        "title": "现有可用目标与未来窗口样本数",
+        "subtitle": "当前月度宽表与旧批次标签构造结果；单位：行",
+        "type": "bar",
+        "dataset": "coverage_chart",
+        "sourceId": "coverage_query",
+        "valueFormat": "number",
+        "encodings": {
+          "x": { "field": "item", "type": "nominal", "label": "目标/时域" },
+          "y": { "field": "usable_rows", "type": "quantitative", "label": "可用行数" },
+          "tooltip": [
+            { "field": "coverage_note", "type": "nominal", "label": "口径" }
+          ]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "verdict_table",
+        "title": "算法说明逐项核验",
+        "subtitle": "当前合并目录与同级旧项目交叉检查；严重程度按对真实水华模型的影响判定",
+        "dataset": "verdicts",
+        "sourceId": "verdict_query",
+        "defaultSort": { "field": "order", "direction": "asc" },
+        "columns": [
+          { "field": "order", "label": "序号", "type": "number" },
+          { "field": "claim", "label": "算法说法", "type": "text" },
+          { "field": "audit", "label": "核验结果", "type": "text" },
+          { "field": "severity", "label": "影响", "type": "text" }
+        ]
+      },
+      {
+        "id": "request_table",
+        "title": "外部必须补交的数据",
+        "subtitle": "推荐统一窗口 2022-01-01 至 2026-08-24；同一空间单元、同一时间基准",
+        "dataset": "requests",
+        "sourceId": "request_query",
+        "defaultSort": { "field": "order", "direction": "asc" },
+        "columns": [
+          { "field": "order", "label": "顺序", "type": "number" },
+          { "field": "priority", "label": "优先级", "type": "text" },
+          { "field": "data", "label": "数据项", "type": "text" },
+          { "field": "period", "label": "精确日期范围", "type": "text" },
+          { "field": "frequency", "label": "频率", "type": "text" },
+          { "field": "required", "label": "必须字段/证据", "type": "text" },
+          { "field": "acceptance", "label": "验收条件", "type": "text" }
+        ]
+      },
+      {
+        "id": "split_table",
+        "title": "建议训练、验证、测试日期",
+        "subtitle": "假设标签观测完整到 2026-08-24，并要求每个未来窗口完整闭合",
+        "dataset": "splits",
+        "sourceId": "split_query",
+        "defaultSort": { "field": "order", "direction": "asc" },
+        "columns": [
+          { "field": "order", "label": "顺序", "type": "number" },
+          { "field": "horizon", "label": "预测时域", "type": "text" },
+          { "field": "train", "label": "训练预测起点", "type": "text" },
+          { "field": "validation", "label": "验证预测起点", "type": "text" },
+          { "field": "test", "label": "测试预测起点", "type": "text" },
+          { "field": "label_end", "label": "标签最晚需覆盖", "type": "text" }
+        ]
+      },
+      {
+        "id": "existing_table",
+        "title": "已有数据：可以保留，但不能替代短临标签",
+        "subtitle": "这些数据支持历史基线、机理接口或特征工程，不应重复向外部索要同一份",
+        "dataset": "existing",
+        "sourceId": "existing_query",
+        "defaultSort": { "field": "order", "direction": "asc" },
+        "columns": [
+          { "field": "order", "label": "顺序", "type": "number" },
+          { "field": "asset", "label": "已有数据", "type": "text" },
+          { "field": "coverage", "label": "现有覆盖", "type": "text" },
+          { "field": "use", "label": "可做什么", "type": "text" },
+          { "field": "limit", "label": "不能做什么", "type": "text" }
+        ]
+      },
+      {
+        "id": "internal_table",
+        "title": "项目内部先修复，不属于外部补数",
+        "subtitle": "先恢复可复跑交付链，再接入新增数据",
+        "dataset": "internal_actions",
+        "sourceId": "internal_query",
+        "defaultSort": { "field": "order", "direction": "asc" },
+        "columns": [
+          { "field": "order", "label": "顺序", "type": "number" },
+          { "field": "priority", "label": "优先级", "type": "text" },
+          { "field": "action", "label": "内部动作", "type": "text" },
+          { "field": "evidence", "label": "核验证据", "type": "text" },
+          { "field": "deliverable", "label": "完成标准", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "audit_notes",
+        "label": "本次项目数据核验与日期推导",
+        "path": "reports/algorithm-data-audit-2026-08-25/source_notes.md"
+      },
+      {
+        "id": "current_model",
+        "label": "当前月度模型数据",
+        "path": "data-cleaning/storage/cleaned/model_dataset_monthly.csv"
+      },
+      {
+        "id": "project_requirement",
+        "label": "A23 赛题要求",
+        "path": "A23.md"
+      },
+      {
+        "id": "coverage_query",
+        "label": "可用样本数核验结果"
+      },
+      {
+        "id": "verdict_query",
+        "label": "算法说明逐项核验表"
+      },
+      {
+        "id": "request_query",
+        "label": "外部补交清单"
+      },
+      {
+        "id": "split_query",
+        "label": "三个时域日期切分"
+      },
+      {
+        "id": "existing_query",
+        "label": "现有数据资产核验"
+      },
+      {
+        "id": "internal_query",
+        "label": "项目内部修复清单"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# 蓝藻模型数据缺口与补交日期核验"
+      },
+      {
+        "id": "executive_summary",
+        "type": "markdown",
+        "body": "## Executive Summary\n\n- **需要补交，而且是必须补交。** 当前数据可以做 TP/TN/DO 的低频历史基线和接口联调，但不能训练或证明 1–3 天、7–15 天蓝藻水华预警效果。\n- **真正的 P0 是同地点、同起报时刻的未来藻情真值。** 推荐一次性补齐 2022-01-01 至 2026-08-24 的日尺度水华面积/可信 0-1 标签/Chl-a 或蓝藻密度，并同步水温；如果只能周采样，则不能声称完成 1–3 天模型。\n- **算法说明有两处需要修正。** `target_bloom` 实际是空值而非全 0；四类中间产物在当前合并目录缺失，但同级旧项目已有多轮生成记录，属于交付遗漏而非从未生成。\n- **现有 CLMS 遥感字段暂不可用。** 叶绿素均值、不确定度、蓝藻概率三列完全相同，概率值全部越界；应先修复波段读取和填充值处理，再决定是否把 CLMS 作为辅助标签。"
+      },
+      {
+        "id": "verdict_heading",
+        "type": "markdown",
+        "body": "## 算法的核心判断基本正确，但证据表述要改\n\n缺标签、缺连续水温和缺同期预报归档是实质问题；不过不能把空标签说成 0，也不能把合并目录没带出的中间文件说成从未生成。下面把每项判断拆开。"
+      },
+      { "id": "verdicts", "type": "table", "tableId": "verdict_table" },
+      {
+        "id": "coverage_explanation",
+        "type": "markdown",
+        "body": "## 现有数量最多的是低频水质，不是短临水华标签\n\nTP 有 576 条可用于低频历史回归，但真实水华标签、1–3 天标签和 7–15 天标签均为 0。30–90 天的 144 条也只是约 89–90 天间隔的浮游植物生物量代理，不能直接当作水华面积或风险等级。"
+      },
+      { "id": "coverage_chart_block", "type": "chart", "chartId": "coverage_chart" },
+      {
+        "id": "request_heading",
+        "type": "markdown",
+        "body": "## 请按 2022-01-01 至 2026-08-24 一次性补齐\n\n这是与现有 Sentinel-2 覆盖最容易对齐、又能形成训练/验证/测试时间切分的推荐窗口。若外部单位只能给最小版本，至少要交 2024-01-01 至 2025-12-31 两个完整年度；但该最小版本不包含独立的 2026 测试期，不能作为最终竞赛证明材料。"
+      },
+      { "id": "requests", "type": "table", "tableId": "request_table" },
+      {
+        "id": "split_heading",
+        "type": "markdown",
+        "body": "## 三个时域必须使用不同的最后预测日期\n\n不能把 2026-08-24 当作所有模型的最后预测起点：未来窗口必须完整落在已知标签范围内。若标签只交到 2026-08-24，长时域测试预测起点最晚只能到 2026-05-26。"
+      },
+      { "id": "splits", "type": "table", "tableId": "split_table" },
+      {
+        "id": "existing_heading",
+        "type": "markdown",
+        "body": "## 不需要重找全部历史数据，已有部分应继续利用\n\n现有 TP/TN/DO、气象、遥感和现场样本不是无用数据；它们适合做历史基线、机理参数范围、特征工程和流程演示。问题在于时间粒度、同期覆盖和标签真实性，不是单纯文件数量少。"
+      },
+      { "id": "existing", "type": "table", "tableId": "existing_table" },
+      {
+        "id": "internal_heading",
+        "type": "markdown",
+        "body": "## 外部补数前，项目内部先完成四项修复\n\n这些工作不需要外部重新找数据，应该由数据工程/算法团队在当前合并项目中完成。否则即使新数据到位，也会因产物缺失或字段错误无法稳定训练。"
+      },
+      { "id": "internal_actions", "type": "table", "tableId": "internal_table" },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## 建议下一步\n\n1. 先向数据提供方发送 P0 清单：日尺度藻情真值、水温、历史预报归档，以及正负样本证据。\n2. 内部同时修复 CLMS 波段读取，并从旧项目恢复同一 run_id 的四类正式产物与数据库。\n3. 数据到位后先做时间与空间验收；只有 1–3 天、7–15 天标签可用率不再为 0，且测试期含真实正负样本，才进入正式融合模型对比。\n4. 所谓“提升 10%”必须在同一真实测试集上比较融合模型与单一 AI；当前 TP 的 R² 0.115 对中位数基线 -0.045 不能替代这项赛题证明。"
+      },
+      {
+        "id": "further_questions",
+        "type": "markdown",
+        "body": "## 还需团队确认的两个口径\n\n- 主目标最终选 `bloom_area_km2`、`bloom_label`、`chlorophyll_a_ug_L` 还是 `blue_algae_density`；建议优先水华面积或经核验的 0/1 水华标签，并保留 Chl-a/藻密度作为连续辅助目标。\n- 空间主粒度选固定网格、站点还是湖区。为了与遥感和驾驶舱热力图一致，建议固定网格或湖区；若使用站点，必须另交站点到网格/湖区的映射。"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "body": "## 限制与假设\n\n本核验只依据用户提供的说明、当前合并项目和同级旧项目本地文件；未将公开网页或第三方新数据当作项目已拥有的数据。2022-01-01 至 2026-08-24 是面向本项目现有遥感覆盖和三段时间切分给出的推荐交付窗，不是赛题官方强制年份。"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-08-25T12:00:00+08:00",
+    "status": "partial",
+    "datasets": {
+      "verdicts": [
+        { "order": 1, "claim": "target_bloom=0", "audit": "不准确：914 行中 target_bloom 非空 0 行、数值 0 也为 0 行；实际是全空值。", "severity": "高：结论仍是无水华标签，但不能把未知样本当负样本。" },
+        { "order": 2, "claim": "Chl-a 只有 42 条", "audit": "准确；而且只分布在 2020-12-22、2022-12-13、2023-10-17、2026-08-18 四个采样日/批次。", "severity": "关键：无法形成连续时序或可靠时间切分。" },
+        { "order": 3, "claim": "水温缺失", "audit": "需改为“连续水温缺失”：现场样本有 41 条水温，集中在前三个采样日；月度模型表没有连续水温。", "severity": "关键：1–3 天机理状态无法用真实水温驱动。" },
+        { "order": 4, "claim": "四类正式产物没有", "audit": "对当前合并目录成立；但同级旧项目的多轮 run 已有四类 CSV，最新批次总计约 60.7 MB。", "severity": "中高：是交付/合并遗漏；恢复后仍不能解决标签为 0% 的根本问题。" },
+        { "order": 5, "claim": "1–3 天、7–15 天无标签", "audit": "准确：旧批次 phytoplankton_biomass 代理目标均为 0/576；30–90 天为 144/576（25%）。", "severity": "关键：短期、中期真实监督训练被阻塞。" },
+        { "order": 6, "claim": "遥感可直接补足", "audit": "当前不成立：CLMS 三个变量被处理成完全相同值，且所谓概率全部大于 1；Sentinel-2 指数是特征，不是经核验真值。", "severity": "关键：先修管线并做地面配对，才可作为辅助证据。" }
+      ],
+      "coverage_chart": [
+        { "item": "TP 历史目标", "usable_rows": 576, "coverage_note": "2005-02 至 2020-11，低频" },
+        { "item": "Chl-a 实测", "usable_rows": 42, "coverage_note": "仅 4 个日期批次" },
+        { "item": "水华标签", "usable_rows": 0, "coverage_note": "target_bloom 全空" },
+        { "item": "未来 1–3 天", "usable_rows": 0, "coverage_note": "旧批次 0/576" },
+        { "item": "未来 7–15 天", "usable_rows": 0, "coverage_note": "旧批次 0/576" },
+        { "item": "未来 30–90 天", "usable_rows": 144, "coverage_note": "旧批次 144/576，浮游植物代理" }
+      ],
+      "requests": [
+        { "order": 1, "priority": "P0", "data": "水华真值标签（首选水华面积或可信 0/1）", "period": "推荐 2022-01-01—2026-08-24；最低 2024-01-01—2025-12-31", "frequency": "日尺度；1–3 天模型必须 ≤24 小时", "required": "date/time、spatial_id、bloom_area_km2 或 bloom_label、label_status、正/负样本证据、覆盖率、质量旗标、来源", "acceptance": "同一空间单元有正样本和经观测确认的负样本；unknown 不得写 0；至少覆盖两个完整年度/藻季" },
+        { "order": 2, "priority": "P0", "data": "地面 Chl-a 或蓝藻密度连续观测", "period": "2022-01-01—2026-08-24", "frequency": "日尺度首选；最多 7 天一次仅可支持 7–15/30–90 天", "required": "chlorophyll_a_ug_L 或 blue_algae_density、采样时间、站点坐标、方法/仪器、检出限、单位、质量旗标", "acceptance": "与水华标签同地点或有明确空间映射；至少一个目标形成连续序列；不可只给 4 个孤立采样日" },
+        { "order": 3, "priority": "P0", "data": "水温", "period": "历史特征前置 2021-10-03—2021-12-31；正式 2022-01-01—2026-08-24", "frequency": "小时或日尺度；至少与标签同日", "required": "water_temperature_C、深度、站点/网格、时间、仪器、质量旗标", "acceptance": "与起报时刻对齐；不能用气温永久替代；若多深度需保留 depth_m" },
+        { "order": 4, "priority": "P0", "data": "历史气象预报归档（不是事后观测）", "period": "起报 2022-01-01—2026-08-24", "frequency": "每日固定起报；1–15 天逐小时/逐 3–6 小时", "required": "forecast_reference_time、valid_time、lead_hours、ensemble_member、气温、风速/风向、降雨、辐射、云量、经纬度、模式版本", "acceptance": "每个样本只使用当时已经发布的预报；覆盖 lead 1–72h 和 168–360h；保留原始起报版本" },
+        { "order": 5, "priority": "P1", "data": "同期水质与水文驱动", "period": "历史前置 2021-10-03—2021-12-31；正式 2022-01-01—2026-08-24", "frequency": "TP/TN/NH4-N/DO/pH 至少周尺度、最好日尺度；水位/流量小时或日尺度", "required": "TP、TN、NH4-N、DO、pH、水位、流量/流速、单位、站点、时间、质量旗标", "acceptance": "与标签空间可映射；不能只交 2005–2020 的季度数据；单位和采样方法一致或可追溯" },
+        { "order": 6, "priority": "P1", "data": "30–90 天季节预报/hindcast", "period": "起报 2022-01-01—2026-05-26；建议补到 2026-08-24 供后续滚动预测", "frequency": "旬/月起报，保留全部集合成员", "required": "reference_time、valid_time、lead_days、ensemble_member、温度/降雨/风/辐射、水文趋势、模式版本", "acceptance": "输出概率/等级或窗口事件，不把旬/月数据伪造成逐日确定值" },
+        { "order": 7, "priority": "P0-元数据", "data": "空间、标签与血缘元数据", "period": "覆盖上述所有日期", "frequency": "随数据版本交付", "required": "站点坐标/网格边界、CRS、Asia/Shanghai 与 UTC、数据字典、单位、source_file、source_row、SHA-256、版本、授权范围", "acceptance": "空间粒度不混用；如混用必须有 station-grid-region 映射；同一 run_id 可复跑" }
+      ],
+      "splits": [
+        { "order": 1, "horizon": "1–3 天", "train": "2022-01-01—2024-12-31", "validation": "2025-01-01—2025-12-31", "test": "2026-01-01—2026-08-21", "label_end": "2026-08-24" },
+        { "order": 2, "horizon": "7–15 天", "train": "2022-01-01—2024-12-31", "validation": "2025-01-01—2025-12-31", "test": "2026-01-01—2026-08-09", "label_end": "2026-08-24" },
+        { "order": 3, "horizon": "30–90 天", "train": "2022-01-01—2024-12-31", "validation": "2025-01-01—2025-12-31", "test": "2026-01-01—2026-05-26", "label_end": "2026-08-24" }
+      ],
+      "existing": [
+        { "order": 1, "asset": "TP/TN/DO 与浮游植物历史", "coverage": "各 576 条；2005-02—2020-11；9 个湖区/全湖对象；主要为每年 2/5/8/11 月", "use": "低频历史基线、季节性和机理参数检查", "limit": "不能构造 1–3/7–15 天标签；与 2022 后遥感和 2026 测试期不同期" },
+        { "order": 2, "asset": "NASA POWER 气象", "coverage": "2005–2020、2022–2025；单一格点；逐小时；2021 源文件缺失", "use": "历史气象特征和观测代理", "limit": "不是历史业务预报归档；单格点不能代表所有湖区" },
+        { "order": 3, "asset": "Sentinel-2 月度遥感", "coverage": "2022-01—2026-08，共 56 个月", "use": "空间/水色背景和辅助特征", "limit": "月尺度不能直接当日标签；需云掩膜和地面校准" },
+        { "order": 4, "asset": "现场 Chl-a 与水温", "coverage": "41 个样本：2020-12-22、2022-12-13、2023-10-17；另有 2026-08-18 一条 Chl-a", "use": "单位检查、反演点校准和接口验证", "limit": "只有 4 个日期批次，不能作为连续监督时序" },
+        { "order": 5, "asset": "月度模型宽表", "coverage": "914 行，2005-01—2026-08；TP/TN/DO 各 576，Chl-a 42，水华 0", "use": "低频回归和字段接口", "limit": "验证集/测试集几乎没有真实目标；不能证明水华模型效果" },
+        { "order": 6, "asset": "旧项目四类管线产物", "coverage": "同级旧项目多轮 run 已生成；最新批次目标文件约 60.7 MB", "use": "恢复对齐、特征、标签构造和复跑链路", "limit": "1–3/7–15 天标签仍为 0%；文件存在不等于训练可用" }
+      ],
+      "internal_actions": [
+        { "order": 1, "priority": "P0", "action": "修复 CLMS 多波段读取和 65535 填充值过滤", "evidence": "chla_mean、chla_uncertainty、fcb_prob 三列完全相同；40 个概率值全部 >1", "deliverable": "三波段独立统计；概率满足产品定义范围；按湖区/网格输出质量覆盖；重新生成月表和宽表" },
+        { "order": 2, "priority": "P0", "action": "从旧项目恢复/重跑同一 run_id 的四类产物", "evidence": "当前合并目录缺失，旧项目 taihu_wp3_20260818_02—07 均存在", "deliverable": "feature_dataset、forecast_label_dataset、temporal_alignments、resampled_observations 与 SQLite/manifest/SHA-256 同批次交付" },
+        { "order": 3, "priority": "P0", "action": "更正算法说明中的标签表述", "evidence": "target_bloom 是全空值，不是全 0", "deliverable": "未知、可信负样本、正样本三态明确；任何缺测不得自动填 0" },
+        { "order": 4, "priority": "P1", "action": "重建三个时域标准数据集和门禁", "evidence": "旧批次 1–3 天、7–15 天均 0/576；30–90 天仅 144/576 且为浮游植物代理", "deliverable": "dataset_h1_3d、dataset_h7_15d、dataset_h30_90d；逐时域报告样本数、正负样本数、时间范围、泄漏检查、标签可用率" }
+      ]
+    },
+    "accessIssues": [
+      {
+        "id": "missing_true_bloom_labels",
+        "dataset": "true_bloom_labels",
+        "message": "当前项目没有可用于三个预测时域的连续真实水华标签。"
+      },
+      {
+        "id": "invalid_clms_bands",
+        "dataset": "clms_features",
+        "message": "CLMS 三个变量被错误处理为同值，概率越界，需重建后方可使用。"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "audit_notes",
+      "path": "reports/algorithm-data-audit-2026-08-25/source_notes.md",
+      "description": "本次核验的来源清单、复核数字和日期推导。"
+    },
+    {
+      "id": "current_model",
+      "path": "data-cleaning/storage/cleaned/model_dataset_monthly.csv",
+      "description": "当前合并项目的月度模型宽表。"
+    },
+    {
+      "id": "project_requirement",
+      "path": "A23.md",
+      "description": "赛题对 1–3 天、7–15 天、30–90 天预测和融合提升的要求。"
+    },
+    {
+      "id": "coverage_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM (VALUES ('TP 历史目标', 576, '2005-02 至 2020-11，低频'), ('Chl-a 实测', 42, '仅 4 个日期批次'), ('水华标签', 0, 'target_bloom 全空'), ('未来 1–3 天', 0, '旧批次 0/576'), ('未来 7–15 天', 0, '旧批次 0/576'), ('未来 30–90 天', 144, '旧批次 144/576，浮游植物代理')) AS t(item, usable_rows, coverage_note)",
+        "description": "将已核验的当前月度宽表目标计数和旧批次未来标签计数组装为对比表。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "metric_definitions": {
+          "usable_rows": "对应目标非空行数，或对应未来窗口状态为 accepted 的行数。"
+        }
+      }
+    },
+    {
+      "id": "verdict_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_json_auto('reports/algorithm-data-audit-2026-08-25/verdicts.json') ORDER BY \"order\"",
+        "description": "读取本次复核形成的算法说明逐项核验结果。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "tables_used": ["reports/algorithm-data-audit-2026-08-25/verdicts.json"]
+      }
+    },
+    {
+      "id": "request_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_json_auto('reports/algorithm-data-audit-2026-08-25/requests.json') ORDER BY \"order\"",
+        "description": "读取外部补交数据、日期、频率和验收条件清单。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "tables_used": ["reports/algorithm-data-audit-2026-08-25/requests.json"]
+      }
+    },
+    {
+      "id": "split_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_json_auto('reports/algorithm-data-audit-2026-08-25/splits.json') ORDER BY \"order\"",
+        "description": "读取三个预测时域的训练、验证和测试日期切分。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "tables_used": ["reports/algorithm-data-audit-2026-08-25/splits.json"]
+      }
+    },
+    {
+      "id": "existing_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_json_auto('reports/algorithm-data-audit-2026-08-25/existing.json') ORDER BY \"order\"",
+        "description": "读取现有数据覆盖、用途和局限核验表。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "tables_used": ["reports/algorithm-data-audit-2026-08-25/existing.json"]
+      }
+    },
+    {
+      "id": "internal_query",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_json_auto('reports/algorithm-data-audit-2026-08-25/internal_actions.json') ORDER BY \"order\"",
+        "description": "读取项目内部应先完成的修复和交付动作。",
+        "executed_at": "2026-08-25T12:00:00+08:00",
+        "tables_used": ["reports/algorithm-data-audit-2026-08-25/internal_actions.json"]
+      }
+    }
+  ]
+}

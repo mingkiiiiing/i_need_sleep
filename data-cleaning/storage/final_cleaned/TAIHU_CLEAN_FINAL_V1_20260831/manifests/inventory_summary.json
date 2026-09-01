@@ -1,0 +1,386 @@
+{
+  "release_id": "TAIHU_CLEAN_FINAL_V1_20260831",
+  "run_id": "TAIHU_CLEAN_RUN_20260831T132030+0800",
+  "raw_root": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\02_全部原始数据",
+  "generated_at": "2026-08-31T13:21:51+08:00",
+  "elapsed_seconds": 81.2,
+  "file_count": 11794,
+  "total_bytes": 105048794641,
+  "total_gb": 97.83,
+  "zero_byte_count": 4,
+  "unreadable_count": 4,
+  "hash_error_count": 0,
+  "duplicate_file_count": 1722,
+  "duplicate_group_count": 415,
+  "duplicate_wasted_bytes": 18230309473,
+  "ext_mismatch_count": 86,
+  "by_partition": [
+    {
+      "source_partition": "01_当前主原始数据",
+      "files": 9024,
+      "bytes": 73493694405
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "files": 605,
+      "bytes": 11472236856
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "files": 226,
+      "bytes": 3769093167
+    },
+    {
+      "source_partition": "04_公开数据目录检索原始响应",
+      "files": 38,
+      "bytes": 5356069
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "files": 1312,
+      "bytes": 16303610864
+    },
+    {
+      "source_partition": "06_主数据采集与来源清单",
+      "files": 578,
+      "bytes": 4784008
+    },
+    {
+      "source_partition": "07_采集过程临时资料",
+      "files": 11,
+      "bytes": 19272
+    }
+  ],
+  "by_format": {
+    "hdf5": 6158,
+    "hdf4": 2043,
+    "tiff_le": 1197,
+    "json": 702,
+    "tiff_be": 434,
+    "grib": 339,
+    "html": 326,
+    "delimited_text": 182,
+    "pdf": 163,
+    "text": 112,
+    "zip_container": 103,
+    "shapefile_shp": 10,
+    "jpeg": 7,
+    "rar": 5,
+    "empty": 4,
+    "parquet": 4,
+    "sqlite": 2,
+    "png": 2,
+    "unknown_binary": 1
+  },
+  "by_extension": {
+    "nc": 6112,
+    "hdf": 2043,
+    "tif": 1631,
+    "json": 703,
+    "html": 324,
+    "grib": 243,
+    "csv": 165,
+    "pdf": 163,
+    "0": 128,
+    "txt": 108,
+    "grib2": 97,
+    "xlsx": 18,
+    "jpg": 8,
+    "zip": 6,
+    "js": 6,
+    "rar": 5,
+    "dbf": 4,
+    "prj": 4,
+    "shp": 4,
+    "shx": 4,
+    "parquet": 4,
+    "png": 3,
+    "cpg": 2,
+    "curl_cookies": 2,
+    "gpkg": 2,
+    "md": 1,
+    "yml": 1,
+    "sbn": 1,
+    "sbx": 1,
+    "xml": 1
+  },
+  "by_role": {
+    "raw": 10617,
+    "metadata": 750,
+    "quarantined": 301,
+    "temporary": 95,
+    "derived": 31
+  },
+  "by_partition_format": [
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "delimited_text",
+      "files": 71
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "empty",
+      "files": 3
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "grib",
+      "files": 279
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "hdf4",
+      "files": 2043
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "hdf5",
+      "files": 6030
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "html",
+      "files": 78
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "json",
+      "files": 29
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "pdf",
+      "files": 54
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "rar",
+      "files": 2
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "shapefile_shp",
+      "files": 2
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "text",
+      "files": 2
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "tiff_be",
+      "files": 301
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "tiff_le",
+      "files": 43
+    },
+    {
+      "source_partition": "01_当前主原始数据",
+      "sniffed_format": "zip_container",
+      "files": 87
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "delimited_text",
+      "files": 65
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "grib",
+      "files": 32
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "hdf5",
+      "files": 128
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "html",
+      "files": 235
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "json",
+      "files": 33
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "parquet",
+      "files": 1
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "pdf",
+      "files": 54
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "rar",
+      "files": 1
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "shapefile_shp",
+      "files": 2
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "text",
+      "files": 4
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "tiff_le",
+      "files": 43
+    },
+    {
+      "source_partition": "02_旧版补充原始数据",
+      "sniffed_format": "zip_container",
+      "files": 7
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "sniffed_format": "delimited_text",
+      "files": 2
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "sniffed_format": "rar",
+      "files": 1
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "sniffed_format": "tiff_le",
+      "files": 220
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "sniffed_format": "unknown_binary",
+      "files": 1
+    },
+    {
+      "source_partition": "03_THQBCA-V2原始数据集",
+      "sniffed_format": "zip_container",
+      "files": 2
+    },
+    {
+      "source_partition": "04_公开数据目录检索原始响应",
+      "sniffed_format": "delimited_text",
+      "files": 6
+    },
+    {
+      "source_partition": "04_公开数据目录检索原始响应",
+      "sniffed_format": "html",
+      "files": 1
+    },
+    {
+      "source_partition": "04_公开数据目录检索原始响应",
+      "sniffed_format": "json",
+      "files": 26
+    },
+    {
+      "source_partition": "04_公开数据目录检索原始响应",
+      "sniffed_format": "text",
+      "files": 5
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "delimited_text",
+      "files": 37
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "grib",
+      "files": 28
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "html",
+      "files": 12
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "json",
+      "files": 37
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "parquet",
+      "files": 3
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "pdf",
+      "files": 55
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "rar",
+      "files": 1
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "shapefile_shp",
+      "files": 6
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "sqlite",
+      "files": 2
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "text",
+      "files": 100
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "tiff_be",
+      "files": 133
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "tiff_le",
+      "files": 891
+    },
+    {
+      "source_partition": "05_旧版整理区_混合留存",
+      "sniffed_format": "zip_container",
+      "files": 7
+    },
+    {
+      "source_partition": "06_主数据采集与来源清单",
+      "sniffed_format": "delimited_text",
+      "files": 1
+    },
+    {
+      "source_partition": "06_主数据采集与来源清单",
+      "sniffed_format": "json",
+      "files": 577
+    },
+    {
+      "source_partition": "07_采集过程临时资料",
+      "sniffed_format": "empty",
+      "files": 1
+    },
+    {
+      "source_partition": "07_采集过程临时资料",
+      "sniffed_format": "jpeg",
+      "files": 7
+    },
+    {
+      "source_partition": "07_采集过程临时资料",
+      "sniffed_format": "png",
+      "files": 2
+    },
+    {
+      "source_partition": "07_采集过程临时资料",
+      "sniffed_format": "text",
+      "files": 1
+    }
+  ]
+}

@@ -16,13 +16,14 @@
 
 `D:\Project\fuwai\项目完整汇总_2026-08-31\01_我们的开发`
 
-GitHub 只保存程序代码、配置、测试和必要说明文档。以下内容只保留在本机，严禁提交或上传：
+GitHub 保存本目录中的程序代码、配置、测试、项目文档、报告，以及正式清洗发布包 `data-cleaning/storage/final_cleaned`。清洗发布包中的大型 SQLite 和主 CSV 通过 Git LFS 管理。以下内容只保留在本机，严禁提交或上传：
 
 - `02_全部原始数据` 中的全部原始数据；
-- `data-cleaning/storage` 中的清洗结果、中间产物、数据库、栅格和发布包；
+- `data-cleaning/storage/raw` 以及其他原始数据副本；
+- `data-cleaning/storage` 中除正式发布包、审计清单和必要导出之外的中间运行目录；
 - `private` 中的授权回执与凭据；
 - `history` 中的 Git bundle；
-- `node_modules`、`dist`、测试缓存、运行日志和过程报告；
-- Parquet、SQLite、GeoTIFF、HDF、NetCDF、GRIB、RAR、ZIP 等数据或归档文件。
+- `node_modules`、测试缓存和运行日志；
+- 非正式发布包中的 GeoTIFF、HDF、NetCDF、GRIB、RAR、ZIP 等原始数据或归档文件。
 
 这些规则由根目录 `.gitignore` 强制执行。上传前仍应运行 `git status` 和敏感信息检查，不能只依赖忽略规则。

@@ -1,0 +1,66 @@
+﻿variable_code,records,time_min,time_max,provenances
+B03,56,2022-01-01,2026-08-01,derived
+B04,56,2022-01-01,2026-08-01,derived
+B05,56,2022-01-01,2026-08-01,derived
+B08,56,2022-01-01,2026-08-01,derived
+B11,56,2022-01-01,2026-08-01,derived
+FAI,56,2022-01-01,2026-08-01,derived
+MCI,56,2022-01-01,2026-08-01,derived
+NDCI,56,2022-01-01,2026-08-01,derived
+NDWI,56,2022-01-01,2026-08-01,derived
+air_pressure,26,2026-08-18T18:00:00+0000,2026-08-30T00:00:00+0000,forecast_input
+air_temperature,25574,1993-01-01T00:00:00+0000,2026-10-01T00:00:00+0000,forecast_input
+area_km2,63,,,derived
+area_km2_calc,1,,,derived
+boundary_area_km2_calc,1,,,derived
+boundary_source_area_km2,1,,,derived
+category_monitoring_point_count,46,2022-01-01 00:00:00,2025-11-01 00:00:00,ground_truth
+chla,83,2020-12-22 09:52:00,2026-08-18 08:00:00,ground_truth
+chla_mean,24,2024-09-01,2026-08-01,derived
+chla_retrieval,331,2002-07-01,2026-08-01,derived
+chla_uncertainty,24,2024-09-01,2026-08-01,derived
+cloud_cover,26,2026-08-18T18:00:00+0000,2026-08-30T00:00:00+0000,forecast_input
+codmn,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+dem_valid_frac,1,,,derived
+distance_to_taihu_boundary_km,63,,,derived
+do,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+elevation_max_m,61,,,derived
+elevation_mean_m,61,,,derived
+elevation_median_m,61,,,derived
+elevation_min_m,61,,,derived
+elevation_std_m,61,,,derived
+elevation_valid_frac,60,,,derived
+fcb_prob,24,2024-09-01,2026-08-01,derived
+hydrolakes_record_status,1,,,derived
+inside_lake,42,,,derived
+lake_surface_temperature,9704,2020-01-01T00:00:00,2026-08-22T18:00:00,derived
+landcover_bare_sparse_pct,62,,,derived
+landcover_built_up_pct,63,,,derived
+landcover_cropland_pct,63,,,derived
+landcover_grassland_pct,63,,,derived
+landcover_herbaceous_wetland_pct,59,,,derived
+landcover_permanent_water_pct,63,,,derived
+landcover_shrubland_pct,49,,,derived
+landcover_tree_pct,63,,,derived
+latitude,42,,,derived
+longitude,42,,,derived
+nh4_n,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+no2_n,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+no3_n,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+ph,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+phyto_biomass,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+phyto_number,160,2005-01-01 00:00:00,2020-01-01 00:00:00,ground_truth
+po4_p,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+precipitation,25572,1993-01-01T00:00:00+0000,2026-10-01T00:00:00+0000,forecast_input
+sdd,62,2022-12-13 10:25:05,2023-10-17 13:04:00,ground_truth
+shortwave_radiation,25572,1993-01-01T00:00:00+0000,2026-10-01T00:00:00+0000,forecast_input
+tn,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+tp,576,2005-02-01 00:00:00,2020-11-01 00:00:00,ground_truth
+tsm,41,2020-12-22 09:52:00,2023-10-17 13:04:00,ground_truth
+water_level,6159,2004-01-01 00:00:00,2026-08-19 08:00:00,ground_truth
+water_temperature,41,2020-12-22 09:52:00,2023-10-17 13:04:00,ground_truth
+wind_u,25574,1993-01-01T00:00:00+0000,2026-10-01T00:00:00+0000,forecast_input
+wind_v,25574,1993-01-01T00:00:00+0000,2026-10-01T00:00:00+0000,forecast_input
+zoo_biomass,504,2007-01-01 00:00:00,2020-01-01 00:00:00,ground_truth
+zoo_number,80,2005-01-01 00:00:00,2020-01-01 00:00:00,ground_truth
+雨量,3,2026-08-19 08:00:00,2026-08-19 08:00:00,ground_truth

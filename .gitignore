@@ -1,8 +1,7 @@
 # Dependencies
 node_modules/
 
-# Build output
-dist/
+# Build output is retained for the complete project handoff
 
 # Nuxt UI generated files
 .nuxt-ui/
@@ -40,7 +39,6 @@ backend/.venv/
 # Private material and portable repository history never enter GitHub
 private/
 history/
-reports/
 **/credentials/
 *.pem
 *.key
@@ -48,7 +46,7 @@ reports/
 *.pfx
 *.bundle
 
-# Data cleaning — 原始数据、清洗结果、中间产物和发布包一律不入库
+# Data cleaning — 原始数据和中间运行目录不入库
 data-cleaning/storage/
 data-cleaning/data-cleaning/storage/
 data-cleaning/storage/raw_organized/
@@ -85,3 +83,14 @@ data-cleaning/storage/THQBCA-V2.rar
 *.zip
 *.tar
 *.tar.gz
+
+# 正式清洗发布包、审计清单和报告允许进入 GitHub。
+# 这些例外放在文件末尾，以覆盖上面的 storage 与二进制格式规则。
+!data-cleaning/storage/
+data-cleaning/storage/*
+!data-cleaning/storage/final_cleaned/
+!data-cleaning/storage/final_cleaned/**
+!data-cleaning/storage/exports/
+!data-cleaning/storage/exports/**
+!data-cleaning/storage/manifests/
+!data-cleaning/storage/manifests/**

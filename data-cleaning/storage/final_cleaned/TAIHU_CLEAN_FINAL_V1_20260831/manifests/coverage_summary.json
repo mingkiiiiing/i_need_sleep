@@ -1,0 +1,11 @@
+{
+  "release_id": "TAIHU_CLEAN_FINAL_V1_20260831",
+  "generated_at": "2026-08-31T14:50:58+08:00",
+  "total_files": 11794,
+  "unmatched_files": 0,
+  "multi_match_files": 0,
+  "files_needing_new_cleaner": 9219,
+  "files_handled_by_exception": 17,
+  "cleaner_count": 23,
+  "coverage_ok": true
+}

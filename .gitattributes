@@ -1,0 +1,4 @@
+# GitHub rejects ordinary Git blobs above 100 MB. Keep the two large official
+# cleaned-data deliverables in Git LFS while retaining their normal paths.
+data-cleaning/storage/final_cleaned/**/database/*.sqlite filter=lfs diff=lfs merge=lfs -text
+data-cleaning/storage/final_cleaned/**/tables/taihu_clean_final_long.csv filter=lfs diff=lfs merge=lfs -text

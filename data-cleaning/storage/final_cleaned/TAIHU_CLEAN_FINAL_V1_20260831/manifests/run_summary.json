@@ -1,0 +1,232 @@
+{
+  "release_id": "TAIHU_CLEAN_FINAL_V1_20260831",
+  "run_id": "TAIHU_CLEAN_RUN_20260831T132030+0800",
+  "finished_at": "2026-08-31T14:54:32+08:00",
+  "elapsed_seconds": 47.0,
+  "file_count": 11794,
+  "status_counts": {
+    "METADATA_ONLY": 8747,
+    "DUPLICATE": 1307,
+    "CLEANED": 1135,
+    "REJECTED": 602,
+    "BLOCKED_AUTH": 2,
+    "QUARANTINED": 1
+  },
+  "cleaner_stats": [
+    {
+      "cleaner": "dedup_non_primary",
+      "files": 1307,
+      "records": 0,
+      "statuses": {
+        "DUPLICATE": 1307
+      }
+    },
+    {
+      "cleaner": "clean_meteorology",
+      "files": 322,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 168,
+        "CLEANED": 154
+      }
+    },
+    {
+      "cleaner": "clean_hydrology",
+      "files": 1,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 1
+      }
+    },
+    {
+      "cleaner": "clean_water_quality",
+      "files": 16,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 15,
+        "CLEANED": 1
+      }
+    },
+    {
+      "cleaner": "clean_field_samples",
+      "files": 5,
+      "records": 0,
+      "statuses": {
+        "CLEANED": 3,
+        "METADATA_ONLY": 2
+      }
+    },
+    {
+      "cleaner": "clean_static_features",
+      "files": 28,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 26,
+        "CLEANED": 2
+      }
+    },
+    {
+      "cleaner": "clean_thqbca_tables",
+      "files": 6,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 5,
+        "CLEANED": 1
+      }
+    },
+    {
+      "cleaner": "clean_sentinel2_assets",
+      "files": 731,
+      "records": 0,
+      "statuses": {
+        "CLEANED": 653,
+        "METADATA_ONLY": 78
+      }
+    },
+    {
+      "cleaner": "clean_clms_lwq",
+      "files": 82,
+      "records": 0,
+      "statuses": {
+        "CLEANED": 70,
+        "METADATA_ONLY": 12
+      }
+    },
+    {
+      "cleaner": "clean_thqbca_raster",
+      "files": 219,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 219
+      }
+    },
+    {
+      "cleaner": "clean_source_registry",
+      "files": 576,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 576
+      }
+    },
+    {
+      "cleaner": "clean_modis_ocean_color",
+      "files": 6158,
+      "records": 261,
+      "statuses": {
+        "METADATA_ONLY": 5399,
+        "REJECTED": 588,
+        "CLEANED": 171
+      },
+      "seconds": 33.0
+    },
+    {
+      "cleaner": "clean_modis_land_surface",
+      "files": 2043,
+      "records": 0,
+      "statuses": {
+        "METADATA_ONLY": 2043
+      },
+      "seconds": 0.2
+    },
+    {
+      "cleaner": "clean_mee_monthly_pdf",
+      "files": 54,
+      "records": 54,
+      "statuses": {
+        "METADATA_ONLY": 54
+      },
+      "seconds": 0.1
+    },
+    {
+      "cleaner": "review_quarantined_assets",
+      "files": 1,
+      "records": 0,
+      "statuses": {
+        "QUARANTINED": 1
+      },
+      "seconds": 0.9
+    },
+    {
+      "cleaner": "clean_catalog_responses",
+      "files": 44,
+      "records": 44,
+      "statuses": {
+        "METADATA_ONLY": 44
+      },
+      "seconds": 0.2
+    },
+    {
+      "cleaner": "clean_bloom_archive",
+      "files": 1,
+      "records": 1,
+      "statuses": {
+        "METADATA_ONLY": 1
+      },
+      "seconds": 0.6
+    },
+    {
+      "cleaner": "inspect_data_archive",
+      "files": 1,
+      "records": 1,
+      "statuses": {
+        "METADATA_ONLY": 1
+      },
+      "seconds": 0.7
+    },
+    {
+      "cleaner": "clean_zip_wrapped_netcdf",
+      "files": 80,
+      "records": 9704,
+      "statuses": {
+        "CLEANED": 80
+      },
+      "seconds": 6.8
+    },
+    {
+      "cleaner": "clean_sentinel3_status",
+      "files": 2,
+      "records": 2,
+      "statuses": {
+        "BLOCKED_AUTH": 2
+      },
+      "seconds": 0.9
+    },
+    {
+      "cleaner": "classify_and_deduplicate_legacy",
+      "files": 103,
+      "records": 103,
+      "statuses": {
+        "METADATA_ONLY": 103
+      },
+      "seconds": 0.1
+    },
+    {
+      "cleaner": "exception_zero_byte",
+      "files": 1,
+      "records": 0,
+      "statuses": {
+        "REJECTED": 1
+      },
+      "seconds": 0.1
+    },
+    {
+      "cleaner": "exception_lockfile",
+      "files": 1,
+      "records": 0,
+      "statuses": {
+        "REJECTED": 1
+      },
+      "seconds": 0.1
+    },
+    {
+      "cleaner": "exception_temporary",
+      "files": 12,
+      "records": 0,
+      "statuses": {
+        "REJECTED": 12
+      },
+      "seconds": 0.1
+    }
+  ],
+  "all_files_concluded": true
+}

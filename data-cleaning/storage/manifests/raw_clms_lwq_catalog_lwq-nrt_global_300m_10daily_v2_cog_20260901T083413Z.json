@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "clms_lwq_catalog",
+  "asset_id": "lwq-nrt_global_300m_10daily_v2_cog",
+  "request_url": "https://example.test/lwq-nrt_global_300m_10daily_v2_cog.csv",
+  "local_path": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\data-cleaning\\storage\\raw\\clms_lwq_catalog\\20260901T083413Z_lwq-nrt_global_300m_10daily_v2_cog.csv",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-09-01T08:34:13.013336+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "text/csv"
+  },
+  "checksum_sha256": "f3a0bc6d43a121f1aafbffcd5e601832834cb5c95cc8b493c3fe73521873eb48",
+  "size_bytes": 794,
+  "license": {
+    "license_tag": "COPERNICUS_TERMS_REVIEW_REQUIRED",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}
