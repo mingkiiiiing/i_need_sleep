@@ -1,5 +1,0 @@
-Directed: pytest -q tests/test_forecast_failover.py tests/test_source_health.py
-Result: 8 passed in 0.88s
-
-Full suite: pytest -q
-Result: 148 passed in 23.06s

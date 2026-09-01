@@ -12,7 +12,8 @@ from ..provenance import build_asset_manifest, manifest_root, write_asset_manife
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
-RAW_ROOT = PACKAGE_ROOT / "storage" / "raw"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
+RAW_ROOT = STORAGE / "raw"
 
 
 @dataclass

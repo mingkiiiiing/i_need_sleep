@@ -53,6 +53,9 @@ from .thqbca_revalidation import revalidate_thqbca
 from .response_contract import contract_response
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="A23 Taihu raw-source ingestion")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -167,22 +170,22 @@ def main() -> int:
     batch.add_argument("--validation-fraction", type=float, default=0.15)
     sub.add_parser("fault-test", help="run labelled missing/outlier/duplicate/timestamp QC fixture")
     download = sub.add_parser("download-thqbca", help="resume THQBCA archive download and verify MD5")
-    download.add_argument("--output", default="storage/raw/taihu_thqbca_zenodo/THQBCA-V2.rar")
+    download.add_argument("--output", default=str(STORAGE / "raw/taihu_thqbca_zenodo/THQBCA-V2.rar"))
     download.add_argument("--md5", default="9fb11bd2ecb80470abfd33d54bdc9fa3")
     listing = sub.add_parser("list-thqbca", help="list THQBCA archive members without extraction")
-    listing.add_argument("--archive", default="storage/raw/taihu_thqbca_zenodo/THQBCA-V2.rar")
-    listing.add_argument("--manifest", default="storage/manifests/thqbca_archive_listing.json")
+    listing.add_argument("--archive", default=str(STORAGE / "raw/taihu_thqbca_zenodo/THQBCA-V2.rar"))
+    listing.add_argument("--manifest", default=str(STORAGE / "manifests/thqbca_archive_listing.json"))
     extract = sub.add_parser("extract-thqbca", help="extract only the water-quality and climate workbooks")
-    extract.add_argument("--archive", default="storage/raw/taihu_thqbca_zenodo/THQBCA-V2.rar")
-    extract.add_argument("--output-root", default="storage/raw/taihu_thqbca_zenodo/extracted")
+    extract.add_argument("--archive", default=str(STORAGE / "raw/taihu_thqbca_zenodo/THQBCA-V2.rar"))
+    extract.add_argument("--output-root", default=str(STORAGE / "raw/taihu_thqbca_zenodo/extracted"))
     parse = sub.add_parser("parse-thqbca", help="parse extracted THQBCA water-quality and climate workbooks")
-    parse.add_argument("--water-quality", default="storage/raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/1.WaterQuality/1WaterQuality.xlsx")
-    parse.add_argument("--climate", default="storage/raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/3.Climate/3.Climate.xlsx")
-    parse.add_argument("--output", default="storage/raw/taihu_thqbca_parsed/thqbca_observations.csv")
-    parse.add_argument("--manifest", default="storage/manifests/thqbca_parse.json")
-    parse.add_argument("--remote-listing", default="storage/manifests/thqbca_archive_listing.json")
-    parse.add_argument("--remote-index-output", default="storage/raw/taihu_thqbca_parsed/thqbca_remote_product_index.csv")
-    parse.add_argument("--remote-index-manifest", default="storage/manifests/thqbca_remote_product_index.json")
+    parse.add_argument("--water-quality", default=str(STORAGE / "raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/1.WaterQuality/1WaterQuality.xlsx"))
+    parse.add_argument("--climate", default=str(STORAGE / "raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/3.Climate/3.Climate.xlsx"))
+    parse.add_argument("--output", default=str(STORAGE / "raw/taihu_thqbca_parsed/thqbca_observations.csv"))
+    parse.add_argument("--manifest", default=str(STORAGE / "manifests/thqbca_parse.json"))
+    parse.add_argument("--remote-listing", default=str(STORAGE / "manifests/thqbca_archive_listing.json"))
+    parse.add_argument("--remote-index-output", default=str(STORAGE / "raw/taihu_thqbca_parsed/thqbca_remote_product_index.csv"))
+    parse.add_argument("--remote-index-manifest", default=str(STORAGE / "manifests/thqbca_remote_product_index.json"))
     nasa_history = sub.add_parser("nasa-power-history", help="download NASA POWER history in year chunks")
     nasa_history.add_argument("--start-year", type=int, default=2005)
     nasa_history.add_argument("--end-year", type=int, default=2020)
@@ -267,12 +270,12 @@ def main() -> int:
     failover.add_argument("--run-id", default="forecast-failover")
     failover.add_argument("--checked-at-utc", default=None)
     revalidate = sub.add_parser("revalidate-thqbca", help="revalidate THQBCA archive, members and parsed rows")
-    revalidate.add_argument("--archive", default="storage/raw/taihu_thqbca_zenodo/THQBCA-V2.rar")
-    revalidate.add_argument("--download-manifest", default="storage/manifests/thqbca_download_20260818T100147Z.json")
-    revalidate.add_argument("--listing-manifest", default="storage/manifests/thqbca_archive_listing.json")
-    revalidate.add_argument("--parse-manifest", default="storage/manifests/thqbca_parse.json")
-    revalidate.add_argument("--parsed-csv", default="storage/raw/taihu_thqbca_parsed/thqbca_observations.csv")
-    revalidate.add_argument("--output", default="storage/manifests/thqbca_revalidation.json")
+    revalidate.add_argument("--archive", default=str(STORAGE / "raw/taihu_thqbca_zenodo/THQBCA-V2.rar"))
+    revalidate.add_argument("--download-manifest", default=str(STORAGE / "manifests/thqbca_download_20260818T100147Z.json"))
+    revalidate.add_argument("--listing-manifest", default=str(STORAGE / "manifests/thqbca_archive_listing.json"))
+    revalidate.add_argument("--parse-manifest", default=str(STORAGE / "manifests/thqbca_parse.json"))
+    revalidate.add_argument("--parsed-csv", default=str(STORAGE / "raw/taihu_thqbca_parsed/thqbca_observations.csv"))
+    revalidate.add_argument("--output", default=str(STORAGE / "manifests/thqbca_revalidation.json"))
     resample = sub.add_parser("resample", help="resample hourly/daily records without upsampling low-frequency sources")
     resample.add_argument("--input", required=True, help="cleaned_observations.csv or another standard observation CSV")
     resample.add_argument("--output-root", default=None)
@@ -290,7 +293,7 @@ def main() -> int:
     spatial_align.add_argument("--input", required=True, help="resampled_observations.csv")
     spatial_align.add_argument("--output-root", default=None)
     spatial_align.add_argument("--database", default=None)
-    spatial_align.add_argument("--boundary", default="storage/silver/geo/taihu_boundary.gpkg")
+    spatial_align.add_argument("--boundary", default=str(STORAGE / "silver/geo/taihu_boundary.gpkg"))
     spatial_align.add_argument("--grid-size-m", type=float, default=300.0)
     spatial_align.add_argument("--station-buffer-pixels", nargs="+", type=int, default=[1, 2, 3])
     spatial_align.add_argument("--grid-origin", nargs=2, type=float, default=[119.90, 30.90], metavar=("LONGITUDE", "LATITUDE"))
@@ -312,7 +315,7 @@ def main() -> int:
     daily_features.add_argument("--observations", required=True, help="daily resampled observations CSV")
     daily_features.add_argument("--output-root", required=True)
     daily_features.add_argument("--database", required=True)
-    daily_features.add_argument("--static-features", default="storage/silver/geo/static_features.parquet")
+    daily_features.add_argument("--static-features", default=str(STORAGE / "silver/geo/static_features.parquet"))
     daily_features.add_argument("--manifest", default=None)
     lag_features = sub.add_parser("lag-rolling-features", help="build causal 1/3/7/14/30/90-day lag and rolling features")
     lag_features.add_argument("--input", required=True)
@@ -390,7 +393,7 @@ def main() -> int:
     station_fetch.add_argument("--source-id", default="water_station_endpoint")
     station_auth_probe = sub.add_parser("waterstation-auth-probe", help="check HJ1404 endpoint/token readiness without making a request")
     station_auth_probe.add_argument("--url", default=None, help="formal authorized HJ1404 endpoint; omitted for token-only probe")
-    station_auth_probe.add_argument("--manifest", default="storage/manifests/hj1404_auth_probe.json")
+    station_auth_probe.add_argument("--manifest", default=str(STORAGE / "manifests/hj1404_auth_probe.json"))
     station_parse = sub.add_parser("waterstation-parse", help="normalize an MEE-compatible water-station JSON/CSV/XLSX file")
     station_parse.add_argument("--input", required=True)
     station_parse.add_argument("--output", required=True)
@@ -613,7 +616,7 @@ def main() -> int:
     if args.command == "download-thqbca":
         result = download_thqbca_archive(Path(args.output), args.md5)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        manifest_path = Path("storage/manifests") / f"thqbca_download_{stamp}.json"
+        manifest_path = STORAGE / "manifests" / f"thqbca_download_{stamp}.json"
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         result["retrieved_at"] = stamp
         result["manifest"] = str(manifest_path)
@@ -660,7 +663,7 @@ def main() -> int:
         if args.manifest:
             manifest = Path(args.manifest)
         else:
-            manifest = Path("storage/manifests") / "cma_history_file.json"
+            manifest = STORAGE / "manifests" / "cma_history_file.json"
         manifest.parent.mkdir(parents=True, exist_ok=True)
         manifest.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         result["manifest"] = str(manifest)
@@ -1026,7 +1029,7 @@ def main() -> int:
     if args.source in {"thqbca", "all"}:
         results.append(ingest_thqbca_metadata())
 
-    manifest_dir = Path(__file__).resolve().parents[1] / "storage" / "manifests"
+    manifest_dir = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage")) / "manifests"
     manifest_dir.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     manifest_path = manifest_dir / f"ingest_{stamp}.json"

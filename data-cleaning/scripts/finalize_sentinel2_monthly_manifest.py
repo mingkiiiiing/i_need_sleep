@@ -7,12 +7,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 MANIFESTS = [
-    ROOT / "storage" / "manifests" / "sentinel2_cdse_2022_2025_retry.json",
-    ROOT / "storage" / "manifests" / "sentinel2_cdse_2026.json",
+    STORAGE / "manifests" / "sentinel2_cdse_2022_2025_retry.json",
+    STORAGE / "manifests" / "sentinel2_cdse_2026.json",
 ]
-OUTPUT = ROOT / "storage" / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
-RASTER_ROOT = ROOT / "storage" / "rasters" / "sentinel2_monthly_30m_cdse"
+OUTPUT = STORAGE / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
+RASTER_ROOT = STORAGE / "rasters" / "sentinel2_monthly_30m_cdse"
 
 
 def sha256(path: Path) -> str:
@@ -26,7 +27,7 @@ def sha256(path: Path) -> str:
 def main() -> None:
     sources = [json.loads(path.read_text(encoding="utf-8")) for path in MANIFESTS]
     by_month = {month["month"]: month for source in sources for month in source["months"]}
-    repair_paths = sorted((ROOT / "storage" / "manifests").glob("sentinel2_cdse_repair_20??-??.json"))
+    repair_paths = sorted((STORAGE / "manifests").glob("sentinel2_cdse_repair_20??-??.json"))
     for path in repair_paths:
         repair = json.loads(path.read_text(encoding="utf-8"))
         for month in repair.get("months", []):

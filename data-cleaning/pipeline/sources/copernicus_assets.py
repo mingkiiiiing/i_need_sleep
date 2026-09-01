@@ -20,9 +20,10 @@ from ..provenance import write_asset_manifest
 from .common import PACKAGE_ROOT, download_asset, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 TARGET_ASSETS: tuple[str, ...] = ("B02", "B03", "B04", "B05", "B08", "B8A", "B11", "SCL")
 CDSE_S3_ENDPOINT = "https://eodata.dataspace.copernicus.eu"
-CDSE_AUTH_PROBE = PACKAGE_ROOT / "storage" / "manifests" / "cdse_auth_probe.json"
+CDSE_AUTH_PROBE = STORAGE / "manifests" / "cdse_auth_probe.json"
 
 
 def _scene_from_input(scene: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -168,7 +169,7 @@ def build_download_plan(
 
     scene = _scene_from_input(scene)
     scene_id = str(scene.get("scene_id") or scene.get("id") or "unknown_scene")
-    root = Path(output_root) if output_root is not None else PACKAGE_ROOT / "storage" / "raw" / "remote_sensing" / "sentinel2"
+    root = Path(output_root) if output_root is not None else STORAGE / "raw" / "remote_sensing" / "sentinel2"
     records = select_sentinel2_assets(scene, bands, prefer_cog=prefer_cog)
     selected_bands = {record["band"] for record in records}
     missing = [str(band).upper() for band in bands if str(band).upper() not in selected_bands]
@@ -254,7 +255,7 @@ def run_sentinel2_asset_download(
     plan = build_download_plan(scene, bands, output_root=output_root, prefer_cog=prefer_cog)
     credentials = cdse_credentials_present()
     auth_ok, auth_method = _auth_available(plan)
-    manifest = Path(manifest_path) if manifest_path else PACKAGE_ROOT / "storage" / "manifests" / "sentinel2_assets.json"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "sentinel2_assets.json"
     base: dict[str, Any] = {
         "task_id": "P06-02",
         "source_id": "copernicus_sentinel2_assets",

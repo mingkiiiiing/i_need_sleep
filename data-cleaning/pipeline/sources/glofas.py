@@ -22,6 +22,7 @@ from .common import PACKAGE_ROOT, RAW_ROOT, utc_now
 from ..provenance import build_asset_manifest, manifest_root, write_asset_manifest
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DATASET = "cems-glofas-forecast"
 SOURCE_ID = "glofas_forecast"
 EWDS_URL = "https://ewds.climate.copernicus.eu/datasets/cems-glofas-forecast?tab=download"
@@ -334,8 +335,8 @@ def run_glofas(
 ) -> dict[str, Any]:
     """Create an official request plan or parse an authorized local export."""
 
-    output_dir = Path(output_root) if output_root else PACKAGE_ROOT / "storage" / "silver" / "glofas"
-    manifest = Path(manifest_path) if manifest_path else PACKAGE_ROOT / "storage" / "manifests" / "glofas_p07_03.json"
+    output_dir = Path(output_root) if output_root else STORAGE / "silver" / "glofas"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "glofas_p07_03.json"
     evidence = Path(authorization_evidence_path) if authorization_evidence_path else None
     request = build_glofas_request(run_date, area=area, lead_hours=lead_hours)
     result: dict[str, Any] = {

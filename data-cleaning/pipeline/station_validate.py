@@ -18,6 +18,7 @@ from .units import standardize_units
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 TARGET_ALTERNATIVES = {"chlorophyll_a", "algae_density", "bloom_area_km2"}
 REQUIRED_DRIVERS = {"water_temperature", "total_nitrogen", "total_phosphorus"}
 UNIT_EXPECTED = {
@@ -223,13 +224,13 @@ def run_station_validation(input_path: Path, output_root: Path | None = None, da
     result = validate_station_rows(_read_rows(input_path), max_median_interval_hours=max_median_interval_hours, max_gap_hours=max_gap_hours)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"station_validation_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"station_validation_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {"valid": output_root / "station_validated_rows.csv", "issues": output_root / "station_validation_issues.csv", "summary": output_root / "station_validation_summary.json"}
     _write_csv(files["valid"], result["rows"])
     _write_csv(files["issues"], result["issues"])
     files["summary"].write_text(json.dumps(result["summary"], ensure_ascii=False, indent=2), encoding="utf-8")
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["rows"], result["issues"], result["summary"])
     manifest = {"run_id": f"station_validation_{stamp}", "status": "completed", "input": str(input_path), "validation_status": result["summary"]["status"], "files": {key: str(value) for key, value in {**files, "database": database}.items()}, "summary": result["summary"]}
     manifest_path = manifest_root(root) / f"{manifest['run_id']}.json"

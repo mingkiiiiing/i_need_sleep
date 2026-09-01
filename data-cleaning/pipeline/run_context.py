@@ -11,6 +11,7 @@ from typing import Any
 
 UTC = timezone.utc
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 
 def _safe_run_id(value: str) -> str:
@@ -35,7 +36,7 @@ class RunContext:
         created_at = datetime.now(UTC).isoformat()
         stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         normalized_id = _safe_run_id(run_id or f"run_{stamp}")
-        root = Path(runs_root) if runs_root is not None else PACKAGE_ROOT / "storage" / "runs"
+        root = Path(runs_root) if runs_root is not None else STORAGE / "runs"
         run_root = root / normalized_id
         if run_root.exists():
             raise FileExistsError(f"run directory already exists: {run_root}")

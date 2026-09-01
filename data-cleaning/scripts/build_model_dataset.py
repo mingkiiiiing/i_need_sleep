@@ -6,7 +6,7 @@
   仅地面观测可得; 无观测值保持为空, 不人工生成; target_*_source 列注明来源
 - dataset_split: <=2024 train(历史数据一并纳入) / 2025 validation / >=2026 test
 
-输出: storage/cleaned/model_dataset_monthly.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/model_dataset_monthly.csv (+ .parquet)
 """
 from __future__ import annotations
 

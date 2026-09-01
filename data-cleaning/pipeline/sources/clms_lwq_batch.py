@@ -23,18 +23,42 @@ from .clms_lwq_byoc import (
 from .common import PACKAGE_ROOT, sha256_file, utc_now
 
 
-BANDS = ("CHLAMEAN", "CHLAUNC", "FCBPROB", "QFLAG")
-EVALSCRIPT = """//VERSION=3
-function setup() {
-  return {
-    input: [{bands: ["CHLAMEAN", "CHLAUNC", "FCBPROB", "QFLAG"]}],
-    output: {bands: 4, sampleType: "FLOAT32"}
-  };
-}
-function evaluatePixel(sample) {
-  return [sample.CHLAMEAN, sample.CHLAUNC, sample.FCBPROB, sample.QFLAG];
-}
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
+# V2 collection and bands (chlorophyll mean/uncertainty, floating cyanobacteria probability, quality flag).
+V2_COLLECTION_ID = "5c2c9b2c-2893-41d9-b2bc-fbd6e5b8b31d"
+V2_BANDS = ("CHLAMEAN", "CHLAUNC", "FCBPROB", "QFLAG")
+# V1 has its own BYOC collection and a different band set (water-leaving reflectances,
+# turbidity and TSM means plus observation counts). Requesting V2 band names against
+# the V1 collection yields all-NaN rasters, which is why the original V1 download
+# produced 301 empty products.
+V1_COLLECTION_ID = "71b198f7-eec7-45aa-bcb9-87a28b5c4e73"
+V1_BANDS = ("FOBS", "LOBS", "NOBSQRS", "NOBS", "RW1020", "RW400", "RW412", "RW443", "RW490",
+            "RW510", "RW560", "RW620", "RW665", "RW674", "RW681", "RW709", "RW754", "RW760",
+            "RW764", "RW767", "RW779", "RW865", "RW885", "RW900", "RW940", "TMEAN", "TNOBS",
+            "TOBS", "TSINOBS", "TSI", "TSTDEV")
+BANDS = V2_BANDS
+
+
+def _evalscript_for(bands: tuple[str, ...]) -> str:
+    joined = ", ".join(f'"{band}"' for band in bands)
+    values = ", ".join(f"s.{band}" for band in bands)
+    return f"""//VERSION=3
+function setup() {{
+  return {{
+    input: [{{bands: [{joined}]}}],
+    output: {{bands: {len(bands)}, sampleType: "FLOAT32"}}
+  }};
+}}
+function evaluatePixel(s) {{ return [{values}]; }}
 """
+
+
+def _collection_id_for(product_version: str) -> str:
+    return V1_COLLECTION_ID if product_version == "v1" else V2_COLLECTION_ID
+
+
+def _bands_for(product_version: str) -> tuple[str, ...]:
+    return V1_BANDS if product_version == "v1" else V2_BANDS
 
 
 def _load_env_file(path: Path) -> None:
@@ -82,10 +106,11 @@ def _download_one(
     width: int,
     height: int,
     retries: int,
+    product_version: str,
 ) -> dict[str, Any]:
     nominal = _parse_date(row["nominal_date"])
     date_key = nominal.strftime("%Y%m%d")
-    output = output_root / nominal.strftime("%Y") / f"taihu_lwq300_v2_{date_key}.tif"
+    output = output_root / nominal.strftime("%Y") / f"taihu_lwq300_{product_version}_{date_key}.tif"
     output.parent.mkdir(parents=True, exist_ok=True)
     if _is_tiff(output):
         return {
@@ -102,7 +127,8 @@ def _download_one(
         geometry=geometry,
         width=width,
         height=height,
-        evalscript=EVALSCRIPT,
+        collection_id=_collection_id_for(product_version),
+        evalscript=_evalscript_for(_bands_for(product_version)),
     )
     payload = json.dumps(body).encode("utf-8")
     last_error = "unknown"
@@ -158,6 +184,7 @@ def run_batch(
     width: int = 320,
     height: int = 320,
     workers: int = 4,
+    product_version: str = "v2",
 ) -> dict[str, Any]:
     _load_env_file(PACKAGE_ROOT / ".env.cdse")
     token = _request_token(timeout=30)
@@ -178,6 +205,7 @@ def run_batch(
                 width=width,
                 height=height,
                 retries=3,
+                product_version=product_version,
             )
             for row in rows
         ]
@@ -186,7 +214,7 @@ def run_batch(
 
     results.sort(key=lambda item: item["date"])
     summary = {
-        "source_id": "clms_lwq_300m_v2_taihu_batch",
+        "source_id": f"clms_lwq_300m_{product_version}_taihu_batch",
         "status": "completed" if all(item["status"] != "failed" for item in results) else "completed_with_failures",
         "retrieved_at_utc": utc_now(),
         "requested_range": {"start": start, "end": end},
@@ -200,7 +228,8 @@ def run_batch(
             "CHLAMEAN_CHLAUNC_FCBPROB": "values >= 1e30 or non-finite",
             "QFLAG": "65535",
         },
-        "official_documentation": "https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/clms/bio-geophysical-parameters/water-bodies/lake-water-quality/lwq-nrt_global_300m_10daily_v2.html",
+        "official_documentation": f"https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/clms/bio-geophysical-parameters/water-bodies/lake-water-quality/lwq-nrt_global_300m_10daily_{product_version}.html",
+        "product_version": product_version,
         "resolution_m": 300,
         "temporal_resolution": "10-daily",
         "width": width,
@@ -224,11 +253,12 @@ def main() -> int:
     parser.add_argument("--catalog", required=True, type=Path)
     parser.add_argument("--start", default="2022-01-01T00:00:00Z")
     parser.add_argument("--end", default="2026-12-31T23:59:59Z")
-    parser.add_argument("--output-root", type=Path, default=PACKAGE_ROOT / "storage" / "rasters" / "clms_lwq_300m_v2")
-    parser.add_argument("--manifest", type=Path, default=PACKAGE_ROOT / "storage" / "manifests" / "clms_lwq_300m_v2_batch.json")
+    parser.add_argument("--output-root", type=Path, default=STORAGE / "rasters" / "clms_lwq_300m_v2")
+    parser.add_argument("--manifest", type=Path, default=STORAGE / "manifests" / "clms_lwq_300m_v2_batch.json")
     parser.add_argument("--width", type=int, default=320)
     parser.add_argument("--height", type=int, default=320)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--product-version", choices=("v1", "v2"), default="v2")
     args = parser.parse_args()
     result = run_batch(
         catalog=args.catalog,
@@ -239,6 +269,7 @@ def main() -> int:
         width=args.width,
         height=args.height,
         workers=args.workers,
+        product_version=args.product_version,
     )
     print(json.dumps({key: value for key, value in result.items() if key != "results"}, ensure_ascii=False, indent=2))
     return 0 if result["failed"] == 0 else 1

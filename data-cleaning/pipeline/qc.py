@@ -11,6 +11,7 @@ import yaml
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 QC_RULES_PATH = PACKAGE_ROOT / "config" / "qc_rules.yml"
 
 
@@ -80,7 +81,7 @@ NUTRIENT_COMPONENT_RULE = MULTIVARIATE_RULES.get("nutrient_components") or {}
 PRECIPITATION_FLOW_RULE = MULTIVARIATE_RULES.get("precipitation_flow") or {}
 CLOUD_RADIATION_RULE = MULTIVARIATE_RULES.get("cloud_radiation") or {}
 SPATIAL_RULES = RULES.get("spatial_quality") or {}
-SPATIAL_BOUNDARY_PATH = str(SPATIAL_RULES.get("boundary_path") or "storage/silver/geo/taihu_boundary.gpkg")
+SPATIAL_BOUNDARY_PATH = str(SPATIAL_RULES.get("boundary_path") or str(STORAGE / "silver/geo/taihu_boundary.gpkg"))
 SPATIAL_BOUNDARY_LAYER = str(SPATIAL_RULES.get("boundary_layer") or "taihu_boundary_wgs84")
 SPATIAL_BUFFER_M = float(SPATIAL_RULES.get("boundary_buffer_m", 5000.0))
 STATION_DRIFT_M = float(SPATIAL_RULES.get("station_drift_m", 1000.0))
@@ -495,7 +496,10 @@ def _spatial_issue_map(
     if boundary_path:
         resolved_boundary = Path(boundary_path)
         if not resolved_boundary.is_absolute():
-            resolved_boundary = PACKAGE_ROOT / resolved_boundary
+            # 配置中的相对路径以 data-cleaning 根为基准（如 storage/silver/...），
+            # 而 STORAGE 已指向 storage/；依次回退尝试，避免拼接成 storage/storage/...
+            candidates = [STORAGE / resolved_boundary, STORAGE.parent / resolved_boundary]
+            resolved_boundary = next((c for c in candidates if c.exists()), candidates[0])
 
     boundary_geometry = None
     transformer = None

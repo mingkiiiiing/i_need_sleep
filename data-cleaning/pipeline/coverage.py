@@ -16,6 +16,7 @@ from .provenance import manifest_root
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 # A short-term forecast needs at least one high-frequency target and the
 # following physical/ecological drivers. The target requirement is expressed
@@ -233,13 +234,13 @@ def run_coverage(input_path: Path, output_root: Path | None = None, database: Pa
     result = build_coverage_audit(rows, as_of=as_of)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"coverage_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"coverage_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {"matrix": output_root / "coverage_matrix.csv", "gaps": output_root / "coverage_gaps.csv", "audit": output_root / "coverage_audit.json"}
     _write_csv(files["matrix"], result["matrix"])
     _write_csv(files["gaps"], result["gaps"])
     files["audit"].write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["matrix"], result["gaps"])
     manifest = {"run_id": run_id or f"coverage_{stamp}", "status": "completed", "input": str(input_path), "rows": len(rows), "short_term_ready": result["short_term_ready"], "operational_short_term_ready": result["operational_short_term_ready"], "target_ready": result["target_ready"], "required_drivers_ready": result["required_drivers_ready"], "files": {key: str(value) for key, value in {**files, "database": database}.items()}, "gap_count": len(result["gaps"]), "as_of": result["as_of"]}
     manifest_path = manifest_path or manifest_root(root) / f"{manifest['run_id']}.json"

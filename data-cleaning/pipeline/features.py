@@ -25,6 +25,7 @@ from .align import HYDROLOGY_VARIABLES, METEOROLOGY_VARIABLES, WATER_QUALITY_VAR
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 Q_LEAKAGE_BLOCKED = "Q24"
 WINDOW_DAYS = (3, 7, 30)
 LAG_DAYS = (1, 3, 7)
@@ -340,14 +341,14 @@ def run_feature_engineering(alignment_path: Path, observations_path: Path, outpu
     records, quality, leakage = _build_rows(alignment_rows, observation_rows)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     package_root = Path(__file__).resolve().parents[1]
-    output_root = output_root or package_root / "storage" / "exports" / f"features_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"features_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     feature_path = output_root / "feature_dataset.csv"
     quality_path = output_root / "feature_quality_summary.csv"
     _write_csv(feature_path, records)
     quality_rows = [{"feature_name": name, **info} for name, info in sorted(quality.items())]
     _write_csv(quality_path, quality_rows)
-    database = database or package_root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, records, quality)
     status = "completed" if leakage["accepted_future_values"] == 0 else "completed_with_leakage"
     manifest: dict[str, Any] = {
@@ -370,7 +371,7 @@ def run_feature_engineering(alignment_path: Path, observations_path: Path, outpu
         },
         "files": {"feature_dataset": str(feature_path), "feature_quality_summary": str(quality_path), "database": str(database)},
     }
-    manifest_path = manifest_path or package_root / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = manifest_path or STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)

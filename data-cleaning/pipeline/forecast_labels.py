@@ -21,6 +21,7 @@ from .provenance import manifest_root
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 HORIZON_WINDOWS: dict[str, tuple[float, float]] = {
     "horizon_1_3d": (1.0, 3.0),
     "horizon_7_15d": (7.0, 15.0),
@@ -197,7 +198,7 @@ def run_horizon_labels(input_path: Path, output_root: Path | None = None, databa
     result = build_horizon_labels(rows, target_variable=target_variable)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"horizon_labels_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"horizon_labels_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {
         "dataset": output_root / "forecast_label_dataset.csv",
@@ -208,7 +209,7 @@ def run_horizon_labels(input_path: Path, output_root: Path | None = None, databa
     _write_csv(files["summary"], result["summary"])
     audit = {"target_variable": target_variable, "selected_rows": result["selected_rows"], "series_count": result["series_count"], "summary": result["summary"]}
     files["audit"].write_text(json.dumps(audit, ensure_ascii=False, indent=2), encoding="utf-8")
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["rows"], result["summary"])
     manifest = {"run_id": run_id or f"horizon_labels_{stamp}", "status": "completed", "input": str(input_path), "target_variable": target_variable, "selected_rows": result["selected_rows"], "series_count": result["series_count"], "files": {key: str(value) for key, value in {**files, "database": database}.items()}, "summary": result["summary"]}
     manifest_path = manifest_path or manifest_root(root) / f"{manifest['run_id']}.json"

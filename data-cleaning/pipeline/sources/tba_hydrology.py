@@ -27,6 +27,7 @@ from ..time_contract import parse_time
 from .common import PACKAGE_ROOT, RAW_ROOT, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 TBA_PORTAL_URL = "https://www.tba.gov.cn/"
 SOURCE_ID = "tba_current_level"
 DEFAULT_SOURCE_TIMEZONE = "Asia/Shanghai"
@@ -231,8 +232,8 @@ def run_tba_hydrology(
     """Parse a legally saved page; network fetch requires explicit evidence."""
 
     root = PACKAGE_ROOT
-    output = Path(output_csv) if output_csv else root / "storage" / "staging" / "tba_hydrology" / "water_level.csv"
-    manifest = Path(manifest_path) if manifest_path else root / "storage" / "manifests" / "tba_hydrology.json"
+    output = Path(output_csv) if output_csv else STORAGE / "staging" / "tba_hydrology" / "water_level.csv"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "tba_hydrology.json"
     evidence = Path(authorization_evidence_path) if authorization_evidence_path else None
     run_result: dict[str, Any] = {
         "task_id": "P07-01",

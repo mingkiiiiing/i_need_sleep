@@ -8,10 +8,11 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 REGISTRY_PATH = ROOT / "config" / "data_source_registry.csv"
 ALIASES_PATH = ROOT / "config" / "aliases.yml"
-AUDIT_PATH = ROOT / "storage" / "exports" / "source_field_mapping_audit.csv"
-UNMAPPED_PATH = ROOT / "storage" / "exports" / "unmapped_fields.csv"
+AUDIT_PATH = STORAGE / "exports" / "source_field_mapping_audit.csv"
+UNMAPPED_PATH = STORAGE / "exports" / "unmapped_fields.csv"
 
 SEMANTIC_GROUPS = {
     "water_quality",

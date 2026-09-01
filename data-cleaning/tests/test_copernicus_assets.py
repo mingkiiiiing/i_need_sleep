@@ -13,6 +13,9 @@ from pipeline.sources.copernicus_assets import (
 )
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def _scene() -> dict:
     assets = {}
     for band in TARGET_ASSETS:
@@ -39,7 +42,7 @@ def test_s3_href_is_mapped_to_documented_cdse_endpoint():
 def test_plan_is_bounded_and_marks_missing_assets():
     scene = _scene()
     scene["assets"].pop("B11_20m")
-    plan = build_download_plan(scene, output_root="storage/test-assets")
+    plan = build_download_plan(scene, output_root=str(STORAGE / "test-assets"))
     assert plan["selected_count"] == 7
     assert plan["missing_bands"] == ["B11"]
     assert plan["product_archive_selected"] is False
@@ -73,7 +76,7 @@ def test_authorized_injected_downloader_writes_and_records_checksum(tmp_path):
 
 
 def test_real_cdse_stac_metadata_produces_eight_asset_plan(tmp_path):
-    raw = Path("storage/raw/copernicus_sentinel2_stac/20260819T034225Z.json")
+    raw = STORAGE / "raw/copernicus_sentinel2_stac/20260819T034225Z.json"
     if not raw.exists():
         return
     result = run_sentinel2_asset_download(raw, manifest_path=tmp_path / "test_p06_02_plan.json")

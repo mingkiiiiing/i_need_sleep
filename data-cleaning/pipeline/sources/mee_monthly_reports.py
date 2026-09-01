@@ -16,10 +16,11 @@ import requests
 from bs4 import BeautifulSoup
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 INDEX_URL = "https://www.mee.gov.cn/hjzl/shj/dbsszyb/"
-DEFAULT_RAW = PACKAGE_ROOT / "storage" / "raw" / "mee_surface_water_monthly"
-DEFAULT_SILVER = PACKAGE_ROOT / "storage" / "silver" / "mee_taihu_monthly"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "mee_taihu_monthly_2022_2026.json"
+DEFAULT_RAW = STORAGE / "raw" / "mee_surface_water_monthly"
+DEFAULT_SILVER = STORAGE / "silver" / "mee_taihu_monthly"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "mee_taihu_monthly_2022_2026.json"
 REPORT_RE = re.compile(r"(20\d{2})\s*年\s*(\d{1,2})\s*月\s*全国地表水水质月报")
 _OCR_ENGINE: Any | None = None
 

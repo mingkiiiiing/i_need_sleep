@@ -21,6 +21,7 @@ from typing import Any, Iterable
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 Q_REMOTE_INVALID = "Q30"
 Q_REMOTE_BAND_MISSING = "Q31"
 Q_REMOTE_QUALITY_MISSING = "Q32"
@@ -347,12 +348,12 @@ def run_remote_index(input_path: Path, output_root: Path | None = None, database
     result = index_pixels(raw_rows, reflectance_scale=reflectance_scale, cloud_threshold=cloud_threshold, ndwi_water_threshold=ndwi_water_threshold, fai_threshold=fai_threshold, pixel_area_km2=pixel_area_km2)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"remote_index_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"remote_index_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     pixel_path, summary_path = output_root / "remote_pixel_indices.csv", output_root / "remote_scene_summary.csv"
     _write_csv(pixel_path, result["pixels"])
     _write_csv(summary_path, result["summaries"])
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite_index(database, result["pixels"], result["summaries"])
     manifest: dict[str, Any] = {
         "run_id": f"remote_index_{stamp}",
@@ -364,7 +365,7 @@ def run_remote_index(input_path: Path, output_root: Path | None = None, database
         "files": {"pixel_indices": str(pixel_path), "scene_summary": str(summary_path), "database": str(database)},
         "row_quality_counts": dict(Counter(flag for row in result["pixels"] for flag in row.get("quality_flags", []))),
     }
-    manifest_path = root / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)
@@ -427,11 +428,11 @@ def run_remote_pair(remote_path: Path, ground_path: Path, output_root: Path | No
     result = pair_remote_ground(remote_path, ground_path, max_time_diff_hours=max_time_diff_hours, max_space_m=max_space_m)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"remote_pair_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"remote_pair_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     pair_path = output_root / "remote_ground_pairs.csv"
     _write_csv(pair_path, result["pairs"])
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     connection = sqlite3.connect(database)
     try:
         connection.execute("DROP TABLE IF EXISTS remote_ground_pairs")
@@ -453,7 +454,7 @@ def run_remote_pair(remote_path: Path, ground_path: Path, output_root: Path | No
     finally:
         connection.close()
     manifest = {"run_id": f"remote_pair_{stamp}", "status": "completed", "remote_input": str(remote_path), "ground_input": str(ground_path), "remote_rows": result["remote_rows"], "ground_candidates": result["ground_candidates"], "pair_rows": len(result["pairs"]), "match_counts": result["counts"], "thresholds": {"max_time_diff_hours": max_time_diff_hours, "max_space_m": max_space_m}, "files": {"pairs": str(pair_path), "database": str(database)}}
-    manifest_path = root / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)
@@ -511,7 +512,7 @@ def calibrate_chlorophyll(pair_path: Path, features: list[str] | None = None, mi
     rows = _calibration_rows(pair_path, features)
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    model_path = root / "storage" / "exports" / f"remote_calibration_{stamp}" / "chlorophyll_model.json"
+    model_path = STORAGE / "exports" / f"remote_calibration_{stamp}" / "chlorophyll_model.json"
     model_path.parent.mkdir(parents=True, exist_ok=True)
     result: dict[str, Any] = {"run_id": f"remote_calibration_{stamp}", "features": features, "input": str(pair_path), "usable_pairs": len(rows), "min_pairs": min_pairs}
     if len(rows) < min_pairs:
@@ -546,7 +547,7 @@ def run_remote_calibration(pair_path: Path, output_root: Path | None = None, dat
     output_root.mkdir(parents=True, exist_ok=True)
     model_path = output_root / "chlorophyll_model.json"
     model_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     connection = sqlite3.connect(database)
     try:
         connection.execute("DROP TABLE IF EXISTS remote_calibration_models")
@@ -559,7 +560,7 @@ def run_remote_calibration(pair_path: Path, output_root: Path | None = None, dat
         connection.close()
     result["model_path"] = str(model_path)
     result["database"] = str(database)
-    manifest_path = root / "storage" / "manifests" / f"{result['run_id']}.json"
+    manifest_path = STORAGE / "manifests" / f"{result['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     result["manifest"] = str(manifest_path)

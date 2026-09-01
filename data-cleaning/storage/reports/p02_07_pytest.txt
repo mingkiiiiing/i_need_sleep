@@ -1,7 +1,0 @@
-P02-07 directed validation
-command: python -m pytest -q tests/test_web_collection_policy.py
-result: 2 passed in 0.09s
-
-P02-07 full regression
-command: python -m pytest -q
-result: 96 passed in 10.51s

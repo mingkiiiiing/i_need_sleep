@@ -25,6 +25,7 @@ from .common import PACKAGE_ROOT, download_asset
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 EARTHDATA_TOKEN_ENV = "TAIHU_EARTHDATA_TOKEN"
 DEFAULT_BBOX = (119.90, 30.90, 120.75, 31.65)
 DEFAULT_VERSION = "07"
@@ -291,16 +292,16 @@ def run_gpm_imerg(
     while cursor <= end:
         timestamps.append(cursor)
         cursor += timedelta(minutes=30)
-    raw_root = Path(raw_root or PACKAGE_ROOT / "storage" / "raw" / "meteorology" / "gpm_imerg")
-    silver_root = Path(silver_root or PACKAGE_ROOT / "storage" / "silver" / "gpm_imerg")
-    manifest_path = Path(manifest_path or PACKAGE_ROOT / "storage" / "manifests" / f"gpm_imerg_{start:%Y%m%dT%H%M}_{end:%Y%m%dT%H%M}.json")
+    raw_root = Path(raw_root or STORAGE / "raw" / "meteorology" / "gpm_imerg")
+    silver_root = Path(silver_root or STORAGE / "silver" / "gpm_imerg")
+    manifest_path = Path(manifest_path or STORAGE / "manifests" / f"gpm_imerg_{start:%Y%m%dT%H%M}_{end:%Y%m%dT%H%M}.json")
     plan = [{"observed_at": _timestamp_text(moment), "urls": build_imerg_access_urls(moment, run=run, version=version)} for moment in timestamps]
     if not _credentials_present() and downloader is None:
         result = {
             "task_id": "P05-05", "status": "BLOCKED_AUTH", "data_truth": "official_request_plan_only",
             "source_id": "gpm_imerg", "run": run, "version": version, "bbox": list(bbox),
             "granules": plan, "granule_count": len(plan), "raw_root": str(raw_root), "silver_root": str(silver_root),
-            "auth_probe": str(PACKAGE_ROOT / "storage" / "manifests" / "earthdata_auth_probe.json"),
+            "auth_probe": str(STORAGE / "manifests" / "earthdata_auth_probe.json"),
             "required_env": EARTHDATA_TOKEN_ENV, "credentials_present": False,
             "error_class": "MissingEarthdataToken",
         }

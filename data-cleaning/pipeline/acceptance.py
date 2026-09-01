@@ -25,18 +25,19 @@ def _manifest(path: Path) -> dict[str, Any]:
 
 def run_final_acceptance(root: Path, release_root: Path) -> dict[str, Any]:
     root, release_root = Path(root), Path(release_root)
-    reports = root / "storage/reports"
+    storage = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+    reports = storage / "reports"
     reports.mkdir(parents=True, exist_ok=True)
 
     registry = pd.read_csv(root / "config/data_source_registry.csv", dtype=str).fillna("")
     evidence_map = {
-        "earth_search_sentinel2_l2a": root / "storage/manifests/earth_search_sentinel2_202608.json",
-        "zenodo_taihu_insitu_10434391": root / "storage/manifests/zenodo_taihu_insitu.json",
-        "open_meteo_ecmwf_seas5": root / "storage/raw/open_meteo_seasonal/manifest.json",
-        "taihu_thqbca_zenodo": root / "storage/manifests/thqbca_integrated_cleaning_v2.json",
-        "nasa_power_hourly": root / "storage/manifests/nasa_power_history_2005_2020.json",
-        "noaa_gfs": root / "storage/manifests/noaa_gfs_20260818_18z.json",
-        "ecmwf_open_data": root / "storage/manifests/ecmwf_open_data_20260818_18z.json",
+        "earth_search_sentinel2_l2a": storage / "manifests/earth_search_sentinel2_202608.json",
+        "zenodo_taihu_insitu_10434391": storage / "manifests/zenodo_taihu_insitu.json",
+        "open_meteo_ecmwf_seas5": storage / "raw/open_meteo_seasonal/manifest.json",
+        "taihu_thqbca_zenodo": storage / "manifests/thqbca_integrated_cleaning_v2.json",
+        "nasa_power_hourly": storage / "manifests/nasa_power_history_2005_2020.json",
+        "noaa_gfs": storage / "manifests/noaa_gfs_20260818_18z.json",
+        "ecmwf_open_data": storage / "manifests/ecmwf_open_data_20260818_18z.json",
     }
     source_rows = []
     for _, row in registry.iterrows():
@@ -54,7 +55,7 @@ def run_final_acceptance(root: Path, release_root: Path) -> dict[str, Any]:
     acceptance_path = reports / "final_source_acceptance.csv"
     pd.DataFrame(source_rows).to_csv(acceptance_path, index=False, encoding="utf-8-sig")
 
-    cleaning = _manifest(root / "storage/manifests/thqbca_integrated_cleaning_v2.json")
+    cleaning = _manifest(storage / "manifests/thqbca_integrated_cleaning_v2.json")
     quality = {
         "status": "accepted_with_external_data_limitations",
         "input_rows": cleaning.get("input_rows"), "clean_rows": cleaning.get("clean_rows"),
@@ -68,8 +69,8 @@ def run_final_acceptance(root: Path, release_root: Path) -> dict[str, Any]:
     quality_path = reports / "final_data_quality.json"
     quality_path.write_text(json.dumps(quality, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    calibration = _manifest(root / "storage/gold/chlorophyll_calibration/manifest.json")
-    retrieval = _manifest(root / "storage/gold/sentinel2_retrieval_20260802/manifest.json")
+    calibration = _manifest(storage / "gold/chlorophyll_calibration/manifest.json")
+    retrieval = _manifest(storage / "gold/sentinel2_retrieval_20260802/manifest.json")
     retrieval_acceptance = {
         "status": "NOT_ACCEPTED_FOR_OPERATIONAL_TRUTH",
         "calibration_status": calibration.get("status"), "samples": calibration.get("samples"),
@@ -84,7 +85,7 @@ def run_final_acceptance(root: Path, release_root: Path) -> dict[str, Any]:
 
     horizon_rows = []
     for horizon in ("h1_3d", "h7_15d", "h30_90d"):
-        manifest = _manifest(root / f"storage/gold/integrated_horizon_datasets/dataset_{horizon}_manifest.json")
+        manifest = _manifest(storage / f"gold/integrated_horizon_datasets/dataset_{horizon}_manifest.json")
         dataset = manifest.get("final_dataset") or manifest.get("candidate_labelled_dataset")
         frame = pd.read_parquet(root / dataset) if dataset and not Path(dataset).is_absolute() else pd.read_parquet(dataset)
         sample = frame.sort_values(["target_time", "feature_date"]).head(10)
@@ -107,7 +108,7 @@ def run_final_acceptance(root: Path, release_root: Path) -> dict[str, Any]:
         common = list(parquet.columns.intersection(csv.columns))
         equivalent = parquet[common].fillna("<NA>").astype(str).equals(csv[common].fillna("<NA>").astype(str))
         reconciliation_rows.append({"table": name, "sample_rows": 100, "common_columns": len(common), "value_equivalent_as_text": equivalent})
-    lineage_all = pd.read_csv(root / "storage/gold/integrated_daily_features/direct_feature_lineage.csv")
+    lineage_all = pd.read_csv(storage / "gold/integrated_daily_features/direct_feature_lineage.csv")
     lineage = lineage_all[(lineage_all["availability"] == "available") & (lineage_all["source_files"].fillna("[]") != "[]")].head(100)
     raw_links = 0
     for value in lineage["source_files"].fillna("[]"):

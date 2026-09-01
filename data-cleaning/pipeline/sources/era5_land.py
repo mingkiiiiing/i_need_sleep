@@ -15,6 +15,7 @@ from .common import PACKAGE_ROOT
 from ..provenance import build_asset_manifest, manifest_root, write_asset_manifest
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DATASET = "reanalysis-era5-land"
 DEFAULT_VARIABLES = (
     "2m_temperature",
@@ -205,16 +206,16 @@ def run_era5_land(
 ) -> dict[str, Any]:
     """Download and parse year chunks, or produce a truthful BLOCKED_AUTH plan."""
 
-    raw_root = Path(raw_root or PACKAGE_ROOT / "storage" / "raw" / "era5_land")
-    silver_root = Path(silver_root or PACKAGE_ROOT / "storage" / "silver" / "era5_land")
-    manifest_path = Path(manifest_path or PACKAGE_ROOT / "storage" / "manifests" / f"era5_land_{start_year}_{end_year}.json")
+    raw_root = Path(raw_root or STORAGE / "raw" / "era5_land")
+    silver_root = Path(silver_root or STORAGE / "silver" / "era5_land")
+    manifest_path = Path(manifest_path or STORAGE / "manifests" / f"era5_land_{start_year}_{end_year}.json")
     requests = [{"year": year, "request": build_cds_request(year, bbox, variables)} for year in range(start_year, end_year + 1)]
     credentials = _credentials_present() if client_factory is None else True
     if client_factory is None and not credentials:
         result = {
             "task_id": "P04-04", "status": "BLOCKED_AUTH", "data_truth": "official_request_plan_only",
             "dataset": DATASET, "requests": requests, "raw_root": str(raw_root), "silver_root": str(silver_root),
-            "auth_probe": str(PACKAGE_ROOT / "storage" / "manifests" / "cds_auth_probe.json"),
+            "auth_probe": str(STORAGE / "manifests" / "cds_auth_probe.json"),
             "error_class": "MissingCDSConfiguration",
         }
         manifest_path.parent.mkdir(parents=True, exist_ok=True)

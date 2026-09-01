@@ -18,7 +18,8 @@ from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).parents[1]
-DEFAULT_OUTPUT = ROOT / "storage" / "manifests" / "cdse_auth_probe.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_OUTPUT = STORAGE / "manifests" / "cdse_auth_probe.json"
 TOKEN_ENDPOINT = (
     "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/"
     "protocol/openid-connect/token"

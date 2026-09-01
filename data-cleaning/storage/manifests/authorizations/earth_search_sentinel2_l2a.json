@@ -1,8 +1,0 @@
-{
-  "source_id": "earth_search_sentinel2_l2a",
-  "authentication": "none",
-  "access_evidence": "storage/manifests/earth_search_sentinel2_202608.json",
-  "license_status": "conditional_review",
-  "redistribution_allowed": "conditional",
-  "note": "Preserve Copernicus Sentinel attribution and verify current terms before public redistribution."
-}

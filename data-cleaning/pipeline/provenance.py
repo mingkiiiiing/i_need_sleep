@@ -28,18 +28,21 @@ _SENSITIVE_HEADER_KEYS = {
 }
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def manifest_root(package_root: Path) -> Path:
     """Return the manifest directory, allowing test runs to stay isolated."""
 
     override = os.environ.get("A23_MANIFEST_ROOT")
-    return Path(override) if override else Path(package_root) / "storage" / "manifests"
+    return Path(override) if override else STORAGE / "manifests"
 
 
 def staging_root(package_root: Path) -> Path:
     """Return the staging directory, allowing test runs to stay isolated."""
 
     override = os.environ.get("A23_STAGING_ROOT")
-    return Path(override) if override else Path(package_root) / "storage" / "staging"
+    return Path(override) if override else STORAGE / "staging"
 
 
 def sanitize_url(url: str) -> str:

@@ -15,6 +15,9 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -139,15 +142,15 @@ def run_training_gate(
     split_summary = _read_csv(split_summary_path)
     result = evaluate_training_gate(coverage, labels, split_audit, split_summary, required_horizons=required_horizons, min_label_availability=min_label_availability, max_missing_feature_rate=max_missing_feature_rate)
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / "training_gate"
+    output_root = output_root or STORAGE / "exports" / "training_gate"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {"summary": output_root / "training_gate.json", "checks": output_root / "training_gate_checks.csv"}
     files["summary"].write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     _write_csv(files["checks"], result["checks"])
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["checks"], result)
     manifest = {"run_id": run_id or f"training_gate_{files['summary'].stem}", "status": result["gate_status"], "inputs": {"coverage": str(coverage_path), "labels": str(labels_path), "split_audit": str(split_audit_path), "split_summary": str(split_summary_path)}, "files": {key: str(value) for key, value in {**files, "database": database}.items()}, **result}
-    manifest_path = manifest_path or root / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = manifest_path or STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)

@@ -25,6 +25,7 @@ from ..time_contract import parse_time
 from .common import PACKAGE_ROOT, RAW_ROOT, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 MWR_HFC_URL = "https://hfc.mwr.cn/"
 SOURCE_ID = "mwr_hfc"
 DEFAULT_SOURCE_TIMEZONE = "Asia/Shanghai"
@@ -244,8 +245,8 @@ def run_mwr_hfc_probe(
     """Probe HFC boundary; parse manual export only when evidence is supplied."""
 
     root = PACKAGE_ROOT
-    output = Path(output_csv) if output_csv else root / "storage" / "staging" / "mwr_hfc" / "observations.csv"
-    manifest = Path(manifest_path) if manifest_path else root / "storage" / "manifests" / "mwr_hfc_probe.json"
+    output = Path(output_csv) if output_csv else STORAGE / "staging" / "mwr_hfc" / "observations.csv"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "mwr_hfc_probe.json"
     evidence = Path(authorization_evidence_path) if authorization_evidence_path else None
     result: dict[str, Any] = {
         "task_id": "P07-02",

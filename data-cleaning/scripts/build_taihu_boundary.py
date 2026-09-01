@@ -14,11 +14,12 @@ from shapely.ops import transform
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_ZIP = ROOT / "storage" / "raw" / "geo" / "hydrolakes" / "HydroLAKES_Asia.zip"
-SOURCE_DIR = ROOT / "storage" / "raw" / "geo" / "hydrolakes" / "asia"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+SOURCE_ZIP = STORAGE / "raw" / "geo" / "hydrolakes" / "HydroLAKES_Asia.zip"
+SOURCE_DIR = STORAGE / "raw" / "geo" / "hydrolakes" / "asia"
 SOURCE_SHP = SOURCE_DIR / "HydroLAKES_Asia.shp"
-OUTPUT_GPKG = ROOT / "storage" / "silver" / "geo" / "taihu_boundary.gpkg"
-OUTPUT_MANIFEST = ROOT / "storage" / "silver" / "geo" / "taihu_boundary_manifest.json"
+OUTPUT_GPKG = STORAGE / "silver" / "geo" / "taihu_boundary.gpkg"
+OUTPUT_MANIFEST = STORAGE / "silver" / "geo" / "taihu_boundary_manifest.json"
 HYLAK_ID = 148
 SOURCE_URL = "https://zenodo.org/records/17503891/files/HydroLAKES_Asia.zip?download=1"
 SOURCE_RECORD = "https://zenodo.org/records/17503891"
@@ -127,7 +128,7 @@ def main() -> None:
         "source_doi": SOURCE_DOI,
         "source_version": SOURCE_VERSION,
         "license": LICENSE,
-        "output": str(OUTPUT_GPKG.relative_to(ROOT)).replace("\\", "/"),
+        "output": str(OUTPUT_GPKG.relative_to(STORAGE)).replace("\\", "/"),
     }
     OUTPUT_MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(manifest, ensure_ascii=False))

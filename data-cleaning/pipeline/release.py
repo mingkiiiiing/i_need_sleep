@@ -126,15 +126,16 @@ def build_release(
     """Create SQLite, CSV/Parquet exports, raster index and checksummed manifest."""
     package_root, output_root = Path(package_root), Path(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
+    storage = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
     exports = output_root / "tables"
     exports.mkdir(exist_ok=True)
     inputs = {
-        "taihu_observations_long": package_root / "storage/runs/thqbca_integrated_cleaning_v2/cleaned_observations.csv",
-        "taihu_daily_features": package_root / "storage/gold/integrated_reliability_features/reliability_features.parquet",
-        "qc_issues": package_root / "storage/runs/thqbca_integrated_cleaning_v2/qc_issues.csv",
-        "dataset_h1_3d": package_root / "storage/gold/integrated_horizon_datasets/dataset_h1_3d.parquet",
-        "dataset_h7_15d": package_root / "storage/gold/integrated_horizon_datasets/dataset_h7_15d.parquet",
-        "candidate_h30_90d": package_root / "storage/gold/integrated_horizon_datasets/candidate_dataset_h30_90d.parquet",
+        "taihu_observations_long": storage / "runs/thqbca_integrated_cleaning_v2/cleaned_observations.csv",
+        "taihu_daily_features": storage / "gold/integrated_reliability_features/reliability_features.parquet",
+        "qc_issues": storage / "runs/thqbca_integrated_cleaning_v2/qc_issues.csv",
+        "dataset_h1_3d": storage / "gold/integrated_horizon_datasets/dataset_h1_3d.parquet",
+        "dataset_h7_15d": storage / "gold/integrated_horizon_datasets/dataset_h7_15d.parquet",
+        "candidate_h30_90d": storage / "gold/integrated_horizon_datasets/candidate_dataset_h30_90d.parquet",
     }
     missing = [str(path) for path in inputs.values() if not path.exists()]
     if missing:
@@ -168,7 +169,7 @@ def build_release(
         (frame if len(frame.columns) <= 200 else frame.head(200)).to_csv(csv_path, index=False, encoding="utf-8-sig")
         export_paths.append(csv_path)
 
-    raster_dir = package_root / "storage/gold/sentinel2_retrieval_20260802"
+    raster_dir = storage / "gold/sentinel2_retrieval_20260802"
     raster_rows = []
     for raster in sorted(raster_dir.glob("*.tif")):
         raster_rows.append({"asset": raster.stem, "path": str(raster), "sha256": sha256_file(raster), "operational": False, "note": "partial-lake experimental retrieval"})

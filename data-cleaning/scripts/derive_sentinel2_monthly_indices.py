@@ -7,7 +7,8 @@ import numpy as np
 import rasterio
 
 ROOT = Path(__file__).resolve().parents[1]
-RASTER_ROOT = ROOT / "storage" / "rasters" / "sentinel2_monthly_30m_cdse"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+RASTER_ROOT = STORAGE / "rasters" / "sentinel2_monthly_30m_cdse"
 
 
 def write_float(path: Path, values: np.ndarray, profile: dict) -> None:

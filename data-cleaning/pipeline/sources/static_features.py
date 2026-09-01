@@ -27,6 +27,7 @@ from .common import PACKAGE_ROOT, download_asset, utc_now
 from .hydro_boundaries import HYDROBASINS_LAYER
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DEM_BUCKET_BASE = "https://copernicus-dem-30m.s3.amazonaws.com"
 WORLDCOVER_BUCKET_BASE = "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map"
 DEM_TILES = (
@@ -41,13 +42,13 @@ WORLDCOVER_TILES = (
 )
 DEM_LICENSE = "COPERNICUS_DEM_FREE_PUBLIC_LICENSE_WITH_ATTRIBUTION"
 WORLDCOVER_LICENSE = "CC-BY-4.0"
-DEFAULT_BOUNDARY_PACKAGE = PACKAGE_ROOT / "storage" / "silver" / "geo" / "hydrolakes_hydrobasins.gpkg"
-DEFAULT_RAW_ROOT = PACKAGE_ROOT / "storage" / "raw" / "static_geo"
-DEFAULT_OUTPUT_PARQUET = PACKAGE_ROOT / "storage" / "silver" / "geo" / "static_features.parquet"
-DEFAULT_OUTPUT_DEM = PACKAGE_ROOT / "storage" / "silver" / "geo" / "copernicus_dem_glo30_taihu.tif"
-DEFAULT_OUTPUT_SLOPE = PACKAGE_ROOT / "storage" / "silver" / "geo" / "copernicus_dem_glo30_taihu_slope.tif"
-DEFAULT_OUTPUT_WORLDCOVER = PACKAGE_ROOT / "storage" / "silver" / "geo" / "worldcover_2021_taihu.tif"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "static_features_p07_05.json"
+DEFAULT_BOUNDARY_PACKAGE = STORAGE / "silver" / "geo" / "hydrolakes_hydrobasins.gpkg"
+DEFAULT_RAW_ROOT = STORAGE / "raw" / "static_geo"
+DEFAULT_OUTPUT_PARQUET = STORAGE / "silver" / "geo" / "static_features.parquet"
+DEFAULT_OUTPUT_DEM = STORAGE / "silver" / "geo" / "copernicus_dem_glo30_taihu.tif"
+DEFAULT_OUTPUT_SLOPE = STORAGE / "silver" / "geo" / "copernicus_dem_glo30_taihu_slope.tif"
+DEFAULT_OUTPUT_WORLDCOVER = STORAGE / "silver" / "geo" / "worldcover_2021_taihu.tif"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "static_features_p07_05.json"
 CLASS_NAMES = {
     10: "tree",
     20: "shrubland",

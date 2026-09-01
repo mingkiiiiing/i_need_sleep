@@ -2,14 +2,14 @@
 """静态空间特征清洗: 湖泊/流域/站点 的 DEM 高程、坡度、ESA 土地覆盖、HydroLAKES 属性。
 
 数据源(原始):
-- 边界: storage/silver/geo/taihu_boundary.gpkg (HydroLAKES Taihu)
-- DEM: storage/silver/geo/copernicus_dem_glo30_taihu.tif (+slope)、storage/raw/static_geo/copernicus_dem_glo30/*
-- 土地覆盖: storage/silver/geo/worldcover_2021_taihu.tif、storage/raw/static_geo/esa_worldcover_2021_v200/*
-- 流域: storage/staging/hydrobasins/hybas_as_lev08_v1c.zip
-- 湖泊属性: storage/raw/geo/hydrolakes/asia/HydroLAKES_Asia.shp (Taihu 记录)
+- 边界: merged_data/2026_sheng-fuwai-main-merge/silver/geo/taihu_boundary.gpkg (HydroLAKES Taihu)
+- DEM: merged_data/2026_sheng-fuwai-main-merge/silver/geo/copernicus_dem_glo30_taihu.tif (+slope)、merged_data/2026_sheng-fuwai-main-merge/raw/static_geo/copernicus_dem_glo30/*
+- 土地覆盖: merged_data/2026_sheng-fuwai-main-merge/silver/geo/worldcover_2021_taihu.tif、merged_data/2026_sheng-fuwai-main-merge/raw/static_geo/esa_worldcover_2021_v200/*
+- 流域: merged_data/2026_sheng-fuwai-main-merge/staging/hydrobasins/hybas_as_lev08_v1c.zip
+- 湖泊属性: merged_data/2026_sheng-fuwai-main-merge/raw/geo/hydrolakes/asia/HydroLAKES_Asia.shp (Taihu 记录)
 - 站点: 有坐标的站点(NASA POWER 格点等)
 
-输出: storage/cleaned/static_features_cleaned.csv (+ .parquet), 长表(每行=一个特征)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/static_features_cleaned.csv (+ .parquet), 长表(每行=一个特征)
 """
 from __future__ import annotations
 
@@ -68,7 +68,7 @@ def _mask_stats(files: list[Path], geom, var_scale: str = "elevation_m", units="
                    std=float(np.nanstd(v)), min=float(np.nanmin(v)), max=float(np.nanmax(v)),
                    valid_frac=float(v.size / arr.size), n_pixels=int(v.size))
         break
-    return {**out, "source_file": str(src_used.relative_to(ROOT)) if src_used else ""}
+    return {**out, "source_file": str(src_used.relative_to(STORAGE)) if src_used else ""}
 
 
 def _landcover_shares(files: list[Path], geom) -> dict:
@@ -273,7 +273,7 @@ def main() -> pd.DataFrame:
                     v = vals[0][0]
                     if v is not None and not np.isnan(float(v)):
                         found = True
-                        add("station", sid, "elevation_m", float(v), "m", "copernicus_dem_glo30", file=str(p.relative_to(ROOT)))
+                        add("station", sid, "elevation_m", float(v), "m", "copernicus_dem_glo30", file=str(p.relative_to(STORAGE)))
                         break
             except Exception:
                 continue
@@ -292,7 +292,7 @@ def main() -> pd.DataFrame:
                     v = int(list(ds.sample([(x, y)]))[0][0])
                     name = ESA_CLASSES.get(v, str(v))
                     add("station", sid, f"landcover_class_{v}", name, "category", "esa_worldcover_2021",
-                        note=f"ESA class {v}", file=str(p.relative_to(ROOT)))
+                        note=f"ESA class {v}", file=str(p.relative_to(STORAGE)))
                     break
             except Exception:
                 continue

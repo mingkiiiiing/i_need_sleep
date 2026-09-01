@@ -5,7 +5,7 @@
 - 水利部水情接口批次(mwr_hfc, GBK CSV): 湖面站 TH-01 等 水位/流量 实时值 (2026-08)
 - tba_hydrology 目录内为下载失败响应(406/403 HTML), 无有效数据, 记录到质量报告。
 
-输出: storage/cleaned/hydrology_cleaned.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/hydrology_cleaned.csv (+ .parquet)
 """
 from __future__ import annotations
 
@@ -26,9 +26,9 @@ SOURCE_MWR = "mwr_hfc_water_station"
 
 
 def clean_thqbca_waterlevel(rows: list[dict]) -> None:
-    xlsx = list((ROOT / "storage/THQBCA-V2/3.Climate").glob("3.Climate*.xlsx"))
+    xlsx = list((STORAGE / "THQBCA-V2/3.Climate").glob("3.Climate*.xlsx"))
     if not xlsx:
-        xlsx = list((ROOT / "storage/raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/3.Climate").glob("3.Climate*.xlsx"))
+        xlsx = list((STORAGE / "raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/3.Climate").glob("3.Climate*.xlsx"))
     if not xlsx:
         print("  [水文] 未找到 3.Climate.xlsx")
         return
@@ -49,7 +49,7 @@ def clean_thqbca_waterlevel(rows: list[dict]) -> None:
             observed_at=datetime_of(ts), date=date_of(ts), month=month_of(ts),
             variable_code="water_level", value=val, value_text="",
             unit="m", quality_flag=flags, quality_note="THQBCA数据集湖北区平均水位",
-            source_name=SOURCE_WL, source_file=str(xlsx[0].relative_to(ROOT)),
+            source_name=SOURCE_WL, source_file=str(xlsx[0].relative_to(STORAGE)),
             source_row=str(ws.max_row or 0), source_unit="m",
             conversion_rule="", value_origin="observed",
             longitude=float("nan"), latitude=float("nan"),
@@ -94,7 +94,7 @@ def clean_mwr(rows: list[dict]) -> None:
                     variable_code=indicator_std, value=val, value_text="",
                     unit=unit or "", quality_flag="Q00",
                     quality_note="水利部水情接口实时批次", source_name=SOURCE_MWR,
-                    source_file=str(p.relative_to(ROOT)), source_row=str(int(_)) if False else str(_),
+                    source_file=str(p.relative_to(STORAGE)), source_row=str(int(_)) if False else str(_),
                     source_unit=unit or "", conversion_rule="", value_origin="observed",
                     longitude=float("nan"), latitude=float("nan"),
                     acquisition_date=bnow().strftime("%Y-%m-%d %H:%M:%S"),

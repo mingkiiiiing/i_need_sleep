@@ -1,5 +1,0 @@
-P06-06 directed command:
-python -m pytest -q tests/test_clms_lwq_byoc.py tests/test_clms_lwq.py tests/test_provenance_manifest.py tests/test_config_sources.py tests/test_study_area.py
-
-Result: 13 passed in 1.18s
-Exit code: 0

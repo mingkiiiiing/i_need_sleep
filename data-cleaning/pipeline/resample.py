@@ -21,6 +21,7 @@ from typing import Any, Iterable
 
 UTC = timezone.utc
 CN_TZ = timezone(timedelta(hours=8))
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 Q_RESAMPLE = "Q22"
 
 SUPPORTED_FREQUENCIES = ("auto", "hourly", "daily", "decadal", "monthly")
@@ -509,7 +510,7 @@ def run_resampling(
     rows = read_observation_csv(input_path)
     result = resample_records(rows, target_frequency=frequency)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or Path(__file__).resolve().parents[1] / "storage" / "exports" / f"resample_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"resample_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {
         "resampled_observations": str(output_root / "resampled_observations.csv"),
@@ -517,7 +518,7 @@ def run_resampling(
     }
     _write_csv(Path(files["resampled_observations"]), result["records"])
     _write_csv(Path(files["resample_gaps"]), result["gaps"])
-    database = database or Path(__file__).resolve().parents[1] / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["records"], result["gaps"])
     manifest = {
         "run_id": run_id or f"resample_{stamp}",
@@ -542,7 +543,7 @@ def run_resampling(
         },
         "files": {**files, "database": str(database)},
     }
-    manifest_path = manifest_path or Path(__file__).resolve().parents[1] / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = manifest_path or STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)

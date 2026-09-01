@@ -12,6 +12,7 @@ from ..provenance import build_asset_manifest, manifest_root, write_asset_manife
 from .common import RAW_ROOT, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 FEATURE_URL = "https://lake.geodata.cn/feature.html"
 TAIHU_PHYTOPLANKTON_URL = "https://lake.geodata.cn/data/datadetails.html?dataguid=192717411773491&docId=2"
 TAIHU_WATER_QUALITY_URL = "https://lake.geodata.cn/data/datadetails.html?dataguid=23392619680528&docId=3"
@@ -57,8 +58,8 @@ def probe_lake_geodata_sources(output_root: Path | None = None, database: Path |
     """
 
     root = Path(__file__).resolve().parents[2]
-    output_root = output_root or root / "storage" / "exports" / "lake_geodata_probe"
-    database = database or root / "storage" / "data_cleaning.db"
+    output_root = output_root or STORAGE / "exports" / "lake_geodata_probe"
+    database = database or STORAGE / "data_cleaning.db"
     output_root.mkdir(parents=True, exist_ok=True)
     source_urls = urls or {
         "niglas_lake_geodata_feature": FEATURE_URL,

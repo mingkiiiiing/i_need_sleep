@@ -14,6 +14,7 @@ from .provenance import manifest_root
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 
 def _read_csv(path: Path | None) -> list[dict[str, Any]]:
@@ -337,7 +338,7 @@ def run_quality_report(
     cleaned_path = Path(cleaned_path)
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or root / "storage" / "exports" / f"quality_report_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"quality_report_{stamp}"
     rejected_path = rejected_path or cleaned_path.parent / "rejected_records.csv"
     pending_path = pending_path or cleaned_path.parent / "imputation_candidates.csv"
     issues_path = issues_path or cleaned_path.parent / "qc_issues.csv"
@@ -363,7 +364,7 @@ def run_quality_report(
     overall_path = output_root / "quality_report_overall.json"
     _write_csv(report_path, result["rows"])
     overall_path.write_text(json.dumps(result["overall"], ensure_ascii=False, indent=2), encoding="utf-8")
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["rows"], result["overall"])
     overall = result["overall"]
     warning = any(overall.get(key, 0) for key in ("issue_rows", "suspect_rows", "rejected_rows", "pending_imputation_rows", "pending_conflict_rows"))

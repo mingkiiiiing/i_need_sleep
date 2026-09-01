@@ -1,5 +1,0 @@
-P00-03 full pytest evidence
-Executed from: D:\Project\fuwai\2026_sheng-fuwai\data-cleaning
-Command: python -m pytest -q
-Result: 58 passed in 8.53s
-Exit code: 0

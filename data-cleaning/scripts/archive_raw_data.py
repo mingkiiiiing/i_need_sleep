@@ -2,9 +2,9 @@
 """第一步：扫描、分类、归档原始数据。
 
 - 扫描 data-cleaning/storage 下所有数据文件（含 raw/rasters/silver/staging 等）
-- 按数据类别复制到 storage/raw_organized/<category>/<source>/，不删除/移动/覆盖原始文件
+- 按数据类别复制到 merged_data/2026_sheng-fuwai-main-merge/raw_organized/<category>/<source>/，不删除/移动/覆盖原始文件
 - 相同内容（sha256 全量哈希)只归档一次
-- 产出 storage/manifests/raw_data_inventory.csv
+- 产出 merged_data/2026_sheng-fuwai-main-merge/manifests/raw_data_inventory.csv
 - 严格说为派生产物(silver/gold/runs/exports/releases/databases/manifests)的
   文件保留原位、登记清单但不复制；授权申请文档类不视为数据。
 
@@ -247,7 +247,7 @@ def _base_row(p: Path, status_override=None, cat_override=None, note="") -> dict
     if cat_override:
         cat = cat_override
     return dict(
-        source_path=p.relative_to(ROOT).as_posix(),
+        source_path=p.relative_to(STORAGE).as_posix(),
         organized_path="", file_name=p.name, file_type=ext,
         data_category=cat, source_dir=src, file_size=int(p.stat().st_size),
         modified_time=datetime.fromtimestamp(p.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
@@ -290,7 +290,7 @@ def main(copy_only_new: bool = False) -> None:
             continue
         if h in seen_hash:
             r["status"] = "duplicate_skipped"
-            r["organized_path"] = seen_hash[h].replace(str(ROOT), "").lstrip("\\/").replace("\\", "/")
+            r["organized_path"] = seen_hash[h].replace(str(STORAGE), "").lstrip("\\/").replace("\\", "/")
             r["notes"] = (r["notes"] + "; 与前者内容一致(hash相同)免重复复制").strip("; ")
             duplicated += 1
             continue
@@ -324,7 +324,7 @@ def main(copy_only_new: bool = False) -> None:
                 r["notes"] = f"{r['notes']}; {e}".strip("; ")
                 failed += 1
         seen_hash[h] = dest.as_posix()
-        r["organized_path"] = dest.relative_to(ROOT).as_posix()
+        r["organized_path"] = dest.relative_to(STORAGE).as_posix()
         if i % 200 == 0:
             print(f"  {i}/{len(rows)} ...")
 

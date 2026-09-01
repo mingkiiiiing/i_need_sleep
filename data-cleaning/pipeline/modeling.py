@@ -28,6 +28,7 @@ from .provenance import manifest_root
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 
 def _read_csv(path: Path) -> list[dict[str, Any]]:
@@ -319,7 +320,7 @@ def train_experiment(input_dir: Path, output_root: Path | None = None, database:
     importance_rows = [{"target_variable": target_variable, "model": "ai_" + fusion, "feature": column, "importance": float(value)} for column, value in zip(columns, importances)]
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / f"model_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"model_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {
         "predictions": output_root / "predictions.csv",
@@ -332,7 +333,7 @@ def train_experiment(input_dir: Path, output_root: Path | None = None, database:
     _write_csv(files["feature_importance"], importance_rows)
     with files["model"].open("wb") as handle:
         pickle.dump({"model": model, "imputer": imputer, "feature_columns": columns, "target_variable": target_variable, "fusion": fusion, "algorithm": algorithm}, handle)
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, predictions, metrics, importance_rows)
     manifest = {
         "run_id": f"model_{stamp}", "status": "completed", "target_variable": target_variable,

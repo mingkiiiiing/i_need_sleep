@@ -1,13 +1,8 @@
 from pathlib import Path
 
 
-RECEIPT = (
-    Path(__file__).parents[1]
-    / "storage"
-    / "authorization"
-    / "water_station"
-    / "application_receipt.md"
-)
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+RECEIPT = STORAGE / "authorization" / "water_station" / "application_receipt.md"
 
 
 def test_water_station_application_has_required_scope_and_fields():

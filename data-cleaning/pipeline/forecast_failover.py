@@ -22,6 +22,7 @@ from .source_health import record_forecast_source_switch, update_source_health
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 REQUIRED_FIELDS = {
     "source_id", "model_name", "forecast_reference_time", "valid_time",
     "lead_hours", "variable_code", "value", "unit",
@@ -203,14 +204,14 @@ def run_forecast_failover(
     checked_at_utc: str | None = None,
 ) -> dict[str, Any]:
     config = load_forecast_priority(priority_config)
-    health_database = Path(health_database or PACKAGE_ROOT / "storage" / "databases" / "forecast_source_health.sqlite")
+    health_database = Path(health_database or STORAGE / "databases" / "forecast_source_health.sqlite")
     decision = evaluate_forecast_candidates(
         candidates, config=config, environment=environment, required_horizon_hours=required_horizon_hours,
         health_database=health_database, run_id=run_id, checked_at_utc=checked_at_utc,
     )
     output_path = None
     if decision["status"] == "selected":
-        output_path = _write_selected(decision["rows"], Path(output or PACKAGE_ROOT / "storage" / "silver" / "forecast" / "selected" / "forecast_selected.csv"))
+        output_path = _write_selected(decision["rows"], Path(output or STORAGE / "silver" / "forecast" / "selected" / "forecast_selected.csv"))
     result = {
         "task_id": "P05-06", "status": "completed" if decision["status"] == "selected" else "blocked",
         "selection": {key: value for key, value in decision.items() if key != "rows"},
@@ -218,7 +219,7 @@ def run_forecast_failover(
         "priority_config": str(config["path"]), "environment": environment,
         "required_horizon_hours": required_horizon_hours,
     }
-    manifest_path = Path(manifest_path or PACKAGE_ROOT / "storage" / "manifests" / f"forecast_failover_{run_id}.json")
+    manifest_path = Path(manifest_path or STORAGE / "manifests" / f"forecast_failover_{run_id}.json")
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(result, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     return result

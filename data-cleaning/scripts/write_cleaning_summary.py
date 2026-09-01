@@ -34,7 +34,7 @@ def main() -> None:
     rep = _read("data_quality_report")
 
     arch = inv[inv["organized_path"].notna() & (inv["organized_path"].astype(str).str.len() > 3)].copy()
-    arch["_norm"] = arch["organized_path"].map(lambda p: p.replace("\\", "/").split("storage/raw_organized/")[-1])
+    arch["_norm"] = arch["organized_path"].map(lambda p: p.replace("\\", "/").split("raw_organized/")[-1])
     arch_unique = arch.drop_duplicates("_norm")
     n_arch, gb = len(arch_unique), arch_unique["file_size"].sum() / 1e9
 
@@ -46,9 +46,9 @@ def main() -> None:
     W("")
     W("## 1. 找到了哪些数据")
     W("")
-    W("扫描 `data-cleaning/storage` 下数据文件并归档（复制，不删不改原文件）：")
-    W("- 归档目录: `data-cleaning/storage/raw_organized/`")
-    W("- 清单: `data-cleaning/storage/manifests/raw_data_inventory.csv`")
+    W("扫描数据文件并归档（复制，不删不改原文件）：")
+    W(f"- 归档目录: `{ARCHIVE}/`")
+    W(f"- 清单: `{MANIFESTS}/raw_data_inventory.csv`")
     W("- " + f"共 {len(inv)} 个文件行登记；实际归档 {n_arch} 个文件（约 {gb:.1f} GB）；"
              "重复文件用 SHA-256 识别，只保留一份；派生/中间产物目录（runs/exports/gold/releases）仅登记不复制。")
     W("")
@@ -84,7 +84,7 @@ def main() -> None:
     W(f"- 静态特征: {len(st)} 行（湖泊 21 + 流域 + 站点）。")
     W(f"- 统一长表: {len(longf)} 行；机器宽表: {len(wide)} 行。")
     W("")
-    W("**产出文件与用途**（均在 `data-cleaning/storage/cleaned/`，CSV 为 UTF-8 with BOM，Excel 打开中文不乱码；大表同时有 .parquet）：")
+    W(f"**产出文件与用途**（均在 `{CLEANED}/`，CSV 为 UTF-8 with BOM，Excel 打开中文不乱码；大表同时有 .parquet）：")
     W("")
     W("| 文件 | 用途 | 行数 |")
     W("|---|---|---|")
@@ -172,7 +172,7 @@ def main() -> None:
     W("5. **CLMS 叶绿素**：LWQ 300m v2 世界湖泊产品单位 µg/L(≈mg/m³)；用于遥感比对时与现场 Chl-a(mg/L) 需 /1000。")
     W("6. **NASA POWER 为格点再分析/卫星产品**，非地面实测；对湖面风速等需注意代表性。")
     W("7. **预报数据未纳入**：ECMWF/GFS/Open-Meteo 为 2026-08 预报场，不能当历史观测。")
-    W("8. **tba_hydrology 申请失败**：水雨情需要人工途径（授权申请回执 storage/authorization/water_station）。")
+    W("8. **tba_hydrology 申请失败**：水雨情需要人工途径（授权申请回执 merged_data/2026_sheng-fuwai-main-merge/authorization/water_station）。")
     W("9. **压缩包成员未全量解压**：THQBCA-V2.rar（925MB）内含 Bio-optics/Anthropogenic 成员，其中 Bio-optics 已在 storage/THQBCA-V2 解压；rar 全量哈希已归档。")
     W("10. **月高云量月的全湖统计代表性**：低覆盖月（Q10）的均值仅基于少数有效像元，用于训练时建议按 rs_month_low_quality 过滤或加权。")
     W("")

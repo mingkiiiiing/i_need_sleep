@@ -22,6 +22,7 @@ from ..provenance import build_asset_manifest, write_asset_manifest
 from .common import PACKAGE_ROOT, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 PROCESS_API_URL = "https://sh.dataspace.copernicus.eu/api/v1/process"
 TOKEN_ENDPOINT = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
 DATA_TYPE = "sentinel-3-olci-l2"
@@ -31,7 +32,7 @@ DEFAULT_HEIGHT = 320
 DEFAULT_MAX_CLOUD_COVERAGE = 80.0
 DEFAULT_MOSAICKING_ORDER = "mostRecent"
 DEFAULT_UPSAMPLING = "BILINEAR"
-AUTH_PROBE_PATH = PACKAGE_ROOT / "storage" / "manifests" / "cdse_auth_probe.json"
+AUTH_PROBE_PATH = STORAGE / "manifests" / "cdse_auth_probe.json"
 
 # The list follows the official Sentinel-3 OLCI L2 WATER band catalogue.  The
 # dataMask band is retained as the machine-readable validity/data-presence
@@ -202,8 +203,8 @@ def run_sentinel3_olci(
         mosaicking_order=mosaicking_order,
         upsampling=upsampling,
     )
-    output = Path(output_path) if output_path else PACKAGE_ROOT / "storage" / "rasters" / "sentinel3_olci" / "taihu_olci.tif"
-    manifest = Path(manifest_path) if manifest_path else PACKAGE_ROOT / "storage" / "manifests" / "sentinel3_olci.json"
+    output = Path(output_path) if output_path else STORAGE / "rasters" / "sentinel3_olci" / "taihu_olci.tif"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "sentinel3_olci.json"
     credentials = _credentials()
     result: dict[str, Any] = {
         "task_id": "P06-07",

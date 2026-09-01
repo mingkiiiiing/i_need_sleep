@@ -8,6 +8,7 @@ from pathlib import Path
 import rasterio
 
 ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 
 def expected_months(start: str, end: str) -> list[str]:
@@ -21,7 +22,7 @@ def expected_months(start: str, end: str) -> list[str]:
 
 
 def main() -> None:
-    s2_root = ROOT / "storage" / "rasters" / "sentinel2_monthly_30m_cdse"
+    s2_root = STORAGE / "rasters" / "sentinel2_monthly_30m_cdse"
     expected_s2 = expected_months("2022-01", "2026-08")
     raster_errors = []
     month_rows = []
@@ -38,7 +39,7 @@ def main() -> None:
                 raster_errors.append({"path": str(path), "error": f"{type(exc).__name__}: {exc}"})
         month_rows.append({"month": month, "file_count": len(files), "complete": len(files) == 11 and not any(item["path"].startswith(str(folder)) for item in raster_errors), "shapes": sorted(shapes), "crs": sorted(crs_values)})
 
-    pdf_root = ROOT / "storage" / "raw" / "mee_surface_water_monthly"
+    pdf_root = STORAGE / "raw" / "mee_surface_water_monthly"
     pdfs = sorted(pdf_root.glob("*.pdf"))
     bad_pdfs = []
     for path in pdfs:
@@ -46,7 +47,7 @@ def main() -> None:
             signature = handle.read(4)
         if path.stat().st_size == 0 or signature != b"%PDF":
             bad_pdfs.append(str(path))
-    csv_path = ROOT / "storage" / "silver" / "mee_taihu_monthly" / "mee_taihu_monthly_2022_2026.csv"
+    csv_path = STORAGE / "silver" / "mee_taihu_monthly" / "mee_taihu_monthly_2022_2026.csv"
     report_rows = []
     if csv_path.exists():
         with csv_path.open(encoding="utf-8-sig", newline="") as handle:
@@ -78,12 +79,12 @@ def main() -> None:
         },
         "realtime_station": {
             "status": "BLOCKED_POLICY_NO_DOCUMENTED_PUBLIC_EXPORT",
-            "manifest": str(ROOT / "storage" / "reports" / "realtime_station_resolution_20260823.json"),
+            "manifest": str(STORAGE / "reports" / "realtime_station_resolution_20260823.json"),
             "note": "No private Ajax reverse engineering, access-control bypass, or invented historical backfill was performed.",
         },
     }
     result["competition_ready"] = result["sentinel2"]["complete_months"] == len(expected_s2) and not result["mee_monthly_reports"]["missing_months"]
-    output = ROOT / "storage" / "reports" / "competition_acquisition_audit_20260823.json"
+    output = STORAGE / "reports" / "competition_acquisition_audit_20260823.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"output": str(output), "competition_ready": result["competition_ready"], "sentinel_complete": result["sentinel2"]["complete_months"], "reports": len(report_rows)}, ensure_ascii=False))

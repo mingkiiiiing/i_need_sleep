@@ -2,7 +2,7 @@
 """水质数据清洗：THQBCA-V2 (太湖各湖区月尺度 pH/COD/DO/TP/TN…)、
 MEE 地表水月报(太湖湖体评价)、国家水站批次(HJ1404 自动监测)。
 
-输出: storage/cleaned/water_quality_cleaned.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/water_quality_cleaned.csv (+ .parquet)
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ LONG_COLS = [
 
 # ----------------------------- THQBCA -----------------------------
 def clean_thqbca(records: list[dict]) -> pd.DataFrame:
-    xlsx = ROOT / "storage/raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/1.WaterQuality/1WaterQuality.xlsx"
+    xlsx = STORAGE / "raw/taihu_thqbca_zenodo/extracted/THQBCA-V2/1.WaterQuality/1WaterQuality.xlsx"
     import openpyxl
     wb = openpyxl.load_workbook(xlsx, data_only=True, read_only=True)
     per_source = {"_filter": []}
@@ -92,7 +92,7 @@ def clean_thqbca(records: list[dict]) -> pd.DataFrame:
                     value_text="" if not np.isnan(val) else str(raw),
                     unit=unit if not np.isnan(val) else "", quality_flag=flags,
                     quality_note=f"{note}; 数据源未提供湖区坐标" if station != "TAIHU_WHOLE" else note,
-                    source_name=SOURCE_NAME, source_file=str(xlsx.relative_to(ROOT)),
+                    source_name=SOURCE_NAME, source_file=str(xlsx.relative_to(STORAGE)),
                     source_row=f"{sheet.title}:{rows.index(data_row) + 2}:{zone}",
                     source_unit=unit_str, conversion_rule="", value_origin="observed",
                 ))
@@ -194,7 +194,7 @@ def parse_mee_text(text: str) -> dict:
 
 
 def clean_mee(records: list[dict]) -> pd.DataFrame:
-    root = ROOT / "storage/silver/mee_taihu_monthly"
+    root = STORAGE / "silver/mee_taihu_monthly"
     txts = sorted(root.glob("taihu_*.txt"))
     n_ok = n_fail = 0
     for p in txts:
@@ -231,7 +231,7 @@ def clean_mee(records: list[dict]) -> pd.DataFrame:
                 value_text=str(info["value"]), unit=unit,
                 quality_flag="Q00", quality_note=f"MEE月报评价: {info['note']}",
                 source_name=SOURCE_NAME_MEE,
-                source_file=str(p.relative_to(ROOT)), source_row="",
+                source_file=str(p.relative_to(STORAGE)), source_row="",
                 source_unit=unit, conversion_rule="", value_origin="report_evaluation",
             ))
         n_ok += 1
@@ -269,7 +269,7 @@ def clean_water_station(records: list[dict]) -> pd.DataFrame:
                 unit=str(row.get("unit") or ""), quality_flag=flag_join(flags),
                 quality_note="" if "Q06" not in flags else "插补值",
                 source_name=SOURCE_NAME_STATION,
-                source_file=str(p.relative_to(ROOT)), source_row=str(row.get("source_row", "")),
+                source_file=str(p.relative_to(STORAGE)), source_row=str(row.get("source_row", "")),
                 source_unit=str(row.get("source_unit") or ""),
                 conversion_rule=str(row.get("conversion_rule") or ""),
                 value_origin=str(row.get("value_origin", "observed")),

@@ -1,9 +1,0 @@
-{
-  "task_id": "P12-04",
-  "status": "passed_after_correction",
-  "command": "python -m pytest -q tests/test_features.py",
-  "result": "5 passed",
-  "actual_batch": {"rows": 368, "direct_feature_count": 6, "observed_direct_cells": 1836},
-  "defect_corrected": "Derived lag/rolling columns were initially counted as direct observations; selection now excludes _lag_ and _rolling_ columns.",
-  "unavailable_metadata": ["remote_valid_pixel_fraction", "imputed_fraction", "calibrated_prediction_uncertainty"]
-}

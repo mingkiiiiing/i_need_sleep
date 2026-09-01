@@ -16,6 +16,8 @@ components.d.ts
 
 # Logs
 *.log
+*.out
+*.err
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -34,7 +36,21 @@ backend/.venv/
 .pytest_cache/
 .pnpm-store/
 .workbuddy/memory/2026-08-17.md
-# Data cleaning — 大数据与派生结果不入库(入库的仅 manifests/ reports/ authorization/ 清单与报告)
+
+# Private material and portable repository history never enter GitHub
+private/
+history/
+reports/
+**/credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.bundle
+
+# Data cleaning — 原始数据、清洗结果、中间产物和发布包一律不入库
+data-cleaning/storage/
+data-cleaning/data-cleaning/storage/
 data-cleaning/storage/raw_organized/
 data-cleaning/storage/cleaned/
 data-cleaning/storage/rasters/
@@ -48,3 +64,24 @@ data-cleaning/storage/releases/
 data-cleaning/storage/staging/
 data-cleaning/storage/THQBCA-V2/
 data-cleaning/storage/THQBCA-V2.rar
+
+# Large/binary data formats are excluded globally; small CSV/JSON schemas remain allowed
+*.parquet
+*.feather
+*.sqlite
+*.sqlite3
+*.db
+*.tif
+*.tiff
+*.hdf
+*.h5
+*.hdf5
+*.nc
+*.nc4
+*.grib
+*.grib2
+*.rar
+*.7z
+*.zip
+*.tar
+*.tar.gz

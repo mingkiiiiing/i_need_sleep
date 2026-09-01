@@ -1,5 +1,0 @@
-P06-02 directed command:
-python -m pytest -q tests/test_copernicus_assets.py tests/test_copernicus_stac.py tests/test_resumable_download.py tests/test_config_sources.py
-
-Result: 11 passed in 0.46s
-Exit code: 0

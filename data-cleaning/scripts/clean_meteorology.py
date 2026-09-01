@@ -6,7 +6,7 @@
         ALLSKY_SFC_SW_DWN(向下短波辐射 W/m²)
 - 时间统一为北京时间；数值质量标记；单位统一。
 
-输出: storage/cleaned/meteorology_cleaned.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/meteorology_cleaned.csv (+ .parquet)
 """
 from __future__ import annotations
 
@@ -20,11 +20,11 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib_common import (  # noqa: E402
-    ROOT, PHYSICAL_RANGES, bnow, date_of, datetime_of, flag_join,
+    ROOT, STORAGE, PHYSICAL_RANGES, bnow, date_of, datetime_of, flag_join,
     map_variable, month_of, to_number, write_dataset,
 )
 
-RAW_ROOT = ROOT / "storage/raw/nasa_power_hourly"
+RAW_ROOT = STORAGE / "raw/nasa_power_hourly"
 SOURCE_NAME = "nasa_power_hourly"
 
 # NASA POWER 参数 → (标准变量, 目标单位, 物理范围)
@@ -91,7 +91,7 @@ def clean() -> pd.DataFrame:
                         unit=unit, quality_flag=flag_join(flags),
                         quality_note="; ".join(notes) + "; NASA POWER 卫星-再分析格点产品" if notes
                         else "NASA POWER 卫星-再分析格点产品",
-                        source_name=SOURCE_NAME, source_file=str(p.relative_to(ROOT)),
+                        source_name=SOURCE_NAME, source_file=str(p.relative_to(STORAGE)),
                         source_row=str(hour_key), source_unit=str(param),
                         conversion_rule="UTC→北京; 单位取 NASA POWER 定义",
                         value_origin="satellite_reanalysis_grid",

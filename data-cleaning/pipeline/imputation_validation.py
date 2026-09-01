@@ -23,10 +23,11 @@ from .impute import _parse_time, impute_short_gaps
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_INPUT = PACKAGE_ROOT / "storage" / "runs" / "p10_05_wind_uv_imputation" / "processed_observations.csv"
-DEFAULT_OUTPUT = PACKAGE_ROOT / "storage" / "reports" / "imputation_validation.csv"
-DEFAULT_SUMMARY = PACKAGE_ROOT / "storage" / "reports" / "imputation_validation_summary.json"
-DEFAULT_DATABASE = PACKAGE_ROOT / "storage" / "reports" / "imputation_validation.sqlite"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_INPUT = STORAGE / "runs" / "p10_05_wind_uv_imputation" / "processed_observations.csv"
+DEFAULT_OUTPUT = STORAGE / "reports" / "imputation_validation.csv"
+DEFAULT_SUMMARY = STORAGE / "reports" / "imputation_validation_summary.json"
+DEFAULT_DATABASE = STORAGE / "reports" / "imputation_validation.sqlite"
 DEFAULT_MASK_RATES = (0.05, 0.10, 0.20)
 PROTECTED_VARIABLES = {"chlorophyll_a", "algae_density", "bloom_area_km2"}
 WIND_VARIABLES = {"wind_speed", "wind_direction"}

@@ -15,6 +15,7 @@ from .ecmwf_open_data import _bbox_mean, _iso, _lead_hours
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DEFAULT_BBOX = (119.90, 30.90, 120.75, 31.65)
 DEFAULT_VARIABLES = ("TMP", "UGRD", "VGRD", "APCP", "DSWRF", "TCDC", "PRMSL")
 GFS_PARAMETER_MAP: dict[str, tuple[str, str, str]] = {
@@ -177,7 +178,7 @@ def download_gfs_run(
     raw_root: Path | None = None,
 ) -> dict[str, Any]:
     package_root = Path(__file__).resolve().parents[2]
-    raw_root = Path(raw_root) if raw_root else package_root / "storage" / "raw" / "meteorology" / "noaa_gfs"
+    raw_root = Path(raw_root) if raw_root else STORAGE / "raw" / "meteorology" / "noaa_gfs"
     raw_root.mkdir(parents=True, exist_ok=True)
     run_time = f"{run_date}T{cycle:02d}:00:00+00:00"
     assets: list[dict[str, Any]] = []
@@ -207,7 +208,7 @@ def run_gfs(
     download = download_gfs_run(run_date, cycle, steps=steps, bbox=bbox, variables=variables, raw_root=raw_root)
     rows: list[dict[str, Any]] = []
     if download["assets"]:
-        silver_root = Path(silver_root) if silver_root else Path(__file__).resolve().parents[2] / "storage" / "silver" / "forecast" / "noaa_gfs"
+        silver_root = Path(silver_root) if silver_root else STORAGE / "silver" / "forecast" / "noaa_gfs"
         for asset in download["assets"]:
             parsed = parse_gfs_grib(Path(asset["path"]), run_time=download["run_time"], fallback_lead_hours=float(asset["step"]), bbox=bbox)
             if parsed["status"] != "completed":
@@ -226,7 +227,7 @@ def run_gfs(
         download["records"] = len(rows)
         download["coverage_hours"] = max((row["lead_hours"] for row in rows), default=0)
     download["real_batch"] = bool(rows) and not download["errors"]
-    path = Path(manifest_path) if manifest_path else Path(__file__).resolve().parents[2] / "storage" / "manifests" / f"noaa_gfs_{run_date}_{cycle:02d}z.json"
+    path = Path(manifest_path) if manifest_path else STORAGE / "manifests" / f"noaa_gfs_{run_date}_{cycle:02d}z.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(download, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
     download["manifest_path"] = str(path)

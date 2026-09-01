@@ -12,7 +12,8 @@ from typing import Mapping, Sequence
 
 
 ROOT = Path(__file__).parents[1]
-DEFAULT_OUTPUT = ROOT / "storage" / "manifests" / "cds_auth_probe.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_OUTPUT = STORAGE / "manifests" / "cds_auth_probe.json"
 REQUIRED_ENV = ("TAIHU_CDS_API_KEY",)
 ENDPOINTS = {
     "cds": "https://cds.climate.copernicus.eu/api",

@@ -1,5 +1,0 @@
-Targeted: python -m pytest -q tests/test_study_area.py
-Result: 2 passed in 0.79s
-
-Full: python -m pytest -q
-Result: 63 passed in 8.95s

@@ -9,8 +9,9 @@ from pathlib import Path
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
-MANIFEST_ROOT = PACKAGE_ROOT / "storage" / "manifests"
-OUTPUT = PACKAGE_ROOT / "storage" / "exports" / "manifest_audit.csv"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (PACKAGE_ROOT / "data-cleaning" / "storage"))
+MANIFEST_ROOT = STORAGE / "manifests"
+OUTPUT = STORAGE / "exports" / "manifest_audit.csv"
 TEMP_PATTERN = re.compile(r"AppData[\\/]Local[\\/]Temp|pytest-|tmp[a-zA-Z0-9_\\/-]+", re.IGNORECASE)
 
 

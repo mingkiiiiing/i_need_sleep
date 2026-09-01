@@ -16,36 +16,41 @@ import numpy as np
 import requests
 
 from .clms_lwq_byoc import PROCESS_API_URL, TOKEN_ENDPOINT
-from .sentinel2_monthly import ASSET_BAND_NAMES, DEFAULT_BOUNDARY, PACKAGE_ROOT, TARGET_ASSETS, TARGET_CRS, _target_grid, build_monthly_plan
+from .sentinel2_monthly import DEFAULT_BOUNDARY, PACKAGE_ROOT, TARGET_CRS, _target_grid, build_monthly_plan
 
-DEFAULT_OUTPUT = PACKAGE_ROOT / "storage" / "rasters" / "sentinel2_monthly_30m_cdse"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
+DEFAULT_OUTPUT = STORAGE / "rasters" / "sentinel2_monthly_30m_cdse"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
 EVALSCRIPT = """//VERSION=3
 function setup() {
   return {
-    input: [{bands: ["B03", "B04", "B05", "B08", "B11", "SCL", "dataMask"], units: "DN"}],
-    output: {bands: 7, sampleType: "UINT16"}
+    input: [{bands: ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "SCL", "dataMask"], units: "DN"}],
+    output: {bands: 11, sampleType: "UINT16"}
   };
 }
-function evaluatePixel(s) { return [s.B03, s.B04, s.B05, s.B08, s.B11, s.SCL, s.dataMask]; }
+function evaluatePixel(s) { return [s.B02, s.B03, s.B04, s.B05, s.B06, s.B07, s.B08, s.B8A, s.B11, s.SCL, s.dataMask]; }
 """
 MONTHLY_COMPOSITE_EVALSCRIPT = """//VERSION=3
 function setup() {
   return {
-    input: [{bands: ["B03", "B04", "B05", "B08", "B11", "SCL", "dataMask"], units: "DN"}],
-    output: {bands: 7, sampleType: "UINT16"},
+    input: [{bands: ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "SCL", "dataMask"], units: "DN"}],
+    output: {bands: 11, sampleType: "UINT16"},
     mosaicking: "ORBIT"
   };
 }
 function clear(s) { return s.dataMask && ![0, 1, 3, 7, 8, 9, 10, 11].includes(s.SCL); }
-function values(s) { return [s.B03, s.B04, s.B05, s.B08, s.B11, s.SCL, s.dataMask]; }
+function values(s) { return [s.B02, s.B03, s.B04, s.B05, s.B06, s.B07, s.B08, s.B8A, s.B11, s.SCL, s.dataMask]; }
 function evaluatePixel(samples) {
   for (let i = 0; i < samples.length; i++) if (clear(samples[i])) return values(samples[i]);
   for (let i = 0; i < samples.length; i++) if (samples[i].dataMask) return values(samples[i]);
-  return [0, 0, 0, 0, 0, 0, 0];
+  return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 }
 """
-BAND_ORDER = ("green", "red", "rededge1", "nir", "swir16", "scl", "dataMask")
+BAND_ORDER = ("blue", "green", "red", "rededge1", "rededge2", "rededge3", "nir", "nirnarrow", "swir16", "scl", "dataMask")
+BAND_FILE_NAMES = {
+    "blue": "B02", "green": "B03", "red": "B04", "rededge1": "B05", "rededge2": "B06",
+    "rededge3": "B07", "nir": "B08", "nirnarrow": "B8A", "swir16": "B11", "scl": "SCL",
+}
 
 
 def _sha256(path: Path) -> str:
@@ -117,6 +122,41 @@ def _post_process(body: dict[str, Any], token: str) -> requests.Response:
     raise last_error
 
 
+def _plan_from_manifest(manifest_path: Path, start: date, end: date) -> list[dict[str, Any]] | None:
+    """Reuse the catalogue selection of a previous run instead of querying Earth Search.
+
+    The Earth Search STAC API is only needed to pick the monthly scene date; the
+    previous manifest already recorded that decision, so re-runs (e.g. after a
+    band-set change) stay offline and reproducible.
+    """
+
+    try:
+        payload = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    months = payload.get("months") if isinstance(payload, dict) else None
+    if not months:
+        return None
+    plan: list[dict[str, Any]] = []
+    for item in months:
+        month = str(item.get("month"))
+        if not (start.isoformat()[:7] <= month <= end.isoformat()[:7]):
+            continue
+        selected = item.get("selected_date")
+        range_value = item.get("range") or (item.get("acquisition_window") or [selected, selected])
+        if not selected or not range_value:
+            return None
+        plan.append({
+            "month": month,
+            "range": list(range_value),
+            "cloud_threshold": item.get("cloud_threshold", 30.0),
+            "candidate_scenes": item.get("candidate_scenes", 0),
+            "selected_date": selected,
+            "selected": [],
+        })
+    return plan if plan else None
+
+
 def run_cdse_monthly(
     start: date = date(2022, 1, 1),
     end: date = date(2026, 8, 23),
@@ -134,7 +174,7 @@ def run_cdse_monthly(
     affine, width, height, lake_mask, bounds = _target_grid(Path(boundary_path), resolution=30.0)
     if width > 2500 or height > 2500:
         raise ValueError(f"CDSE Process API output exceeds 2500 px: {width}x{height}")
-    plan = build_monthly_plan(start, end)
+    plan = _plan_from_manifest(manifest_path, start, end) or build_monthly_plan(start, end)
     output_root, manifest_path = Path(output_root), Path(manifest_path)
     output_root.mkdir(parents=True, exist_ok=True)
     token = _token()
@@ -164,12 +204,12 @@ def run_cdse_monthly(
             with rasterio.open(raw_path) as source:
                 data = source.read()
                 source_profile = source.profile.copy()
-            if data.shape != (7, height, width):
+            if data.shape != (11, height, width):
                 raise ValueError(f"unexpected Process API raster shape {data.shape}")
-            combined_mask = lake_mask & (data[6] > 0)
+            combined_mask = lake_mask & (data[10] > 0)
             outputs: dict[str, Any] = {}
-            for band_index, asset in enumerate(BAND_ORDER[:6]):
-                output = month_root / f"taihu_s2_l2a_{month}_{ASSET_BAND_NAMES[asset]}_30m.tif"
+            for band_index, asset in enumerate(BAND_ORDER[:9]):
+                output = month_root / f"taihu_s2_l2a_{month}_{BAND_FILE_NAMES[asset]}_30m.tif"
                 values = data[band_index].copy()
                 values[~combined_mask] = 0
                 profile = source_profile.copy()
@@ -177,7 +217,7 @@ def run_cdse_monthly(
                 with rasterio.open(output, "w", **profile) as target:
                     target.write(values.astype("uint16"), 1)
                 outputs[asset] = {"path": str(output), "bytes": output.stat().st_size, "sha256": _sha256(output)}
-            scl = data[5]
+            scl = data[9]
             cloudy = np.isin(scl, [0, 1, 3, 7, 8, 9, 10, 11])
             row.update(
                 status="completed",
@@ -209,6 +249,8 @@ def run_cdse_monthly(
         "process_api": PROCESS_API_URL,
         "oauth_secret_recorded": False,
         "composite_mode": "monthly_least_cloud" if monthly_composite else "exact_day",
+        "bands": list(BAND_ORDER),
+        "band_file_names": BAND_FILE_NAMES,
         "grid": {"crs": TARGET_CRS, "resolution_m": 30.0, "width": width, "height": height, "bounds": bounds},
         "month_count": len(rows),
         "completed_months": sum(row["status"] == "completed" for row in rows),

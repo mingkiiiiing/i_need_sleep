@@ -1,9 +1,0 @@
-{
-  "path": "storage\\raw\\taihu_thqbca_zenodo\\THQBCA-V2.rar",
-  "size": 924743430,
-  "md5": "9fb11bd2ecb80470abfd33d54bdc9fa3",
-  "verified": true,
-  "resumed": false,
-  "retrieved_at": "20260818T100147Z",
-  "manifest": "storage\\manifests\\thqbca_download_20260818T100147Z.json"
-}

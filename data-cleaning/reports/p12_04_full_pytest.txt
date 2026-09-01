@@ -1,4 +1,0 @@
-P12-04 full regression test
-Command: python -m pytest -q
-Result: 260 passed, 2 warnings in 60.30s
-Warnings: two cfgrib/xarray FutureWarning messages; no test failure.

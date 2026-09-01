@@ -10,7 +10,8 @@ from typing import Any
 
 
 TRUTH_CLASSES = {"real_external", "official_metadata", "synthetic_fixture", "demo"}
-ROOTS = (Path("storage/raw"), Path("storage/runs"), Path("samples"), Path("tests/fixtures"))
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+ROOTS = (STORAGE / "raw", STORAGE / "runs", Path("samples"), Path("tests/fixtures"))
 
 
 def sha256_file(path: Path) -> str:
@@ -185,14 +186,17 @@ def build_inventory(workspace: Path, output_csv: Path, output_summary: Path) -> 
     rows: list[dict[str, Any]] = []
     missing_roots: list[str] = []
     for root in ROOTS:
-        absolute_root = workspace / root
+        absolute_root = root if root.is_absolute() else workspace / root
         if not absolute_root.exists():
             missing_roots.append(root.as_posix())
             continue
         for path in sorted(absolute_root.rglob("*")):
             if not path.is_file():
                 continue
-            relative = path.relative_to(workspace).as_posix()
+            if root.is_absolute():
+                relative = (Path("storage") / root.name / path.relative_to(root)).as_posix()
+            else:
+                relative = path.relative_to(workspace).as_posix()
             truth_class, role, training_use, exclusion_reason, source_id = classify(relative, path)
             if truth_class not in TRUTH_CLASSES:
                 raise ValueError(f"Unknown truth class for {relative}: {truth_class}")
@@ -227,7 +231,7 @@ def build_inventory(workspace: Path, output_csv: Path, output_summary: Path) -> 
     summary = {
         "task_id": "P00-03",
         "generated_at_utc": generated_at,
-        "inventory_path": output_csv.relative_to(workspace).as_posix(),
+        "inventory_path": output_csv.as_posix(),
         "candidate_file_count": len(rows),
         "missing_roots": missing_roots,
         "truth_class_counts": dict(Counter(row["truth_class"] for row in rows)),
@@ -253,7 +257,7 @@ if __name__ == "__main__":
     root = Path(__file__).resolve().parents[1]
     result = build_inventory(
         root,
-        root / "storage/exports/asset_truth_inventory.csv",
-        root / "storage/reports/p00_03_summary.json",
+        STORAGE / "exports/asset_truth_inventory.csv",
+        STORAGE / "reports/p00_03_summary.json",
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))

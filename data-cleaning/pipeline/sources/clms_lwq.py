@@ -21,6 +21,7 @@ from ..provenance import build_asset_manifest, write_asset_manifest
 from .common import PACKAGE_ROOT, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 CATALOG_ROOT = "https://csv.dataspace.copernicus.eu/CLMS/bio-geophysical/lake_water_quality/"
 DEFAULT_PRODUCT = "lwq-nrt_global_300m_10daily_v2"
 DEFAULT_VARIANT = "cog"
@@ -163,7 +164,7 @@ def _fetch_bytes(url: str, *, timeout: int = 60, opener: Callable[..., Any] | No
 
 def _write_raw_bytes(source_id: str, asset_id: str, url: str, status: int, content_type: str, payload: bytes) -> tuple[str, str]:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    root = PACKAGE_ROOT / "storage" / "raw" / source_id
+    root = STORAGE / "raw" / source_id
     root.mkdir(parents=True, exist_ok=True)
     extension = ".csv" if "csv" in content_type.lower() or asset_id.endswith("csv") else ".html"
     path = root / f"{stamp}_{asset_id}{extension}"
@@ -181,7 +182,7 @@ def _write_raw_bytes(source_id: str, asset_id: str, url: str, status: int, conte
         commercial_use="conditional",
         status="completed" if status == 200 else "failed",
     )
-    manifest_path = PACKAGE_ROOT / "storage" / "manifests" / f"raw_{source_id}_{asset_id}_{stamp}.json"
+    manifest_path = STORAGE / "manifests" / f"raw_{source_id}_{asset_id}_{stamp}.json"
     write_asset_manifest(manifest, manifest_path)
     return str(path), str(manifest_path)
 
@@ -197,9 +198,9 @@ def run_clms_lwq_catalog(
 ) -> dict[str, Any]:
     """Fetch, archive and select the latest official CLMS LWQ catalogue row."""
 
-    output_root = Path(output_root) if output_root is not None else PACKAGE_ROOT / "storage" / "staging" / "clms_lwq_catalog"
+    output_root = Path(output_root) if output_root is not None else STORAGE / "staging" / "clms_lwq_catalog"
     output_root.mkdir(parents=True, exist_ok=True)
-    final_manifest = Path(manifest_path) if manifest_path else PACKAGE_ROOT / "storage" / "manifests" / "clms_lwq_catalog.json"
+    final_manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "clms_lwq_catalog.json"
     result: dict[str, Any] = {
         "task_id": "P06-05",
         "source_id": "clms_lwq_catalog",

@@ -23,14 +23,15 @@ from .common import PACKAGE_ROOT, RAW_ROOT, sha256_file, utc_now
 from ..provenance import build_asset_manifest, manifest_root, write_asset_manifest
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 HYDROLAKES_SOURCE_URL = "https://zenodo.org/records/17503891/files/HydroLAKES_Asia.zip?download=1"
 HYDROBASINS_SOURCE_URL = "https://data.hydrosheds.org/file/hydrobasins/standard/hybas_as_lev08_v1c.zip"
 HYDROBASINS_TECHDOC_URL = "https://www.hydrosheds.org/products/hydrobasins"
-DEFAULT_LAKE_BOUNDARY = PACKAGE_ROOT / "storage" / "silver" / "geo" / "taihu_boundary.gpkg"
-DEFAULT_HYDROBASINS_ARCHIVE = PACKAGE_ROOT / "storage" / "raw" / "hydrobasins" / "hybas_as_lev08_v1c.zip"
-DEFAULT_OUTPUT_GPKG = PACKAGE_ROOT / "storage" / "silver" / "geo" / "hydrolakes_hydrobasins.gpkg"
-DEFAULT_TOPOLOGY_CSV = PACKAGE_ROOT / "storage" / "reports" / "hydrobasins_topology.csv"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "hydrolakes_hydrobasins_p07_04.json"
+DEFAULT_LAKE_BOUNDARY = STORAGE / "silver" / "geo" / "taihu_boundary.gpkg"
+DEFAULT_HYDROBASINS_ARCHIVE = STORAGE / "raw" / "hydrobasins" / "hybas_as_lev08_v1c.zip"
+DEFAULT_OUTPUT_GPKG = STORAGE / "silver" / "geo" / "hydrolakes_hydrobasins.gpkg"
+DEFAULT_TOPOLOGY_CSV = STORAGE / "reports" / "hydrobasins_topology.csv"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "hydrolakes_hydrobasins_p07_04.json"
 BOUNDARY_LAYER = "taihu_boundary_wgs84"
 HYDROBASINS_LAYER = "hydrobasins_level08_wgs84"
 CENTROID_LAYER = "hydrobasins_centroids_wgs84"

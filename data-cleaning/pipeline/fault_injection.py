@@ -10,6 +10,9 @@ from .qc import quality_control
 from .provenance import manifest_root
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def _base_row(source_row: str, variable_code: str, observed_at: str, value: Any) -> dict[str, Any]:
     return {
         "source_id": "fault_fixture",
@@ -77,7 +80,7 @@ def run_fault_injection(output_root: Path | None = None) -> dict[str, Any]:
 
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or root / "storage" / "exports" / f"fault_injection_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"fault_injection_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     result = evaluate_fault_fixture()
     result.update({"run_id": f"fault_injection_{stamp}", "status": "passed" if result["recall"] == 1.0 else "failed"})

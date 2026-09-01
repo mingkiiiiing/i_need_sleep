@@ -1,7 +1,0 @@
-P02-03 directed validation
-command: python -m pytest -q tests/test_cds_auth_probe.py
-result: 3 passed in 0.07s
-
-P02-03 full regression
-command: python -m pytest -q
-result: 88 passed in 11.45s

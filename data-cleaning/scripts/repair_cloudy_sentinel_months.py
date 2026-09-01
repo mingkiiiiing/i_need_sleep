@@ -9,8 +9,9 @@ from pathlib import Path
 from pipeline.sources.sentinel2_process_monthly import run_cdse_monthly
 
 ROOT = Path(__file__).resolve().parents[1]
-CANONICAL = ROOT / "storage" / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
-RASTER_ROOT = ROOT / "storage" / "rasters" / "sentinel2_monthly_30m_cdse"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+CANONICAL = STORAGE / "manifests" / "sentinel2_monthly_2022_2026_cdse.json"
+RASTER_ROOT = STORAGE / "rasters" / "sentinel2_monthly_30m_cdse"
 
 
 def main() -> None:
@@ -30,7 +31,7 @@ def main() -> None:
         result = run_cdse_monthly(
             start,
             end,
-            manifest_path=ROOT / "storage" / "manifests" / f"sentinel2_cdse_repair_{period}.json",
+            manifest_path=STORAGE / "manifests" / f"sentinel2_cdse_repair_{period}.json",
             monthly_composite=True,
             force=True,
         )

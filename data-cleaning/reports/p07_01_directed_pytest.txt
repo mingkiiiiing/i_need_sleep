@@ -1,2 +1,0 @@
-Command: python -m pytest -q tests/test_tba_hydrology.py tests/test_lake_geodata.py tests/test_provenance_manifest.py tests/test_config_sources.py tests/test_web_collection_policy.py
-Result: 13 passed in 0.77s

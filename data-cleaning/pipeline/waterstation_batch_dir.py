@@ -13,6 +13,7 @@ from .station_validate import run_station_validation
 from .waterstation_batch import _stage_water_station_file
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 SUPPORTED_SUFFIXES = {".json", ".csv", ".tsv", ".xlsx"}
 
 
@@ -45,7 +46,7 @@ def run_water_station_batch_directory(
         raise NotADirectoryError(input_root)
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or root / "storage" / "exports" / f"waterstation_batch_dir_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"waterstation_batch_dir_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     staging_run_root = staging_root(root) / f"waterstation_dir_{stamp}"
     files = sorted(path for path in input_root.rglob("*") if path.is_file() and path.suffix.casefold() in SUPPORTED_SUFFIXES)

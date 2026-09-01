@@ -1,3 +1,0 @@
-P04-01 full pytest validation
-Command: python -m pytest -q
-Result: 113 passed in 11.85s

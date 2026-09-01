@@ -23,15 +23,18 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib_common import CLEANED, CACHE_DIR, ROOT, flag_join, write_dataset
+from lib_common import CLEANED, CACHE_DIR, ROOT, STORAGE, flag_join, write_dataset
 
-S2_ROOT = ROOT / "storage/rasters/sentinel2_monthly_30m_cdse"
-S2_20M_ROOT = ROOT / "storage/rasters/sentinel2_monthly_20m"
-CLMS_ROOT = ROOT / "storage/rasters/clms_lwq_300m_v2"
-RETRIEVAL_ROOT = ROOT / "storage/gold/sentinel2_retrieval_20260802"
-BIOOPT_ROOT = ROOT / "storage/THQBCA-V2/2.Bio-optics"
-ANTHRO_ROOT = ROOT / "storage/THQBCA-V2/4.Anthropogenic"
-BOUNDARY_GPKG = ROOT / "storage/silver/geo/taihu_boundary.gpkg"
+S2_ROOT = STORAGE / "rasters/sentinel2_monthly_30m_cdse"
+S2_20M_ROOT = STORAGE / "rasters/sentinel2_monthly_20m"
+CLMS_ROOTS = (
+    ("v1", STORAGE / "rasters/clms_lwq_300m_v1"),
+    ("v2", STORAGE / "rasters/clms_lwq_300m_v2"),
+)
+RETRIEVAL_ROOT = STORAGE / "gold/sentinel2_retrieval_20260802"
+BIOOPT_ROOT = STORAGE / "THQBCA-V2/2.Bio-optics"
+ANTHRO_ROOT = STORAGE / "THQBCA-V2/4.Anthropogenic"
+BOUNDARY_GPKG = STORAGE / "silver/geo/taihu_boundary.gpkg"
 
 CLMS_BANDS = {1: "chla_mean", 2: "chla_uncertainty", 3: "fcb_prob", 4: "qflag"}
 CLMS_INVALID = 1e20          # COG 填充值
@@ -176,7 +179,8 @@ def s2_month_rows() -> tuple[list[dict], list[dict]]:
                 quality_note=_s2_note(month),
             ))
     # 20m 补片
-    for month_root in sorted(p for p in S2_20M_ROOT.iterdir() if p.is_dir()):
+    month_roots = sorted(p for p in S2_20M_ROOT.iterdir() if p.is_dir()) if S2_20M_ROOT.exists() else []
+    for month_root in month_roots:
         month = month_root.name
         for band_file in sorted(month_root.glob("*.tif")):
             m = re.search(r"_(B\d\d)_20m", band_file.name)
@@ -201,7 +205,7 @@ def _inventory_row(path: Path, month: str, product: str, variable: str, cloud_ra
     st = file_stats(path, 1)
     return dict(
         date=_date_of(month, path), month=month, product=product, variable=variable,
-        band=variable, file_path=str(path.relative_to(ROOT)), crs=st["crs"],
+        band=variable, file_path=str(path.relative_to(STORAGE)), crs=st["crs"],
         resolution_m=st["resolution_m"], width=st["width"], height=st["height"],
         valid_pixel_ratio=st["valid_pixel_ratio"], cloud_ratio=cloud_ratio,
         quality_flag="Q00", notes="",
@@ -239,8 +243,11 @@ def _s2_note(month: str) -> str:
 # ----------------------------- CLMS 300m -----------------------------
 def clms_rows() -> tuple[list[dict], list[dict]]:
     inventory, per_file = [], []
-    for year in sorted(p for p in CLMS_ROOT.iterdir() if p.is_dir()):
-        for f in sorted(year.glob("*.tif")):
+    for version, root in CLMS_ROOTS:
+        if not root.exists():
+            continue
+        for year in sorted(p for p in root.iterdir() if p.is_dir()):
+          for f in sorted(year.glob("*.tif")):
             m = re.search(r"(\d{8})", f.name)
             date = f"{m.group(1)[:4]}-{m.group(1)[4:6]}-{m.group(1)[6:]}" if m else ""
             month = date[:7]
@@ -250,8 +257,9 @@ def clms_rows() -> tuple[list[dict], list[dict]]:
                 w, h = ds.width, ds.height
                 nbands = ds.count
                 g = to_geom("EPSG:4326", ds.crs.to_epsg(), GEO)
-                out = dict(date=date, month=month, product="clms_lwq_300m_10daily", variable="",
-                           band="", file_path=str(f.relative_to(ROOT)), crs=crs, resolution_m=res,
+                product = f"clms_lwq_300m_10daily_{version}"
+                out = dict(date=date, month=month, product=product, variable="",
+                           band="", file_path=str(f.relative_to(STORAGE)), crs=crs, resolution_m=res,
                            width=w, height=h, valid_pixel_ratio=float("nan"), cloud_ratio=float("nan"),
                            quality_flag="Q00", notes="COG填充值>1e20判为无效")
                 perb = {}
@@ -259,10 +267,13 @@ def clms_rows() -> tuple[list[dict], list[dict]]:
                     a = ds.read(b).astype("float32")
                     a[(a < -CLMS_INVALID) | (a > CLMS_INVALID)] = np.nan
                     grid_ok = np.isfinite(a)
-                    out["valid_pixel_ratio"] = round(float(grid_ok.mean()), 4)
+                    if b == 1:
+                        out["valid_pixel_ratio"] = round(float(grid_ok.mean()), 4)
                     if g is not None and b <= 3:
                         import rasterio.mask
-                        masked = rasterio.mask.mask(ds, [g], crop=False, filled=True, nodata=None)[0].astype("float32")
+                        masked = rasterio.mask.mask(
+                            ds, [g], indexes=b, crop=False, filled=True, nodata=None
+                        )[0].astype("float32")
                         masked[(masked < -CLMS_INVALID) | (masked > CLMS_INVALID)] = np.nan
                         sel_rows = masked[np.isfinite(masked)]
                         var = CLMS_BANDS.get(b, f"band{b}")
@@ -274,24 +285,35 @@ def clms_rows() -> tuple[list[dict], list[dict]]:
                             max=float(np.nanmax(sel_rows)) if sel_rows.size else np.nan,
                             coverage_frac=float(sel_rows.size / masked.size) if masked.size else np.nan,
                         )
+                no_science = not perb or all(not np.isfinite(item["mean"]) for item in perb.values())
+                all_science_zero = bool(perb) and all(
+                    np.isfinite(item["min"]) and np.isfinite(item["max"])
+                    and item["min"] == 0.0 and item["max"] == 0.0
+                    for item in perb.values()
+                )
+                if no_science or all_science_zero:
+                    out["quality_flag"] = "Q03"
+                    out["notes"] += "; 科学波段为空或全部为0，排除"
                 inventory.append(out)
-                for var, s in perb.items():
-                    per_file.append(dict(month=month, product="clms_lwq_300m_10daily", granularity="10_daily",
-                                         variable=var, **s, n_files=1, cloud_ratio=np.nan,
-                                         quality_flag="Q00", quality_note="CLMS LWQ v2 300m 10日产品"))
+                if out["quality_flag"] != "Q03":
+                    for var, s in perb.items():
+                        per_file.append(dict(month=month, product=product, granularity="10_daily",
+                                             variable=var, **s, n_files=1, cloud_ratio=np.nan,
+                                             quality_flag="Q00" if np.isfinite(s["mean"]) else "Q03",
+                                             quality_note=f"CLMS LWQ {version} 300m 10日产品"))
     # 汇总为月度
     monthly = []
     df = pd.DataFrame(per_file)
     if len(df):
-        for (month, var), g in df.groupby(["month", "variable"]):
+        for (month, product, var), g in df.groupby(["month", "product", "variable"]):
             for col in ("mean", "median", "std", "min", "max", "coverage_frac"):
                 g[col] = pd.to_numeric(g[col], errors="coerce")
             monthly.append(dict(
-                month=month, product="clms_lwq_300m_10daily", granularity="monthly",
+                month=month, product=product, granularity="monthly",
                 variable=var, mean=float(g["mean"].mean()), median=float(g["median"].mean()),
                 std=float(g["std"].mean()), min=float(g["min"].min()), max=float(g["max"].max()),
                 coverage_frac=float(g["coverage_frac"].mean()), cloud_ratio=np.nan,
-                n_files=int(len(g)), quality_flag="Q00",
+                n_files=int(len(g)), quality_flag="Q00" if g["mean"].notna().any() else "Q03",
                 quality_note="月内 10 日产品简单平均(min/max 取极值)",
             ))
     return inventory, monthly
@@ -342,7 +364,7 @@ def thqbca_bio_rows() -> tuple[list[dict], list[dict]]:
             lake = {k.replace("lake_", ""): v for k, v in st.items() if k.startswith("lake_")}
             inventory.append(dict(
                 date=f"{year}-01-01", month="", product="thqbca_v2_biooptics", variable=var,
-                band=var, file_path=str(f.relative_to(ROOT)), crs=st["crs"],
+                band=var, file_path=str(f.relative_to(STORAGE)), crs=st["crs"],
                 resolution_m=st["resolution_m"], width=st["width"], height=st["height"],
                 valid_pixel_ratio=st["valid_pixel_ratio"], cloud_ratio=np.nan,
                 quality_flag="Q00", notes=f"THQBCA-V2 {name} 年度产品",
@@ -361,8 +383,8 @@ def thqbca_bio_rows() -> tuple[list[dict], list[dict]]:
 # ----------------------------- 其他栅格登记 -----------------------------
 def extra_inventory() -> list[dict]:
     rows = []
-    for root, product in ((ROOT / "storage/raw/earth_search_sentinel2_annual", "earth_search_annual_mosaic"),
-                          (ROOT / "storage/raw/earth_search_sentinel2", "earth_search_scene")):
+    for root, product in ((STORAGE / "raw/earth_search_sentinel2_annual", "earth_search_annual_mosaic"),
+                          (STORAGE / "raw/earth_search_sentinel2", "earth_search_scene")):
         if not root.exists():
             continue
         for f in sorted(root.rglob("*.tif")):
@@ -384,7 +406,7 @@ def extra_inventory() -> list[dict]:
                 print(f"  [ext] {f.name} 读取失败 {e}")
             rows.append(dict(
                 date=date, month=month, product=product, variable="mosaic_band" if "mosaic" in product else "scene_band",
-                band=f.stem, file_path=str(f.relative_to(ROOT)), crs=crs, resolution_m=res,
+                band=f.stem, file_path=str(f.relative_to(STORAGE)), crs=crs, resolution_m=res,
                 width=w, height=h, valid_pixel_ratio=vp, cloud_ratio=np.nan,
                 quality_flag="Q00", notes="EarthSearch 原始块(未做湖内统计)",
             ))

@@ -11,6 +11,9 @@ from .sources.water_station import _payload_rows, normalize_water_station_file, 
 from .station_validate import run_station_validation
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 def _stage_water_station_file(input_path: Path, staged_path: Path, *, source_id: str) -> dict[str, Any]:
     """Parse a user file or a raw ``waterstation-fetch`` envelope into CSV."""
 
@@ -51,7 +54,7 @@ def run_water_station_batch(
         raise FileNotFoundError(input_path)
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or root / "storage" / "exports" / f"waterstation_batch_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"waterstation_batch_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     staging_run_root = staging_root(root) / f"waterstation_{stamp}"
     staged_path = staging_run_root / source_id / f"{input_path.stem}_standardized.csv"

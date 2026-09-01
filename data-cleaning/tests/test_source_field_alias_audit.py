@@ -7,8 +7,9 @@ from scripts.audit_source_field_aliases import load_alias_lookup, load_p0_p1_row
 
 
 ROOT = Path(__file__).resolve().parents[1]
-AUDIT_PATH = ROOT / "storage" / "exports" / "source_field_mapping_audit.csv"
-UNMAPPED_PATH = ROOT / "storage" / "exports" / "unmapped_fields.csv"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+AUDIT_PATH = STORAGE / "exports" / "source_field_mapping_audit.csv"
+UNMAPPED_PATH = STORAGE / "exports" / "unmapped_fields.csv"
 
 
 def _rows(path: Path) -> list[dict[str, str]]:

@@ -1,5 +1,0 @@
-P06-05 directed command:
-python -m pytest -q tests/test_clms_lwq.py tests/test_source_registry_consistency.py tests/test_provenance_manifest.py tests/test_config_sources.py
-
-Result: 10 passed in 0.64s
-Exit code: 0

@@ -18,11 +18,12 @@ from .provenance import manifest_root
 from .sources.common import PACKAGE_ROOT, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 SUPPORTED_DATA_SUFFIXES = {".json", ".csv", ".tsv", ".xlsx"}
 EVIDENCE_NAMES = {"authorization.yml", "authorization.yaml", "authorization.json", "authorization.md", "receipt.md", "delivery_manifest.json", "delivery_manifest.yml", "delivery_manifest.yaml"}
-DEFAULT_INBOX = PACKAGE_ROOT / "storage" / "raw" / "authorized_waterstation" / "inbox"
-DEFAULT_INVENTORY = PACKAGE_ROOT / "storage" / "reports" / "waterstation_delivery_inventory.csv"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "waterstation_delivery_p08_01.json"
+DEFAULT_INBOX = STORAGE / "raw" / "authorized_waterstation" / "inbox"
+DEFAULT_INVENTORY = STORAGE / "reports" / "waterstation_delivery_inventory.csv"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "waterstation_delivery_p08_01.json"
 
 
 def _is_template(path: Path) -> bool:

@@ -78,7 +78,7 @@ def main() -> pd.DataFrame:
     row("THQBCA 1.WaterQuality.xlsx", "water_quality_cleaned.csv", 0, 0, 0, np.nan, 0, "2005-02-01", "2020-11-01",
         "2005-02~2020-11", "ok", "13 项指标(细菌除外: ph/codmn/do/tp/po4-p/tn/nh4-n/no3-n/no2-n/浮游植物生物量/丰度/浮游动物); 湖区: 全湖+ML/GH/ZS/CT/WT/ST/XK/ET; 湖区无坐标; Phyto_number/Zoo_* 为年尺度")
     row("MEE 地表水月报(太湖湖体, PDF OCR 文本)", "water_quality_cleaned.csv", 55, 0, 0, np.nan, 0, "2022-01-01", "2026-06-01",
-        "55 个月", "ok", "全湖 17 点位; 评价类文本(非观测数值); 原始 PDF 见 storage/raw/mee_surface_water_monthly")
+        "55 个月", "ok", "全湖 17 点位; 评价类文本(非观测数值); 原始 PDF 见 merged_data/2026_sheng-fuwai-main-merge/raw/mee_surface_water_monthly")
     row("国家水站批次(11 条)", "water_quality_cleaned.csv", 11, 11, 0, np.nan, 0, "2026-08-18", "2026-08-18",
         "仅 1 条叶绿素(S1)", "partial",
         "上游批次 CSV 只剩标准化产物; 原始响应已清理, 无历史长序列; 站点坐标未提供")
@@ -102,7 +102,7 @@ def main() -> pd.DataFrame:
     row("mwr_hfc 水情批次(GBK CSV)", "hydrology_cleaned.csv", 61, 6, 0, np.nan, 0, "2026-08-19", "2026-08-23",
         "实时少量", "partial", "仅 2026-08 少量实时水位; 流量等其余指标未获取到")
     row("tba_hydrology 下载(太湖流域水利门户)", "hydrology_cleaned.csv", 63, 0, 0, np.nan, 0, "", "",
-        "无", "failed", "返回 406/403 错误页(HTML), 无有效数据; 需人工申领(见 storage/authorization)")
+        "无", "failed", "返回 406/403 错误页(HTML), 无有效数据; 需人工申领(见 merged_data/2026_sheng-fuwai-main-merge/authorization)")
 
     # 遥感
     inv = pd.read_csv(CLEANED / "remote_sensing_inventory.csv", encoding="utf-8-sig") if (CLEANED / "remote_sensing_inventory.csv").exists() else pd.DataFrame()

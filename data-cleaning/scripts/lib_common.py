@@ -16,7 +16,7 @@ import pandas as pd
 
 # ----------------------------- 路径 -----------------------------
 ROOT = Path(__file__).resolve().parents[1]                      # data-cleaning/
-STORAGE = ROOT / "storage"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 CLEANED = STORAGE / "cleaned"
 ARCHIVE = STORAGE / "raw_organized"
 MANIFESTS = STORAGE / "manifests"

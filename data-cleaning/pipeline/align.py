@@ -21,6 +21,9 @@ from typing import Any
 from .resample import _float_or_none, _json_or_empty, _parse_time
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+
+
 WATER_QUALITY_VARIABLES = {
     "pH", "cod_mn", "dissolved_oxygen", "total_phosphorus", "phosphate_phosphorus",
     "total_nitrogen", "ammonia_nitrogen", "nitrate_nitrogen", "nitrite_nitrogen",
@@ -587,11 +590,11 @@ def run_alignment(
     rows = read_resampled_csv(input_path)
     result = align_records(rows, max_time_diff_hours=max_time_diff_hours, ideal_ground_remote_hours=ideal_ground_remote_hours, max_space_m=max_space_m, matching_strategy=matching_strategy)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or Path(__file__).resolve().parents[1] / "storage" / "exports" / f"align_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"align_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     output = output_root / "temporal_alignments.csv"
     _write_csv(output, result["records"])
-    database = database or Path(__file__).resolve().parents[1] / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["records"])
     manifest = {
         "run_id": run_id or f"align_{stamp}",
@@ -604,7 +607,7 @@ def run_alignment(
         "temporal_policy": "ground—satellite ideal ±3h, regular <=24h; ordinary drivers nearest <=24h; signed and absolute time gaps returned",
         "spatial_policy": "same station or both coordinates within radius; otherwise temporal-only with Q23; never fabricate distance",
     }
-    manifest_path = manifest_path or Path(__file__).resolve().parents[1] / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = manifest_path or STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)
@@ -672,7 +675,7 @@ def run_spatial_alignment(
         grid_origin=grid_origin,
     )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or Path(__file__).resolve().parents[1] / "storage" / "exports" / f"spatial_align_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"spatial_align_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     outputs = {
         "station_buffer_matches": output_root / "station_buffer_matches.csv",
@@ -681,7 +684,7 @@ def run_spatial_alignment(
     }
     for key, path in outputs.items():
         _write_csv(path, result[key])
-    database = database or Path(__file__).resolve().parents[1] / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_spatial_sqlite(database, result)
     manifest = {
         "run_id": run_id or f"spatial_align_{stamp}",

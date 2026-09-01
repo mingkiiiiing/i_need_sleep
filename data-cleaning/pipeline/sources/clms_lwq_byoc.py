@@ -20,6 +20,7 @@ from ..provenance import build_asset_manifest, write_asset_manifest
 from .common import PACKAGE_ROOT, sha256_file, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 BYOC_COLLECTION_ID = "5c2c9b2c-2893-41d9-b2bc-fbd6e5b8b31d"
 BYOC_DATA_TYPE = f"byoc-{BYOC_COLLECTION_ID}"
 PROCESS_API_URL = "https://sh.dataspace.copernicus.eu/api/v1/process"
@@ -28,8 +29,8 @@ TARGET_BANDS = ("CHLAMEAN", "CHLAUNC", "FCBPROB", "FOBS", "LOBS", "NOBS", "QFLAG
 DEFAULT_BBOX = (119.90, 30.90, 120.75, 31.65)
 DEFAULT_WIDTH = 320
 DEFAULT_HEIGHT = 320
-BOUNDARY_PATH = PACKAGE_ROOT / "storage" / "silver" / "geo" / "taihu_boundary.gpkg"
-AUTH_PROBE_PATH = PACKAGE_ROOT / "storage" / "manifests" / "cdse_auth_probe.json"
+BOUNDARY_PATH = STORAGE / "silver" / "geo" / "taihu_boundary.gpkg"
+AUTH_PROBE_PATH = STORAGE / "manifests" / "cdse_auth_probe.json"
 
 EVALSCRIPT = """//VERSION=3
 function setup() {
@@ -75,6 +76,7 @@ def build_clms_process_request(
     geometry: Mapping[str, Any] | None = None,
     width: int = DEFAULT_WIDTH,
     height: int = DEFAULT_HEIGHT,
+    collection_id: str = BYOC_COLLECTION_ID,
     evalscript: str = EVALSCRIPT,
 ) -> dict[str, Any]:
     """Build the bounded Process API JSON body without credentials."""
@@ -94,7 +96,7 @@ def build_clms_process_request(
             "bounds": bounds,
             "data": [
                 {
-                    "type": BYOC_DATA_TYPE,
+                    "type": f"byoc-{collection_id}",
                     "dataFilter": {"timeRange": {"from": _iso_z(start), "to": _iso_z(end)}},
                 }
             ],
@@ -158,7 +160,7 @@ def run_clms_lwq_byoc(
     """Submit a bounded CLMS BYOC request when OAuth is available."""
 
     if selected_product is None:
-        selected_product = PACKAGE_ROOT / "storage" / "staging" / "clms_lwq_catalog" / "lwq-nrt_global_300m_10daily_v2_cog_selected_latest.json"
+        selected_product = STORAGE / "staging" / "clms_lwq_catalog" / "lwq-nrt_global_300m_10daily_v2_cog_selected_latest.json"
     if isinstance(selected_product, Mapping):
         product = dict(selected_product)
         product_input = "mapping"
@@ -172,8 +174,8 @@ def run_clms_lwq_byoc(
         raise ValueError("selected CLMS product lacks start/end date")
     geometry = load_taihu_geometry()
     request_body = build_clms_process_request(start=start, end=end, bbox=bbox, geometry=geometry, width=width, height=height)
-    output = Path(output_path) if output_path else PACKAGE_ROOT / "storage" / "rasters" / "clms_lwq" / f"{product.get('name', 'taihu_lwq')}.tif"
-    manifest = Path(manifest_path) if manifest_path else PACKAGE_ROOT / "storage" / "manifests" / "clms_lwq_byoc.json"
+    output = Path(output_path) if output_path else STORAGE / "rasters" / "clms_lwq" / f"{product.get('name', 'taihu_lwq')}.tif"
+    manifest = Path(manifest_path) if manifest_path else STORAGE / "manifests" / "clms_lwq_byoc.json"
     credentials = _credentials()
     result: dict[str, Any] = {
         "task_id": "P06-06",

@@ -10,7 +10,8 @@ from .schema_migrations import migrate_database
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SCHEMA_PATH = ROOT / "storage" / "databases" / "schema_reference.sqlite"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_SCHEMA_PATH = STORAGE / "databases" / "schema_reference.sqlite"
 
 CORE_TABLES = (
     "source_registry",

@@ -19,6 +19,7 @@ from ..provenance import build_asset_manifest
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DEFAULT_BBOX = (119.90, 30.90, 120.75, 31.65)  # west, south, east, north
 DEFAULT_PARAMS = ("2t", "10u", "10v", "tp", "ssrd", "tcc", "msl")
 PARAMETER_MAP: dict[str, tuple[str, str, str]] = {
@@ -35,6 +36,17 @@ PARAMETER_MAP: dict[str, tuple[str, str, str]] = {
 def _iso(value: Any) -> str | None:
     if value is None:
         return None
+    # ``numpy.datetime64[ns].item()`` returns an integer nanosecond count on
+    # some NumPy/Python combinations.  Passing that integer to
+    # ``datetime.fromisoformat`` can be interpreted as a completely different
+    # (but syntactically valid) year.  Preserve the ISO representation before
+    # unboxing scalar NumPy values.
+    try:
+        import numpy as np
+        if isinstance(value, np.datetime64):
+            value = np.datetime_as_string(value, unit="us")
+    except ImportError:
+        pass
     if hasattr(value, "item"):
         value = value.item()
     if isinstance(value, datetime):
@@ -226,7 +238,7 @@ def download_ecmwf_open_data(
     """Download one bounded forecast run using the official open-data client."""
     request = build_ecmwf_request(run_date, cycle, steps, bbox=bbox, parameters=parameters, model=model)
     package_root = Path(__file__).resolve().parents[2]
-    raw_root = raw_root or package_root / "storage" / "raw" / "meteorology" / "ecmwf_open_data"
+    raw_root = raw_root or STORAGE / "raw" / "meteorology" / "ecmwf_open_data"
     raw_root.mkdir(parents=True, exist_ok=True)
     target = raw_root / f"ecmwf_{run_date}_{cycle:02d}z_0-360h.grib2"
     if target.exists() and target.stat().st_size > 0:
@@ -279,13 +291,13 @@ def run_ecmwf_open_data(
         output = {**result, "real_batch": False}
     else:
         raw_path = Path(result["target"])
-        silver_root = silver_root or Path(__file__).resolve().parents[2] / "storage" / "silver" / "forecast" / "ecmwf"
+        silver_root = silver_root or STORAGE / "silver" / "forecast" / "ecmwf"
         parsed = parse_ecmwf_grib(raw_path, run_time=result["run_time"], bbox=bbox, output_csv=silver_root / f"ecmwf_{run_date}_{cycle:02d}z_area_mean.csv")
         output = {**result, "parsed": parsed, "real_batch": parsed.get("status") == "completed"}
     if manifest_path:
         path = Path(manifest_path)
     else:
-        path = Path(__file__).resolve().parents[2] / "storage" / "manifests" / f"ecmwf_open_data_{run_date}_{cycle:02d}z.json"
+        path = STORAGE / "manifests" / f"ecmwf_open_data_{run_date}_{cycle:02d}z.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(output, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
     output["manifest_path"] = str(path)

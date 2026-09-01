@@ -15,6 +15,7 @@ from ..provenance import build_asset_manifest, manifest_root, write_asset_manife
 from .common import PACKAGE_ROOT, request_json, utc_now
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 POWER_URL = "https://power.larc.nasa.gov/api/temporal/hourly/point"
 NASA_PARAMETERS = ("T2M", "WS10M", "WD10M", "PRECTOTCORR", "ALLSKY_SFC_SW_DWN")
 EXPECTED_UNITS = {
@@ -186,9 +187,9 @@ def ingest_nasa_power_history(
 ) -> dict[str, Any]:
     """Fetch one NASA POWER UTC JSON response per training year and build Silver CSV."""
 
-    raw_root = Path(raw_root or PACKAGE_ROOT / "storage" / "raw" / "nasa_power_hourly")
-    output_root = Path(output_root or PACKAGE_ROOT / "storage" / "silver" / "nasa_power")
-    manifest_path = Path(manifest_path or PACKAGE_ROOT / "storage" / "manifests" / f"nasa_power_history_{start_year}_{end_year}.json")
+    raw_root = Path(raw_root or STORAGE / "raw" / "nasa_power_hourly")
+    output_root = Path(output_root or STORAGE / "silver" / "nasa_power")
+    manifest_path = Path(manifest_path or STORAGE / "manifests" / f"nasa_power_history_{start_year}_{end_year}.json")
     windows = _year_windows(int(start_year), int(end_year))
     years: list[dict[str, Any]] = []
     raw_files: list[Path] = []

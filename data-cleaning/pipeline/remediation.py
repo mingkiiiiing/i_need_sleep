@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 ACTION_CATALOG: dict[str, dict[str, str]] = {
     "coverage_historical": {
         "priority": "P0",
@@ -101,15 +102,15 @@ def run_remediation(
     gate = _read_json(gate_path)
     result = build_remediation(gate, next_run_command=next_run_command)
     root = Path(__file__).resolve().parents[1]
-    output_root = output_root or root / "storage" / "exports" / "p0_remediation"
+    output_root = output_root or STORAGE / "exports" / "p0_remediation"
     output_root.mkdir(parents=True, exist_ok=True)
     files = {"summary": output_root / "p0_remediation.json", "requests": output_root / "p0_data_requests.csv"}
     files["summary"].write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     _write_csv(files["requests"], result["requests"])
-    database = database or root / "storage" / "data_cleaning.db"
+    database = database or STORAGE / "data_cleaning.db"
     _write_sqlite(database, result["requests"], result)
     manifest = {"run_id": run_id or "p0_remediation", "status": "completed", "input": str(gate_path), "files": {key: str(value) for key, value in {**files, "database": database}.items()}, **result}
-    manifest_path = manifest_path or root / "storage" / "manifests" / f"{manifest['run_id']}.json"
+    manifest_path = manifest_path or STORAGE / "manifests" / f"{manifest['run_id']}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     manifest["manifest"] = str(manifest_path)

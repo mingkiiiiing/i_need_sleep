@@ -18,6 +18,7 @@ from .impute import impute_short_gaps
 
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 DEDUPLICATION_RULES = {}
 try:
     with (PACKAGE_ROOT / "config" / "qc_rules.yml").open("r", encoding="utf-8") as _rules_handle:
@@ -436,7 +437,7 @@ def run_cleaning(
     manifest_path: Path | None = None,
     run_id: str | None = None,
 ) -> dict[str, Any]:
-    raw_root = raw_root or PACKAGE_ROOT / "storage" / "raw"
+    raw_root = raw_root or STORAGE / "raw"
     supported_suffixes = {".json", ".csv", ".tsv", ".xlsx"}
     files = sorted(path for path in raw_root.glob("*/*") if path.is_file() and path.suffix.casefold() in supported_suffixes)
     observations: list[dict[str, Any]] = []
@@ -479,9 +480,9 @@ def run_cleaning(
     pending_records = imputation["pending"]
     suspect_records = qc.get("suspect", [])
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    export_root = Path(output_root) if output_root is not None else PACKAGE_ROOT / "storage" / "exports" / f"cleaning_{stamp}"
-    normalized_root = PACKAGE_ROOT / "storage" / "silver" if output_root is None else export_root
-    database_path = Path(database) if database is not None else PACKAGE_ROOT / "storage" / "data_cleaning.db"
+    export_root = Path(output_root) if output_root is not None else STORAGE / "exports" / f"cleaning_{stamp}"
+    normalized_root = STORAGE / "silver" if output_root is None else export_root
+    database_path = Path(database) if database is not None else STORAGE / "data_cleaning.db"
     files_out = {
         "normalized_observations": str(normalized_root / "normalized_observations.csv"),
         "cleaned_observations": str(export_root / "cleaned_observations.csv"),

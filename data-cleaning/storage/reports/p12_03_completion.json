@@ -1,8 +1,0 @@
-{
-  "task_id": "P12-03",
-  "status": "DONE",
-  "directed_test": "4 passed",
-  "full_test": "259 passed, 2 warnings",
-  "output_manifest": "storage/gold/mechanistic_features/manifest.json",
-  "next_task": "P12-04"
-}

@@ -7,7 +7,7 @@
 - 光谱表 (350nm 起逐 nm) → 提取 rrs@490/560/665/705/842 (最邻近插值, 实测光谱数据)
 - 坐标检查 WGS84 太湖范围
 
-输出: storage/cleaned/field_samples_cleaned.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/field_samples_cleaned.csv (+ .parquet)
 """
 from __future__ import annotations
 
@@ -20,10 +20,10 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib_common import (
-    ROOT, TAIHU_BBOX, bnow, coerce_datetime, flag_join, to_number, write_dataset,
+    ROOT, STORAGE, TAIHU_BBOX, bnow, coerce_datetime, flag_join, to_number, write_dataset,
 )
 
-RAW_ROOT = ROOT / "storage/raw/zenodo_taihu_insitu"
+RAW_ROOT = STORAGE / "raw/zenodo_taihu_insitu"
 SOURCE_NAME = "zenodo_taihu_insitu"
 RRS_WAVELENGTHS = (490.0, 560.0, 665.0, 705.0, 842.0)
 
@@ -132,7 +132,7 @@ def main() -> pd.DataFrame:
                 sdd_m=sdd_cm / 100.0 if not np.isnan(sdd_cm) else np.nan,
                 water_temp_c=temp,
                 quality_flag=flag_join(flags), quality_note="; ".join(notes),
-                source_name=SOURCE_NAME, source_file=str(p.relative_to(ROOT)),
+                source_name=SOURCE_NAME, source_file=str(p.relative_to(STORAGE)),
                 source_row=str(int(i) + 2), acquisition_date=bnow().strftime("%Y-%m-%d %H:%M:%S"),
                 **{f"rrs_{int(w)}": rrs.get(f"rrs_{int(w)}", np.nan) for w in RRS_WAVELENGTHS},
             ))

@@ -1,7 +1,8 @@
 from pathlib import Path
 
 
-RECEIPT = Path(__file__).parents[1] / "storage" / "authorization" / "cma" / "application_receipt.md"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+RECEIPT = STORAGE / "authorization" / "cma" / "application_receipt.md"
 
 
 def test_cma_application_record_has_scope_and_pending_receipt():

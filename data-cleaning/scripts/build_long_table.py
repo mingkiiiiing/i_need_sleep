@@ -7,7 +7,7 @@
       source_name, source_file, source_url, acquisition_date, dataset_split
 
 排序: 时间升序 → station_id → variable。dataset_split: <2025 train / 2025 validation / >=2026 test。
-输出: storage/cleaned/all_data_long.csv (+ .parquet)
+输出: merged_data/2026_sheng-fuwai-main-merge/cleaned/all_data_long.csv (+ .parquet)
 """
 from __future__ import annotations
 

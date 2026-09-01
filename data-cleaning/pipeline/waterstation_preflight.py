@@ -21,6 +21,7 @@ from .sources.water_station import normalize_water_station_file
 from .station_validate import validate_station_rows
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 SUPPORTED_SUFFIXES = {".json", ".csv", ".tsv", ".xlsx"}
 
 
@@ -71,7 +72,7 @@ def run_water_station_preflight(
         raise NotADirectoryError(input_root)
     root = Path(__file__).resolve().parents[1]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    output_root = output_root or root / "storage" / "exports" / f"waterstation_preflight_{stamp}"
+    output_root = output_root or STORAGE / "exports" / f"waterstation_preflight_{stamp}"
     output_root.mkdir(parents=True, exist_ok=True)
     files = sorted(path for path in input_root.rglob("*") if path.is_file() and path.suffix.casefold() in SUPPORTED_SUFFIXES)
     inventory: list[dict[str, Any]] = []

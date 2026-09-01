@@ -18,13 +18,14 @@ import pandas as pd
 from .common import PACKAGE_ROOT, utc_now
 
 
-DEFAULT_INPUT = PACKAGE_ROOT / "storage" / "raw" / "taihu_thqbca_parsed" / "thqbca_observations.csv"
-DEFAULT_OUTPUT_CSV = PACKAGE_ROOT / "storage" / "reports" / "hydrology_consistency.csv"
-DEFAULT_REPORT = PACKAGE_ROOT / "storage" / "reports" / "hydrology_consistency.json"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "hydrology_consistency_p07_06.json"
-DEFAULT_TBA_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "tba_hydrology_p07_01.json"
-DEFAULT_MWR_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "mwr_hfc_probe.json"
-DEFAULT_GLOFAS_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "glofas_p07_03.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
+DEFAULT_INPUT = STORAGE / "raw" / "taihu_thqbca_parsed" / "thqbca_observations.csv"
+DEFAULT_OUTPUT_CSV = STORAGE / "reports" / "hydrology_consistency.csv"
+DEFAULT_REPORT = STORAGE / "reports" / "hydrology_consistency.json"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "hydrology_consistency_p07_06.json"
+DEFAULT_TBA_MANIFEST = STORAGE / "manifests" / "tba_hydrology_p07_01.json"
+DEFAULT_MWR_MANIFEST = STORAGE / "manifests" / "mwr_hfc_probe.json"
+DEFAULT_GLOFAS_MANIFEST = STORAGE / "manifests" / "glofas_p07_03.json"
 
 UNIT_ALIASES = {
     "m": "m",

@@ -8,8 +8,9 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 CONFIG_PATH = ROOT / "config" / "study_area.yml"
-BOUNDARY_PATH = ROOT / "storage" / "silver" / "geo" / "taihu_boundary.gpkg"
+BOUNDARY_PATH = STORAGE / "silver" / "geo" / "taihu_boundary.gpkg"
 
 
 def _load_config() -> dict[str, object]:

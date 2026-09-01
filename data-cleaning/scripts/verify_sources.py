@@ -179,15 +179,17 @@ def write_sample_payloads(checks: list[SourceCheck], output_dir: Path) -> None:
 
 
 def main() -> int:
+    ROOT = Path(__file__).resolve().parents[1]
+    STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
     parser = argparse.ArgumentParser(description="Verify A23 Taihu source endpoints")
     parser.add_argument(
         "--output",
-        default="data-cleaning/storage/manifests/source_verification.json",
+        default=str(STORAGE / "manifests/source_verification.json"),
         help="JSON manifest output path",
     )
     parser.add_argument(
         "--sample-dir",
-        default="data-cleaning/samples/source_samples",
+        default=str(ROOT / "samples/source_samples"),
         help="Directory for small JSON response samples",
     )
     args = parser.parse_args()

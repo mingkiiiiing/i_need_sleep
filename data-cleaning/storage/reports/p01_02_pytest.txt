@@ -1,5 +1,0 @@
-Targeted: python -m pytest -q tests/test_config_sources.py tests/test_source_registry_consistency.py
-Result: 3 passed in 0.17s
-
-Full: python -m pytest -q
-Result: 61 passed in 10.63s

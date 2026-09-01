@@ -25,6 +25,7 @@ STEPS = [
     ("clean_field_samples.py", "现场样本清洗"),
     ("clean_static_features.py", "静态特征清洗"),
     ("build_remote_sensing.py", "遥感索引与月度统计"),
+    ("clean_latest_public_data.py", "最新CLMS/C3S/GFS清洗与代理训练表"),
     ("build_long_table.py", "统一长表"),
     ("build_model_dataset.py", "机器学习月度宽表"),
     ("build_quality_report.py", "质量报告"),

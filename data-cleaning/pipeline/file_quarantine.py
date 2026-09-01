@@ -19,9 +19,10 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-DEFAULT_INPUT_ROOT = Path(__file__).resolve().parents[1] / "storage" / "raw"
-DEFAULT_REPORT = Path(__file__).resolve().parents[1] / "storage" / "reports" / "file_quarantine.csv"
-DEFAULT_MANIFEST = Path(__file__).resolve().parents[1] / "storage" / "manifests" / "file_quarantine.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_INPUT_ROOT = STORAGE / "raw"
+DEFAULT_REPORT = STORAGE / "reports" / "file_quarantine.csv"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "file_quarantine.json"
 
 TEXT_EXTENSIONS = {".csv", ".tsv", ".json", ".html", ".htm", ".md", ".txt", ".xml", ".yml", ".yaml", ".cpg", ".prj"}
 TABULAR_EXTENSIONS = {".csv", ".tsv"}

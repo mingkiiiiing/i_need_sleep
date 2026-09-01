@@ -23,10 +23,11 @@ from .sources.water_station import DEFAULT_UNITS
 from .time_contract import parse_time
 
 
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 SUPPORTED_SUFFIXES = {".json", ".csv", ".tsv", ".xlsx"}
-DEFAULT_PREFLIGHT_ROOT = PACKAGE_ROOT / "storage" / "runs" / "waterstation_preflight"
-DEFAULT_REPORT = PACKAGE_ROOT / "storage" / "reports" / "waterstation_preflight_issues.csv"
-DEFAULT_SUMMARY = PACKAGE_ROOT / "storage" / "reports" / "waterstation_preflight_issues_summary.json"
+DEFAULT_PREFLIGHT_ROOT = STORAGE / "runs" / "waterstation_preflight"
+DEFAULT_REPORT = STORAGE / "reports" / "waterstation_preflight_issues.csv"
+DEFAULT_SUMMARY = STORAGE / "reports" / "waterstation_preflight_issues_summary.json"
 
 REPORT_FIELDS = [
     "issue_id",
@@ -366,7 +367,7 @@ def run_water_station_issue_report(
     if preflight_summary_path.exists():
         summary = json.loads(preflight_summary_path.read_text(encoding="utf-8"))
     if input_root is None:
-        input_root = PACKAGE_ROOT / "storage" / "raw" / "authorized_waterstation" / "inbox"
+        input_root = STORAGE / "raw" / "authorized_waterstation" / "inbox"
     input_root = Path(input_root)
 
     inventory = _read_csv(inventory_path)

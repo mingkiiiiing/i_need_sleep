@@ -24,9 +24,10 @@ import requests
 from .earth_search_sentinel2 import API, COLLECTION, COLLECTION_FALLBACKS, TAIHU_BBOX
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUT = PACKAGE_ROOT / "storage" / "rasters" / "sentinel2_monthly_20m"
-DEFAULT_MANIFEST = PACKAGE_ROOT / "storage" / "manifests" / "sentinel2_monthly_2022_2026.json"
-DEFAULT_BOUNDARY = PACKAGE_ROOT / "storage" / "silver" / "geo" / "taihu_boundary.gpkg"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
+DEFAULT_OUTPUT = STORAGE / "rasters" / "sentinel2_monthly_20m"
+DEFAULT_MANIFEST = STORAGE / "manifests" / "sentinel2_monthly_2022_2026.json"
+DEFAULT_BOUNDARY = STORAGE / "silver" / "geo" / "taihu_boundary.gpkg"
 TARGET_CRS = "EPSG:32651"
 TARGET_RESOLUTION = 20.0
 TARGET_ASSETS = ("green", "red", "rededge1", "nir", "swir16", "scl")

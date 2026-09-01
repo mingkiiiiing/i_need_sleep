@@ -13,7 +13,8 @@ from urllib.request import Request, urlopen
 
 
 ROOT = Path(__file__).parents[1]
-DEFAULT_OUTPUT = ROOT / "storage" / "manifests" / "earthdata_auth_probe.json"
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
+DEFAULT_OUTPUT = STORAGE / "manifests" / "earthdata_auth_probe.json"
 TOKEN_ENV = "TAIHU_EARTHDATA_TOKEN"
 TOKEN_ENDPOINT = "https://urs.earthdata.nasa.gov/api/users/tokens"
 

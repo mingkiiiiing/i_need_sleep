@@ -12,6 +12,11 @@ from pipeline.sources.c3s_seasonal import (
     parse_c3s_dataset,
     run_c3s_seasonal,
 )
+from pipeline.sources.ecmwf_open_data import _iso
+
+
+def test_iso_preserves_numpy_datetime64_nanoseconds():
+    assert _iso(np.datetime64("1993-01-01T00:00:00", "ns")) == "1993-01-01T00:00:00+00:00"
 
 
 def test_c3s_requests_keep_hindcast_and_forecast_axes_consistent():
@@ -74,6 +79,7 @@ def test_c3s_bias_correction_only_changes_forecast_rows():
 
 def test_c3s_run_without_cds_credentials_returns_truthful_block(tmp_path, monkeypatch):
     monkeypatch.delenv("TAIHU_CDS_API_KEY", raising=False)
+    monkeypatch.setattr("pipeline.sources.c3s_seasonal._credentials_present", lambda: False)
     manifest = tmp_path / "c3s.json"
     result = run_c3s_seasonal(
         2026, 8, hindcast_years=[1993, 1994], lead_months=[1, 2],

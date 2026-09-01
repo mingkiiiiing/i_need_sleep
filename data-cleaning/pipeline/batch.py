@@ -20,6 +20,7 @@ from .remediation import run_remediation
 
 UTC = timezone.utc
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[1] / "storage"))
 
 
 def run_data_cleaning_batch(
@@ -46,7 +47,7 @@ def run_data_cleaning_batch(
     if through not in stage_order:
         raise ValueError(f"through must be one of {stage_order}")
 
-    raw_root = Path(raw_root) if raw_root is not None else PACKAGE_ROOT / "storage" / "raw"
+    raw_root = Path(raw_root) if raw_root is not None else STORAGE / "raw"
     if not raw_root.exists():
         raise FileNotFoundError(raw_root)
     context = RunContext.create(run_id=run_id, runs_root=runs_root)

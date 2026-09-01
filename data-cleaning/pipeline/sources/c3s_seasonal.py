@@ -25,6 +25,7 @@ from .ecmwf_open_data import _bbox_mean, _iso
 
 
 UTC = timezone.utc
+STORAGE = Path(__import__("os").environ.get("TAIHU_STORAGE_ROOT") or (Path(__file__).resolve().parents[2] / "storage"))
 DATASET = "seasonal-monthly-single-levels"
 CDS_API_URL = "https://cds.climate.copernicus.eu/api"
 DEFAULT_BBOX = (119.90, 30.90, 120.75, 31.65)
@@ -47,7 +48,7 @@ VARIABLE_MAP: dict[str, dict[str, Any]] = {
         "code": "air_temperature", "unit": "degC", "source_unit": "K", "conversion": "K_to_degC",
     },
     "total_precipitation": {
-        "names": ("total_precipitation", "tp"),
+        "names": ("total_precipitation", "tp", "tprate"),
         "code": "precipitation", "unit": "mm", "source_unit": "m", "conversion": "m_to_mm",
     },
     "10m_u_component_of_wind": {
@@ -59,8 +60,12 @@ VARIABLE_MAP: dict[str, dict[str, Any]] = {
         "code": "wind_v", "unit": "m/s", "source_unit": "m/s", "conversion": "identity",
     },
     "surface_solar_radiation_downwards": {
-        "names": ("surface_solar_radiation_downwards", "ssrd"),
+        "names": ("surface_solar_radiation_downwards", "ssrd", "msdsrf"),
         "code": "shortwave_radiation", "unit": "W/m2", "source_unit": "J/m2", "conversion": "J_m2_to_W_m2",
+    },
+    "total_cloud_cover": {
+        "names": ("total_cloud_cover", "tcc"),
+        "code": "cloud_cover", "unit": "percent", "source_unit": "0-1 fraction", "conversion": "fraction_to_percent",
     },
 }
 
@@ -184,6 +189,8 @@ def _convert(value: float, spec: Mapping[str, Any]) -> float:
         return value - 273.15
     if conversion == "m_to_mm":
         return value * 1000.0
+    if conversion == "fraction_to_percent":
+        return value * 100.0
     # Monthly means can represent energy totals or fluxes depending on the
     # selected C3S product.  Preserve the source value unless the file itself
     # declares a per-second flux; never invent a time divisor.
@@ -201,6 +208,17 @@ def _coord_value(data: Any, dim: str, index: tuple[int, ...]) -> Any:
 def _lead_month(value: Any, fallback: int = 1) -> int:
     if value is None:
         return fallback
+    # cfgrib commonly exposes monthly lead time as ``numpy.timedelta64``.
+    # Calling ``item()`` first can turn it into an integer nanosecond count,
+    # which was then mistaken for hours and overflowed datetime construction.
+    if isinstance(value, np.timedelta64):
+        hours = float(value / np.timedelta64(1, "h"))
+        return max(1, int(round(hours / (24 * 30))))
+    if hasattr(value, "total_seconds"):
+        try:
+            return max(1, int(round(float(value.total_seconds()) / (24 * 30 * 3600))))
+        except (TypeError, ValueError, OverflowError):
+            return fallback
     if hasattr(value, "item"):
         value = value.item()
     text = str(value)
@@ -386,12 +404,14 @@ def run_c3s_seasonal(
     silver_root: Path | None = None,
     manifest_path: Path | None = None,
     client_factory: Callable[[], Any] | None = None,
+    include_hindcast: bool = True,
+    include_forecast: bool = True,
 ) -> dict[str, Any]:
     """Retrieve paired C3S hindcast/forecast or return BLOCKED_AUTH plan."""
 
-    raw_root = Path(raw_root or PACKAGE_ROOT / "storage" / "raw" / "meteorology" / "c3s_seasonal")
-    silver_root = Path(silver_root or PACKAGE_ROOT / "storage" / "silver" / "forecast" / "c3s_seasonal")
-    manifest_path = Path(manifest_path or PACKAGE_ROOT / "storage" / "manifests" / f"c3s_seasonal_{forecast_year}_{init_month:02d}.json")
+    raw_root = Path(raw_root or STORAGE / "raw" / "meteorology" / "c3s_seasonal")
+    silver_root = Path(silver_root or STORAGE / "silver" / "forecast" / "c3s_seasonal")
+    manifest_path = Path(manifest_path or STORAGE / "manifests" / f"c3s_seasonal_{forecast_year}_{init_month:02d}.json")
     plan = build_c3s_plan(
         forecast_year=forecast_year, init_month=init_month, hindcast_years=hindcast_years,
         variables=variables, lead_months=lead_months, bbox=bbox,
@@ -403,7 +423,7 @@ def run_c3s_seasonal(
             "task_id": "P05-04", "status": "BLOCKED_AUTH", "data_truth": "official_request_plan_only",
             "dataset": DATASET, "plan": plan, "requests": plan["requests"],
             "raw_root": str(raw_root), "silver_root": str(silver_root),
-            "auth_probe": str(PACKAGE_ROOT / "storage" / "manifests" / "cds_auth_probe.json"),
+            "auth_probe": str(STORAGE / "manifests" / "cds_auth_probe.json"),
             "credentials": _credentials_summary(), "error_class": "MissingCDSConfiguration",
         }
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -425,9 +445,14 @@ def run_c3s_seasonal(
         manifest_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         return result
 
+    if not include_hindcast and not include_forecast:
+        raise ValueError("at least one of include_hindcast or include_forecast must be true")
     rows: list[dict[str, Any]] = []
     assets: list[dict[str, Any]] = []
-    for kind in ("hindcast", "forecast"):
+    requested_kinds = tuple(
+        kind for kind, enabled in (("hindcast", include_hindcast), ("forecast", include_forecast)) if enabled
+    )
+    for kind in requested_kinds:
         request = plan["requests"][kind]
         target = raw_root / f"c3s_{kind}_{forecast_year}_{init_month:02d}_system{system}.grib"
         target.parent.mkdir(parents=True, exist_ok=True)
