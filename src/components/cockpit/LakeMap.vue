@@ -46,10 +46,17 @@ const props = defineProps({
   stageLabel: { type: String, default: '' },
   title: { type: String, default: '监测点位全景' },
   activeTab: { type: String, default: 'stations' },
-  showTabs: { type: Boolean, default: true }
+  showTabs: { type: Boolean, default: true },
+  // P01 图层开关：站点标注 / 风险面。默认开启，不影响既有页面行为
+  pointsVisible: { type: Boolean, default: true },
+  heatVisible: { type: Boolean, default: true },
+  // P01 允许风险面在地形图层同样显示（默认保持“仅卫星图层”的旧行为）
+  heatAllLayers: { type: Boolean, default: false },
+  // 外部递增触发：回到默认视野 + 重试瓦片
+  resetToken: { type: Number, default: 0 }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'tile-error'])
 
 const mapContainerRef = ref(null)
 let map = null
@@ -91,20 +98,37 @@ function createMarkerIcon(point, isActive) {
   const dotSize = isActive ? 20 : 14
   const ringSize = isActive ? 36 : 26
 
+  // point.short/name 来自接口，必须走 textContent，不能拼进 HTML 字符串
+  const root = document.createElement('div')
+  root.className = `lake-marker${isActive ? ' is-active' : ''} level-${riskClass}`
+  root.style.setProperty('--mc', color)
+  root.style.setProperty('--dot', `${dotSize}px`)
+  root.style.setProperty('--ring', `${ringSize}px`)
+
+  const ring = document.createElement('div')
+  ring.className = 'lake-marker-ring'
+  const dot = document.createElement('div')
+  dot.className = 'lake-marker-dot'
+  root.append(ring, dot)
+
+  if (isActive) {
+    const pulse = document.createElement('div')
+    pulse.className = 'lake-marker-pulse'
+    root.appendChild(pulse)
+  }
+
+  const label = document.createElement('div')
+  label.className = 'lake-marker-label'
+  const code = document.createElement('strong')
+  code.textContent = point.short || ''
+  const name = document.createElement('span')
+  name.textContent = point.name || ''
+  label.append(code, name)
+  root.appendChild(label)
+
   return L.divIcon({
     className: 'lake-marker-wrapper',
-    html: `
-      <div class="lake-marker ${isActive ? 'is-active' : ''} level-${riskClass}"
-           style="--mc: ${color}; --dot: ${dotSize}px; --ring: ${ringSize}px;">
-        <div class="lake-marker-ring"></div>
-        <div class="lake-marker-dot"></div>
-        ${isActive ? '<div class="lake-marker-pulse"></div>' : ''}
-        <div class="lake-marker-label">
-          <strong>${point.short || ''}</strong>
-          <span>${point.name || ''}</span>
-        </div>
-      </div>
-    `,
+    html: root,
     iconSize: [0, 0],
     iconAnchor: [0, 0]
   })
@@ -205,6 +229,9 @@ async function initMap() {
     }
   )
 
+  attachTileGuards(satelliteLayer)
+  attachTileGuards(topoLayer)
+
   addMarkers()
 
   rebuildHeatLayer()
@@ -219,8 +246,37 @@ async function initMap() {
   resizeObserver.observe(mapContainerRef.value)
 }
 
+let tileErrorCount = 0
+
+function attachTileGuards(layer) {
+  if (!layer) return
+  layer.on('tileload', () => {
+    if (tileErrorCount > 0) {
+      tileErrorCount = 0
+      emit('tile-error', false)
+    }
+  })
+  layer.on('tileerror', () => {
+    tileErrorCount += 1
+    if (tileErrorCount >= 5) emit('tile-error', true)
+  })
+}
+
+function retryTiles() {
+  if (!map) return
+  tileErrorCount = 0
+  emit('tile-error', false)
+  ;[satelliteLayer, labelsLayer, topoLayer].forEach((layer) => {
+    if (layer && map.hasLayer(layer)) {
+      map.removeLayer(layer)
+      layer.addTo(map)
+    }
+  })
+  fitBounds()
+}
+
 function addMarkers() {
-  markers.forEach(m => map.removeLayer(m))
+  markers.forEach(({ marker }) => map.removeLayer(marker))
   markers = []
 
   props.pointList.forEach(point => {
@@ -269,22 +325,22 @@ function rebuildHeatLayer() {
   if (!heatData.length) return
 
   heatLayer = L.heatLayer(heatData, {
-    radius: hasGrid ? 35 : 50,
-    blur: hasGrid ? 25 : 35,
+    radius: hasGrid ? 46 : 55,
+    blur: hasGrid ? 30 : 38,
     maxZoom: 15,
-    minOpacity: 0.05,
+    minOpacity: 0.22,
     max: 1.0,
     gradient: {
-      0.0: '#22d3ee',
-      0.2: '#6ee7b7',
-      0.4: '#fbbf24',
-      0.6: '#f97316',
-      0.8: '#ef4444',
+      0.0: '#16a34a',
+      0.25: '#eab308',
+      0.5: '#f97316',
+      0.75: '#ef4444',
       1.0: '#dc2626'
     }
   })
 
-  if (activeLayer.value === 'satellite') {
+  const heatAllowed = props.heatVisible && (props.heatAllLayers || activeLayer.value === 'satellite')
+  if (heatAllowed) {
     heatLayer.addTo(map)
   }
 
@@ -316,11 +372,11 @@ function switchLayer(layer) {
     if (map.hasLayer(topoLayer)) map.removeLayer(topoLayer)
     if (!map.hasLayer(satelliteLayer)) map.addLayer(satelliteLayer)
     if (!map.hasLayer(labelsLayer)) map.addLayer(labelsLayer)
-    if (heatLayer && !map.hasLayer(heatLayer)) heatLayer.addTo(map)
+    if (heatLayer && props.heatVisible && !map.hasLayer(heatLayer)) heatLayer.addTo(map)
   } else {
     if (map.hasLayer(satelliteLayer)) map.removeLayer(satelliteLayer)
     if (map.hasLayer(labelsLayer)) map.removeLayer(labelsLayer)
-    if (map.hasLayer(heatLayer)) map.removeLayer(heatLayer)
+    if (!props.heatAllLayers && map.hasLayer(heatLayer)) map.removeLayer(heatLayer)
     if (!map.hasLayer(topoLayer)) map.addLayer(topoLayer)
   }
 }
@@ -340,6 +396,36 @@ watch(() => props.pointList, () => {
 watch(() => [props.heatField, props.heatStageKey], () => {
   rebuildHeatLayer()
 }, { deep: true })
+
+watch(() => props.pointsVisible, (on) => {
+  if (!map) return
+  if (on) {
+    addMarkers()
+  } else {
+    markers.forEach(({ marker }) => map.removeLayer(marker))
+    markers = []
+  }
+})
+
+watch(() => props.heatVisible, (on) => {
+  if (!map || !heatLayer) return
+  const allowed = on && (props.heatAllLayers || activeLayer.value === 'satellite')
+  if (allowed && !map.hasLayer(heatLayer)) heatLayer.addTo(map)
+  if (!allowed && map.hasLayer(heatLayer)) map.removeLayer(heatLayer)
+})
+
+watch(() => props.resetToken, () => {
+  fitBounds()
+})
+
+// 外部“恢复默认筛选”：切回卫星底图 + 默认视野。
+// 点位/风险面可见性由父级 props 复位，经各自 watcher 生效。
+function resetMapState() {
+  switchLayer('satellite')
+  fitBounds()
+}
+
+defineExpose({ retryTiles, fitBounds, resetMapState })
 
 onMounted(() => {
   nextTick(() => {
@@ -424,6 +510,33 @@ onBeforeUnmount(() => {
 @media (max-width: 820px) {
   .leaflet-map-container {
     min-height: 460px;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .map-controls {
+    justify-content: space-between;
+  }
+  .layer-switcher button {
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+}
+
+/* 移动端触摸目标 ≥44px（WCAG 2.5.5） */
+@media (max-width: 759px) {
+  .layer-switcher button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .tool-chip {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 }
 </style>
@@ -568,5 +681,11 @@ onBeforeUnmount(() => {
 /* Hide default leaflet marker shadow */
 .leaflet-marker-shadow {
   display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lake-marker-pulse {
+    animation: none !important;
+  }
 }
 </style>

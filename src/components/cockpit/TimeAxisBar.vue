@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div v-if="variant === 'axis'" class="stage-axis" role="tablist" aria-label="预测时间档位">
+    <div v-if="variant === 'axis'" class="stage-axis" role="tablist" aria-label="预测时间档位" @keydown="onAxisKeydown">
       <div class="axis-track"><div class="axis-progress" :style="{ width: progressPct + '%' }"></div></div>
       <button
         v-for="(s, i) in stages"
@@ -38,7 +38,7 @@
       </button>
     </div>
 
-    <div v-else class="stage-list" role="tablist" aria-label="预测时间档位">
+    <div v-else class="stage-list" role="tablist" aria-label="预测时间档位" @keydown="onAxisKeydown">
       <button
         v-for="s in stages"
         :key="s.key"
@@ -63,7 +63,9 @@ const props = defineProps({
   // 用于播放器选择 stage 的可选项，默认 stages 全部
   autoRange: { type: Boolean, default: true },
   // default: 按钮列表；axis: 轴线节点形式
-  variant: { type: String, default: 'default' }
+  variant: { type: String, default: 'default' },
+  // 档位副标签覆盖（如能力状态：演示预测接口 / 模拟预演），缺省用内置文案
+  subLabelMap: { type: Object, default: () => ({}) }
 })
 
 const state = cockpitState()
@@ -99,12 +101,32 @@ function selectStage(key) {
 }
 
 function stageSubLabel(key) {
+  if (props.subLabelMap && props.subLabelMap[key]) return props.subLabelMap[key]
   if (key === 't1') return '紧急关注'
   if (key === 't3') return '短期研判'
   if (key === 't7') return '中期扩散'
   if (key === 't15') return '长期推演'
   if (key === 't30') return '综合研判'
   return ''
+}
+
+function onAxisKeydown(e) {
+  const n = props.stages.length
+  if (!n) return
+  const cur = Math.max(0, indexOf(state.stageKey))
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault()
+    state.stageKey = props.stages[Math.min(n - 1, cur + 1)].key
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    state.stageKey = props.stages[Math.max(0, cur - 1)].key
+  } else if (e.key === 'Home') {
+    e.preventDefault()
+    state.stageKey = props.stages[0].key
+  } else if (e.key === 'End') {
+    e.preventDefault()
+    state.stageKey = props.stages[n - 1].key
+  }
 }
 
 function step(dir) {
@@ -142,10 +164,12 @@ function restartTimer() {
     const cur = indexOf(state.stageKey)
     const next = cur + 1
     if (next >= props.stages.length) {
-      state.stageKey = props.stages[0].key
-    } else {
-      state.stageKey = props.stages[next].key
+      // 播放到最后一档后停止，不跳回第一档
+      state.playing = false
+      clearTimer()
+      return
     }
+    state.stageKey = props.stages[next].key
   }, interval)
 }
 

@@ -313,6 +313,18 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
   color: var(--c-accent-ink);
 }
 
+/* 移动端触摸目标 ≥44px（WCAG 2.5.5） */
+@media (max-width: 759px) {
+  .time-axis .play-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .time-axis .speed-pill button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 @media (max-width: 980px) {
   .time-axis { flex-wrap: wrap; }
   .time-axis .play-controls { margin-left: 0; }
