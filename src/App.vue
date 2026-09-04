@@ -1,14 +1,13 @@
 <template>
-  <GlobalNav />
-  <div class="route-stage">
-    <RouterView v-slot="{ Component }">
-      <Transition name="route" mode="out-in" appear>
-        <component :is="Component" />
-      </Transition>
-    </RouterView>
-  </div>
+  <AppShell>
+    <div class="route-stage">
+      <!-- 页面入场动效由 styles.css 的 .route-stage > * 挂载动画实现；
+           不用 <Transition> 包裹懒加载组件（异步子组件会破坏过渡状态机，导致视图滞后一拍） -->
+      <RouterView />
+    </div>
+  </AppShell>
 </template>
 
 <script setup>
-import GlobalNav from './components/GlobalNav.vue'
+import AppShell from './layouts/AppShell.vue'
 </script>

@@ -96,11 +96,13 @@ P0 数据均为 `SIMULATED` 演示数据；六个对象为 `demo_zone`，不是�
 
 ```
 src/
-├─ App.vue                       # 顶层容器，包裹路由切换动效
-├─ main.js                       # 入口，注册路由
-├─ styles.css                    # 全局设计系统（暗色玻璃 + 动效）
+├─ App.vue                       # 顶层容器，AppShell 基座 + 路由切换动效
+├─ main.js                       # 入口，注册懒加载路由 / 文档标题 / 防后退哨兵
+├─ styles.css                    # 全局设计系统（暗色玻璃 + 动效 + v2 基座补充）
+├─ layouts/
+│  └─ AppShell.vue               # 全站布局基座：侧栏 72 / 顶栏 64 / 数据身份栏 40 / 主内容
 ├─ components/
-│  ├─ GlobalNav.vue               # 全局导航栏
+│  ├─ common/                     # 公共组件：AppSidebar / AppTopBar / DataContextBar / PageHeader / BackLink / MetricCard / DataModeBadge / QualityBadge / StatePanel
 │  ├─ HeroShell.vue               # 通用页眉组件（带入场动效 + meta slot）
 │  ├─ TimeAxisBar.vue             # 时间轴播放器（default 按钮列表 / axis 轴线两种形式）
 │  ├─ CockpitSubTabs.vue          # 驾驶舱子页签切换
@@ -108,21 +110,24 @@ src/
 │  ├─ EChart.vue                  # ECharts 容器
 │  └─ echartsTheme.js             # ECharts 暗色主题常量
 ├─ pages/
-│  ├─ Home.vue                   # 主页（Marquee Hero + 右侧入口边栏）
-│  ├─ ProjectOverview.vue        # 项目概览（01 / 03）
-│  ├─ TechRoute.vue              # 技术路线（02 / 03）
+│  ├─ Home.vue                   # 主页（左信息 / 右太湖演示分区缩略图 + 四核心入口 + 项目方案锚点）
 │  ├─ Cockpit.vue                # 驾驶舱总览（03 / 03）
 │  ├─ Stations.vue               # 监测站档位研判
 │  ├─ Heatmap.vue                # 风险热力分区
-│  └─ History.vue                # 历史事件回放
+│  ├─ History.vue                # 历史事件回放
+│  └─ NotFound.vue               # 统一 404 页（站内来源确定性返回 / 回到首页 / 进入驾驶舱）
 ├─ stores/
-│  └─ cockpit.js                 # 跨页共享状态
+│  ├─ cockpit.js                 # 跨页共享状态（时间档 / 选中点位）
+│  └─ routeUi.js                 # 路由 UI 状态（懒加载进度 / 加载失败 / 业务来源）
 ├─ services/
 │  ├─ api.js                     # 接口适配层
 │  └─ mock.js                    # Mock 服务
 └─ data/
-   └─ points.js                  # 本地数据源（6 点位 / 5 档预测 / 事件流 / 热力网格）
+   ├─ points.js                  # 本地数据源（6 点位 / 5 档预测 / 事件流 / 热力网格）
+   └─ dataIdentity.js            # 数据身份唯一事实来源（SIMULATED / 版本 / 基准 / 边界）
 ```
+
+根目录历史静态多页面前端（`project-overview.html`、`tech-route.html`、`demo-flow.html`、`cockpit.html`、`stations.html`、`heatmap.html`、`history.html`、`script.js`、`styles.css`）已于 2026-09-02 确认无引用后删除。正式前端仅保留 Vite + Vue 单页应用（根目录 `index.html` 为唯一入口）。
 
 ---
 
@@ -131,12 +136,13 @@ src/
 | 路由 | 页面 |
 | --- | --- |
 | `/` | 主页 |
-| `/project-overview` | 项目概览 |
-| `/tech-route` | 技术路线 |
 | `/cockpit` | 驾驶舱总览 |
 | `/stations` | 监测站档位研判 |
 | `/heatmap` | 风险热力分区 |
 | `/history` | 历史事件回放 |
+| 其他任意地址 | 统一 404 页 |
+
+正式产品只包含以上五个页面。原 `/project-overview`、`/tech-route` 独立路由已删除，项目概览内容保留在主页 `#project-overview` 锚点内。
 
 ---
 

@@ -278,3 +278,89 @@
   --home-shadow-small: 0 12px 30px rgba(122, 82, 42, 0.16);
   --home-shadow-panel: 0 28px 70px rgba(122, 82, 42, 0.20);
 }
+
+/* ============================================================
+   设计基座 v2 · 全站统一 Token（唯一命名来源，供新组件使用）
+   ------------------------------------------------------------
+   风险色与数据身份色严格分离；深色主题值对齐页面效果图规范：
+   页面底 #06111F · 主青 #22D3EE · 青绿 #14B8A6。
+   旧版 --c-* 语义 token 保留，仅供尚未迁移的业务页面过渡使用。
+   ============================================================ */
+:root {
+  /* —— 主题无关 —— */
+  --color-primary: #22d3ee;
+  --color-primary-ink: #04222b;            /* 青色底上的深色文字 */
+  --color-primary-soft: rgba(34, 211, 238, 0.14);
+  --color-secondary: #14b8a6;
+  --color-secondary-soft: rgba(20, 184, 166, 0.14);
+
+  --risk-low: #22c55e;                     /* 正常 */
+  --risk-medium: #facc15;                  /* 关注 */
+  --risk-high: #f97316;                    /* 预警 */
+  --risk-critical: #ef4444;                /* 高警 */
+
+  --data-observed: #3b82f6;                /* 真实观测 · 蓝 */
+  --data-forecast: #a78bfa;                /* 算法预测 · 紫 */
+  --data-experimental: #fb923c;            /* 实验数据 · 橙 */
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+
+  --radius-panel: 10px;
+  --radius-item: 8px;
+}
+
+/* —— 深色「Midnight」（默认，对齐效果图）—— */
+:root,
+:root[data-theme="dark"] {
+  --surface-page: #06111f;
+  --surface-panel: rgba(9, 28, 48, 0.88);
+  --surface-panel-raised: rgba(14, 40, 66, 0.94);
+  --surface-panel-soft: rgba(122, 172, 205, 0.08);
+  --border-subtle: rgba(34, 211, 238, 0.18);
+  --border-strong: rgba(34, 211, 238, 0.40);
+
+  --text-primary: #e6f4ff;
+  --text-secondary: #91a7bd;
+  --text-muted: #536779;
+
+  --data-simulated: #7cb8c9;               /* 演示预演 · 青灰 */
+}
+
+/* —— 浅色「Daylight」—— */
+:root[data-theme="light"] {
+  --surface-page: #eef3f7;
+  --surface-panel: rgba(255, 255, 255, 0.90);
+  --surface-panel-raised: rgba(255, 255, 255, 0.98);
+  --surface-panel-soft: rgba(18, 56, 88, 0.05);
+  --border-subtle: rgba(18, 56, 88, 0.16);
+  --border-strong: rgba(10, 169, 155, 0.45);
+
+  --text-primary: #13263a;
+  --text-secondary: #3a5068;
+  --text-muted: #698199;
+
+  --data-simulated: #4d7f8f;               /* 演示预演 · 青灰（浅色加深） */
+}
+
+/* —— 日式暖阳「Sunrise」—— */
+:root[data-theme="sunrise"] {
+  --surface-page: #f2e7d6;
+  --surface-panel: rgba(255, 252, 245, 0.92);
+  --surface-panel-raised: rgba(255, 252, 245, 0.98);
+  --surface-panel-soft: rgba(122, 82, 42, 0.07);
+  --border-subtle: rgba(122, 82, 42, 0.20);
+  --border-strong: rgba(217, 100, 59, 0.45);
+
+  --text-primary: #3a2e26;
+  --text-secondary: #6b5744;
+  --text-muted: #9a8570;
+
+  --data-simulated: #6f8d96;               /* 演示预演 · 青灰（暖阳） */
+}

@@ -4,25 +4,25 @@ import App from './App.vue'
 import '../tokens.css'
 import './styles.css'
 import { initTheme } from './composables/useTheme.js'
+import { bindRouterUi } from './stores/routeUi.js'
 
 initTheme()
 
-import Home from './pages/Home.vue'
-import ProjectOverview from './pages/ProjectOverview.vue'
-import TechRoute from './pages/TechRoute.vue'
-import Cockpit from './pages/Cockpit.vue'
-import Stations from './pages/Stations.vue'
-import Heatmap from './pages/Heatmap.vue'
-import History from './pages/History.vue'
+// 五个正式页面全部懒加载：ECharts/Leaflet 只随对应业务页 chunk 下载
+const Home = () => import('./pages/Home.vue')
+const Cockpit = () => import('./pages/Cockpit.vue')
+const Stations = () => import('./pages/Stations.vue')
+const Heatmap = () => import('./pages/Heatmap.vue')
+const History = () => import('./pages/History.vue')
+const NotFound = () => import('./pages/NotFound.vue')
 
 const routes = [
-  { path: '/', component: Home },
-  { path: '/project-overview', component: ProjectOverview },
-  { path: '/tech-route', component: TechRoute },
-  { path: '/cockpit', component: Cockpit },
-  { path: '/stations', component: Stations },
-  { path: '/heatmap', component: Heatmap },
-  { path: '/history', component: History }
+  { path: '/', name: 'home', component: Home, meta: { title: '首页' } },
+  { path: '/cockpit', name: 'cockpit', component: Cockpit, meta: { title: '综合驾驶舱' } },
+  { path: '/stations', name: 'stations', component: Stations, meta: { title: '监测站点研判' } },
+  { path: '/heatmap', name: 'heatmap', component: Heatmap, meta: { title: '风险地图与时空推演' } },
+  { path: '/history', name: 'history', component: History, meta: { title: '历史事件与复盘' } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound, meta: { title: '页面未找到' } }
 ]
 
 const router = createRouter({
@@ -31,27 +31,18 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
     if (to.hash) {
-      return { el: to.hash, top: 76 }
+      // 顶栏 64 + 数据身份栏 40 + 分隔线 2，再留 8px 呼吸
+      return { el: to.hash, top: 114 }
     }
     return { top: 0 }
   }
 })
 
-// 退出边界保护：hash 路由 + 直接 deep link 时，浏览器后退会掉到 about:blank。
-// 这里在 popstate 时如果当前没有 hash，主动压回 home，保持页面不空。
-router.afterEach((to) => {
-  // 防后退掉站：路由进入后多压一个 sentinel history 项
-  if (window.__sentinelFor !== to.fullPath) {
-    window.__sentinelFor = to.fullPath
-    history.pushState({ sentinel: true, from: to.fullPath }, '', window.location.href)
-  }
-})
+bindRouterUi(router)
 
-window.addEventListener('popstate', (e) => {
-  if (e.state && e.state.sentinel) {
-    const from = e.state.from || '/'
-    history.pushState({ sentinel: true, from }, '', '#' + from)
-  }
+router.afterEach((to) => {
+  const base = '蓝藻水华监测预警'
+  document.title = to.meta && to.meta.title ? `${to.meta.title} · ${base}` : base
 })
 
 createApp(App).use(router).mount('#app')

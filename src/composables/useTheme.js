@@ -1,6 +1,6 @@
 // 全局主题管理：dark（默认）/ light / sunrise（日式暖阳）。
 // 通过 <html data-theme="dark|light|sunrise"> 驱动三套 CSS token 切换，
-// 状态持久化到 localStorage，未显式选择时跟随系统 prefers-color-scheme。
+// 状态持久化到 localStorage；无合法保存值时固定使用 dark，不跟随系统。
 
 import { reactive, computed } from 'vue'
 
@@ -19,9 +19,7 @@ function resolveInitialTheme() {
   } catch (e) {
     // localStorage 不可用（隐私模式等），忽略
   }
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    return 'light'
-  }
+  // 演示环境固定深色起步，不再跟随系统 prefers-color-scheme
   return 'dark'
 }
 

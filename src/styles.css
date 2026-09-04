@@ -984,42 +984,28 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
 .image-slot.banner { aspect-ratio: 21 / 9; }
 
 /* ===================== 路由切换过渡 ===================== */
+/* 页面级入场动画：每次路由组件挂载时播放（懒加载组件挂载即触发，无 Transition 状态机） */
 .route-stage {
   position: relative;
-  min-height: calc(100vh - 60px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
-.route-enter-from {
-  opacity: 0;
-  transform: translateY(24px) scale(0.995);
-  filter: blur(6px);
+.route-stage > * {
+  width: 100%;
+  animation: route-enter 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.route-enter-active {
-  transition: opacity .55s cubic-bezier(.22,.61,.36,1),
-              transform .65s cubic-bezier(.22,.61,.36,1),
-              filter .65s ease;
-}
-.route-enter-to {
-  opacity: 1;
-  transform: none;
-  filter: blur(0);
-}
-.route-leave-from {
-  opacity: 1;
-  transform: none;
-  filter: blur(0);
-}
-.route-leave-active {
-  transition: opacity .35s ease,
-              transform .45s ease,
-              filter .35s ease;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-.route-leave-to {
-  opacity: 0;
-  transform: translateY(-18px) scale(1.005);
-  filter: blur(4px);
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
 /* ===================== 响应式 ===================== */
@@ -1058,4 +1044,24 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   v2 设计基座补充（大任务2）
+   ------------------------------------------------------------
+   - 全局键盘焦点可见性（使用 v2 token --color-primary）
+   - AppShell 布局集成：顶栏 64px + 数据身份栏 40px + 分隔线 2px
+     共占 106px，页面根 .shell 改为撑满剩余视口
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.app-content .shell {
+  flex: 1 0 auto;
+  min-height: calc(100vh - 106px);
+}
+@media (max-width: 640px) {
+  .app-content .shell { padding: 16px 14px 48px; min-height: calc(100vh - 106px); }
 }

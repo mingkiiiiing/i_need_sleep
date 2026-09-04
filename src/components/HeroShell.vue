@@ -1,5 +1,5 @@
 <template>
-  <main class="hero-shell-shell">
+  <div class="hero-shell-shell">
     <header class="hero-header" :class="{ in: ready }">
       <div class="hero-header-left">
         <p class="hero-eyebrow">
@@ -23,7 +23,7 @@
     <footer v-if="$slots.actions" class="hero-actions">
       <slot name="actions" />
     </footer>
-  </main>
+  </div>
 </template>
 
 <script setup>

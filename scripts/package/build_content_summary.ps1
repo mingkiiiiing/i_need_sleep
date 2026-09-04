@@ -14,7 +14,7 @@ function Get-RelativePath([string]$Base, [string]$Path) {
 
 function Get-Category([string]$RelativePath) {
     $p = $RelativePath -replace '/', '\'
-    if ($p -match '(^|\\)src\\|(^|\\)(index|cockpit|demo-flow|heatmap|history|project-overview|stations|tech-route)\.html$|(^|\\)(styles\.css|script\.js)$') { return '前端与数字孪生驾驶舱' }
+    if ($p -match '(^|\\)src\\|(^|\\)index\.html$') { return '前端与数字孪生驾驶舱' }
     if ($p -match '(^|\\)backend\\') { return '后端接口与联调' }
     if ($p -match '(^|\\)data-cleaning\\') { return '数据工程代码、配置、测试与文档' }
     if ($p -match '里程碑7_成员C机理AI融合建模') { return '机理-AI融合建模框架' }
