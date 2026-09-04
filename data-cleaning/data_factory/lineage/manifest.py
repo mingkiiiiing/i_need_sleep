@@ -176,7 +176,11 @@ def build_release(config: dict[str, Any], *, dataset: str | None = None, release
     # newline="\n"：sha256sum 要求 LF，Windows 默认会转成 CRLF 导致复核失败
     (release_root / "hashes.sha256").write_text("\n".join(hash_lines) + "\n", encoding="utf-8", newline="\n")
 
-    absent_required = [rel for rel in REQUIRED_RELEASE_FILES if not (release_root / rel).exists()]
+    # release_manifest.json 由本命令自身产出，不参与“预先存在”校验
+    absent_required = [
+        rel for rel in REQUIRED_RELEASE_FILES
+        if rel != "release_manifest.json" and not (release_root / rel).exists()
+    ]
     status = "completed" if not missing and not absent_required else "failed"
 
     release_manifest = {
@@ -234,18 +238,30 @@ def _write_transformation_log(base_dir: Path, sim_dir: Path, out_path: Path, par
     for stage, path in chain:
         if not path.exists():
             continue
-        manifest = json.loads(path.read_text(encoding="utf-8"))
-        outputs = manifest.get("outputs") or manifest.get("output") or {}
-        record = {
-            "stage": stage,
-            "generator_version": manifest.get("generator_version", GENERATOR_VERSION),
-            "parameter_set_id": manifest.get("parameter_set_id", parameter_set_id),
-            "generation_batch_id": manifest.get("generation_batch_id"),
-            "inputs_sha256": manifest.get("inputs_sha256") or manifest.get("input_filtering") or {},
-            "outputs": outputs,
-            "rows_written": manifest.get("rows_written"),
-            "rules": manifest.get("rule") or manifest.get("unknown_rule") or manifest.get("gating") or "",
-        }
+        if path.suffix == ".json":
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            outputs = manifest.get("outputs") or manifest.get("output") or {}
+            record = {
+                "stage": stage,
+                "generator_version": manifest.get("generator_version", GENERATOR_VERSION),
+                "parameter_set_id": manifest.get("parameter_set_id", parameter_set_id),
+                "generation_batch_id": manifest.get("generation_batch_id"),
+                "inputs_sha256": manifest.get("inputs_sha256") or manifest.get("input_filtering") or {},
+                "outputs": outputs,
+                "rows_written": manifest.get("rows_written"),
+                "rules": manifest.get("rule") or manifest.get("unknown_rule") or manifest.get("gating") or "",
+            }
+        else:  # 质量报告等非 JSON 产物：只登记文件本身
+            record = {
+                "stage": stage,
+                "generator_version": GENERATOR_VERSION,
+                "parameter_set_id": parameter_set_id,
+                "generation_batch_id": None,
+                "inputs_sha256": {},
+                "outputs": {path.name: str(path)},
+                "rows_written": None,
+                "rules": "A01–A23 acceptance + V01–V12 veto",
+            }
         lines.append(json.dumps(record, ensure_ascii=False, default=str))
         n += 1
     # newline="\n"：jsonl 统一 LF

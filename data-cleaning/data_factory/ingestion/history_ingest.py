@@ -234,7 +234,7 @@ def run_ingest_history(config: dict[str, Any], *, release_dir: Path, out_dir: Pa
     registry.to_csv(registry_path, index=False)
     outputs["source_registry"] = str(registry_path)
 
-    return {
+    manifest = {
         "status": "completed",
         "command": "ingest-history",
         "rows_read": int(sum(len(f) for f in tables.values())) + int(len(weather)),
@@ -245,3 +245,7 @@ def run_ingest_history(config: dict[str, Any], *, release_dir: Path, out_dir: Pa
         "station_sample_dates": int(station_pattern["date"].nunique()) if not station_pattern.empty else 0,
         "outputs": outputs,
     }
+    (out_dir / "history_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    return manifest
