@@ -1,0 +1,74 @@
+# 实时与在线数据源接入配置 (设计 §8；taihugurad 采集能力重写式适配)
+# Windows 计划任务建议（示例）：
+#   schtasks /create /tn "data-factory-mee" /sc hourly /mo 4 /tr "python -m data_factory collect-realtime --source mee"
+# 或 Linux crontab: 0 0,4,8,12,16,20 * * * cd /path/data-cleaning && python -m data_factory collect-realtime --source mee
+
+mee:
+  enabled: true
+  api_url: "https://szzdjc.cnemc.cn:8070/GJZ/Ajax/Publish.ashx"
+  river_id: "1200000000"          # 太湖流域
+  page_index: 1
+  page_size: 500
+  max_retries: 3
+  retry_delay_s: 5
+  timeout_s: 30
+  # 上游站点自签证书：上游参考实现使用 verify=False；此处显式配置并留痕
+  tls_verify: false
+  warn_on_insecure_tls: true
+
+open_meteo_history:
+  enabled: true
+  base_url: "https://archive-api.open-meteo.com/v1/archive"
+  hourly_params:
+    - temperature_2m
+    - relative_humidity_2m
+    - dewpoint_2m
+    - precipitation
+    - rain
+    - wind_speed_10m
+    - wind_direction_10m
+    - wind_gusts_10m
+    - shortwave_radiation
+    - direct_radiation
+    - diffuse_radiation
+    - surface_pressure
+    - cloud_cover
+    - et0_fao_evapotranspiration
+    - soil_temperature_0_to_7cm
+  points_source: factory_grid     # factory_grid | taihugurad_g01_g20
+  max_points: 20
+  point_spacing_km: 7
+  throttle_s: 3.0
+  segment_years: 2
+  timezone: Asia/Shanghai
+
+qweather:
+  enabled: false                  # 需 QWEATHER_API_KEY（.env）
+  env_key: QWEATHER_API_KEY
+  env_host: QWEATHER_HOST
+  default_host: kc44ua927w.re.qweatherapi.com
+  endpoints: [now, 24h, 7d]
+  stations:                        # 5 个代表点
+    - {name: taihu_center, lat: 31.2258, lon: 120.1375}
+    - {name: wuxi, lat: 31.57, lon: 120.31}
+    - {name: suzhou, lat: 31.30, lon: 120.62}
+    - {name: huzhou, lat: 30.87, lon: 120.09}
+    - {name: yixing, lat: 31.36, lon: 119.82}
+  throttle_s: 1.0
+
+gee:
+  enabled: false                  # 需 earthengine authenticate；首期为计划器
+  project_env: GEE_PROJECT_ID
+  default_project: water-protection-488007
+  roi: [119.88, 30.90, 120.60, 31.55]
+  sentinel2:
+    collection: COPERNICUS/S2_SR_HARMONIZED
+    cloud_pct_max: 30
+    buffer_m: 500
+    scale_m: 10
+    indices: [NDCI, FAI]
+  modis_lst:
+    collection: MODIS/061/MOD11A1
+    band: LST_Day_1km
+    buffer_m: 1000
+    scale_m: 1000

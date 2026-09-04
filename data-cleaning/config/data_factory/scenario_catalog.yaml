@@ -1,0 +1,35 @@
+# 仿真情景目录 (设计 §12 generation/scenario_catalog.yaml)
+default_scenario: baseline
+
+scenarios:
+  baseline:
+    description: "基线情景：训练期拟合的常规年型"
+    extremes: none
+    load_multiplier: 1.0
+    climate_shift_deg: 0.0
+
+  eutrophication:
+    description: "富营养化加强：外源营养负荷上浮"
+    extremes: none
+    load_multiplier: 1.5
+    climate_shift_deg: 0.0
+
+  heatwave_calm:
+    description: "热浪+静风：夏季高温低风聚集压力测试"
+    extremes:
+      heatwave_days: 10
+      months: [7, 8]
+      heatwave_add_deg: 4.0
+      calm_wind_ms: 2.0
+    load_multiplier: 1.0
+    climate_shift_deg: 1.0
+
+  storm_load:
+    description: "暴雨入湖：强降雨脉冲与负荷冲击"
+    extremes:
+      storm_days: 3
+      months: [6, 7, 8]
+      storm_mm: 150
+      load_pulse_multiplier: 3.0
+    load_multiplier: 1.0
+    climate_shift_deg: 0.0

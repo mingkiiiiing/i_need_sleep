@@ -1,0 +1,117 @@
+# 数据工厂主配置 (设计 §12 generation/)
+version: "1.0"
+contract_version: "1.0"
+timezone: Asia/Shanghai
+dataset_id: mvp_meiliangwan_2024
+
+simulation:
+  # MVP：梅梁湾 × 2024 全年（M2）
+  start_date: "2024-01-01"
+  end_date: "2024-12-31"
+  mvp_zones: ["TAIHU_ML"]
+  # 全湖（M3）：配置就绪，未实跑；full_lake: true 时启用
+  full_lake: false
+  full_lake_zone: null            # null = 全部湖区
+  full_lake_start_date: "2021-01-01"
+  full_lake_end_date: "2026-08-19"
+  include_leap_day: true
+
+grid:
+  boundary_gpkg: "storage/silver/geo/taihu_boundary.gpkg"
+  cell_size_m: 1000
+  crs_area: EPSG:32651
+  crs_storage: EPSG:4326
+  min_water_fraction: 0.05
+
+zones:
+  center_radius_km: 6.0
+  fallback: TAIHU_CT
+  # 方位角扇区（自湖体质心，0=北 顺时针，度）；derived 近似，可被权威湖区边界替换
+  sectors:
+    TAIHU_ML: [325, 30]     # 梅梁湾（北）
+    TAIHU_GH: [30, 70]      # 贡湖（东北）
+    TAIHU_XK: [70, 110]     # 胥湖（东）
+    TAIHU_ET: [110, 155]    # 东太湖（东南）
+    TAIHU_ST: [155, 245]    # 南部沿岸（南—西南）
+    TAIHU_WT: [245, 295]    # 西部沿岸（西）
+    TAIHU_ZS: [295, 325]    # 竺山湖（西北）
+
+zone_priors:
+  depth_mean_m:
+    TAIHU_ML: 2.0
+    TAIHU_ZS: 1.7
+    TAIHU_GH: 1.9
+    TAIHU_XK: 1.6
+    TAIHU_ET: 1.2
+    TAIHU_CT: 2.6
+    TAIHU_WT: 1.8
+    TAIHU_ST: 1.7
+
+splits:
+  train_fraction: 0.70
+  validation_fraction: 0.15
+  isolation_days: 30
+
+assembly:
+  spatial_levels: [lake, zone, grid]
+  grid_tasks: [T1, T2, T5]        # 网格级只做 T1/T2/T5 控制规模
+  horizons_days: [1, 3, 7, 15, 30]
+  issue_stride_days: 1
+  grid_issue_stride_days: 7       # MVP 网格级样本按 7 日降频控制规模
+  full_lake_issue_stride_days: 7  # 全湖降频起报
+  feature_lags_days: [1, 3, 7, 14, 30]
+  feature_rolling_windows: [3, 7, 14, 30]
+
+realtime:
+  raw_root: storage/raw
+
+download:
+  warn_mb: 50
+  est_mb_per_point_year: 1.1
+
+quality:
+  mvp_profile: m2_one_zone_one_year
+  # MVP 数量阈值缩放（真实口径见设计 §11；SIM 轨一律称"仿真样本量"）
+  min_positive_dates_per_split: 5
+  min_negative_dates_per_split: 15
+  min_valid_labels_per_split: 30
+  min_positive_grid_days: 200
+  min_complete_grid_days_per_task: 2000
+
+variable_code_map:
+  # 发布包短码 → 规范码（variables.yml 长名）
+  codmn: cod_mn
+  do: dissolved_oxygen
+  nh4_n: ammonia_nitrogen
+  no3_n: nitrate_nitrogen
+  no2_n: nitrite_nitrogen
+  po4_p: phosphate_phosphorus
+  tn: total_nitrogen
+  tp: total_phosphorus
+  chla: chlorophyll_a
+  phyto_biomass: phytoplankton_biomass
+  phyto_number: phytoplankton_count
+  zoo_biomass: zooplankton_biomass
+  zoo_number: zooplankton_count
+  sdd: secchi_depth
+  tsm: total_suspended_matter
+  water_temperature: water_temperature
+  water_level: water_level
+  air_temperature: air_temperature
+  precipitation: precipitation
+  shortwave_radiation: shortwave_radiation
+  wind_u: wind_u
+  wind_v: wind_v
+  lake_surface_temperature: lake_surface_temperature
+  # MEE 实时接口码 → 规范码
+  water_temp: water_temperature
+  ph: pH
+  conductivity: conductivity
+  turbidity: turbidity
+  nh3n: ammonia_nitrogen
+  algae_density: cyanobacteria_density
+
+unit_conversions:
+  # 规范单位 ← 原单位: 乘数
+  chlorophyll_a: {ug/L: 1.0, "mg/L": 1000.0}
+  secchi_depth: {m: 1.0, cm: 0.01}

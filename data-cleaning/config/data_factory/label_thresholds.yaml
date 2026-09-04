@@ -1,0 +1,24 @@
+# 标签阈值 (设计 §6.13/§10；frozen=true 时变更必须产生新 threshold_set_id)
+version: "1.0"
+threshold_set_id: "LTS-SIM-V1-20260904"
+frozen: true
+
+bloom:
+  grid_fraction_positive: 0.05    # 网格水华覆盖率正样本阈值
+  zone_area_km2_positive: 1.0     # 湖区水华面积正样本阈值
+  lake_area_km2_positive: 10.0    # 全湖水华面积正样本阈值
+  satellite_detection_min_fraction: 0.02   # 卫星可检出最低覆盖率（低于即 unknown）
+
+chla_ug_l:
+  warning: 30
+  alert: 60
+
+risk_levels:
+  - level: 0
+    when: "chla < warning 且 bloom_fraction < grid_fraction_positive"
+  - level: 1
+    when: "chla >= warning 或 bloom_fraction >= grid_fraction_positive"
+  - level: 2
+    when: "chla >= alert 且 bloom_fraction >= zone 阈值当日持续>=3日"
+  - level: 3
+    when: "chla >= alert 且 bloom_fraction >= zone 阈值当日持续>=7日"
