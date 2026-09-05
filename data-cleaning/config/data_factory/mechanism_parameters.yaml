@@ -135,7 +135,7 @@ physical_bounds:
 obs:
   publish_delay_p50_h: 6
   publish_delay_p90_h: 24
-  measurement_error_pct: {default: 10.0, chlorophyll_a: 20.0, phytoplankton_biomass: 25.0}
+  measurement_error_pct: {default: 10.0, chlorophyll_a: 20.0, phytoplankton_biomass: 25.0, total_phosphorus: 10.0, total_nitrogen: 10.0}
   detection_limits:
     total_phosphorus: 0.01
     total_nitrogen: 0.05

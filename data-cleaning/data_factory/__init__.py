@@ -2,5 +2,5 @@
 
 from __future__ import annotations
 
-GENERATOR_VERSION = "df-0.2.0"  # SIM-V1.1：审计 DG-001~014 整改（2026-09-04）
+GENERATOR_VERSION = "df-0.2.1"  # 接口收尾：TP/TN 观测层特征 + T3/T7 契约接收（2026-09-05）
 CONTRACT_VERSION = "1.1"

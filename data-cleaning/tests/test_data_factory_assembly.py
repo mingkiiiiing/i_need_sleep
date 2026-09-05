@@ -60,23 +60,21 @@ class TestMemberCAdapter:
         assert row["wind_speed_m_s"] == 3.1
         assert pd.isna(row["relative_humidity_pct"])  # 未提供内部特征 → 空列
 
-    def test_open_enum_preserved_and_excluded_counted(self):
-        out, summary = to_member_c(_sample_frame(), track="SIM-V1", include_open_enum=True)
-        # T3→blue_algae_density 属开放枚举，保留并计数；T7 不在成员 C 任务里
-        assert "blue_algae_density" in set(out["target_metric"])
-        assert summary["rows_excluded_open_enum"] >= 1
+    def test_t3_t7_formal_metrics_included(self):
+        out, summary = to_member_c(_sample_frame(), track="SIM-V1")
+        # 2026-09-05 契约收尾：T3→blue_algae_density、T7→spatial_extent 正式进入枚举，不再剔除
+        assert {"blue_algae_density", "spatial_extent"} <= set(out["target_metric"])
+        assert summary["rows_excluded_open_enum"] == 0
         statuses = set(out["label_status"])
-        assert "simulation_positive" in statuses  # 枚举外 label_status 原样保留（登记开放问题）
-
-    def test_excludes_t7_when_strict(self):
-        out, _ = to_member_c(_sample_frame(), track="SIM-V1", include_open_enum=False)
-        assert "blue_algae_density" not in set(out["target_metric"])
-        assert (out["target_metric"].isin({"bloom_label", "bloom_area", "blue_algae_biomass", "chlorophyll_a", "risk_level"})).all()
+        assert "simulation_positive" in statuses  # label_status 枚举外延原样保留（待契约评审）
+        assert summary["open_enum_note"]  # V04 依赖该说明字段存在
 
     def test_unit_mapping(self):
         out, _ = to_member_c(_sample_frame(), track="SIM-V1")
         chla_rows = out[out["target_metric"] == "chlorophyll_a"]
         assert (chla_rows["target_unit"] == "ug/L").all() if not chla_rows.empty else True
+        t7_rows = out[out["target_metric"] == "spatial_extent"]
+        assert (t7_rows["target_unit"] == "0/1").all() if not t7_rows.empty else True
 
 
 class TestSampleContract:

@@ -199,7 +199,8 @@ def run_acceptance(
         ratio_col = pd.to_numeric(samples.get("feature_observed_ratio"), errors="coerce").dropna()
         ratio_desc = f"mean={ratio_col.mean():.3f}, min={ratio_col.min():.3f}, max={ratio_col.max():.3f}" if len(ratio_col) else "n/a"
         all_keys = set().union(*[set(d) for d in parsed]) if len(parsed) else set()
-        latent_leak = sorted(all_keys & {"water_level", "total_nitrogen", "total_phosphorus", "cyanobacteria_density", "blue_algae_biomass", "relative_humidity", "bloom_area_km2"})
+        # TP/TN 已升级为站点仿真观测层特征（含测量误差/发布延迟），不再视为 latent 泄漏
+        latent_leak = sorted(all_keys & {"water_level", "cyanobacteria_density", "blue_algae_biomass", "relative_humidity", "bloom_area_km2"})
         ok = missing_ratio == 0.0 and not latent_leak
         results.append(_rule("A14", "feature_completeness", ok, f"weather_core_missing_ratio={missing_ratio:.4f} (sample of {len(parsed)}); feature_observed_ratio {ratio_desc}; latent_feature_keys={latent_leak or 'none'}"))
 

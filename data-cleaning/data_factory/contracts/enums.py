@@ -26,8 +26,17 @@ TASK_UNITS: dict[str, str] = {
     "T7": "0/1",
 }
 
-# 成员 C 训练 schema 的 target_metric 枚举 (required_training_schema_V0.1.csv)
-MEMBER_C_METRICS = {"chlorophyll_a", "bloom_area", "blue_algae_biomass", "bloom_label", "risk_level"}
+# 成员 C 训练 schema 的 target_metric 枚举 (required_training_schema_V0.1.csv；
+# 2026-09-05 接口收尾：T3 blue_algae_density / T7 spatial_extent 经契约评审正式接收)
+MEMBER_C_METRICS = {
+    "chlorophyll_a",
+    "bloom_area",
+    "blue_algae_biomass",
+    "bloom_label",
+    "risk_level",
+    "blue_algae_density",
+    "spatial_extent",
+}
 
 LAKE_ZONE_CODES: dict[str, str] = {
     "TAIHU_ML": "梅梁湾",

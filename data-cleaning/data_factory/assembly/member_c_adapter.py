@@ -1,8 +1,9 @@
 """成员 C 训练契约适配器 (设计 §12 / required_training_schema_V0.1.csv).
 
-列对齐 required 11 列 + recommended 特征列；不修改成员 C 契约文件本身。
-枚举外延（simulation_* 标签状态、blue_algae_density、simulated 来源）原样保留
-并登记为开放问题，不伪造成 observed_*。
+列对齐 required 11 列 + recommended 特征列。
+2026-09-05 接口收尾：T3(blue_algae_density)/T7(spatial_extent) 经契约评审正式进入
+target_metric 枚举；label_status=simulation_* 与 source_type=simulated 仍为枚举外延，
+原样保留并登记为开放问题，不伪造成 observed_*。
 """
 
 from __future__ import annotations
@@ -15,15 +16,15 @@ import pandas as pd
 
 from data_factory.contracts.enums import MEMBER_C_METRICS
 
-# 训练样本 target_metric(task_id) → 成员 C target_metric 枚举
+# 训练样本 target_metric(task_id) → 成员 C target_metric 枚举（T1–T7 全部正式接收）
 TASK_TO_MEMBER_C = {
     "T1": "bloom_label",
     "T2": "bloom_area",
+    "T3": "blue_algae_density",
     "T4": "blue_algae_biomass",
     "T5": "chlorophyll_a",
     "T6": "risk_level",
-    "T3": "blue_algae_density",  # 枚举外延（开放问题）
-    "T7": "spatial_extent",      # 成员 C 契约外；默认剔除
+    "T7": "spatial_extent",
 }
 
 FEATURE_COLUMNS = {
@@ -53,15 +54,16 @@ VALUE_UNIT_BY_METRIC = {
     "chlorophyll_a": "ug/L",
     "risk_level": "level",
     "blue_algae_density": "10^4 cells/L",
+    "spatial_extent": "0/1",
 }
 
 
-def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1", include_open_enum: bool = True) -> tuple[pd.DataFrame, dict[str, Any]]:
+def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1") -> tuple[pd.DataFrame, dict[str, Any]]:
     """model_training_samples → 成员 C 训练表。返回 (frame, 摘要)。"""
 
     frame = samples.copy()
     frame["member_c_metric"] = frame["target_metric"].map(TASK_TO_MEMBER_C)
-    supported = frame["member_c_metric"].isin(MEMBER_C_METRICS) if not include_open_enum else frame["member_c_metric"].isin(set(MEMBER_C_METRICS) | {"blue_algae_density"})
+    supported = frame["member_c_metric"].isin(MEMBER_C_METRICS)
     excluded = int((~supported).sum())
     frame = frame[supported]
 
@@ -97,11 +99,11 @@ def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1", include_open_en
     summary = {
         "rows": int(len(out)),
         "rows_excluded_open_enum": excluded,
-        "open_enum_note": "blue_algae_density 与 label_status=simulation_* 不在成员 C V0.1 枚举内，原样保留待契约评审",
+        "open_enum_note": "label_status=simulation_* 与 source_type=simulated 不在成员 C V0.1 枚举内，原样保留待契约评审；T3/T7 已于 2026-09-05 正式接收",
         "metrics": {k: int(v) for k, v in out.groupby("target_metric").size().items()} if not out.empty else {},
         "label_statuses": {k: int(v) for k, v in out.groupby("label_status").size().items()} if not out.empty else {},
         "feature_missing_rates": feature_missing_rates,
-        "feature_note": "DG-004 观测层特征装配：气象=真实逐日观测；water_temperature/chlorophyll_a/bloom_fraction 来自站点/卫星观测，缺过境/采样日为空值；latent 变量（水位/营养盐/生物量）不再作为特征输出",
+        "feature_note": "DG-004 观测层特征装配：气象=真实逐日观测；water_temperature/total_phosphorus/total_nitrogen 来自站点观测（TP/TN 为仿真观测层，含测量误差与发布延迟）；chlorophyll_a/bloom_fraction 来自卫星观测，缺过境/采样日为空值；latent 变量（水位/生物量/密度）不作为特征输出",
     }
     return out[column_order], summary
 

@@ -14,12 +14,15 @@ METRIC_META = {
     "bloom_area": {"name": "水华面积", "unit": "km2", "base": 2.0, "spread": 4.5},
     "blue_algae_biomass": {"name": "蓝藻生物量", "unit": "mg/L", "base": 0.8, "spread": 1.2},
     "risk_level": {"name": "风险等级", "unit": "level", "base": 0.0, "spread": 1.0},
+    "blue_algae_density": {"name": "蓝藻密度", "unit": "10^4 cells/L", "base": 30.0, "spread": 270.0},
+    "spatial_extent": {"name": "空间范围", "unit": "0/1"},
 }
 
+# 与数据工厂 HORIZONS=(1,3,7,15,30) 统一（2026-09-05 接口收尾决议）
 SCALE_DAYS = {
-    "short_term": [1, 2, 3],
-    "mid_term": [7, 10, 15],
-    "long_term": [30, 60, 90],
+    "short_term": [1, 3],
+    "mid_term": [7, 15],
+    "long_term": [30],
 }
 
 
@@ -37,7 +40,7 @@ def build_demo_rows():
     rows = []
     for scale, horizons in SCALE_DAYS.items():
         for horizon in horizons:
-            for metric_code in ("chlorophyll_a", "bloom_area"):
+            for metric_code in ("chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent"):
                 temp = 24.0 + min(horizon, 15) * 0.25
                 wind = max(0.6, 2.8 - horizon * 0.04)
                 sample = {
@@ -59,37 +62,47 @@ def build_demo_rows():
 
 
 def _metric_value(metric_code, probability):
-    meta = METRIC_META[metric_code]
     if metric_code == "risk_level":
         return _risk_level(probability)
+    if metric_code == "spatial_extent":
+        return round(probability, 4)
+    meta = METRIC_META[metric_code]
     return round(meta["base"] + meta["spread"] * probability, 3)
 
 
-def _train_demo_models(rows):
+def _train_models(rows):
     mean_model = MeanRegressor().fit(rows, "target")
     rule_model = WeightedRuleRegressor().fit(rows, "target")
     return mean_model, rule_model
 
 
-def predict(station_id, forecast_scale, target_metrics):
+def predict(station_id, forecast_scale, target_metrics, rows=None):
+    """rows=None 走内置演示样本；传入数据工厂训练行时全链路用真实数据训练与预测。"""
     if forecast_scale not in SCALE_DAYS:
         raise ValueError(f"unsupported forecast_scale: {forecast_scale}")
     unsupported = [metric for metric in target_metrics if metric not in METRIC_META]
     if unsupported:
         raise ValueError(f"unsupported target_metrics: {unsupported}")
 
-    rows = build_demo_rows()
-    mean_model, rule_model = _train_demo_models(rows)
+    demo = rows is None
+    if demo:
+        rows = build_demo_rows()
+    mean_model, rule_model = _train_models(rows)
     base_date = date(2026, 8, 20)
     selected_rows = [
         row for row in rows if row["station_id"] == station_id and row["forecast_scale"] == forecast_scale
     ]
     if not selected_rows:
-        selected_rows = [
-            dict(row, station_id=station_id)
-            for row in rows
-            if row["forecast_scale"] == forecast_scale
-        ]
+        if demo:
+            selected_rows = [
+                dict(row, station_id=station_id)
+                for row in rows
+                if row["forecast_scale"] == forecast_scale
+            ]
+        else:
+            raise ValueError(
+                f"no training rows for station_id={station_id}, forecast_scale={forecast_scale}"
+            )
 
     results = []
     probabilities = []
@@ -120,12 +133,21 @@ def predict(station_id, forecast_scale, target_metrics):
                     [max(0.0, probability - 0.08), probability, min(1.0, probability + 0.08)],
                     confidence=0.8,
                 )
-                metric["lower_bound"] = round(meta["base"] + meta["spread"] * interval["lower"], 3)
-                metric["upper_bound"] = round(meta["base"] + meta["spread"] * interval["upper"], 3)
+                if metric_code == "spatial_extent":
+                    metric["lower_bound"] = round(max(0.0, interval["lower"]), 4)
+                    metric["upper_bound"] = round(min(1.0, interval["upper"]), 4)
+                else:
+                    metric["lower_bound"] = round(meta["base"] + meta["spread"] * interval["lower"], 3)
+                    metric["upper_bound"] = round(meta["base"] + meta["spread"] * interval["upper"], 3)
             metrics.append(metric)
+        issue_date = row.get("issue_date")
+        if issue_date:
+            result_date = (date.fromisoformat(str(issue_date)[:10]) + timedelta(days=horizon)).isoformat()
+        else:
+            result_date = (base_date + timedelta(days=horizon)).isoformat()
         results.append(
             {
-                "date": (base_date + timedelta(days=horizon)).isoformat(),
+                "date": result_date,
                 "horizon_days": horizon,
                 "metrics": metrics,
                 "risk_probability": round(probability, 4),
@@ -153,7 +175,7 @@ def predict(station_id, forecast_scale, target_metrics):
     return {
         "station_id": station_id,
         "forecast_scale": forecast_scale,
-        "claim_boundary": "sample_interface_only",
+        "claim_boundary": "sample_interface_only" if demo else "simulation_training_data_only",
         "effect_claim_allowed": False,
         "model_family": "mechanism_ai_fusion_framework_v0.1",
         "results": results,
@@ -161,8 +183,15 @@ def predict(station_id, forecast_scale, target_metrics):
             "global_feature_importance": importance,
             "uncertainty": uncertainty_interval(probabilities, confidence=0.8),
         },
-        "notes": [
-            "Current output uses sample rows to verify member C interfaces.",
-            "Replace build_demo_rows with aligned real labels and features before training claims.",
-        ],
+        "notes": (
+            [
+                "Current output uses sample rows to verify member C interfaces.",
+                "Replace build_demo_rows with aligned real labels and features before training claims.",
+            ]
+            if demo
+            else [
+                "Trained and predicted on caller-supplied rows (data factory member_c_training_samples).",
+                "SIM-V1 synthetic data: effect claims remain disallowed; spatial_extent is grid-level (not geometry).",
+            ]
+        ),
     }

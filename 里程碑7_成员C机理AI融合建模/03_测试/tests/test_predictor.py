@@ -43,7 +43,7 @@ class PredictorContractTest(unittest.TestCase):
 
         horizons = [item["horizon_days"] for item in result["results"]]
 
-        self.assertEqual([1, 2, 3], horizons)
+        self.assertEqual([1, 3], horizons)
         self.assertEqual(len(horizons), len(set(horizons)))
 
 

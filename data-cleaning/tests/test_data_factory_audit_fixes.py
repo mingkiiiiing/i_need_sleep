@@ -18,6 +18,7 @@ from data_factory.assembly.horizons import (
     FEATURE_LAGS,
     FEATURE_ROLLS,
     CORE_FEATURES,
+    STATION_FEATURES,
     WEATHER_FEATURES,
     _augment_frame,
     _operational_features,
@@ -152,9 +153,9 @@ class TestDG004ObservationFeatures:
         satellite.to_parquet(obs / "satellite_observations.parquet", index=False)
         station = pd.DataFrame(
             {
-                "variable_code": ["water_temperature"] * 2,
-                "value": [12.5, 13.5],
-                "available_time": pd.to_datetime(["2024-01-03 02:00", "2024-01-03 04:00"]),
+                "variable_code": ["water_temperature", "water_temperature", "total_phosphorus", "total_nitrogen"],
+                "value": [12.5, 13.5, 0.08, 2.1],
+                "available_time": pd.to_datetime(["2024-01-03 02:00", "2024-01-03 04:00", "2024-01-03 03:00", "2024-01-03 03:00"]),
             }
         )
         station.to_parquet(obs / "station_observations.parquet", index=False)
@@ -175,6 +176,14 @@ class TestDG004ObservationFeatures:
         # 站点水温按 available 日聚合
         assert frame.loc[pd.Timestamp("2024-01-03"), "water_temperature"] == pytest.approx(13.0)
         assert pd.isna(frame.loc[pd.Timestamp("2024-01-04"), "water_temperature"])
+        # TP/TN 站点仿真观测同样按 available 日聚合（接口收尾：算法机理输入）
+        assert frame.loc[pd.Timestamp("2024-01-03"), "total_phosphorus"] == pytest.approx(0.08)
+        assert frame.loc[pd.Timestamp("2024-01-03"), "total_nitrogen"] == pytest.approx(2.1)
+        assert pd.isna(frame.loc[pd.Timestamp("2024-01-04"), "total_phosphorus"])
+
+    def test_station_features_in_core_and_latent_excluded(self):
+        assert set(STATION_FEATURES).issubset(CORE_FEATURES)
+        assert not {"water_level", "blue_algae_biomass", "cyanobacteria_density"} & set(CORE_FEATURES)
 
     def test_satellite_grid_pivots_preserve_nan_and_threshold(self):
         satellite = pd.DataFrame(
@@ -241,8 +250,8 @@ class TestDG004ObservationFeatures:
         assert row["feature_observed_ratio"] == pytest.approx(round(len(features) / n_expected, 4))
         assert row["feature_observed_ratio"] < 1.0  # WQ 观测特征缺测如实反映
         assert row["domain_coverage_fraction"] == 1.0
-        # DG-004：latent 键不得进入特征
-        assert not (set(features) & {"water_level", "total_nitrogen", "total_phosphorus", "blue_algae_biomass", "cyanobacteria_density", "relative_humidity"})
+        # DG-004：未观测的 latent 键不得进入特征（TP/TN 已升级观测层，不在此列）
+        assert not (set(features) & {"water_level", "blue_algae_biomass", "cyanobacteria_density", "relative_humidity"})
 
     def test_weather_core_in_core_features(self):
         assert set(WEATHER_FEATURES).issubset(CORE_FEATURES)

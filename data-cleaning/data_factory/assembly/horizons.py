@@ -24,7 +24,8 @@ from data_factory.lineage.hashing import compute_sample_id, content_hash, row_ha
 FEATURE_LAGS = (1, 3, 7, 14, 30)
 FEATURE_ROLLS = (3, 7, 14, 30)
 WEATHER_FEATURES = ("air_temperature", "wind_speed", "precipitation", "shortwave_radiation")
-CORE_FEATURES = WEATHER_FEATURES + ("water_temperature", "chlorophyll_a", "bloom_fraction")
+STATION_FEATURES = ("water_temperature", "total_phosphorus", "total_nitrogen")
+CORE_FEATURES = WEATHER_FEATURES + STATION_FEATURES + ("chlorophyll_a", "bloom_fraction")
 SATELLITE_CHLA_BLOOM_UG_L = 30.0  # 与 label_thresholds.chla.warning 一致
 WEATHER_AVAILABILITY_LAG_DAYS = 1  # 真实日值气象次日出账
 
@@ -33,7 +34,8 @@ def _operational_features(base_dir: Path, dates: pd.DatetimeIndex) -> pd.DataFra
     """观测层特征源（DG-004）：按可阅日索引，latent 层不进入特征。
 
     - 气象 4 变量：history/weather_observed_daily.parquet（真实观测 2024 全年；日值次日出账）
-    - water_temperature：observations/station_observations.parquet（站点采样日历，稀疏，无观测日 NaN）
+    - STATION_FEATURES：observations/station_observations.parquet（站点采样日历，稀疏，无观测日 NaN；
+      TP/TN 为仿真观测层，含测量误差与发布延迟，非 latent 真值）
     - chlorophyll_a / bloom_fraction：observations/satellite_observations.parquet（过境日 + publish delay，缺测 NaN）
     """
     weather = pd.read_parquet(base_dir / "history" / "weather_observed_daily.parquet")
@@ -45,13 +47,15 @@ def _operational_features(base_dir: Path, dates: pd.DatetimeIndex) -> pd.DataFra
     # 不在当前索引上的日期（观测可阅日 ≠ 气象日历日）。
     obs_dir = base_dir / "observations"
     station_path = obs_dir / "station_observations.parquet"
-    station_series: pd.Series | None = None
+    station_series: dict[str, pd.Series] = {}
     if station_path.exists():
         station = pd.read_parquet(station_path, columns=["variable_code", "value", "available_time"])
-        station = station[(station["variable_code"] == "water_temperature") & station["value"].notna()]
-        if not station.empty:
-            avail = pd.to_datetime(station["available_time"]).dt.normalize()
-            station_series = station.groupby(avail)["value"].mean()
+        station = station[station["variable_code"].isin(STATION_FEATURES) & station["value"].notna()]
+        for variable in STATION_FEATURES:
+            rows = station[station["variable_code"] == variable]
+            if not rows.empty:
+                avail = pd.to_datetime(rows["available_time"]).dt.normalize()
+                station_series[variable] = rows.groupby(avail)["value"].mean()
 
     sat_path = obs_dir / "satellite_observations.parquet"
     sat_chla: pd.Series | None = None
@@ -65,12 +69,13 @@ def _operational_features(base_dir: Path, dates: pd.DatetimeIndex) -> pd.DataFra
             sat_frac = sat.assign(_pos=(sat["value"] >= SATELLITE_CHLA_BLOOM_UG_L)).groupby(avail)["_pos"].mean()
 
     union = set(frame.index) | set(pd.DatetimeIndex(dates))
-    for series in (station_series, sat_chla, sat_frac):
+    extras = [*station_series.values(), sat_chla, sat_frac]
+    for series in extras:
         if series is not None:
             union |= set(series.index)
     frame = frame.reindex(sorted(union))
-    if station_series is not None:
-        frame["water_temperature"] = station_series
+    for variable, series in station_series.items():
+        frame[variable] = series
     if sat_chla is not None:
         frame["chlorophyll_a"] = sat_chla
         frame["bloom_fraction"] = sat_frac
@@ -261,7 +266,7 @@ def _dynamic_features_grid(frame: pd.DataFrame, chla_pivot: pd.DataFrame | None,
 
     气象/水温为区域观测按可用日广播；chla/bloom_fraction 取该格卫星反演（缺过境 NaN）。
     """
-    feature_cols = [c for c in (*WEATHER_FEATURES, "water_temperature") if c in frame.columns]
+    feature_cols = [c for c in (*WEATHER_FEATURES, *STATION_FEATURES) if c in frame.columns]
     base = frame.reindex(columns=feature_cols)
     index = pd.MultiIndex.from_product([grid_ids, base.index], names=["grid_id", "date"])
     out = pd.DataFrame(np.tile(base.to_numpy(dtype=float), (len(grid_ids), 1)), columns=feature_cols, index=index)
@@ -424,9 +429,9 @@ def run_assembly(
         "grid_issue_stride_days": int(assembly_cfg.get("grid_issue_stride_days", 7)),
         "feature_sources": {
             "weather": "history/weather_observed_daily.parquet (d+1 出账)",
-            "water_temperature": "observations/station_observations.parquet",
+            "station": "observations/station_observations.parquet (water_temperature/total_phosphorus/total_nitrogen，TP/TN 为仿真观测层)",
             "chlorophyll_a/bloom_fraction": "observations/satellite_observations.parquet",
-            "latent_excluded": True,
+            "latent_excluded": "water_level/biomass/density 等未观测变量不进特征",
         },
         "feature_observed_ratio": {"mean": round(float(ratio.mean()), 4), "min": round(float(ratio.min()), 4), "max": round(float(ratio.max()), 4)} if not samples.empty else {},
         "gating": "SIM-V1 全样本 is_synthetic=true 并逐行携带 track；HYBRID/REAL 轨验证/测试仅收 ground_truth (STAGED)",

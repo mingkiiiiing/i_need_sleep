@@ -18,7 +18,11 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
-    result = predict("TH_CENTER", "short_term", ["chlorophyll_a", "bloom_area", "risk_level"])
+    result = predict(
+        "TH_CENTER",
+        "short_term",
+        ["chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent", "risk_level"],
+    )
     with (OUT_DIR / "prediction_contract_sample_V0.1.json").open("w", encoding="utf-8") as handle:
         json.dump(result, handle, ensure_ascii=False, indent=2)
 
@@ -28,6 +32,10 @@ def main():
         "sample_rows": len(rows),
         "claim_boundary": result["claim_boundary"],
         "effect_claim_allowed": result["effect_claim_allowed"],
+        "real_data_entry": (
+            "blue_algae_m7.training_data.train_and_predict("
+            "member_c_training_samples.csv, station_id, forecast_scale, target_metrics)"
+        ),
         "next_real_data_requirements": [
             "aligned daily label table with positive and credible negative samples",
             "same-period dynamic weather, water quality, hydrology, or remote sensing features",
