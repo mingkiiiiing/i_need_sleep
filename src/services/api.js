@@ -81,6 +81,31 @@ export function getEventsEnvelope() {
   return requestEnvelope('/events')
 }
 
+// ---------- P07 风险地图与时空推演（map / capabilities / 模拟预警处理） ----------
+
+export function getMapLayersEnvelope() {
+  return requestEnvelope('/map/layers')
+}
+
+export function getRiskGridEnvelope(horizonDays) {
+  return requestEnvelope(`/map/risk-grid?horizon_days=${encodeURIComponent(horizonDays)}`)
+}
+
+export function getRiskPolygonsEnvelope(horizonDays) {
+  return requestEnvelope(`/map/risk-polygons?horizon_days=${encodeURIComponent(horizonDays)}`)
+}
+
+export function getForecastCapabilitiesEnvelope() {
+  return requestEnvelope('/forecast-capabilities')
+}
+
+export function postHandleWarningEnvelope(eventId) {
+  return requestEnvelope('/cockpit/handle-warning', {
+    method: 'POST',
+    body: JSON.stringify({ event_id: eventId })
+  })
+}
+
 async function useConfiguredSource(apiCall, mockCall) {
   if (USE_MOCK) return mockCall()
   return apiCall()
