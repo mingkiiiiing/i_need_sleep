@@ -1,10 +1,12 @@
 """时效展开与特征装配 `assemble` (设计 §6.14/§9 T+1/3/7/15/30).
 
 task_labels（目标日真值）→ 训练样本：issue_date = target_date − h；
-特征全部来自观测层（DG-004）：真实逐日气象 + 站点采样 + 卫星过境反演，
-且只取 available_time ≤ issue_date 的记录；latent 层（水位/营养盐/生物量等）一律不进入特征。
-样本 frame 按"可阅日"（available_time 日）索引，issue_date 当天查询即天然满足可见性约束。
-sample_id = sha256(spatial_id|issue_time|target_date|task_id|horizon|dataset_version)。
+气象特征来自 run 驱动表（df-0.3.0 统一气象驱动，与标签同源）：zone/lake 用
+latent/weather_daily（驱动湖区均值），grid 样本用 latent/weather_driver 逐格值；
+station/卫星为观测层且只取 available_time ≤ issue_date 的记录；latent 层
+（水位/营养盐/生物量等）一律不进入特征。
+issue_date 早于驱动窗 + max(lag) 的样本无法构成同源滞后窗口，整行拒绝（设计装配要求）。
+sample_id = sha256(spatial_id|issue_time|target_date|task_id|horizon|dataset_version|scenario_id|random_seed|driver_hash)。
 """
 
 from __future__ import annotations
@@ -20,34 +22,34 @@ from data_factory import GENERATOR_VERSION
 from data_factory.contracts.constants import utc_now_iso
 from data_factory.contracts.enums import HORIZONS, TASK_UNITS, Track
 from data_factory.lineage.hashing import compute_sample_id, content_hash, row_hash
+from data_factory.simulation.driver import AVAILABILITY_LAG_DAYS
 
 FEATURE_LAGS = (1, 3, 7, 14, 30)
 FEATURE_ROLLS = (3, 7, 14, 30)
 WEATHER_FEATURES = ("air_temperature", "wind_speed", "precipitation", "shortwave_radiation")
 STATION_FEATURES = ("water_temperature", "total_phosphorus", "total_nitrogen")
 CORE_FEATURES = WEATHER_FEATURES + STATION_FEATURES + ("chlorophyll_a", "bloom_fraction")
+AUX_FEATURES = tuple(c for c in CORE_FEATURES if c not in WEATHER_FEATURES)
 SATELLITE_CHLA_BLOOM_UG_L = 30.0  # 与 label_thresholds.chla.warning 一致
-WEATHER_AVAILABILITY_LAG_DAYS = 1  # 真实日值气象次日出账
+WEATHER_AVAILABILITY_LAG_DAYS = AVAILABILITY_LAG_DAYS  # 日值气象次日出账（与驱动表一致）
 
 
-def _operational_features(base_dir: Path, dates: pd.DatetimeIndex) -> pd.DataFrame:
-    """观测层特征源（DG-004）：按可阅日索引，latent 层不进入特征。
-
-    - 气象 4 变量：history/weather_observed_daily.parquet（真实观测 2024 全年；日值次日出账）
-    - STATION_FEATURES：observations/station_observations.parquet（站点采样日历，稀疏，无观测日 NaN；
-      TP/TN 为仿真观测层，含测量误差与发布延迟，非 latent 真值）
-    - chlorophyll_a / bloom_fraction：observations/satellite_observations.parquet（过境日 + publish delay，缺测 NaN）
-    """
-    weather = pd.read_parquet(base_dir / "history" / "weather_observed_daily.parquet")
+def _run_weather_frame(sim_dir: Path, zone_code: str) -> pd.DataFrame:
+    """run 驱动的 zone 均值气象帧（索引=可阅日=气象日+1，与标签同源）。"""
+    path = sim_dir / "latent" / f"weather_daily_{zone_code}.parquet"
+    if not path.exists():
+        raise SystemExit(f"run weather table missing: {path} (先 python -m data_factory simulate)")
+    weather = pd.read_parquet(path)
     weather["date"] = pd.to_datetime(weather["date"]) + pd.Timedelta(days=WEATHER_AVAILABILITY_LAG_DAYS)
     frame = weather.set_index("date")[list(WEATHER_FEATURES)].sort_index()
-    frame = frame[~frame.index.duplicated(keep="last")]
+    return frame[~frame.index.duplicated(keep="last")]
 
-    # 先收集全部可阅日并扩索引，再赋值列——直接 frame[col]=series 会静默丢弃
-    # 不在当前索引上的日期（观测可阅日 ≠ 气象日历日）。
+
+def _observation_series(base_dir: Path) -> dict[str, pd.Series]:
+    """观测层特征序列（available_time 聚合）：station 水温/TP/TN + 卫星 chla/bloom。"""
     obs_dir = base_dir / "observations"
+    series: dict[str, pd.Series] = {}
     station_path = obs_dir / "station_observations.parquet"
-    station_series: dict[str, pd.Series] = {}
     if station_path.exists():
         station = pd.read_parquet(station_path, columns=["variable_code", "value", "available_time"])
         station = station[station["variable_code"].isin(STATION_FEATURES) & station["value"].notna()]
@@ -55,34 +57,76 @@ def _operational_features(base_dir: Path, dates: pd.DatetimeIndex) -> pd.DataFra
             rows = station[station["variable_code"] == variable]
             if not rows.empty:
                 avail = pd.to_datetime(rows["available_time"]).dt.normalize()
-                station_series[variable] = rows.groupby(avail)["value"].mean()
+                series[variable] = rows.groupby(avail)["value"].mean()
 
     sat_path = obs_dir / "satellite_observations.parquet"
-    sat_chla: pd.Series | None = None
-    sat_frac: pd.Series | None = None
     if sat_path.exists():
         sat = pd.read_parquet(sat_path, columns=["variable_code", "value", "available_time"])
         sat = sat[(sat["variable_code"] == "chla_retrieval") & sat["value"].notna()]
         if not sat.empty:
             avail = pd.to_datetime(sat["available_time"]).dt.normalize()
-            sat_chla = sat.groupby(avail)["value"].mean()
-            sat_frac = sat.assign(_pos=(sat["value"] >= SATELLITE_CHLA_BLOOM_UG_L)).groupby(avail)["_pos"].mean()
+            series["chlorophyll_a"] = sat.groupby(avail)["value"].mean()
+            series["bloom_fraction"] = sat.assign(_pos=(sat["value"] >= SATELLITE_CHLA_BLOOM_UG_L)).groupby(avail)["_pos"].mean()
+    return series
 
-    union = set(frame.index) | set(pd.DatetimeIndex(dates))
-    extras = [*station_series.values(), sat_chla, sat_frac]
-    for series in extras:
-        if series is not None:
-            union |= set(series.index)
-    frame = frame.reindex(sorted(union))
-    for variable, series in station_series.items():
-        frame[variable] = series
-    if sat_chla is not None:
-        frame["chlorophyll_a"] = sat_chla
-        frame["bloom_fraction"] = sat_frac
 
-    frame = frame.sort_index()
-    frame.index.name = "date"
-    return frame.astype(float)
+def _feature_source_frames(
+    sim_dir: Path, base_dir: Path, zone_codes: list[str], dates: pd.DatetimeIndex
+) -> tuple[dict[str, pd.DataFrame], pd.Timestamp]:
+    """zone/lake 特征源帧（气象=run 驱动同源 + 观测层 station/sat），共享同一 union 索引。
+
+    lake 帧气象取各 zone 驱动均值的再平均；观测层序列无 zone 分辨率，按日对齐。
+    第二返回值为驱动气象可阅起点（min_issue_date 判定用）。
+    """
+    weather_frames = {zone: _run_weather_frame(sim_dir, zone) for zone in zone_codes}
+    weather_start = min(frame.index.min() for frame in weather_frames.values())
+    obs = _observation_series(base_dir)
+    union = set(pd.DatetimeIndex(dates))
+    for frame in weather_frames.values():
+        union |= set(frame.index)
+    for series in obs.values():
+        union |= set(series.index)
+    index = pd.DatetimeIndex(sorted(union))
+    frames: dict[str, pd.DataFrame] = {}
+    for zone, weather in weather_frames.items():
+        frame = weather.reindex(index).astype(float)
+        for name, series in obs.items():
+            frame[name] = series.reindex(index)
+        frames[zone] = frame
+    weather_cols = list(WEATHER_FEATURES)
+    stacked = pd.concat([frames[zone][weather_cols] for zone in weather_frames], keys=list(weather_frames))
+    lake = stacked.groupby(level=1).mean().reindex(index)
+    for name, series in obs.items():
+        lake[name] = series.reindex(index)
+    frames["TAIHU_WHOLE"] = lake
+    return frames, weather_start
+
+
+def _grid_weather_long(sim_dir: Path, zone_codes: list[str]) -> pd.DataFrame:
+    """逐格气象长表 (grid_id × 可阅日)，来自 run 驱动表（与标签同源）。"""
+    frames = []
+    for zone in zone_codes:
+        path = sim_dir / "latent" / f"weather_driver_{zone}.parquet"
+        if not path.exists():
+            raise SystemExit(f"run driver table missing: {path} (先 python -m data_factory simulate)")
+        frames.append(pd.read_parquet(path, columns=["date", "grid_id", *WEATHER_FEATURES]))
+    long_frame = pd.concat(frames, ignore_index=True)
+    long_frame["date"] = pd.to_datetime(long_frame["date"]) + pd.Timedelta(days=WEATHER_AVAILABILITY_LAG_DAYS)
+    return long_frame.sort_values(["grid_id", "date"]).reset_index(drop=True)
+
+
+def _augment_grid_weather(long_frame: pd.DataFrame) -> pd.DataFrame:
+    """逐格气象 lag/roll 特征（组内按日序滚动，跨格不泄漏），列名与 zone 特征一致。"""
+    out = long_frame.copy()
+    for variable in WEATHER_FEATURES:
+        if variable not in out.columns:
+            continue
+        grouped = out.groupby("grid_id", sort=False)[variable]
+        for lag in FEATURE_LAGS:
+            out[f"{variable}_lag{lag}"] = grouped.shift(lag)
+        for window in FEATURE_ROLLS:
+            out[f"{variable}_roll{window}"] = grouped.rolling(window, min_periods=1).mean().reset_index(level=0, drop=True)
+    return out.set_index(["grid_id", "date"])
 
 
 def _satellite_grid_pivots(satellite: pd.DataFrame) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
@@ -117,11 +161,12 @@ def _augment_frame(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _zone_features_at(augmented: pd.DataFrame, date: pd.Timestamp) -> dict[str, float]:
-    """augmented 需已经过 _augment_frame，且 date 在索引内。"""
+def _zone_features_at(augmented: pd.DataFrame, date: pd.Timestamp, columns: tuple[str, ...] = CORE_FEATURES) -> dict[str, float]:
+    """augmented 需已经过 _augment_frame，且 date 在索引内。columns 限定变量集合
+    （grid 样本传 AUX_FEATURES：气象由逐格驱动表单独提供）。"""
 
     features: dict[str, float] = {}
-    for column in CORE_FEATURES:
+    for column in columns:
         if column not in augmented.columns:
             continue
         value = augmented[column].get(date)
@@ -133,6 +178,35 @@ def _zone_features_at(augmented: pd.DataFrame, date: pd.Timestamp) -> dict[str, 
                 features[f"{column}_lag{lag}"] = round(float(lag_value), 6)
         for window in FEATURE_ROLLS:
             roll_value = augmented[f"{column}__roll{window}"].get(date)
+            if roll_value is not None and np.isfinite(roll_value):
+                features[f"{column}_roll{window}"] = round(float(roll_value), 6)
+    return features
+
+
+def _grid_weather_features(grid_augmented: pd.DataFrame | None, grid_id: str, date: pd.Timestamp) -> dict[str, float]:
+    """grid 样本逐格驱动气象特征（当期 + lag/roll，格内日序预计算）。缺格/缺日如实缺测。"""
+
+    features: dict[str, float] = {}
+    if grid_augmented is None or grid_augmented.empty:
+        return features
+    try:
+        row = grid_augmented.loc[(grid_id, date)]
+    except KeyError:
+        return features
+    if isinstance(row, pd.DataFrame):  # 同键重复行取首行
+        row = row.iloc[0]
+    for column in WEATHER_FEATURES:
+        if column not in grid_augmented.columns:
+            continue
+        value = row[column]
+        if value is not None and np.isfinite(value):
+            features[column] = round(float(value), 6)
+        for lag in FEATURE_LAGS:
+            lag_value = row[f"{column}_lag{lag}"]
+            if lag_value is not None and np.isfinite(lag_value):
+                features[f"{column}_lag{lag}"] = round(float(lag_value), 6)
+        for window in FEATURE_ROLLS:
+            roll_value = row[f"{column}_roll{window}"]
             if roll_value is not None and np.isfinite(roll_value):
                 features[f"{column}_roll{window}"] = round(float(roll_value), 6)
     return features
@@ -168,18 +242,52 @@ def expand_samples(
     config: dict[str, Any],
     *,
     labels: pd.DataFrame,
-    frame: pd.DataFrame,
+    frames: dict[str, pd.DataFrame],
+    grid_weather: pd.DataFrame | None,
     frac_pivot: pd.DataFrame | None,
     split_of_date: dict[Any, str],
     dataset: str,
+    identity: dict[str, Any],
+    grid_zone_of: dict[str, str] | None = None,
     horizons: tuple[int, ...] = HORIZONS,
     issue_stride: int = 1,
     grid_issue_stride: int = 7,
+    min_issue_date: pd.Timestamp | None = None,
 ) -> pd.DataFrame:
+    """labels → 训练样本（df-0.3.0 气象与标签同源）。
+
+    frames：zone/lake 特征源帧（键=spatial_id，含 TAIHU_WHOLE），需先经 _augment_frame；
+    grid 样本气象取逐格驱动表（grid_weather），其余观测层特征仍取其 zone 帧按日广播值。
+    identity：scenario_id/random_seed/driver_hash/driver_type 随行携带并进入 sample_id，
+    多情景/多种子合并时主键不冲突（A03 前置）。issue_date < min_issue_date（驱动可阅
+    起点 + max(lag)）的样本无法构成同源滞后窗口，整行拒绝。
+    """
     samples = []
-    zone_cache: dict[pd.Timestamp, tuple[dict[str, float], str]] = {}
+    default_key = next(iter(frames)) if frames else ""
+    zone_cache: dict[tuple[str, pd.Timestamp], tuple[dict[str, float], str]] = {}
+    weather_cache: dict[tuple[str, pd.Timestamp], dict[str, float]] = {}
     n_zone_slots = len(CORE_FEATURES) * (1 + len(FEATURE_LAGS) + len(FEATURE_ROLLS))
-    n_grid_slots = 4  # grid_bloom_fraction + lag1/3/7
+    n_grid_slots = len(AUX_FEATURES) * (1 + len(FEATURE_LAGS) + len(FEATURE_ROLLS)) + len(WEATHER_FEATURES) * (1 + len(FEATURE_LAGS) + len(FEATURE_ROLLS)) + 4
+    scenario_id = str(identity.get("scenario_id", ""))
+    random_seed = int(identity.get("random_seed", 0))
+    driver_hash = str(identity.get("driver_hash", ""))
+    driver_type = str(identity.get("driver_type", ""))
+    if min_issue_date is not None:
+        anchor = pd.Timestamp(min_issue_date)
+    elif frames:
+        anchor = min(frame.index[0] for frame in frames.values())
+    else:
+        anchor = None
+
+    def frame_key_of(spatial_id: str, spatial_type: str) -> str:
+        if spatial_type == "grid":
+            zone_key = (grid_zone_of or {}).get(spatial_id)
+            if zone_key in frames:
+                return zone_key
+        if spatial_id in frames:
+            return spatial_id
+        return default_key
+
     for (task_id, spatial_id, spatial_type), group in labels.groupby(["task_id", "spatial_id", "spatial_type"]):
         stride = grid_issue_stride if spatial_type == "grid" else issue_stride
         group = group.copy()
@@ -198,37 +306,57 @@ def expand_samples(
             split = split_of_date.get(pd.Timestamp(target_date).normalize())
             if split in (None, "isolation"):
                 continue
+            spatial_id_str = str(spatial_id)
+            fkey = frame_key_of(spatial_id_str, spatial_type)
+            frame = frames[fkey]
             for horizon in horizons:
                 issue_date = pd.Timestamp(target_date) - pd.Timedelta(days=int(horizon))
-                if (issue_date - frame.index[0]).days < 0:
-                    continue
-                if spatial_type == "grid" and ((issue_date - frame.index[0]).days % max(stride, 1)) != 0:
-                    continue
-                cached = zone_cache.get(issue_date)
-                if cached is None:
-                    zone_feats = _zone_features_at(frame, issue_date)
-                    cached = (zone_feats, json.dumps(zone_feats, ensure_ascii=False, sort_keys=True))
-                    zone_cache[issue_date] = cached
+                if anchor is not None:
+                    offset = (issue_date - anchor).days
+                    if offset < 0:
+                        continue
+                    if spatial_type == "grid" and offset % max(stride, 1) != 0:
+                        continue
+                issue_time = issue_date.strftime("%Y-%m-%dT12:00:00+08:00")
                 if spatial_type == "grid":
+                    aux_key = ("aux", fkey, issue_date)  # 命名空间区分：grid 缓存 AUX 特征，zone 缓存全量特征
+                    cached = zone_cache.get(aux_key)
+                    if cached is None:
+                        aux_feats = _zone_features_at(frame, issue_date, columns=AUX_FEATURES)
+                        cached = (aux_feats, json.dumps(aux_feats, ensure_ascii=False, sort_keys=True))
+                        zone_cache[aux_key] = cached
+                    wkey = (spatial_id_str, issue_date)
+                    weather_feats = weather_cache.get(wkey)
+                    if weather_feats is None:
+                        weather_feats = _grid_weather_features(grid_weather, spatial_id_str, issue_date)
+                        weather_cache[wkey] = weather_feats
                     features = dict(cached[0])
-                    features.update(_grid_bloom_features(frac_pivot, str(spatial_id), issue_date))
+                    features.update(weather_feats)
+                    features.update(_grid_bloom_features(frac_pivot, spatial_id_str, issue_date))
                     features_json = json.dumps(features, ensure_ascii=False, sort_keys=True)
                 else:
-                    features = cached[0]
-                    features_json = cached[1]
-                issue_time = issue_date.strftime("%Y-%m-%dT12:00:00+08:00")
+                    zkey = ("zone", fkey, issue_date)
+                    cached = zone_cache.get(zkey)
+                    if cached is None:
+                        zone_feats = _zone_features_at(frame, issue_date)
+                        cached = (zone_feats, json.dumps(zone_feats, ensure_ascii=False, sort_keys=True))
+                        zone_cache[zkey] = cached
+                    features, features_json = cached
                 sample_id = compute_sample_id(
-                    spatial_id=str(spatial_id),
+                    spatial_id=spatial_id_str,
                     issue_time=issue_time,
                     target_date=pd.Timestamp(target_date).strftime("%Y-%m-%d"),
                     task_id=task_id,
                     horizon=int(horizon),
                     dataset_version=dataset,
+                    scenario_id=scenario_id,
+                    random_seed=random_seed,
+                    driver_hash=driver_hash,
                 )
                 samples.append(
                     {
                         "sample_id": sample_id,
-                        "spatial_id": str(spatial_id),
+                        "spatial_id": spatial_id_str,
                         "spatial_type": spatial_type,
                         "issue_date": issue_date,
                         "target_date": pd.Timestamp(target_date),
@@ -240,14 +368,23 @@ def expand_samples(
                         "label_source_type": truth["label_source_type"],
                         "quality_flag": truth["label_quality"],
                         "split": split,
-                        "feature_window_note": f"observation-layer features (weather d+1/station/satellite); lags{list(FEATURE_LAGS)}+rolls{list(FEATURE_ROLLS)} ending at issue_date; only available_time<=issue_date visible",
+                        "scenario_id": scenario_id,
+                        "random_seed": random_seed,
+                        "driver_type": driver_type,
+                        "driver_hash": driver_hash,
+                        "feature_window_note": (
+                            f"driver-sourced features (weather=run driver "
+                            f"{'per-grid' if spatial_type == 'grid' else 'zone-mean'}, d+1 出账/station/satellite); "
+                            f"lags{list(FEATURE_LAGS)}+rolls{list(FEATURE_ROLLS)} ending at issue_date; "
+                            "only available_time<=issue_date visible"
+                        ),
                         "dataset_version": dataset,
                         "source_type": truth["label_source_type"],
                         "is_ground_truth": bool(truth["is_ground_truth"]),
                         "is_synthetic": bool(truth["is_synthetic"]),
                         "domain_coverage_fraction": round(float(truth.get("domain_coverage_fraction", 1.0) or 1.0), 6),
                         "is_partial_domain": bool(truth.get("is_partial_domain", False)),
-                        "feature_observed_ratio": round(len(features) / max(n_zone_slots + (n_grid_slots if spatial_type == "grid" else 0), 1), 4),
+                        "feature_observed_ratio": round(len(features) / max(n_grid_slots if spatial_type == "grid" else n_zone_slots, 1), 4),
                         "features_json": json.dumps(features, ensure_ascii=False, sort_keys=True),
                         "_row_hash": row_hash({"sample_id": sample_id, "features": features, "label_value": truth["label_value"]}),
                         "_evidence": str(truth.get("evidence_record_ids", "") or ""),
@@ -261,15 +398,29 @@ def load_split_lookup(base_dir: Path) -> dict[Any, str]:
     return {row.date: row.split for row in manifest.itertuples(index=False)}
 
 
-def _dynamic_features_grid(frame: pd.DataFrame, chla_pivot: pd.DataFrame | None, frac_pivot: pd.DataFrame | None, grid_ids: list[str], dataset: str) -> pd.DataFrame:
+def _dynamic_features_grid(
+    station_frame: pd.DataFrame,
+    grid_augmented: pd.DataFrame,
+    chla_pivot: pd.DataFrame | None,
+    frac_pivot: pd.DataFrame | None,
+    grid_ids: list[str],
+    dataset: str,
+) -> pd.DataFrame:
     """DG-004 发布表：每 (grid × 可阅日) 的观测层特征。
 
-    气象/水温为区域观测按可用日广播；chla/bloom_fraction 取该格卫星反演（缺过境 NaN）。
+    气象为该格 run 驱动逐日值（与标签同源）；水温/营养盐为观测层按可用日广播；
+    chla/bloom_fraction 取该格卫星反演（缺过境 NaN）。
     """
-    feature_cols = [c for c in (*WEATHER_FEATURES, *STATION_FEATURES) if c in frame.columns]
-    base = frame.reindex(columns=feature_cols)
-    index = pd.MultiIndex.from_product([grid_ids, base.index], names=["grid_id", "date"])
-    out = pd.DataFrame(np.tile(base.to_numpy(dtype=float), (len(grid_ids), 1)), columns=feature_cols, index=index)
+    dates = grid_augmented.index.get_level_values("date").unique().sort_values()
+    index = pd.MultiIndex.from_product([grid_ids, dates], names=["grid_id", "date"])
+    weather_long = grid_augmented[list(WEATHER_FEATURES)].reindex(index)
+    out = weather_long.reset_index()
+    station_cols = [c for c in STATION_FEATURES if c in station_frame.columns]
+    if station_cols:
+        station = station_frame.reindex(columns=station_cols).reindex(dates)
+        tiled = pd.DataFrame(np.tile(station.to_numpy(dtype=float), (len(grid_ids), 1)), columns=station_cols, index=index)
+        for col in station_cols:
+            out[col] = tiled[col].to_numpy()
     if chla_pivot is not None and not chla_pivot.empty:
         chla_long = chla_pivot.stack()
         chla_long.index = chla_long.index.swaplevel()
@@ -282,7 +433,6 @@ def _dynamic_features_grid(frame: pd.DataFrame, chla_pivot: pd.DataFrame | None,
     else:
         out["chlorophyll_a"] = np.nan
         out["bloom_fraction"] = np.nan
-    out = out.reset_index()
     out["dataset_version"] = dataset
     return out
 
@@ -353,7 +503,17 @@ def run_assembly(
     grid_ids = cells["grid_id"].tolist()
     dates = pd.to_datetime(sorted(labels["target_date"].unique()))
 
-    frame = _augment_frame(_operational_features(base_dir, dates))
+    source_frames, weather_start = _feature_source_frames(sim_dir, base_dir, zone_codes, dates)
+    frames = {key: _augment_frame(frame) for key, frame in source_frames.items()}
+    grid_weather = _augment_grid_weather(_grid_weather_long(sim_dir, zone_codes))
+    min_issue_date = weather_start + pd.Timedelta(days=max(FEATURE_LAGS))
+    grid_zone_of = dict(zip(cells["grid_id"], cells["zone_code"]))
+    identity = {
+        "scenario_id": str(sim_manifest.get("scenario_id", "") or ""),
+        "random_seed": int(sim_manifest.get("random_seed", 0) or 0),
+        "driver_hash": str(sim_manifest.get("driver_hash", "") or ""),
+        "driver_type": str(sim_manifest.get("driver_type", "") or ""),
+    }
     satellite_path = base_dir / "observations" / "satellite_observations.parquet"
     satellite = pd.read_parquet(satellite_path) if satellite_path.exists() else pd.DataFrame()
     chla_pivot, sat_frac_pivot = _satellite_grid_pivots(satellite) if not satellite.empty else (None, None)
@@ -363,13 +523,17 @@ def run_assembly(
     samples = expand_samples(
         config,
         labels=labels,
-        frame=frame,
+        frames=frames,
+        grid_weather=grid_weather,
         frac_pivot=sat_frac_pivot,
         split_of_date=split_of_date,
         dataset=dataset,
+        identity=identity,
+        grid_zone_of=grid_zone_of,
         horizons=tuple(assembly_cfg.get("horizons_days", HORIZONS)),
         issue_stride=int(assembly_cfg.get("issue_stride_days", 1)),
         grid_issue_stride=int(assembly_cfg.get("grid_issue_stride_days", 7)),
+        min_issue_date=min_issue_date,
     )
 
     out_dir = base_dir / "assembly" / track.replace("-", "_")
@@ -409,7 +573,7 @@ def run_assembly(
     # DG-004 发布表：观测层特征 + 标签用观测真值行
     data_dir = base_dir / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
-    dynamic = _dynamic_features_grid(frame, chla_pivot, sat_frac_pivot, grid_ids, dataset)
+    dynamic = _dynamic_features_grid(source_frames[zone_codes[0]], grid_weather, chla_pivot, sat_frac_pivot, grid_ids, dataset)
     dynamic.to_parquet(data_dir / "dynamic_features_grid_daily.parquet", index=False)
     target_obs = _target_observation_daily(base_dir, satellite, zone_codes[0], dataset)
     target_obs.to_parquet(data_dir / "target_observation_daily.parquet", index=False)
@@ -428,10 +592,17 @@ def run_assembly(
         "horizons": list(assembly_cfg.get("horizons_days", HORIZONS)),
         "grid_issue_stride_days": int(assembly_cfg.get("grid_issue_stride_days", 7)),
         "feature_sources": {
-            "weather": "history/weather_observed_daily.parquet (d+1 出账)",
+            "weather": f"run 驱动表 latent/weather_driver_{{zone}}.parquet（grid 逐格）与 latent/weather_daily_{{zone}}.parquet（zone 均值），d+1 出账，与标签同源（driver_type={identity['driver_type']}）",
             "station": "observations/station_observations.parquet (water_temperature/total_phosphorus/total_nitrogen，TP/TN 为仿真观测层)",
             "chlorophyll_a/bloom_fraction": "observations/satellite_observations.parquet",
+            "min_issue_date": pd.Timestamp(min_issue_date).strftime("%Y-%m-%d"),
             "latent_excluded": "water_level/biomass/density 等未观测变量不进特征",
+        },
+        "driver": {
+            "scenario_id": identity["scenario_id"],
+            "random_seed": identity["random_seed"],
+            "driver_type": identity["driver_type"],
+            "driver_hash": identity["driver_hash"],
         },
         "feature_observed_ratio": {"mean": round(float(ratio.mean()), 4), "min": round(float(ratio.min()), 4), "max": round(float(ratio.max()), 4)} if not samples.empty else {},
         "gating": "SIM-V1 全样本 is_synthetic=true 并逐行携带 track；HYBRID/REAL 轨验证/测试仅收 ground_truth (STAGED)",

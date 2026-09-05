@@ -1,6 +1,7 @@
-"""Download MOD11A1 daily LST (tile h28v05) from NASA LP-DAAC.
+"""Download MOD11A1 daily LST from NASA LP-DAAC.
 
 Queries CMR for granule URLs, then downloads HDF files via curl with .netrc auth.
+Tile is selectable; h28v05 does NOT cover Taihu — use h30v05 for the lake.
 """
 
 from __future__ import annotations
@@ -22,11 +23,11 @@ NETRC_PATH = Path.home() / "_netrc"
 
 CMR_URL = "https://cmr.earthdata.nasa.gov/search/granules.umm_json"
 COLLECTION_ID = "C1748058432-LPCLOUD"
-TILE = "h28v05"
+TILE = "h30v05"
 BBOX = "119.9,30.9,120.75,31.65"
 
 
-def query_cmr_granules(start: date, end: date, page_size: int = 200) -> list[dict]:
+def query_cmr_granules(start: date, end: date, tile: str = TILE, page_size: int = 200) -> list[dict]:
     """Query CMR for MOD11A1 granule URLs covering the date range."""
     granules = []
     page_num = 1
@@ -58,7 +59,7 @@ def query_cmr_granules(start: date, end: date, page_size: int = 200) -> list[dic
 
         for item in items:
             native_id = item.get("meta", {}).get("native-id", "")
-            if TILE not in native_id:
+            if tile not in native_id:
                 continue
             umm = item.get("umm", {})
             data_url = None
@@ -120,7 +121,7 @@ def download_one(granule: dict, output_dir: Path, timeout: int = 180) -> dict:
         return {"date": granule["acq_date"], "native_id": granule["native_id"], "status": "error", "error": str(exc)[:200]}
 
 
-def run_download(start: date, end: date, workers: int = 4, timeout: int = 180) -> dict:
+def run_download(start: date, end: date, workers: int = 4, timeout: int = 180, tile: str = TILE) -> dict:
     output_dir = OUTPUT_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = MANIFEST_PATH
@@ -136,8 +137,8 @@ def run_download(start: date, end: date, workers: int = 4, timeout: int = 180) -
             pass
 
     print("Querying CMR for MOD11A1 granules...", flush=True)
-    granules = query_cmr_granules(start, end)
-    print(f"Found {len(granules)} granules for tile {TILE}", flush=True)
+    granules = query_cmr_granules(start, end, tile=tile)
+    print(f"Found {len(granules)} granules for tile {tile}", flush=True)
 
     pending = [g for g in granules if g["native_id"] not in prev_done]
     outcomes = list(prev_done.values())
@@ -172,6 +173,7 @@ def run_download(start: date, end: date, workers: int = 4, timeout: int = 180) -
 
     summary = {
         "status": "completed",
+        "tile": tile,
         "period": [start.isoformat(), end.isoformat()],
         "granules_total": len(granules),
         "granules_completed": len(outcomes),
@@ -187,6 +189,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", default="2020-01-01")
     parser.add_argument("--end", default=date.today().isoformat())
+    parser.add_argument("--tile", default=TILE, help="MODIS sinusoidal tile; Taihu needs h30v05")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--timeout", type=int, default=180)
     args = parser.parse_args()
@@ -195,6 +198,7 @@ def main() -> int:
         end=date.fromisoformat(args.end),
         workers=args.workers,
         timeout=args.timeout,
+        tile=args.tile,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0

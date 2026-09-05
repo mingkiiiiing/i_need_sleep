@@ -14,6 +14,42 @@ import pandas as pd
 from .rng import sample_field
 
 
+def apply_heatwave(ta: np.ndarray, months: np.ndarray, extremes: dict[str, Any], rng: np.random.Generator) -> np.ndarray:
+    """热浪情景：在情景月内按 P60 以上高温日挑起点，连续 heatwave_days 天加温（合成/重放驱动共用）。"""
+    if not extremes.get("heatwave_days"):
+        return ta
+    months_pool = list(set(extremes.get("months", []) or []))
+    candidates = np.where(np.isin(months, months_pool) & (ta > np.percentile(ta, 60)))[0]
+    if len(candidates):
+        start = int(rng.choice(candidates))
+        ta[start : start + int(extremes["heatwave_days"])] += float(extremes.get("heatwave_add_deg", 4.0))
+    return ta
+
+
+def apply_calm_cap(ws: np.ndarray, months: np.ndarray, extremes: dict[str, Any]) -> np.ndarray:
+    """静风情景：情景月内风速不超过上限（表层聚集条件）。"""
+    calm_cap = extremes.get("calm_wind_ms")
+    months_pool = list(set(extremes.get("months", []) or []))
+    if calm_cap and months_pool:
+        mask = np.isin(months, months_pool)
+        ws[mask] = np.minimum(ws[mask], float(calm_cap))
+    return ws
+
+
+def apply_storm_pulse(precip: np.ndarray, months: np.ndarray, extremes: dict[str, Any], rng: np.random.Generator) -> np.ndarray:
+    """暴雨情景：在情景月内随机挑 storm_days 天，日降水抬升至 storm_mm。"""
+    storm_days = extremes.get("storm_days")
+    if not storm_days:
+        return precip
+    candidates = np.where(np.isin(months, list(set(extremes.get("months", []) or []))))[0]
+    if len(candidates):
+        starts = rng.choice(candidates, size=min(int(storm_days), len(candidates)), replace=False)
+        storm_mm = float(extremes.get("storm_mm", 150))
+        for s in np.atleast_1d(starts):
+            precip[s : s + 1] = np.maximum(precip[s : s + 1], storm_mm)
+    return precip
+
+
 def simulate_weather(
     dates: pd.DatetimeIndex,
     modes: np.ndarray,
@@ -63,22 +99,13 @@ def simulate_weather(
     year_anomaly = rng.normal(0.0, year_sigma) if year_sigma else 0.0
     year_anomaly += float(scenario.get("climate_shift_deg", 0.0))
     ta = ar_process(base + year_anomaly, phi, max(sigma, 0.5))
-    heatwave_months = set(extremes.get("months", []) or [])
-    if extremes.get("heatwave_days"):
-        heatwave_add = float(extremes.get("heatwave_add_deg", 4.0))
-        days = int(extremes["heatwave_days"])
-        candidates = np.where(np.isin(months, list(heatwave_months)) & (ta > np.percentile(ta, 60)))[0]
-        if len(candidates):
-            start = int(rng.choice(candidates))
-            ta[start : start + days] += heatwave_add
+    ta = apply_heatwave(ta, months, extremes, rng)
     ta = np.clip(ta, -10.0, 45.0)
 
     # 风速：气候态 + AR(1)；静风情景上限
     base_w, phi_w, sigma_w, _ = clim_coef("wind_speed")
     ws = ar_process(base_w, phi_w, max(sigma_w, 0.3))
-    calm_cap = extremes.get("calm_wind_ms")
-    if calm_cap and heatwave_months:
-        ws[np.isin(months, list(heatwave_months))] = np.minimum(ws[np.isin(months, list(heatwave_months))], float(calm_cap))
+    ws = apply_calm_cap(ws, months, extremes)
     ws = np.clip(ws, 0.0, 25.0)
     wind_dir = np.degrees(np.cumsum(rng.normal(0.0, 12.0, T))) % 360.0
 
@@ -112,15 +139,7 @@ def simulate_weather(
         shape_p = 0.8 if shape_p is None else shape_p
         scale_p = 6.0 if scale_p is None else scale_p
         precip[mask] = rng.gamma(max(shape_p, 0.1), max(scale_p, 0.1), int(mask.sum()))
-    storm_days = extremes.get("storm_days")
-    if storm_days:
-        storm_mask = np.isin(months, list(extremes.get("months", []) or []))
-        candidates = np.where(storm_mask)[0]
-        if len(candidates):
-            starts = rng.choice(candidates, size=min(int(storm_days), len(candidates)), replace=False)
-            storm_mm = float(extremes.get("storm_mm", 150))
-            for s in np.atleast_1d(starts):
-                precip[s : s + 1] = np.maximum(precip[s : s + 1], storm_mm)
+    precip = apply_storm_pulse(precip, months, extremes, rng)
     precip = np.clip(precip, 0.0, 400.0)
 
     # 湿度/云量：次级变量（与温度/降水自洽），写明简化

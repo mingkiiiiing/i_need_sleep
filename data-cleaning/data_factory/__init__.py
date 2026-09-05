@@ -2,5 +2,5 @@
 
 from __future__ import annotations
 
-GENERATOR_VERSION = "df-0.2.3"  # 验收第三轮：T6 持续序列按空间对象一次计算（2026-09-05）
-CONTRACT_VERSION = "1.1"
+GENERATOR_VERSION = "df-0.3.0"  # 大任务1：统一气象驱动 observed_replay，特征/标签同源 + driver_hash 身份链
+CONTRACT_VERSION = "1.2"

@@ -21,7 +21,7 @@ from data_factory.assembly.horizons import (
     STATION_FEATURES,
     WEATHER_FEATURES,
     _augment_frame,
-    _operational_features,
+    _feature_source_frames,
     _satellite_grid_pivots,
     expand_samples,
 )
@@ -128,10 +128,10 @@ class TestDG002FitterCutoff:
 class TestDG004ObservationFeatures:
     @pytest.fixture()
     def base_dir(self, tmp_path):
-        hist = tmp_path / "history"
         obs = tmp_path / "observations"
-        hist.mkdir(parents=True)
+        latent = tmp_path / "sim" / "latent"
         obs.mkdir(parents=True)
+        latent.mkdir(parents=True)
         weather = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-01", periods=4),
@@ -141,7 +141,7 @@ class TestDG004ObservationFeatures:
                 "shortwave_radiation": [10.0] * 4,
             }
         )
-        weather.to_parquet(hist / "weather_observed_daily.parquet", index=False)
+        weather.to_parquet(latent / "weather_daily_TAIHU_ML.parquet", index=False)
         satellite = pd.DataFrame(
             {
                 "grid_id": ["G1"] * 3,
@@ -163,8 +163,10 @@ class TestDG004ObservationFeatures:
 
     def test_availability_indexing_and_missing_as_nan(self, base_dir):
         dates = pd.date_range("2024-01-01", "2024-01-20")
-        frame = _operational_features(base_dir, dates)
-        # 气象日值 d+1 出账：01-01 的值出现在 01-02
+        frames, weather_start = _feature_source_frames(base_dir / "sim", base_dir, ["TAIHU_ML"], dates)
+        frame = frames["TAIHU_ML"]
+        assert weather_start == pd.Timestamp("2024-01-02")  # 驱动气象 d+1 出账，可阅起点 01-02
+        # 气象日值 d+1 出账：01-01 的值出现在 01-02（来源=run 驱动表，与标签同源）
         assert frame.loc[pd.Timestamp("2024-01-02"), "air_temperature"] == 1.0
         assert pd.isna(frame.loc[pd.Timestamp("2024-01-01"), "air_temperature"])
         # 卫星只在 available 日可见，缺测日 NaN
@@ -237,10 +239,12 @@ class TestDG004ObservationFeatures:
         samples = expand_samples(
             {},
             labels=labels,
-            frame=frame,
+            frames={"TAIHU_ML": frame},
+            grid_weather=None,
             frac_pivot=None,
             split_of_date={pd.Timestamp("2024-01-12"): "train"},
             dataset="mvp",
+            identity={"scenario_id": "baseline_replay", "random_seed": 20260904, "driver_hash": "d" * 64, "driver_type": "observed_replay"},
             horizons=(2,),
         )
         assert len(samples) == 1

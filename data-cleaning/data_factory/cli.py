@@ -255,7 +255,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--track", default=Track.SIM_V1.value)
     p.add_argument("--sim-dir", default=None)
 
-    p = sub.add_parser("validate", help="A01–A21 验收 + V01–V12 一票否决 + 九件套报告")
+    p = sub.add_parser("validate", help="A01–A25 验收 + V01–V12 一票否决 + 九件套报告")
     p.add_argument("--sim-dir", default=None)
 
     sub.add_parser("release", help="组装 data_factory_release/SIM-V1 发布包")

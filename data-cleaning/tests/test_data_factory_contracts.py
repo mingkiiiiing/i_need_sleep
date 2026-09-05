@@ -31,9 +31,23 @@ class TestHashing:
         assert content_hash("abc") != content_hash("abd")
 
     def test_compute_sample_id_stable(self):
-        kwargs = dict(spatial_id="G00010001", issue_time="2024-03-01T12:00:00+08:00", target_date="2024-03-02", task_id="T1", horizon=1, dataset_version="mvp")
+        kwargs = dict(
+            spatial_id="G00010001",
+            issue_time="2024-03-01T12:00:00+08:00",
+            target_date="2024-03-02",
+            task_id="T1",
+            horizon=1,
+            dataset_version="mvp",
+            scenario_id="baseline_replay",
+            random_seed=20260904,
+            driver_hash="a" * 64,
+        )
         assert compute_sample_id(**kwargs) == compute_sample_id(**kwargs)
         assert compute_sample_id(**kwargs) != compute_sample_id(**{**kwargs, "horizon": 3})
+        # df-0.3.0：身份三元组入键，多情景/多种子合并不撞主键（A03 前置）
+        assert compute_sample_id(**kwargs) != compute_sample_id(**{**kwargs, "scenario_id": "heatwave_calm"})
+        assert compute_sample_id(**kwargs) != compute_sample_id(**{**kwargs, "random_seed": 1})
+        assert compute_sample_id(**kwargs) != compute_sample_id(**{**kwargs, "driver_hash": "b" * 64})
 
 
 class TestCellIndices:

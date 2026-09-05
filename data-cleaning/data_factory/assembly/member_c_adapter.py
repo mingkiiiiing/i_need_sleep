@@ -85,6 +85,9 @@ def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1") -> tuple[pd.Dat
     out["data_track"] = track
     out["dataset_version"] = frame["dataset_version"]
     out["split"] = frame["split"]
+    for identity_col in ("scenario_id", "random_seed", "driver_type", "driver_hash"):
+        if identity_col in frame.columns:
+            out[identity_col] = frame[identity_col]
     out["feature_window_note"] = frame["feature_window_note"]
 
     for internal, external in FEATURE_COLUMNS.items():
@@ -104,7 +107,7 @@ def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1") -> tuple[pd.Dat
         "metrics": {k: int(v) for k, v in out.groupby("target_metric").size().items()} if not out.empty else {},
         "label_statuses": {k: int(v) for k, v in out.groupby("label_status").size().items()} if not out.empty else {},
         "feature_missing_rates": feature_missing_rates,
-        "feature_note": "DG-004 观测层特征装配：气象=真实逐日观测；water_temperature/total_phosphorus/total_nitrogen 来自站点观测（TP/TN 为仿真观测层，含测量误差与发布延迟）；chlorophyll_a/bloom_fraction 来自卫星观测，缺过境/采样日为空值；latent 变量（水位/生物量/密度）不作为特征输出",
+        "feature_note": "DG-004 特征装配（df-0.3.0）：气象=仿真 run 驱动表（observed_replay 真实历史重放或合成气候态），grid 逐格、zone/lake 均值，与标签同源（driver_hash 逐行携带）；water_temperature/total_phosphorus/total_nitrogen 来自站点观测（TP/TN 为仿真观测层，含测量误差与发布延迟）；chlorophyll_a/bloom_fraction 来自卫星观测，缺过境/采样日为空值；latent 变量（水位/生物量/密度）不作为特征输出",
     }
     return out[column_order], summary
 

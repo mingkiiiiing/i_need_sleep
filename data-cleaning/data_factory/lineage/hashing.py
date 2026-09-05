@@ -44,6 +44,10 @@ def compute_sample_id(
     task_id: str,
     horizon: int,
     dataset_version: str,
+    scenario_id: str,
+    random_seed: int,
+    driver_hash: str,
 ) -> str:
-    key = "|".join([spatial_id, issue_time, target_date, task_id, str(horizon), dataset_version])
+    # 身份三元组入键：同一日期在多情景/多种子/多驱动下不得撞主键（A03）
+    key = "|".join([spatial_id, issue_time, target_date, task_id, str(horizon), dataset_version, scenario_id, str(random_seed), driver_hash])
     return hashlib.sha256(key.encode("utf-8")).hexdigest()

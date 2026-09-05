@@ -1,9 +1,9 @@
 {
   "run_id": "align-test",
   "status": "completed",
-  "input": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp85_qhr_n\\resampled.csv",
-  "output": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp85_qhr_n\\out\\temporal_alignments.csv",
-  "database": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmp85_qhr_n\\align.sqlite",
+  "input": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmpn_lxya82\\resampled.csv",
+  "output": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmpn_lxya82\\out\\temporal_alignments.csv",
+  "database": "C:\\Users\\mingking\\AppData\\Local\\Temp\\tmpn_lxya82\\align.sqlite",
   "input_rows": 2,
   "alignment_rows": 1,
   "target_counts": {

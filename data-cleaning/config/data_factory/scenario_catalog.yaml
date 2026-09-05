@@ -1,9 +1,19 @@
 # 仿真情景目录 (设计 §12 generation/scenario_catalog.yaml)
+# driver_mode: observed_replay = 真实历史气象重放为基础驱动（情景扰动在其上叠加）；
+#              synthetic = 气候态+AR(1) 合成天气（legacy，供消融对比）。缺省 synthetic。
 default_scenario: baseline
 
 scenarios:
   baseline:
-    description: "基线情景：训练期拟合的常规年型"
+    description: "基线情景：训练期拟合的常规年型（合成天气，legacy）"
+    driver_mode: synthetic
+    extremes: none
+    load_multiplier: 1.0
+    climate_shift_deg: 0.0
+
+  baseline_replay:
+    description: "基线重放情景：真实历史逐日气象直接驱动（特征与标签同源）"
+    driver_mode: observed_replay
     extremes: none
     load_multiplier: 1.0
     climate_shift_deg: 0.0

@@ -17,7 +17,7 @@ from data_factory import CONTRACT_VERSION, GENERATOR_VERSION
 from data_factory.contracts.constants import run_dir, yaml_path
 from data_factory.contracts.spatial import load_grid
 from data_factory.lineage.hashing import content_hash
-from data_factory.simulation import algae, bloom, hydrology, nutrients, transport, weather
+from data_factory.simulation import algae, bloom, driver, hydrology, nutrients, transport, weather
 from data_factory.simulation.rng import STREAM_KEYS, spatial_modes
 
 WATER_VARIABLES = [
@@ -78,6 +78,9 @@ def run_simulation(
     scenario.setdefault("load_multiplier", 1.0)
     if scenario.get("extremes") == "none":
         scenario["extremes"] = {}
+    driver_mode = str(scenario.get("driver_mode", "synthetic"))
+    if driver_mode not in ("synthetic", "observed_replay"):
+        raise SystemExit(f"unknown driver_mode: {driver_mode} (scenario {scenario_id})")
 
     sim_cfg = config["simulation"]
     if sim_cfg.get("full_lake"):
@@ -117,6 +120,8 @@ def run_simulation(
     }
 
     diagnostics: dict[str, Any] = {"zones": {}}
+    driver_meta: dict[str, str] = dict(driver.SYNTHETIC_META)
+    driver_frames: list[tuple[str, pd.DataFrame]] = []
     bloom_grid_frames: list[pd.DataFrame] = []
     bloom_lake_frames: list[pd.DataFrame] = []
 
@@ -130,7 +135,12 @@ def run_simulation(
         modes = spatial_modes(coords, length_km=length_km)
         rngs = zone_rngs(seed, zi)
 
-        arrays, lake_mean = weather.simulate_weather(dates, modes, lookup, mechanism, rngs, scenario)
+        if driver_mode == "observed_replay":
+            arrays, lake_mean, driver_meta = driver.build_replay_driver(base, dates, modes, mechanism, rngs, scenario)
+        else:
+            arrays, lake_mean = weather.simulate_weather(dates, modes, lookup, mechanism, rngs, scenario)
+            driver_meta = dict(driver.SYNTHETIC_META)
+        driver_frames.append((zone_code, driver.build_driver_frame(dates, grid_ids, arrays, driver_meta, scenario_id, seed)))
         ta_grid = arrays["air_temperature"]
         ws_grid = arrays["wind_speed"]
         rad_grid = arrays["shortwave_radiation"]
@@ -261,12 +271,20 @@ def run_simulation(
 
     bloom_grid = pd.concat(bloom_grid_frames, ignore_index=True) if bloom_grid_frames else pd.DataFrame()
     bloom_lake = pd.concat(bloom_lake_frames, ignore_index=True) if bloom_lake_frames else pd.DataFrame()
+    driver_hash = driver.run_driver_hash([frame for _, frame in driver_frames], driver_meta, scenario_id, seed, dates)
+    for zone_code, driver_frame in driver_frames:
+        driver_frame["driver_hash"] = driver_hash
+        driver_frame.to_parquet(latent_dir / f"weather_driver_{zone_code}.parquet", index=False)
+    # 身份列必须落在 concat 结果上（源 frame 已被 concat 拷贝）
+    for frame in (bloom_grid, bloom_lake):
+        frame["driver_type"] = driver_meta["driver_type"]
+        frame["driver_hash"] = driver_hash
     bloom_grid = _round6(bloom_grid, ["bloom_fraction", "surface_biomass_mg_l", "bloom_area_m2"])
     bloom_lake = _round6(bloom_lake, ["bloom_area_km2", "bloom_fraction_zone", "bloom_fraction_lake", "bloom_fraction_mean", "zone_area_km2", "lake_area_km2", "effective_water_area_km2", "domain_coverage_km2", "domain_coverage_fraction"])
     # bloom_lake_daily 统一列：date, spatial_id, bloom_area_km2, bloom_fraction_mean, effective_water_area_km2, domain_coverage_*
     lake_mask = bloom_lake["spatial_id"] == "TAIHU_WHOLE"
     bloom_lake.loc[lake_mask, "effective_water_area_km2"] = bloom_lake.loc[lake_mask, "lake_area_km2"]
-    keep = ["date", "spatial_id", "bloom_area_km2", "bloom_fraction_mean", "effective_water_area_km2", "domain_coverage_km2", "domain_coverage_fraction", "is_partial_domain", "dataset_version", "source_type", "is_ground_truth", "scenario_id", "random_seed", "parameter_set_id", "generator_version", "generation_batch_id"]
+    keep = ["date", "spatial_id", "bloom_area_km2", "bloom_fraction_mean", "effective_water_area_km2", "domain_coverage_km2", "domain_coverage_fraction", "is_partial_domain", "dataset_version", "source_type", "is_ground_truth", "scenario_id", "random_seed", "driver_type", "driver_hash", "parameter_set_id", "generator_version", "generation_batch_id"]
     for col in keep:
         if col not in bloom_lake.columns:
             bloom_lake[col] = None
@@ -284,6 +302,10 @@ def run_simulation(
         "parameter_set_id": parameter_set_id,
         "grid_version": grid_version,
         "grid_manifest_version": grid_manifest.get("grid_version"),
+        "driver_mode": driver_mode,
+        "driver_type": driver_meta["driver_type"],
+        "base_source": driver_meta["base_source"],
+        "driver_hash": driver_hash,
         "generation_batch_id": generation_batch_id,
         "generator_version": GENERATOR_VERSION,
         "contract_version": CONTRACT_VERSION,

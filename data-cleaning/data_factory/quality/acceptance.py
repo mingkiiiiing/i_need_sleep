@@ -1,4 +1,4 @@
-"""验收检查 A01–A21 (设计 §11.1；SIM 轨口径，数量统计一律称"仿真样本量").
+"""验收检查 A01–A25 (设计 §11.1；SIM 轨口径，数量统计一律称"仿真样本量").
 
 每个检查返回 (rule_id, name, status: pass|fail|warning, detail)。
 数量阈值用 quality.mvp_profile 缩放并如实标注。
@@ -265,20 +265,22 @@ def run_acceptance(
             dist_problems.append(f"{variable}:max_z={float(dev.max()):.2f}")
     results.append(_rule("A20", "distribution_vs_climatology", not dist_problems, "; ".join(dist_problems) or "monthly log-means within tolerance of fitted climatology", warn_only=True))
 
-    # A21 季节性（DG-006 硬门禁：chla 夏/冬均值比 >= 1.5）与空间聚集方向（信息性）
+    # A21 季节性（DG-006 硬门禁：chla 暖季(4–10月)均值 ≥ 1.5× 冬季(12–2月)均值）与空间聚集方向（信息性）
+    # df-0.3.0：observed_replay 下年内峰位随真实气象漂移（2024 年 8 月少雨→峰移至 9 月台风雨季），
+    # 固定 6–8 月窗口会漏判暖季峰值，改用暖季/冬季比值保持"夏型季节循环"门禁本意。
     wq_chla = wq[wq["variable_code"] == "chlorophyll_a"].copy()
     wq_chla["date"] = pd.to_datetime(wq_chla["date"])
     monthly = wq_chla.groupby(wq_chla["date"].dt.month)["value"].mean()
-    summer = float(monthly.reindex([6, 7, 8]).mean())
+    warm = float(monthly.reindex([4, 5, 6, 7, 8, 9, 10]).mean())
     winter = float(monthly.reindex([12, 1, 2]).mean())
-    season_ratio = summer / winter if winter > 0 else float("inf")
+    season_ratio = warm / winter if winter > 0 else float("inf")
     bloom_lake_zone = bloom_lake[bloom_lake["spatial_id"] != "TAIHU_WHOLE"]
     corr = float(np.corrcoef(
         pd.read_parquet(sim_dir / "latent" / f"weather_daily_{sim_manifest['zones'][0]}.parquet")["wind_speed"],
         bloom_lake_zone.set_index("date").reindex(pd.to_datetime(pd.read_parquet(sim_dir / "latent" / f"weather_daily_{sim_manifest['zones'][0]}.parquet")["date"]))["bloom_fraction_mean"].fillna(0.0),
     )[0, 1])
     seasonal_ok = season_ratio >= 1.5
-    results.append(_rule("A21", "chla_seasonality", seasonal_ok, f"chla_summer(6-8)={summer:.2f}, winter(12-2)={winter:.2f}, ratio={season_ratio:.3f} (require>=1.5); corr(wind,bloom)={corr:.3f} (informational, expect<=0.2)"))
+    results.append(_rule("A21", "chla_seasonality", seasonal_ok, f"chla_warm(4-10)={warm:.2f}, winter(12-2)={winter:.2f}, ratio={season_ratio:.3f} (require>=1.5); peak_month={int(monthly.idxmax())}; corr(wind,bloom)={corr:.3f} (informational, expect<=0.2)"))
 
     # A22 校准时间截止（DG-002）：每个拟合 family 的最大输入日期不得越过 train 末期
     cutoff_str = str(fit_manifest.get("train_cutoff_date", ""))
@@ -321,5 +323,53 @@ def run_acceptance(
             coverage_problems.append(f"lake labels null coverage={null_lab}")
     lake_cov_value = float(lake_bl["domain_coverage_fraction"].iloc[0]) if not lake_bl.empty and "domain_coverage_fraction" in lake_bl.columns else None
     results.append(_rule("A23", "partial_domain_explicit", not coverage_problems, "; ".join(coverage_problems) or f"lake coverage={lake_cov_value}, partial={bool(lake_bl['is_partial_domain'].iloc[0]) if not lake_bl.empty and 'is_partial_domain' in lake_bl.columns else 'n/a'}"))
+
+    # A24 driver 一致性（df-0.3.0 硬门禁）：驱动身份三方等值——samples == labels == sim_manifest
+    driver_problems = []
+    manifest_hash = str(sim_manifest.get("driver_hash", "") or "")
+    manifest_scenario = str(sim_manifest.get("scenario_id", "") or "")
+    manifest_seed = sim_manifest.get("random_seed")
+    manifest_type = str(sim_manifest.get("driver_type", "") or "")
+    if not manifest_hash or manifest_type not in ("synthetic", "observed_replay"):
+        driver_problems.append("sim_manifest driver_hash missing or driver_type illegal")
+    if not manifest_scenario:
+        driver_problems.append("sim_manifest scenario_id missing")
+    identity_cols = ("scenario_id", "random_seed", "driver_type", "driver_hash")
+    for table_name, table in (("labels", labels), ("samples", samples)):
+        if table.empty:
+            if table_name == "labels":
+                driver_problems.append("task_labels empty")
+            continue
+        missing = [c for c in identity_cols if c not in table.columns]
+        if missing:
+            driver_problems.append(f"{table_name} missing identity columns {missing}")
+            continue
+        for col, expected in (("scenario_id", manifest_scenario), ("driver_type", manifest_type), ("driver_hash", manifest_hash)):
+            values = table[col].astype(str)
+            if values.nunique() != 1 or str(values.iloc[0]) != str(expected):
+                driver_problems.append(f"{table_name}.{col} mismatch vs sim_manifest")
+        seed_values = pd.to_numeric(table["random_seed"], errors="coerce").dropna().astype(int)
+        if seed_values.nunique() != 1 or (manifest_seed is None) or int(seed_values.iloc[0]) != int(manifest_seed):
+            driver_problems.append(f"{table_name}.random_seed mismatch vs sim_manifest")
+    results.append(
+        _rule(
+            "A24",
+            "driver_consistency",
+            not driver_problems,
+            "; ".join(driver_problems) or f"driver_hash={manifest_hash[:12]}..., scenario={manifest_scenario}, seed={manifest_seed}, type={manifest_type} (labels/samples/sim_manifest equal)",
+        )
+    )
+
+    # A25 T6 风险等级覆盖（信息性，warn_only：等级 2/3 是否产出为大任务2 情景实验的判据口径）
+    if samples.empty or "target_metric" not in samples.columns:
+        t6_detail = "no samples"
+    else:
+        t6 = samples[samples["target_metric"] == "T6"]
+        counts = {
+            str(split): {str(int(v)): int(c) for v, c in sub["label_value"].value_counts().sort_index().items()}
+            for split, sub in t6.groupby("split")
+        }
+        t6_detail = json.dumps(counts, ensure_ascii=False) if counts else "no T6 samples"
+    results.append(_rule("A25", "t6_level_coverage_report", True, f"T6 label_value counts by split: {t6_detail}", warn_only=True))
 
     return results

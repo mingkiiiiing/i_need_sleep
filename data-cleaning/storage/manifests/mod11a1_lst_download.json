@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "tile": "h30v05",
+  "period": [
+    "2008-06-01",
+    "2008-06-02"
+  ],
+  "granules_total": 0,
+  "granules_completed": 0,
+  "granules_ok": 0,
+  "granules_failed": 0,
+  "failed_dates": []
+}

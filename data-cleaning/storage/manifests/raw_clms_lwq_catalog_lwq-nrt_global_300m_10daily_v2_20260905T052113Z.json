@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_type": "raw_asset",
+  "source_id": "clms_lwq_catalog",
+  "asset_id": "lwq-nrt_global_300m_10daily_v2",
+  "request_url": "https://csv.dataspace.copernicus.eu/CLMS/bio-geophysical/lake_water_quality/lwq-nrt_global_300m_10daily_v2/",
+  "local_path": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\data-cleaning\\storage\\raw\\clms_lwq_catalog\\20260905T052113Z_lwq-nrt_global_300m_10daily_v2.html",
+  "requested_at_utc": null,
+  "retrieved_at_utc": "2026-09-05T05:21:13.512632+00:00",
+  "http_status": 200,
+  "response_headers": {
+    "Content-Type": "text/html"
+  },
+  "checksum_sha256": "914f3e7ed3eaea9bd544fd0df9c20cd88a696f3bedb05d562e0111e273664ed8",
+  "size_bytes": 128,
+  "license": {
+    "license_tag": "COPERNICUS_TERMS_REVIEW_REQUIRED",
+    "redistribution_allowed": "conditional",
+    "commercial_use": "conditional"
+  },
+  "retries": 0,
+  "status": "completed",
+  "error": null
+}

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from data_factory.assembly.horizons import FEATURE_LAGS, FEATURE_ROLLS, _augment_frame, _features_at, expand_samples
+from data_factory.assembly.horizons import FEATURE_LAGS, FEATURE_ROLLS, _augment_frame, _augment_grid_weather, _features_at, expand_samples
 from data_factory.assembly.member_c_adapter import FEATURE_COLUMNS, TASK_TO_MEMBER_C, to_member_c
 from data_factory.calibration.fitter import _local_naive
 from data_factory.lineage.hashing import compute_sample_id
@@ -22,7 +22,7 @@ def _sample_frame() -> pd.DataFrame:
         features = {"water_temperature": 22.5 + i, "wind_speed": 3.1, "shortwave_radiation": 18.4, "unmapped_internal": 1.0}
         rows.append(
             {
-                "sample_id": compute_sample_id(spatial_id=f"TAIHU_ML{i}", issue_time="2024-06-01T12:00:00+08:00", target_date="2024-06-02", task_id=task, horizon=1, dataset_version="mvp"),
+                "sample_id": compute_sample_id(spatial_id=f"TAIHU_ML{i}", issue_time="2024-06-01T12:00:00+08:00", target_date="2024-06-02", task_id=task, horizon=1, dataset_version="mvp", scenario_id="baseline_replay", random_seed=20260904, driver_hash="d" * 64),
                 "target_date": pd.Timestamp("2024-06-02"),
                 "issue_date": pd.Timestamp("2024-06-01"),
                 "horizon_days": 1,
@@ -115,9 +115,19 @@ class TestContractAlignment:
 
 class TestSampleContract:
     def test_sample_id_differs_by_task_and_horizon(self):
-        base = dict(spatial_id="X", issue_time="2024-01-01T12:00:00+08:00", target_date="2024-01-02", task_id="T1", horizon=1, dataset_version="v")
-        ids = {compute_sample_id(**{**base, **override}) for override in ({}, {"task_id": "T2"}, {"horizon": 7})}
-        assert len(ids) == 3
+        base = dict(
+            spatial_id="X",
+            issue_time="2024-01-01T12:00:00+08:00",
+            target_date="2024-01-02",
+            task_id="T1",
+            horizon=1,
+            dataset_version="v",
+            scenario_id="baseline_replay",
+            random_seed=20260904,
+            driver_hash="d" * 64,
+        )
+        ids = {compute_sample_id(**{**base, **override}) for override in ({}, {"task_id": "T2"}, {"horizon": 7}, {"scenario_id": "heatwave_calm"}, {"random_seed": 7})}
+        assert len(ids) == 5
 
     def test_local_naive_mixed_tz(self):
         series = pd.Series(pd.to_datetime(["2024-03-01T04:00:00+00:00", "2024-03-01T12:00:00+08:00"], utc=True))
@@ -182,10 +192,114 @@ class TestHorizonsFeatures:
             ]
         )
         split_of_date = {pd.Timestamp(t).normalize(): "train" for t in labels["target_date"]}
-        samples = expand_samples({}, labels=labels, frame=_augment_frame(frame), frac_pivot=None, split_of_date=split_of_date, dataset="t", horizons=(1,))
+        samples = expand_samples(
+            {},
+            labels=labels,
+            frames={"Z1": _augment_frame(frame)},
+            grid_weather=None,
+            frac_pivot=None,
+            split_of_date=split_of_date,
+            dataset="t",
+            identity={"scenario_id": "baseline_replay", "random_seed": 20260904, "driver_hash": "d" * 64, "driver_type": "observed_replay"},
+            horizons=(1,),
+        )
         assert len(samples) == 3
         for row in samples.itertuples(index=False):
             expected = json.dumps(
                 _features_at(_augment_frame(frame), row.issue_date, "Z1", "zone", None), ensure_ascii=False, sort_keys=True
             )
             assert row.features_json == expected
+
+    def test_grid_samples_use_per_grid_driver_weather(self):
+        idx = pd.date_range("2024-01-01", periods=60, freq="D")
+        zone = pd.DataFrame({"air_temperature": np.full(60, 20.0), "wind_speed": np.full(60, 3.0)}, index=idx)
+        long_rows = []
+        for grid_id, temp in (("G1", 21.5), ("G2", 18.5)):
+            for date in idx:
+                long_rows.append({"grid_id": grid_id, "date": date, "air_temperature": temp, "wind_speed": 3.0})
+        grid_weather = _augment_grid_weather(pd.DataFrame(long_rows))
+        labels = pd.DataFrame(
+            [
+                {
+                    "task_id": "T1",
+                    "spatial_id": grid_id,
+                    "spatial_type": "grid",
+                    "target_date": pd.Timestamp("2024-02-20"),
+                    "label_value": 1.0,
+                    "label_unit": "",
+                    "label_status": "simulation_positive",
+                    "label_source_type": "simulation_truth",
+                    "label_quality": "pass",
+                    "is_ground_truth": False,
+                    "is_synthetic": True,
+                }
+                for grid_id in ("G1", "G2")
+            ]
+            + [
+                {  # 同帧同日的 zone 样本：不得复用 grid 的 AUX 缓存（回归：缓存命名空间）
+                    "task_id": "T1",
+                    "spatial_id": "TAIHU_ML",
+                    "spatial_type": "zone",
+                    "target_date": pd.Timestamp("2024-02-20"),
+                    "label_value": 0.0,
+                    "label_unit": "",
+                    "label_status": "simulation_negative",
+                    "label_source_type": "simulation_truth",
+                    "label_quality": "pass",
+                    "is_ground_truth": False,
+                    "is_synthetic": True,
+                }
+            ]
+        )
+        samples = expand_samples(
+            {},
+            labels=labels,
+            frames={"TAIHU_ML": _augment_frame(zone)},
+            grid_weather=grid_weather,
+            frac_pivot=None,
+            split_of_date={pd.Timestamp("2024-02-20"): "train"},
+            dataset="t",
+            identity={"scenario_id": "s", "random_seed": 1, "driver_hash": "d" * 64, "driver_type": "observed_replay"},
+            grid_zone_of={"G1": "TAIHU_ML", "G2": "TAIHU_ML"},
+            horizons=(1,),
+        )
+        assert len(samples) == 3
+        by_grid = {row.spatial_id: json.loads(row.features_json) for row in samples.itertuples(index=False)}
+        assert by_grid["G1"]["air_temperature"] == 21.5  # 逐格驱动值，非 zone 均值 20
+        assert by_grid["G2"]["air_temperature"] == 18.5
+        assert by_grid["G1"]["air_temperature_lag1"] == 21.5  # lag/roll 也按格内序列
+        assert by_grid["TAIHU_ML"]["air_temperature"] == 20.0  # zone 样本用驱动 zone 均值
+        assert "air_temperature_lag1" in by_grid["TAIHU_ML"]
+
+    def test_min_issue_date_rejects_early_issue_window(self):
+        frame = self._daily_frame()
+        labels = pd.DataFrame(
+            [
+                {
+                    "task_id": "T1",
+                    "spatial_id": "Z1",
+                    "spatial_type": "zone",
+                    "target_date": pd.Timestamp("2024-02-20"),
+                    "label_value": 1.0,
+                    "label_unit": "",
+                    "label_status": "simulation_positive",
+                    "label_source_type": "simulation_truth",
+                    "label_quality": "pass",
+                    "is_ground_truth": False,
+                    "is_synthetic": True,
+                }
+            ]
+        )
+        common = dict(
+            labels=labels,
+            frames={"Z1": _augment_frame(frame)},
+            grid_weather=None,
+            frac_pivot=None,
+            split_of_date={pd.Timestamp("2024-02-20"): "train"},
+            dataset="t",
+            identity={"scenario_id": "s", "random_seed": 1, "driver_hash": "d" * 64, "driver_type": "synthetic"},
+            horizons=(1,),
+        )
+        assert len(expand_samples({}, **common)) == 1
+        rejected = expand_samples({}, **common, min_issue_date=pd.Timestamp("2024-02-20"))
+        assert rejected.empty  # issue_date 2024-02-19 < min_issue_date → 整行拒绝

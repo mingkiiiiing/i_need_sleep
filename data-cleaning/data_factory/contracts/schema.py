@@ -71,6 +71,8 @@ BLOOM_GRID_DAILY = [
     f("parameter_set_id", "str", nullable=False),
     f("generator_version", "str", nullable=False),
     f("generation_batch_id", "str", nullable=False),
+    f("driver_type", "str", nullable=False, enum=("synthetic", "observed_replay")),
+    f("driver_hash", "str", nullable=False),
 ]
 
 BLOOM_LAKE_DAILY = [
@@ -90,6 +92,8 @@ BLOOM_LAKE_DAILY = [
     f("parameter_set_id", "str", nullable=False),
     f("generator_version", "str", nullable=False),
     f("generation_batch_id", "str", nullable=False),
+    f("driver_type", "str", nullable=False, enum=("synthetic", "observed_replay")),
+    f("driver_hash", "str", nullable=False),
 ]
 
 TASK_LABELS = [
@@ -111,6 +115,10 @@ TASK_LABELS = [
     f("is_partial_domain", "bool", nullable=False),
     f("evidence_record_ids", "str"),
     f("dataset_version", "str", nullable=False),
+    f("scenario_id", "str", nullable=False),
+    f("random_seed", "int", nullable=False),
+    f("driver_type", "str", nullable=False, enum=("synthetic", "observed_replay")),
+    f("driver_hash", "str", nullable=False),
 ]
 
 STATION_OBSERVATIONS = [
@@ -177,6 +185,10 @@ MODEL_TRAINING_SAMPLES = [
     f("is_partial_domain", "bool", nullable=False),
     f("feature_observed_ratio", "float", unit="1", description="特征窗口内非缺失特征占比（DG-004 观测层特征缺测如实标注）"),
     f("features_json", "str", nullable=False),
+    f("scenario_id", "str", nullable=False),
+    f("random_seed", "int", nullable=False),
+    f("driver_type", "str", nullable=False, enum=("synthetic", "observed_replay")),
+    f("driver_hash", "str", nullable=False),
 ]
 
 PARAMETER_SETS = [

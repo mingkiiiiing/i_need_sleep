@@ -222,6 +222,11 @@ def build_labels(
     labels = pd.DataFrame(rows)
     labels["issue_date"] = pd.to_datetime(labels["issue_date"])
     labels["target_date"] = pd.to_datetime(labels["target_date"])
+    # 驱动身份链（A24 等值门禁）：全部行（含 REAL 观测标签）属于同一 run 驱动世界
+    labels["scenario_id"] = str(sim_manifest.get("scenario_id") or "")
+    labels["random_seed"] = int(sim_manifest.get("random_seed") or 0)
+    labels["driver_type"] = str(sim_manifest.get("driver_type") or "synthetic")
+    labels["driver_hash"] = str(sim_manifest.get("driver_hash") or "")
 
     # DG-001：lake 粒度行的部分域覆盖率显式标注（grid/zone/station 行保持默认 1.0）
     if lake_rows.empty or "domain_coverage_fraction" not in lake_rows.columns:
@@ -257,6 +262,8 @@ def build_labels(
         "generation_batch_id": batch_id,
         "scenario_id": sim_manifest["scenario_id"],
         "random_seed": sim_manifest["random_seed"],
+        "driver_type": sim_manifest.get("driver_type"),
+        "driver_hash": sim_manifest.get("driver_hash"),
         "rows_written": int(len(labels)),
         "labels_by_task": {k: int(v) for k, v in labels.groupby("task_id").size().items()},
         "status_counts": {" | ".join(k): int(v) for k, v in status_counts.items()},

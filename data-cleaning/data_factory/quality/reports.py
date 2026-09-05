@@ -30,11 +30,11 @@ NINE_FILES = [
     "quality_summary.md",
 ]
 
-# DG-011 三段式判定：A01–A23 全部分段覆盖（5+5+13）
+# DG-011 三段式判定：A01–A25 全部分段覆盖（5+5+15）
 SEGMENT_RULES: dict[str, tuple[str, ...]] = {
     "packaging": ("A01", "A02", "A03", "A04", "A09"),
     "simulation_fidelity": ("A07", "A08", "A20", "A21", "A23"),
-    "training_readiness": ("A05", "A06", "A10", "A11", "A12", "A13", "A14", "A15", "A16", "A17", "A18", "A19", "A22"),
+    "training_readiness": ("A05", "A06", "A10", "A11", "A12", "A13", "A14", "A15", "A16", "A17", "A18", "A19", "A22", "A24", "A25"),
 }
 
 
@@ -187,7 +187,7 @@ def run_quality(
         f"- 标签行: {len(labels)} (仿真样本量口径)",
         f"- 训练样本: {len(samples)} (仿真样本量口径)",
         "",
-        "## 验收 A01–A23",
+        "## 验收 A01–A25",
         "",
         acceptance_df.to_markdown(index=False),
         "",
