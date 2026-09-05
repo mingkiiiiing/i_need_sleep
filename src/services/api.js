@@ -81,6 +81,16 @@ export function getEventsEnvelope() {
   return requestEnvelope('/events')
 }
 
+// ---------- 第六任务：历史事件复盘（cockpit 事件兼容源 + 回放时间轴，均需 meta） ----------
+
+export function getCockpitEventsEnvelope() {
+  return requestEnvelope('/cockpit/events')
+}
+
+export function getTimelineEnvelope(start, end) {
+  return requestEnvelope(`/cockpit/timeline?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
+}
+
 // ---------- P07 风险地图与时空推演（map / capabilities / 模拟预警处理） ----------
 
 export function getMapLayersEnvelope() {

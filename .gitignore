@@ -38,7 +38,7 @@ backend/.venv/
 
 # Private material and portable repository history never enter GitHub
 private/
-history/
+/history/
 **/credentials/
 *.pem
 *.key
