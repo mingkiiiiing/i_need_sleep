@@ -14,6 +14,7 @@ const Cockpit = () => import('./pages/Cockpit.vue')
 const Stations = () => import('./pages/Stations.vue')
 const Heatmap = () => import('./pages/Heatmap.vue')
 const History = () => import('./pages/History.vue')
+const Wallboard = () => import('./pages/Wallboard.vue')
 const NotFound = () => import('./pages/NotFound.vue')
 
 const routes = [
@@ -22,6 +23,7 @@ const routes = [
   { path: '/stations', name: 'stations', component: Stations, meta: { title: '监测站点研判' } },
   { path: '/heatmap', name: 'heatmap', component: Heatmap, meta: { title: '风险地图与时空推演' } },
   { path: '/history', name: 'history', component: History, meta: { title: '历史事件与复盘' } },
+  { path: '/wallboard', name: 'wallboard', component: Wallboard, meta: { title: '综合展示大屏', fullscreen: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound, meta: { title: '页面未找到' } }
 ]
 

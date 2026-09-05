@@ -257,6 +257,7 @@
           <RouterLink :to="stationsLink">进入站点诊断</RouterLink>
           <RouterLink to="/heatmap">进入风险研判</RouterLink>
           <RouterLink to="/history">进入事件复盘</RouterLink>
+          <RouterLink class="ckp-wallboard-entry" to="/wallboard">打开综合展示大屏</RouterLink>
         </nav>
       </Teleport>
     </div>
