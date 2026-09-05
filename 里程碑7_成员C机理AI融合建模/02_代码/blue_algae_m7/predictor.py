@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from blue_algae_m7.ai_models import MeanRegressor, WeightedRuleRegressor
-from blue_algae_m7.evaluation import classification_metrics, regression_metrics
+from blue_algae_m7.evaluation import classification_metrics, ordinal_classification_metrics, regression_metrics
 from blue_algae_m7.explainability import (
     feature_importance_by_correlation,
     uncertainty_interval,
@@ -22,8 +22,10 @@ METRIC_META = {
 
 # 概率型目标：value 即 probability（0/1 空间），无 base/spread 映射
 PROBABILITY_METRICS = {"spatial_extent", "bloom_label"}
-# 0/1 二值目标：独立评估时输出分类指标
-BINARY_METRICS = {"spatial_extent", "bloom_label", "risk_level"}
+# 0/1 二值目标：独立评估时输出二分类指标（risk_level 是 0–3 有序等级，不属于此列）
+BINARY_METRICS = {"spatial_extent", "bloom_label"}
+# 有序等级目标：预测类按 _risk_level 分带映射，评估输出四分类指标
+RISK_LEVEL_CLASSES = ("none", "low", "medium", "high")
 
 # 与数据工厂 HORIZONS=(1,3,7,15,30) 统一（2026-09-05 接口收尾决议）
 SCALE_DAYS = {
@@ -180,11 +182,13 @@ def predict(station_id, forecast_scale, target_metrics, rows=None, eval_rows=Non
         for split, group_rows in sorted(grouped.items()):
             y_true = []
             y_prob = []
+            y_true_raw = []
             for row in group_rows:
                 ai = rule_model.predict_one(row)
                 residual = ai - mean_model.predict_one(row)
                 probability = residual_fusion(cascade_fusion(row["mechanism_score"], ai), residual * 0.3)
                 y_true.append(row["target"])
+                y_true_raw.append(row["target_raw"])
                 y_prob.append(probability)
             entry = {
                 "n": len(y_true),
@@ -195,6 +199,12 @@ def predict(station_id, forecast_scale, target_metrics, rows=None, eval_rows=Non
             if all(row["metric_code"] in BINARY_METRICS for row in group_rows):
                 entry["classification"] = classification_metrics(
                     y_true, [1 if p >= 0.5 else 0 for p in y_prob]
+                )
+            elif all(row["metric_code"] == "risk_level" for row in group_rows):
+                entry["ordinal_classification"] = ordinal_classification_metrics(
+                    [int(round(float(raw))) for raw in y_true_raw],
+                    [RISK_LEVEL_CLASSES.index(_risk_level(p)) for p in y_prob],
+                    len(RISK_LEVEL_CLASSES),
                 )
             evaluations[split] = entry
 

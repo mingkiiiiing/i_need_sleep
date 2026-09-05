@@ -17,7 +17,7 @@ import pandas as pd
 from data_factory.contracts.constants import utc_now_iso
 from data_factory.contracts.enums import LAKE_ZONE_CODES, TASK_UNITS, LabelStatus
 from data_factory.labeling.geometry import positive_cells_geojson, spatial_extent_label, write_geojson
-from data_factory.labeling.thresholds import load_thresholds, risk_level_series, satellite_bloom_label
+from data_factory.labeling.thresholds import load_thresholds, risk_levels_by_date, satellite_bloom_label
 
 SIM_STATUS_BINARY = {1: LabelStatus.SIMULATION_POSITIVE.value, 0: LabelStatus.SIMULATION_NEGATIVE.value}
 ZONES_IN_LAKE = [z for z in LAKE_ZONE_CODES if z != "TAIHU_WHOLE"]
@@ -124,11 +124,17 @@ def build_labels(
         if area_series.empty:
             continue
         area_by_date = area_series.set_index("date")["bloom_area_km2"]
+        spatial_id = "TAIHU_WHOLE" if level == "lake" else zone_codes[0]
+        # T6 风险等级按该空间对象完整逐日序列一次性计算（持续 3/7 天窗口不得逐日重置）
+        if level == "zone":
+            frac_daily = zone_frac_mean.get(spatial_id, pd.Series(dtype=float))
+        else:
+            frac_daily = area_by_date / max(lake_area_km2, 1e-9)
+        risk_by_date = risk_levels_by_date(chla, frac_daily, frac.index)
         for date in frac.index:
             area_value = float(area_by_date.get(date, np.nan))
             if not np.isfinite(area_value):
                 continue
-            spatial_id = "TAIHU_WHOLE" if level == "lake" else zone_codes[0]
             binary = int(area_value >= area_threshold)
             row = _base_row("T1", spatial_id, spatial_type, date, th["threshold_set_id"], batch_id, dataset)
             rows.append(row)
@@ -144,13 +150,7 @@ def build_labels(
                 rows.append(row)
                 _finish(rows, value, unit, LabelStatus.MEASURED_VALUE.value)
 
-            if level == "zone":
-                chla_series = chla.loc[date].mean()
-                frac_series = float(zone_frac_mean.get(spatial_id, pd.Series(dtype=float)).get(date, np.nan))
-            else:
-                chla_series = float(chla.loc[date].mean())
-                frac_series = float(area_value / max(lake_area_km2, 1e-9))
-            risk = int(risk_level_series(np.array([chla_series]), np.array([frac_series]))[0])
+            risk = int(risk_by_date[date])
             row = _base_row("T6", spatial_id, spatial_type, date, th["threshold_set_id"], batch_id, dataset)
             rows.append(row)
             _finish(rows, risk, TASK_UNITS["T6"], LabelStatus.MEASURED_VALUE.value, source_type="threshold_rule")

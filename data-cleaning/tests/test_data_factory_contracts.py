@@ -8,7 +8,7 @@ import pytest
 
 from data_factory.contracts.spatial import cell_indices
 from data_factory.contracts.splits import build_split_manifest
-from data_factory.labeling.thresholds import bloom_binary, load_thresholds, risk_level_series
+from data_factory.labeling.thresholds import bloom_binary, load_thresholds, risk_level_series, risk_levels_by_date
 from data_factory.lineage.hashing import compute_sample_id, content_hash, row_hash
 
 
@@ -98,3 +98,24 @@ class TestThresholds:
         assert levels[9] == 3  # 连续 7 天 ≥0.05
         calm = risk_level_series(np.full(10, 5.0), np.full(10, 0.0))
         assert calm.tolist() == [0] * 10
+
+    def test_risk_levels_by_date_full_series(self):
+        # 2026-09-05 验收第三轮：T6 必须按空间对象完整逐日序列一次计算，
+        # 逐日单元素调用会让持续 3/7 天窗口永不成立（等级 2/3 缺失）
+        dates = pd.date_range("2024-06-01", periods=8, freq="D")
+        chla = pd.DataFrame({"g1": [70.0] * 8}, index=dates)
+        frac = pd.Series([0.0] + [0.06] * 7, index=dates)
+        levels = risk_levels_by_date(chla, frac, dates)
+        assert levels[dates[0]] == 1  # chla 超警戒但无持续
+        assert levels[dates[2]] == 1  # 连续仅 2 天
+        assert levels[dates[3]] == 2  # 连续 3 天（第 3 天升 2 级）
+        assert levels[dates[7]] == 3  # 连续 7 天（第 7 天升 3 级）
+
+    def test_risk_levels_by_date_gap_breaks_run(self):
+        dates = pd.date_range("2024-06-01", periods=4, freq="D")
+        chla = pd.DataFrame({"g1": [70.0] * 4}, index=dates)
+        frac = pd.Series([0.06, 0.06, np.nan, 0.06], index=dates)
+        levels = risk_levels_by_date(chla, frac, dates)
+        assert levels[dates[0]] == 1
+        assert levels[dates[1]] == 1  # 连续仅 2 天
+        assert levels[dates[3]] == 1  # 缺测日中断连击，重新计数

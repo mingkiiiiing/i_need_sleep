@@ -2,5 +2,5 @@
 
 from __future__ import annotations
 
-GENERATOR_VERSION = "df-0.2.2"  # 验收第二轮：split 透传 + T1 注册 + 契约枚举对齐（2026-09-05）
+GENERATOR_VERSION = "df-0.2.3"  # 验收第三轮：T6 持续序列按空间对象一次计算（2026-09-05）
 CONTRACT_VERSION = "1.1"

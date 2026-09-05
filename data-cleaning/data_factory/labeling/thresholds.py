@@ -60,6 +60,20 @@ def risk_level_series(chla: np.ndarray, bloom_fraction: np.ndarray) -> np.ndarra
     return level
 
 
+def risk_levels_by_date(chla_frame: pd.DataFrame, frac_daily: pd.Series, dates) -> dict:
+    """T6 逐日风险等级：按空间对象完整连续日期序列一次性计算。
+
+    持续 3/7 天窗口依赖时间上下文——若逐日只传单元素数组，等级 2/3 永远无法生成
+    （2026-09-05 验收第三轮整改）。日期缺失（reindex 出 NaN）视为不满足、中断连击。
+    """
+
+    index = list(dates)
+    chla_daily = chla_frame.mean(axis=1).reindex(index)
+    frac = frac_daily.reindex(index)
+    levels = risk_level_series(chla_daily.to_numpy(dtype=float), frac.to_numpy(dtype=float))
+    return dict(zip(index, (int(value) for value in levels)))
+
+
 def satellite_bloom_label(
     chla_values: np.ndarray | pd.Series,
     th: dict[str, Any],

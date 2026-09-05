@@ -82,13 +82,20 @@ def _mechanism_temperature(row):
     return row.get("air_temperature_C")
 
 
-def to_predictor_rows(rows):
+def to_predictor_rows(rows, *, fit_split=None):
     """契约行 → predictor 训练行；返回 (predictor_rows, skipped_counts)。
 
     target 归一化：按 target_metric 分组 min-max；组内值全部相同时取 0.5（无区分度）。
+    fit_split 给定时仅用 split==fit_split 行的标签拟合 min-max 参数并冻结后应用于全部行
+    （validation/test 标签范围不得进入预处理，2026-09-05 验收第三轮）；split 缺失的行
+    按 fit_split 处理。fit_split=None 为无切分场景，用全部传入行。
     """
+    if fit_split is None:
+        norm_rows = rows
+    else:
+        norm_rows = [row for row in rows if row.get("split", fit_split) == fit_split]
     values_by_metric = {}
-    for row in rows:
+    for row in norm_rows:
         metric = row.get("target_metric")
         value = row.get("target_value")
         if metric is not None and value is not None:
@@ -128,8 +135,13 @@ def to_predictor_rows(rows):
             "wind_speed_m_s": row["wind_speed_m_s"],
         }
         sample["mechanism_score"] = mechanism_risk_index(sample)["risk_score"]
+        if row["target_metric"] not in ranges:
+            raise ValueError(
+                f"no {fit_split or 'input'} rows to fit normalization for metric {row['target_metric']}"
+            )
         lo, span = ranges[row["target_metric"]]
         sample["target"] = 0.5 if span == 0.0 else (value - lo) / span
+        sample["target_raw"] = value
         predictor_rows.append(sample)
     return predictor_rows, skipped
 
@@ -154,7 +166,7 @@ def train_and_predict(
     if metrics is None:
         metrics = target_metrics
     rows = load_training_samples(csv_path, metrics=metrics, horizons=horizons, spatial_types=spatial_types)
-    predictor_rows, skipped = to_predictor_rows(rows)
+    predictor_rows, skipped = to_predictor_rows(rows, fit_split=fit_split)
     fit_rows = [r for r in predictor_rows if r.get("split", fit_split) == fit_split]
     eval_rows = [r for r in predictor_rows if r.get("split") in set(eval_splits)] if eval_splits else []
     if not fit_rows:

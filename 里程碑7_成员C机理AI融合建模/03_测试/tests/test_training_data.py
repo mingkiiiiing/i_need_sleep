@@ -106,6 +106,7 @@ class TrainingDataTest(unittest.TestCase):
         self.assertEqual(row["issue_date"], "2024-07-01")
         self.assertEqual(row["split"], "train")
         self.assertEqual(row["target"], 1.0)  # chla min-max: 40 为最大值
+        self.assertEqual(row["target_raw"], 40.0)  # 原始标签保留（有序分类评估用）
         self.assertGreaterEqual(row["mechanism_score"], 0.0)
         self.assertLessEqual(row["mechanism_score"], 1.0)
 
@@ -159,6 +160,70 @@ class TrainingDataTest(unittest.TestCase):
         self.assertEqual(evaluations["test"]["metric_codes"], ["spatial_extent"])
         self.assertIn("classification", evaluations["test"])  # 全为二值目标 → 输出分类指标
         self.assertEqual(result["training_summary"]["rows_fit"], 2)  # s2, s5
+
+    def test_normalization_frozen_on_fit_split(self):
+        # 2026-09-05 验收第三轮：min-max 参数只能来自 fit_split 行，
+        # test 标签范围不得进入预处理（否则按全量范围压缩，属于泄漏）
+        def make_row(sample_id, value, split):
+            return {
+                "sample_id": sample_id, "date": "2024-07-02", "spatial_id": "G0001",
+                "spatial_type": "grid", "target_metric": "chlorophyll_a",
+                "target_value": value, "target_unit": "ug/L",
+                "label_status": "measured_value", "source_type": "simulated",
+                "quality_flag": "pass", "split": split, "horizon_days": 1,
+                "issue_date": "2024-07-01", "water_temperature_C": 26.0,
+                "total_phosphorus_mg_L": 0.1, "total_nitrogen_mg_L": 1.2,
+                "solar_radiation_MJ_m2_day": 18.0, "wind_speed_m_s": 1.5,
+            }
+
+        rows = [
+            make_row("a", 20.0, "train"),
+            make_row("b", 40.0, "train"),
+            make_row("c", 100.0, "test"),
+            make_row("d", 10.0, "test"),
+        ]
+        predictor_rows, _ = to_predictor_rows(rows, fit_split="train")
+        targets = {r["target_raw"]: r["target"] for r in predictor_rows}
+        self.assertEqual(targets[20.0], 0.0)
+        self.assertEqual(targets[40.0], 1.0)
+        # test 值按 train 冻结参数 (20–40) 外推，而不是被全量范围 (10–100) 压缩进 [0,1]
+        self.assertAlmostEqual(targets[100.0], 4.0)
+        self.assertAlmostEqual(targets[10.0], -0.5)
+
+    def test_risk_level_uses_ordinal_classification(self):
+        # risk_level 是 0–3 有序等级，不得按 0/1 二分类评估
+        rows = []
+        for i, (value, split) in enumerate([("2.0", "train"), ("0.0", "train"), ("3.0", "test"), ("1.0", "test")]):
+            rows.append({
+                "sample_id": f"r{i}", "date": "2024-07-02", "spatial_id": "G0001", "spatial_type": "zone",
+                "target_metric": "risk_level", "target_value": value, "target_unit": "level",
+                "label_status": "measured_value", "source_type": "simulated", "quality_flag": "pass",
+                "split": split, "horizon_days": "1", "issue_date": "2024-07-01",
+                "water_temperature_C": "26.0", "air_temperature_C": "28.0",
+                "total_phosphorus_mg_L": "0.1", "total_nitrogen_mg_L": "1.2",
+                "solar_radiation_MJ_m2_day": "18.0", "wind_speed_m_s": "1.5",
+                "chlorophyll_a_ug_L": "40.0",
+            })
+        csv_path = Path(self._tmp.name) / "risk_level_samples.csv"
+        with csv_path.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=HEADER)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        result = train_and_predict(csv_path, "G0001", "short_term", ["risk_level"])
+
+        self.assertEqual(result["training_summary"]["rows_fit"], 2)
+        self.assertEqual(result["training_summary"]["rows_eval"], 2)
+        evaluations = result["evaluations"]["test"]
+        self.assertNotIn("classification", evaluations)
+        ordinal = evaluations["ordinal_classification"]
+        self.assertIn("accuracy", ordinal)
+        self.assertIn("balanced_accuracy", ordinal)
+        self.assertIn("macro_f1", ordinal)
+        self.assertEqual(set(ordinal["per_class"]), {"0", "1", "2", "3"})
+        self.assertEqual(ordinal["per_class"]["3"]["support"], 1)
+        metric = result["results"][0]["metrics"][0]
+        self.assertIn(metric["value"], {"none", "low", "medium", "high"})
 
     def test_train_and_predict_rejects_unknown_station(self):
         with self.assertRaises(ValueError):
