@@ -17,6 +17,70 @@ async function request(path, options = {}) {
   return body.data
 }
 
+// P03 站点研判需要 meta（data_mode / dataset_version / claim_boundary），
+// 不能改变旧 request() 的返回结构（P01 依赖），因此新增独立 envelope 方法。
+export class ApiError extends Error {
+  constructor(message, status, code) {
+    super(message)
+    this.status = status
+    this.code = code || ''
+  }
+}
+
+export async function requestEnvelope(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    ...options
+  })
+  let body = null
+  try {
+    body = await response.json()
+  } catch {
+    if (!response.ok) throw new ApiError(`API 请求失败：${response.status}`, response.status)
+    throw new ApiError('API 返回了无法解析的内容', response.status)
+  }
+  if (!response.ok) {
+    const detail = body && body.detail
+    const code = (detail && detail.code) || (body.errors && body.errors[0] && body.errors[0].code) || ''
+    const message = (detail && detail.message) || body.message || `API 请求失败：${response.status}`
+    throw new ApiError(message, response.status, code)
+  }
+  if (!body || body.code !== 200) {
+    throw new ApiError((body && body.message) || 'API 返回异常', response.status)
+  }
+  return { data: body.data, meta: body.meta || {} }
+}
+
+// ---------- P03 监测站点研判（demo_zone 演示分区） ----------
+
+export function getSpatialEntities(entityType = 'demo_zone') {
+  return requestEnvelope(`/spatial-entities?entity_type=${encodeURIComponent(entityType)}&mode=simulated`)
+}
+
+export function getSpatialEntity(entityId) {
+  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}`)
+}
+
+export function getEntityObservations(entityId) {
+  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/observations`)
+}
+
+export function getEntityQuality(entityId) {
+  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/quality`)
+}
+
+export function getForecastsEnvelope(entityId, horizonDays) {
+  return requestEnvelope(`/forecasts?spatial_entity_id=${encodeURIComponent(entityId)}&horizon_days=${horizonDays}`)
+}
+
+export function getExplanationEnvelope(forecastId) {
+  return requestEnvelope(`/forecasts/${encodeURIComponent(forecastId)}/explanations`)
+}
+
+export function getEventsEnvelope() {
+  return requestEnvelope('/events')
+}
+
 async function useConfiguredSource(apiCall, mockCall) {
   if (USE_MOCK) return mockCall()
   return apiCall()
