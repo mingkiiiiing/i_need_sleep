@@ -46,6 +46,21 @@ class PredictorContractTest(unittest.TestCase):
         self.assertEqual([1, 3], horizons)
         self.assertEqual(len(horizons), len(set(horizons)))
 
+    def test_predict_supports_t1_bloom_label(self):
+        result = predict(
+            station_id="TH_CENTER",
+            forecast_scale="short_term",
+            target_metrics=["bloom_label"],
+        )
+
+        metric = result["results"][0]["metrics"][0]
+        self.assertEqual(metric["metric_code"], "bloom_label")
+        self.assertEqual(metric["unit"], "0/1")
+        self.assertGreaterEqual(metric["value"], 0.0)
+        self.assertLessEqual(metric["value"], 1.0)
+        self.assertGreaterEqual(metric["lower_bound"], 0.0)
+        self.assertLessEqual(metric["upper_bound"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

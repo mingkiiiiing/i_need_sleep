@@ -43,7 +43,7 @@ FLOAT_FIELDS = {
 MECHANISM_REQUIRED = ("total_phosphorus_mg_L", "total_nitrogen_mg_L", "solar_radiation_MJ_m2_day", "wind_speed_m_s")
 
 
-def load_training_samples(csv_path, *, metrics=None, horizons=None, spatial_types=None):
+def load_training_samples(csv_path, *, metrics=None, horizons=None, spatial_types=None, splits=None):
     """读取契约 CSV，返回 dict 行列表；数值列转 float/int，空串转 None。"""
     path = Path(csv_path)
     if not path.exists():
@@ -69,6 +69,8 @@ def load_training_samples(csv_path, *, metrics=None, horizons=None, spatial_type
             if horizon_filter is not None and row.get("horizon_days") not in horizon_filter:
                 continue
             if spatial_types is not None and row.get("spatial_type") not in spatial_types:
+                continue
+            if splits is not None and row.get("split") not in splits:
                 continue
             rows.append(row)
     return rows
@@ -118,6 +120,7 @@ def to_predictor_rows(rows):
             "horizon_days": horizon,
             "metric_code": row["target_metric"],
             "issue_date": row.get("issue_date"),
+            "split": row.get("split"),
             "water_temperature_C": temp,
             "total_phosphorus_mg_L": row["total_phosphorus_mg_L"],
             "total_nitrogen_mg_L": row["total_nitrogen_mg_L"],
@@ -140,24 +143,33 @@ def train_and_predict(
     metrics=None,
     horizons=None,
     spatial_types=None,
+    fit_split="train",
+    eval_splits=("test",),
 ):
-    """便捷入口：加载 CSV → 过滤 → 全链路（机理分→AI→融合）训练与预测。
+    """便捷入口：加载 CSV → 过滤 → train-only 拟合 → 预测 + 独立评估。
 
-    metrics 缺省过滤为 target_metrics 本身，避免把全部指标混入训练。
+    只用 fit_split（默认 train）行拟合；eval_splits（默认 test）行用同一套
+    已拟合模型评估、不参与拟合。metrics 缺省过滤为 target_metrics 本身。
     """
     if metrics is None:
         metrics = target_metrics
     rows = load_training_samples(csv_path, metrics=metrics, horizons=horizons, spatial_types=spatial_types)
     predictor_rows, skipped = to_predictor_rows(rows)
-    if not predictor_rows:
+    fit_rows = [r for r in predictor_rows if r.get("split", fit_split) == fit_split]
+    eval_rows = [r for r in predictor_rows if r.get("split") in set(eval_splits)] if eval_splits else []
+    if not fit_rows:
         raise ValueError(
-            f"no usable training rows in {csv_path} (loaded={len(rows)}, skipped={skipped})"
+            f"no usable training rows in {csv_path} for fit_split={fit_split} "
+            f"(loaded={len(rows)}, skipped={skipped})"
         )
-    result = predict(station_id, forecast_scale, target_metrics, rows=predictor_rows)
+    result = predict(station_id, forecast_scale, target_metrics, rows=fit_rows, eval_rows=eval_rows)
     result["training_summary"] = {
         "csv_path": str(csv_path),
         "rows_loaded": len(rows),
-        "rows_usable": len(predictor_rows),
+        "rows_fit": len(fit_rows),
+        "fit_split": fit_split,
+        "rows_eval": len(eval_rows),
+        "eval_splits": list(eval_splits),
         "skipped": skipped,
     }
     return result

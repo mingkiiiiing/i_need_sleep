@@ -84,6 +84,7 @@ def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1") -> tuple[pd.Dat
     out["issue_date"] = pd.to_datetime(frame["issue_date"]).dt.strftime("%Y-%m-%d")
     out["data_track"] = track
     out["dataset_version"] = frame["dataset_version"]
+    out["split"] = frame["split"]
     out["feature_window_note"] = frame["feature_window_note"]
 
     for internal, external in FEATURE_COLUMNS.items():
@@ -99,7 +100,7 @@ def to_member_c(samples: pd.DataFrame, *, track: str = "SIM-V1") -> tuple[pd.Dat
     summary = {
         "rows": int(len(out)),
         "rows_excluded_open_enum": excluded,
-        "open_enum_note": "label_status=simulation_* 与 source_type=simulated 不在成员 C V0.1 枚举内，原样保留待契约评审；T3/T7 已于 2026-09-05 正式接收",
+        "open_enum_note": "生物量(T4 mg/L)与密度(T3 10^4 cells/L)为独立目标且单位已入契约枚举；spatial_type 含 zone|lake 为湖区/全湖聚合粒度；label_status=simulation_* 与 source_type=simulated 已纳入 V0.1 枚举（2026-09-05 验收第二轮对齐）",
         "metrics": {k: int(v) for k, v in out.groupby("target_metric").size().items()} if not out.empty else {},
         "label_statuses": {k: int(v) for k, v in out.groupby("label_status").size().items()} if not out.empty else {},
         "feature_missing_rates": feature_missing_rates,

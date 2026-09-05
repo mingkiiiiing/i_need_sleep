@@ -21,7 +21,7 @@ def main():
     result = predict(
         "TH_CENTER",
         "short_term",
-        ["chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent", "risk_level"],
+        ["bloom_label", "chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent", "risk_level"],
     )
     with (OUT_DIR / "prediction_contract_sample_V0.1.json").open("w", encoding="utf-8") as handle:
         json.dump(result, handle, ensure_ascii=False, indent=2)

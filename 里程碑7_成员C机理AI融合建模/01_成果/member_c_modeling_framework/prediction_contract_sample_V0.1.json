@@ -10,6 +10,14 @@
       "horizon_days": 1,
       "metrics": [
         {
+          "metric_code": "bloom_label",
+          "metric_name": "水华发生",
+          "value": 0.5975,
+          "unit": "0/1",
+          "lower_bound": 0.5175,
+          "upper_bound": 0.5975
+        },
+        {
           "metric_code": "chlorophyll_a",
           "metric_name": "叶绿素a",
           "value": 45.755,
@@ -63,6 +71,14 @@
       "horizon_days": 3,
       "metrics": [
         {
+          "metric_code": "bloom_label",
+          "metric_name": "水华发生",
+          "value": 0.6205,
+          "unit": "0/1",
+          "lower_bound": 0.5405,
+          "upper_bound": 0.6205
+        },
+        {
           "metric_code": "chlorophyll_a",
           "metric_name": "叶绿素a",
           "value": 46.168,
@@ -112,6 +128,7 @@
       }
     }
   ],
+  "evaluations": {},
   "explainability": {
     "global_feature_importance": [
       {
@@ -121,7 +138,7 @@
       },
       {
         "feature": "water_temperature_C",
-        "importance": 0.9668771088233297,
+        "importance": 0.9668771088233296,
         "direction": "positive"
       },
       {

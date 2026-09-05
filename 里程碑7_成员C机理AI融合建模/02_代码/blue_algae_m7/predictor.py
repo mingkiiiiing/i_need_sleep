@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from blue_algae_m7.ai_models import MeanRegressor, WeightedRuleRegressor
+from blue_algae_m7.evaluation import classification_metrics, regression_metrics
 from blue_algae_m7.explainability import (
     feature_importance_by_correlation,
     uncertainty_interval,
@@ -16,7 +17,13 @@ METRIC_META = {
     "risk_level": {"name": "风险等级", "unit": "level", "base": 0.0, "spread": 1.0},
     "blue_algae_density": {"name": "蓝藻密度", "unit": "10^4 cells/L", "base": 30.0, "spread": 270.0},
     "spatial_extent": {"name": "空间范围", "unit": "0/1"},
+    "bloom_label": {"name": "水华发生", "unit": "0/1"},
 }
+
+# 概率型目标：value 即 probability（0/1 空间），无 base/spread 映射
+PROBABILITY_METRICS = {"spatial_extent", "bloom_label"}
+# 0/1 二值目标：独立评估时输出分类指标
+BINARY_METRICS = {"spatial_extent", "bloom_label", "risk_level"}
 
 # 与数据工厂 HORIZONS=(1,3,7,15,30) 统一（2026-09-05 接口收尾决议）
 SCALE_DAYS = {
@@ -40,7 +47,7 @@ def build_demo_rows():
     rows = []
     for scale, horizons in SCALE_DAYS.items():
         for horizon in horizons:
-            for metric_code in ("chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent"):
+            for metric_code in ("chlorophyll_a", "bloom_area", "blue_algae_density", "spatial_extent", "bloom_label"):
                 temp = 24.0 + min(horizon, 15) * 0.25
                 wind = max(0.6, 2.8 - horizon * 0.04)
                 sample = {
@@ -64,7 +71,7 @@ def build_demo_rows():
 def _metric_value(metric_code, probability):
     if metric_code == "risk_level":
         return _risk_level(probability)
-    if metric_code == "spatial_extent":
+    if metric_code in PROBABILITY_METRICS:
         return round(probability, 4)
     meta = METRIC_META[metric_code]
     return round(meta["base"] + meta["spread"] * probability, 3)
@@ -76,8 +83,11 @@ def _train_models(rows):
     return mean_model, rule_model
 
 
-def predict(station_id, forecast_scale, target_metrics, rows=None):
-    """rows=None 走内置演示样本；传入数据工厂训练行时全链路用真实数据训练与预测。"""
+def predict(station_id, forecast_scale, target_metrics, rows=None, eval_rows=None):
+    """rows=None 走内置演示样本；传入数据工厂训练行时全链路用真实数据训练与预测。
+
+    eval_rows：用同一套已拟合模型做独立评估（按 split 分组），不参与拟合。
+    """
     if forecast_scale not in SCALE_DAYS:
         raise ValueError(f"unsupported forecast_scale: {forecast_scale}")
     unsupported = [metric for metric in target_metrics if metric not in METRIC_META]
@@ -133,7 +143,7 @@ def predict(station_id, forecast_scale, target_metrics, rows=None):
                     [max(0.0, probability - 0.08), probability, min(1.0, probability + 0.08)],
                     confidence=0.8,
                 )
-                if metric_code == "spatial_extent":
+                if metric_code in PROBABILITY_METRICS:
                     metric["lower_bound"] = round(max(0.0, interval["lower"]), 4)
                     metric["upper_bound"] = round(min(1.0, interval["upper"]), 4)
                 else:
@@ -162,6 +172,32 @@ def predict(station_id, forecast_scale, target_metrics, rows=None):
             }
         )
 
+    evaluations = {}
+    if eval_rows:
+        grouped = {}
+        for row in eval_rows:
+            grouped.setdefault(row.get("split", "unknown"), []).append(row)
+        for split, group_rows in sorted(grouped.items()):
+            y_true = []
+            y_prob = []
+            for row in group_rows:
+                ai = rule_model.predict_one(row)
+                residual = ai - mean_model.predict_one(row)
+                probability = residual_fusion(cascade_fusion(row["mechanism_score"], ai), residual * 0.3)
+                y_true.append(row["target"])
+                y_prob.append(probability)
+            entry = {
+                "n": len(y_true),
+                "metric_codes": sorted({row["metric_code"] for row in group_rows}),
+                "target_space": "per_metric_minmax_0_1",
+                "regression": regression_metrics(y_true, y_prob),
+            }
+            if all(row["metric_code"] in BINARY_METRICS for row in group_rows):
+                entry["classification"] = classification_metrics(
+                    y_true, [1 if p >= 0.5 else 0 for p in y_prob]
+                )
+            evaluations[split] = entry
+
     importance = feature_importance_by_correlation(
         rows,
         [
@@ -179,6 +215,7 @@ def predict(station_id, forecast_scale, target_metrics, rows=None):
         "effect_claim_allowed": False,
         "model_family": "mechanism_ai_fusion_framework_v0.1",
         "results": results,
+        "evaluations": evaluations,
         "explainability": {
             "global_feature_importance": importance,
             "uncertainty": uncertainty_interval(probabilities, confidence=0.8),
@@ -191,7 +228,8 @@ def predict(station_id, forecast_scale, target_metrics, rows=None):
             if demo
             else [
                 "Trained and predicted on caller-supplied rows (data factory member_c_training_samples).",
-                "SIM-V1 synthetic data: effect claims remain disallowed; spatial_extent is grid-level (not geometry).",
+                "SIM-V1 synthetic data: effect claims remain disallowed.",
+                "spatial_extent is a zone/lake connectivity label (0/1); grid-level geometry is not predicted.",
             ]
         ),
     }

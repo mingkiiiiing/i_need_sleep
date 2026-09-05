@@ -66,8 +66,13 @@ class TestMemberCAdapter:
         assert {"blue_algae_density", "spatial_extent"} <= set(out["target_metric"])
         assert summary["rows_excluded_open_enum"] == 0
         statuses = set(out["label_status"])
-        assert "simulation_positive" in statuses  # label_status 枚举外延原样保留（待契约评审）
+        assert "simulation_positive" in statuses  # simulation_* 已入契约枚举（第二轮验收对齐）
         assert summary["open_enum_note"]  # V04 依赖该说明字段存在
+
+    def test_split_column_preserved(self):
+        out, _ = to_member_c(_sample_frame(), track="SIM-V1")
+        assert "split" in out.columns
+        assert set(out["split"]) == {"train", "test"}
 
     def test_unit_mapping(self):
         out, _ = to_member_c(_sample_frame(), track="SIM-V1")
@@ -75,6 +80,37 @@ class TestMemberCAdapter:
         assert (chla_rows["target_unit"] == "ug/L").all() if not chla_rows.empty else True
         t7_rows = out[out["target_metric"] == "spatial_extent"]
         assert (t7_rows["target_unit"] == "0/1").all() if not t7_rows.empty else True
+
+
+def _contract_enum(field_name: str) -> set[str]:
+    import csv
+    from pathlib import Path
+
+    path = (
+        Path(__file__).resolve().parents[2]
+        / "里程碑7_成员C机理AI融合建模"
+        / "01_成果"
+        / "member_c_modeling_framework"
+        / "required_training_schema_V0.1.csv"
+    )
+    with path.open(encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if row["field_name"] == field_name:
+                return set(row["unit_or_allowed_values"].split("|"))
+    raise AssertionError(f"field {field_name} not found in contract")
+
+
+class TestContractAlignment:
+    """适配器实际输出值必须落在成员 C 契约枚举内（第二轮验收缺口 #3 的回归门）。"""
+
+    def test_adapter_output_within_contract_enums(self):
+        out, _ = to_member_c(_sample_frame(), track="SIM-V1")
+        assert set(out["spatial_type"]) <= _contract_enum("spatial_type")
+        assert set(out["label_status"]) <= _contract_enum("label_status")
+        assert set(out["source_type"]) <= _contract_enum("source_type")
+        assert set(out["target_metric"]) <= _contract_enum("target_metric")
+        assert set(out["target_unit"]) <= _contract_enum("target_unit")
+        assert set(out["split"]) <= _contract_enum("split")
 
 
 class TestSampleContract:

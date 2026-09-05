@@ -1,7 +1,7 @@
 {
   "status": "PASS",
   "scope": "member_c_framework_only",
-  "sample_rows": 20,
+  "sample_rows": 25,
   "claim_boundary": "sample_interface_only",
   "effect_claim_allowed": false,
   "real_data_entry": "blue_algae_m7.training_data.train_and_predict(member_c_training_samples.csv, station_id, forecast_scale, target_metrics)",
