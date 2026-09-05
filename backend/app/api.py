@@ -1,187 +1,362 @@
+"""全部 /api/v1 路由：统一信封 + Pydantic 响应模型 + 稳定错误码。
+
+兼容承诺：五个保留页面（首页/P01/P03/P07/历史复盘）当前消费的字段与键名
+不得变动，详见 reports/audit7/frontend-api-consumers.md。
+"""
 from __future__ import annotations
 
-from typing import Literal
+from datetime import date
+from typing import Any, Literal
 
-from datetime import date, timedelta
-
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
 
-from .core import api_response, capability_unavailable, data_mode_unavailable, invalid_query_range, not_found, response_meta
-from .demo_provider import CLAIM_BOUNDARY, FORECAST_VERSION, OBSERVATION_VERSION
+from . import schemas
+from .contracts import (
+    OBSERVATION_VERSION,
+    PREDICTION_RUN_ID,
+    PREDICTION_VERSION,
+    MAX_TIMELINE_SPAN_DAYS,
+    CLAIM_BOUNDARY,
+    DATA_MODE,
+    envelope,
+)
+from .errors import (
+    capability_unavailable,
+    entity_not_found,
+    forecast_not_available,
+    invalid_date_range,
+    invalid_event_id,
+    invalid_horizon,
+    query_range_too_large,
+    simulation_only,
+)
 from .services import service
 
 router = APIRouter(prefix="/api/v1")
 
+_HORIZONS = (1, 3, 7, 15, 30)
 
-class SimulatedWarningHandleRequest(BaseModel):
+
+class HandleWarningRequest(BaseModel):
     event_id: str
 
 
-def simulated_meta(dataset_version: str = FORECAST_VERSION) -> dict:
-    return response_meta(data_mode="simulated", dataset_version=dataset_version, claim_boundary=CLAIM_BOUNDARY)
+def _ok(request: Request, data: Any, dataset_version: str, *, run: bool = False) -> dict[str, Any]:
+    return envelope(
+        request,
+        data,
+        dataset_version=dataset_version,
+        prediction_run_id=PREDICTION_RUN_ID if run else None,
+    )
 
 
-@router.get("/system/capabilities")
-def get_capabilities(): return api_response(service.capabilities(), meta=simulated_meta())
+def _require_entity(entity_id: str, *, dataset_version: str) -> None:
+    if not service.observation.zone(entity_id):
+        raise entity_not_found(
+            "演示分区不存在",
+            dataset_version=dataset_version,
+            detail=f"spatial_entity_id={entity_id!r} 不是已注册的 demo_zone",
+        )
 
-@router.get("/datasets/summary")
-def get_datasets_summary(): return api_response(service.datasets_summary(), meta=simulated_meta())
 
-@router.get("/pipeline/runs/latest")
-def get_latest_pipeline_run(): return api_response({"run_id": "DEMO-PIPELINE-V1", "status": "simulated", "dataset_versions": [OBSERVATION_VERSION, FORECAST_VERSION]}, meta=simulated_meta())
+def _require_horizon(horizon_days: int) -> None:
+    if horizon_days not in _HORIZONS:
+        raise invalid_horizon(
+            "horizon_days 仅支持 1、3、7、15 或 30",
+            detail=f"horizon_days={horizon_days} 不在支持档位 {list(_HORIZONS)} 中",
+            dataset_version=PREDICTION_VERSION,
+        )
 
-@router.get("/dashboard/overview")
-def get_dashboard_overview(mode: Literal["historical", "simulated"] = "simulated"):
+
+def _parse_forecast_id(forecast_id: str) -> tuple[str, int] | None:
+    parts = forecast_id.removeprefix("demo-forecast-").rsplit("-", 1)
+    if len(parts) != 2:
+        return None
+    horizon_text = parts[1].removesuffix("d")
+    if not horizon_text.isdigit():
+        return None
+    return parts[0], int(horizon_text)
+
+
+# ---------- 首页 ----------
+
+
+@router.get("/system/capabilities", response_model=schemas.Envelope[schemas.CapabilitiesData])
+def get_capabilities(request: Request):
+    return _ok(request, service.capabilities(), OBSERVATION_VERSION)
+
+
+@router.get("/datasets/summary", response_model=schemas.Envelope[schemas.DatasetsSummaryData])
+def get_datasets_summary(request: Request):
+    return _ok(request, service.datasets_summary(), OBSERVATION_VERSION)
+
+
+@router.get("/pipeline/runs/latest", response_model=schemas.Envelope[schemas.PipelineRunData])
+def get_latest_pipeline_run(request: Request):
+    return _ok(request, service.pipeline_latest(), OBSERVATION_VERSION)
+
+
+@router.get("/dashboard/overview", response_model=schemas.Envelope[schemas.OverviewData])
+def get_dashboard_overview(request: Request, mode: Literal["historical", "simulated"] = "simulated"):
     if mode == "historical":
-        raise data_mode_unavailable("历史真实观测尚未接入业务 API；当前仅提供模拟演示总览")
-    return api_response(service.overview(), meta=simulated_meta())
+        raise simulation_only("历史真实观测尚未接入业务 API；当前仅提供模拟演示总览", dataset_version=PREDICTION_VERSION)
+    return _ok(request, service.overview(), PREDICTION_VERSION, run=True)
 
-@router.get("/spatial-entities")
-def list_spatial_entities(entity_type: str | None = None, mode: Literal["observed", "simulated"] = "simulated"):
+
+# ---------- 空间对象与观测（P03 / P07 / 历史复盘共用） ----------
+
+
+@router.get("/spatial-entities", response_model=schemas.Envelope[list[schemas.SpatialEntity]])
+def list_spatial_entities(
+    request: Request,
+    entity_type: str | None = None,
+    mode: Literal["observed", "simulated"] = "simulated",
+):
     if mode == "observed":
-        raise data_mode_unavailable("真实站点与历史观测尚未接入业务 API；当前仅提供 demo_zone")
-    return api_response(service.spatial_entities(entity_type), meta=simulated_meta())
+        raise simulation_only(
+            "真实站点与历史观测尚未接入业务 API；当前仅提供 demo_zone 演示分区",
+            dataset_version=OBSERVATION_VERSION,
+        )
+    return _ok(request, service.spatial_entities(entity_type), OBSERVATION_VERSION)
 
-@router.get("/spatial-entities/{entity_id}")
-def get_spatial_entity(entity_id: str):
+
+@router.get("/spatial-entities/{entity_id}", response_model=schemas.Envelope[schemas.SpatialEntity])
+def get_spatial_entity(request: Request, entity_id: str):
+    _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
     entity = next((item for item in service.spatial_entities() if item["id"] == entity_id), None)
-    if not entity: raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
-    return api_response(entity, meta=simulated_meta())
+    return _ok(request, entity, OBSERVATION_VERSION)
 
-@router.get("/spatial-entities/{entity_id}/observations")
-def get_observations(entity_id: str, variable_code: str | None = None):
-    if not service.provider.zone(entity_id): raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
-    return api_response(service.provider.observations(entity_id, variable_code), meta=simulated_meta(OBSERVATION_VERSION))
 
-@router.get("/spatial-entities/{entity_id}/quality")
-def get_quality(entity_id: str):
-    if not service.provider.zone(entity_id): raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
-    return api_response(service.quality(entity_id), meta=simulated_meta(OBSERVATION_VERSION))
+@router.get(
+    "/spatial-entities/{entity_id}/observations",
+    response_model=schemas.Envelope[list[schemas.ObservationRow]],
+)
+def get_observations(request: Request, entity_id: str, variable_code: str | None = None):
+    _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
+    return _ok(request, service.observation.observations(entity_id, variable_code), OBSERVATION_VERSION)
 
-@router.get("/forecast-capabilities")
-def get_forecast_capabilities(): return api_response(service.capabilities()["capabilities"], meta=simulated_meta())
 
-@router.get("/forecasts")
-def list_forecasts(spatial_entity_id: str, horizon_days: int = Query(3, ge=1, le=30)):
-    if horizon_days not in {1, 3, 7, 15, 30}:
-        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
-    if horizon_days > 15: raise capability_unavailable("30—90 天预测尚未就绪，不能返回演示算法结果作为正式预测")
-    forecast = service.provider.forecast(spatial_entity_id, horizon_days)
-    if not forecast: raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
-    return api_response([forecast], meta=simulated_meta())
+@router.get("/spatial-entities/{entity_id}/quality", response_model=schemas.Envelope[schemas.QualityReport])
+def get_quality(request: Request, entity_id: str):
+    _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
+    return _ok(request, service.observation.quality(entity_id), OBSERVATION_VERSION)
 
-@router.get("/forecasts/{forecast_id}")
-def get_forecast(forecast_id: str):
-    explanation = service.provider.explanation(forecast_id)
-    if not explanation: raise not_found("FORECAST_NOT_FOUND", "预测记录不存在")
-    try:
-        entity_id = forecast_id.removeprefix("demo-forecast-").rsplit("-", 1)[0]
-        horizon = int(forecast_id.rsplit("-", 1)[1].removesuffix("d"))
-    except ValueError:
-        raise not_found("FORECAST_NOT_FOUND", "预测记录不存在")
-    return api_response(service.provider.forecast(entity_id, horizon), meta=simulated_meta())
 
-@router.get("/forecasts/{forecast_id}/explanations")
-def get_explanation(forecast_id: str):
-    explanation = service.provider.explanation(forecast_id)
-    if not explanation: raise not_found("FORECAST_NOT_FOUND", "预测记录不存在")
-    return api_response(explanation, meta=simulated_meta())
+# ---------- 预测（P03 / P07；T+30 能力阻塞） ----------
 
-@router.get("/map/layers")
-def get_map_layers(): return api_response([{"id": "demo-risk-grid", "layer_type": "simulated_scenario", "data_mode": "simulated", "operational_use": False, "description": "演示风险格网，非监管决策用途"}], meta=simulated_meta())
 
-@router.get("/map/risk-grid")
-def get_risk_grid(horizon_days: int = Query(3, ge=1, le=30)):
-    if horizon_days not in {1, 3, 7, 15, 30}:
-        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
-    data = service.risk_grid(horizon_days)
+@router.get("/forecast-capabilities", response_model=schemas.Envelope[dict[str, str]])
+def get_forecast_capabilities(request: Request):
+    return _ok(request, service.capabilities()["capabilities"], PREDICTION_VERSION, run=True)
+
+
+@router.get("/forecasts", response_model=schemas.Envelope[list[schemas.Forecast]])
+def list_forecasts(
+    request: Request,
+    spatial_entity_id: str,
+    horizon_days: int = Query(3),
+    target_metric: str = "bloom_risk",
+):
+    _require_horizon(horizon_days)
+    if horizon_days > 15:
+        raise capability_unavailable(
+            "30—90 天预测尚未就绪，不能返回演示算法结果作为正式预测",
+            detail="T+30 分区预测被能力阻塞；风险地图的 T+30 演示格网请使用 /map/risk-grid",
+            dataset_version=PREDICTION_VERSION,
+        )
+    _require_entity(spatial_entity_id, dataset_version=PREDICTION_VERSION)
+    forecast = service.prediction.forecast(spatial_entity_id, horizon_days)
+    if not forecast:
+        raise forecast_not_available(
+            "当前预测 Provider 无法提供该分区的预测结果",
+            detail=f"provider={service.prediction.name()} 无法生成 {spatial_entity_id} 的 T+{horizon_days} 预测",
+            dataset_version=PREDICTION_VERSION,
+        )
+    return _ok(request, [forecast], PREDICTION_VERSION, run=True)
+
+
+@router.get("/forecasts/{forecast_id}", response_model=schemas.Envelope[schemas.Forecast])
+def get_forecast(request: Request, forecast_id: str):
+    parsed = _parse_forecast_id(forecast_id)
+    if not parsed or not service.prediction.zone(parsed[0]):
+        raise entity_not_found(
+            "预测记录不存在",
+            dataset_version=PREDICTION_VERSION,
+            detail=f"forecast_id={forecast_id!r} 无法解析为已注册分区的预测记录",
+        )
+    entity_id, horizon_days = parsed
+    if horizon_days > 15:
+        raise capability_unavailable(
+            "30—90 天预测尚未就绪，不能返回演示算法结果作为正式预测",
+            detail="T+30 预测仅作为模拟预演数据存在于驾驶舱视图，正式预测接口对其能力阻塞",
+            dataset_version=PREDICTION_VERSION,
+        )
+    forecast = service.prediction.forecast(entity_id, horizon_days)
+    if not forecast:
+        raise forecast_not_available(
+            "当前预测 Provider 无法提供该预测记录",
+            detail=f"provider={service.prediction.name()} 无法生成 {forecast_id}",
+            dataset_version=PREDICTION_VERSION,
+        )
+    return _ok(request, forecast, PREDICTION_VERSION, run=True)
+
+
+@router.get("/forecasts/{forecast_id}/explanations", response_model=schemas.Envelope[schemas.Explanation])
+def get_explanation(request: Request, forecast_id: str):
+    parsed = _parse_forecast_id(forecast_id)
+    if not parsed or not service.prediction.zone(parsed[0]) or parsed[1] > 15:
+        raise entity_not_found(
+            "预测记录不存在，解释结果必须绑定已存在的 forecast",
+            dataset_version=PREDICTION_VERSION,
+            detail=f"forecast_id={forecast_id!r} 不是可解释的预测记录",
+        )
+    explanation = service.prediction.explanation(forecast_id)
+    if not explanation:
+        raise forecast_not_available(
+            "当前预测 Provider 无法提供该预测记录的解释",
+            detail=f"provider={service.prediction.name()} 无法解释 {forecast_id}",
+            dataset_version=PREDICTION_VERSION,
+        )
+    return _ok(request, explanation, PREDICTION_VERSION, run=True)
+
+
+# ---------- 地图（P07） ----------
+
+
+@router.get("/map/layers", response_model=schemas.Envelope[list[schemas.MapLayer]])
+def get_map_layers(request: Request):
+    return _ok(
+        request,
+        [
+            {
+                "id": "demo-risk-grid",
+                "layer_type": "simulated_scenario",
+                "data_mode": DATA_MODE,
+                "operational_use": False,
+                "description": "演示风险格网，非监管决策用途",
+            }
+        ],
+        PREDICTION_VERSION,
+        run=True,
+    )
+
+
+def _grid_data(horizon_days: int) -> dict[str, Any]:
+    data = service.prediction.risk_grid(horizon_days)
     data["layer_type"] = "simulated_scenario"
     data["operational_use"] = False
-    if horizon_days == 30:
-        data["capability_status"] = "long_term_forecast_blocked_simulation_only"
-    return api_response(data, meta=simulated_meta())
+    data["capability_status"] = "long_term_forecast_blocked_simulation_only" if horizon_days == 30 else None
+    return data
 
-@router.get("/map/risk-polygons")
-def get_risk_polygons(horizon_days: int = Query(3, ge=1, le=30)):
-    if horizon_days not in {1, 3, 7, 15, 30}:
-        raise invalid_query_range("horizon_days 仅支持 1、3、7、15 或 30")
-    grid = service.risk_grid(horizon_days)
-    return api_response({"type": "FeatureCollection", "features": [], "source": "simulated_grid", "horizon_days": grid["horizon_days"]}, meta=simulated_meta())
 
-@router.get("/events")
-def get_events():
-    events = [{"id": f"demo-event-{index}", "event_type": "model", "occurred_at": f"2026-08-{16 + index:02d}T09:00:00+08:00", "spatial_entity_id": zone["id"], "title": "演示预测运行", "data_mode": "simulated", "prediction_run_id": "DEMO-RUN-V1"} for index, zone in enumerate(service.provider.zones)]
-    return api_response(events, meta=simulated_meta())
+@router.get("/map/risk-grid", response_model=schemas.Envelope[schemas.RiskGridData])
+def get_risk_grid(request: Request, horizon_days: int = Query(3)):
+    _require_horizon(horizon_days)
+    return _ok(request, _grid_data(horizon_days), PREDICTION_VERSION, run=True)
 
-# Existing cockpit pages consume these P0 compatibility views. They expose the same simulated provenance.
-@router.get("/cockpit/time-stages")
-def cockpit_time_stages():
-    return api_response([
+
+@router.get("/map/risk-polygons", response_model=schemas.Envelope[schemas.RiskPolygonsData])
+def get_risk_polygons(request: Request, horizon_days: int = Query(3)):
+    _require_horizon(horizon_days)
+    return _ok(
+        request,
         {
-            "key": f"t{day}",
-            "label": "30 天模拟预演" if day == 30 else f"T+{day} 天演示预测",
-            "short": "T+30d 模拟" if day == 30 else f"T+{day}d",
-            "days": day,
-            "index": index,
-            "data_mode": "simulated",
-            "capability_status": "simulation_only" if day == 30 else "sample_interface_only",
-        }
-        for index, day in enumerate([1, 3, 7, 15, 30])
-    ], meta=simulated_meta())
-
-@router.get("/cockpit/points")
-def cockpit_points():
-    data = {}
-    positions = {}
-    for zone in service.provider.zones:
-        forecast = service.provider.forecast(zone["id"], 3)
-        risk_class = forecast["risk_level"]
-        data[zone["id"]] = {"id": zone["id"], "name": zone["name"], "short": zone["short"], "risk": "SIMULATED / " + {"high": "红色演示", "mid": "橙色演示", "low": "绿色演示"}[risk_class], "riskClass": risk_class, "summary": "演示业务分区，非真实站点、非决策用途。", "metrics": {"density": "SIMULATED", "chla": "experimental / unavailable", "phosphorus": "SIMULATED", "temp": "air temperature proxy"}, "forecast": {"window": ["未来 1 天", "未来 3 天", "未来 7 天", "未来 15 天", "未来 30 天"], "title": ["演示研判"] * 5, "text": ["SIMULATED / 非决策用途"] * 5}, "factors": [{"name": item["label"], "value": round(item["contribution"] * 100)} for item in service.provider.explanation(forecast["id"])["features"]], "trend": [forecast["risk_score"]] * 24, "timeline": [["2026-08-21", "演示数据", "固定种子模拟，不代表真实事件。"]], "explainability": service.provider.explanation(forecast["id"])["features"], "dataMode": "simulated", "datasetVersion": FORECAST_VERSION}
-        positions[zone["id"]] = zone["position"]
-    return api_response({"pointData": data, "pointPositions": positions}, meta=simulated_meta())
-
-@router.get("/cockpit/points/{entity_id}")
-def cockpit_point(entity_id: str):
-    response = cockpit_points()["data"]["pointData"].get(entity_id)
-    if not response: raise not_found("SPATIAL_ENTITY_NOT_FOUND", "空间对象不存在")
-    return api_response(response, meta=simulated_meta())
-
-@router.get("/cockpit/risk-heatmap")
-def cockpit_heatmap():
-    # Keep the existing t1/t3/... fields for the current frontend while exposing scenario provenance.
-    return api_response({
-        **{f"t{day}": service.risk_grid(day)["grid"] for day in [1, 3, 7, 15, 30]},
-        "_scenario": {
-            "layer_type": "simulated_scenario",
-            "operational_use": False,
-            "long_term_notice": "T+30 仅为模拟预演，不代表 30—90 天预测能力",
+            "type": "FeatureCollection",
+            "features": [],
+            "horizon_days": horizon_days,
+            "source": "simulated_grid",
+            "empty_reason": (
+                "演示风险格网不提供矢量面生成能力；为避免虚构湖岸边界、面积或迁移路径，"
+                "本接口诚实返回空 FeatureCollection"
+            ),
+            "data_mode": DATA_MODE,
+            "dataset_version": PREDICTION_VERSION,
+            "prediction_run_id": PREDICTION_RUN_ID,
+            "claim_boundary": CLAIM_BOUNDARY,
         },
-    }, meta=simulated_meta())
-
-@router.get("/cockpit/events")
-def cockpit_events():
-    return api_response([{"id": f"demo-event-{index}", "time": f"08-{16 + index:02d} 09:00", "stageKey": f"t{[1, 3, 7, 15, 30][index % 5]}", "point": zone["id"], "title": "演示预测运行", "summary": "SIMULATED / 非决策用途", "severity": zone["risk"]} for index, zone in enumerate(service.provider.zones)], meta=simulated_meta())
-
-@router.get("/cockpit/region-summary")
-def cockpit_region_summary():
-    points = service.provider.zones
-    return api_response({"totalStations": len(points), "riskCounts": {"high": 1, "mid": 3, "low": 2}, "intensity": {zone["id"]: {f"t{day}": service.provider.forecast(zone["id"], day)["risk_score"] for day in [1, 3, 7, 15, 30]} for zone in points}, "data_mode": "simulated"}, meta=simulated_meta())
+        PREDICTION_VERSION,
+        run=True,
+    )
 
 
-@router.post("/cockpit/handle-warning")
-def cockpit_handle_warning(payload: SimulatedWarningHandleRequest):
-    return api_response({"event_id": payload.event_id, "status": "simulated_dispatched", "channels": ["platform_simulation"], "data_mode": "simulated", "claim_boundary": CLAIM_BOUNDARY}, meta=simulated_meta())
+# ---------- 事件（规范源 + 兼容视图，共享稳定 ID） ----------
 
 
-@router.get("/cockpit/timeline")
-def cockpit_timeline(start: date, end: date):
-    if end < start or (end - start).days > 90:
-        return api_response({"start_date": start.isoformat(), "end_date": end.isoformat(), "total_days": 0, "data": []}, meta=simulated_meta())
-    days = (end - start).days + 1
-    values = []
-    for index in range(days):
-        current = start + timedelta(days=index)
-        score = 34 + (index * 7) % 38
-        values.append({"date": current.isoformat(), "avg_chlorophyll": score, "risk_level": "high" if score >= 65 else "mid" if score >= 45 else "low", "data_mode": "simulated"})
-    return api_response({"start_date": start.isoformat(), "end_date": end.isoformat(), "total_days": days, "data": values}, meta=simulated_meta())
+@router.get("/events", response_model=schemas.Envelope[list[schemas.CanonicalEvent]])
+def get_events(request: Request):
+    return _ok(request, service.canonical_events(), PREDICTION_VERSION, run=True)
+
+
+# ---------- 驾驶舱兼容视图（P01 / 历史复盘） ----------
+
+
+@router.get("/cockpit/time-stages", response_model=schemas.Envelope[list[schemas.TimeStage]])
+def cockpit_time_stages(request: Request):
+    return _ok(request, service.cockpit_time_stages(), PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/points", response_model=schemas.Envelope[schemas.CockpitPointsData])
+def cockpit_points(request: Request):
+    return _ok(request, service.cockpit_points(), PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/points/{entity_id}", response_model=schemas.Envelope[schemas.CockpitPoint])
+def cockpit_point(request: Request, entity_id: str):
+    _require_entity(entity_id, dataset_version=PREDICTION_VERSION)
+    points = service.cockpit_points()["point_data"]
+    if entity_id not in points:
+        raise entity_not_found(
+            "演示分区不存在",
+            dataset_version=PREDICTION_VERSION,
+            detail=f"entity_id={entity_id!r} 不是已注册的 demo_zone",
+        )
+    return _ok(request, points[entity_id], PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/risk-heatmap", response_model=schemas.Envelope[schemas.HeatFieldData])
+def cockpit_heatmap(request: Request):
+    return _ok(request, service.cockpit_heat_field(), PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/events", response_model=schemas.Envelope[list[schemas.CockpitEvent]])
+def cockpit_events(request: Request):
+    return _ok(request, service.cockpit_events(), PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/region-summary", response_model=schemas.Envelope[schemas.RegionSummaryData])
+def cockpit_region_summary(request: Request):
+    return _ok(request, service.region_summary(), PREDICTION_VERSION, run=True)
+
+
+@router.post("/cockpit/handle-warning", response_model=schemas.Envelope[schemas.HandleWarningData])
+def cockpit_handle_warning(request: Request, payload: HandleWarningRequest):
+    result = service.handle_warning(payload.event_id)
+    if not result:
+        raise invalid_event_id(
+            "事件引用不存在",
+            detail=(
+                f"event_id={payload.event_id!r} 不是稳定事件 ID（demo-event-N）、演示分区 ID "
+                "或演示格网编号（R01-C01 至 R11-C19）"
+            ),
+            dataset_version=PREDICTION_VERSION,
+        )
+    return _ok(request, result, PREDICTION_VERSION, run=True)
+
+
+@router.get("/cockpit/timeline", response_model=schemas.Envelope[schemas.TimelineData])
+def cockpit_timeline(request: Request, start: date, end: date):
+    if end < start:
+        raise invalid_date_range(
+            "查询日期范围无效",
+            field="start",
+            detail=f"start={start.isoformat()} 不得晚于 end={end.isoformat()}",
+            dataset_version=PREDICTION_VERSION,
+        )
+    if (end - start).days > MAX_TIMELINE_SPAN_DAYS:
+        raise query_range_too_large(
+            "查询范围过大",
+            detail=f"start 与 end 跨度不得超过 {MAX_TIMELINE_SPAN_DAYS} 天（当前 {(end - start).days} 天）",
+            dataset_version=PREDICTION_VERSION,
+        )
+    return _ok(request, service.timeline(start, end), PREDICTION_VERSION, run=True)
