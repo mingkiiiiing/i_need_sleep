@@ -1,0 +1,15 @@
+﻿issue_id,verdict,claim,evidence,residual_risk
+DG-001,通过（范围显式化）,全湖复制不再冒充全湖覆盖,coverage=0.208298; whole/labels/samples partial propagation=True; values_equal_ML=True,仍未实现全湖仿真，只能按部分域 lake 代理使用
+DG-002,通过,所有拟合族执行训练截止门禁,"{""weather"": ""2024-08-28"", ""water_temp"": ""2024-08-28"", ""nutrients"": ""2024-08-01"", ""algae"": ""2024-08-01"", ""hydrology"": ""2020-12-31"", ""obs"": ""2024-08-22""}",历史文件中存在截止后记录是允许的；关键是不得进入 fit
+DG-003,通过,卫星模拟观测身份不可逆,"70 labels; statuses=['simulation_observed_negative', 'simulation_observed_positive']; upstream satellite synthetic=36448/36448",
+DG-004,通过,训练特征改由可用时刻受控的观测层装配,rows=378396; observed_ratio mean=0.650; latent keys=none,本复核按字段与门禁验证，未把仿真观测等同于真实观测
+DG-005,通过,水位塌缩与营养盐边界饱和修复,"level=2.820..3.825 m, bound=0.00%; TP=1.05%; TN=0.00%",
+DG-006,通过,Chl-a 季节性增强,summer/winter=1.835,
+DG-007,保留警告（未根治）,单类组合风险,unique-date single-class groups=4,不能据此发布完整二分类验证结论；至少五年、含多次事件的真实时序才可根治
+DG-008,通过（契约裁决）,任务粒度由 TASK_GRAIN_MATRIX 明确登记,"matrix present=True; actual grains={""T1"": [""grid"", ""lake"", ""zone""], ""T2"": [""grid"", ""lake"", ""zone""], ""T3"": [""lake"", ""zone""], ""T4"": [""lake"", ""zone""], ""T5"": [""grid"", ""lake"", ""zone""], ""T6"": [""lake"", ""zone""], ""T7"": [""lake"", ""zone""]}","T3,T4,T6,T7 仍未实现 grid 标签；这是范围裁决，不是能力补齐"
+DG-009,通过,正式交付契约文件补齐,"missing=[]; hashes=45/45, failures=0",
+DG-010,通过,样本级 row lineage,row_lineage=378396; samples=378396; sample_id coverage=100.00%; file_lineage=8,
+DG-011,通过（SIM 发布口径）,三段式判定落地,"packaging=PASS, fidelity=PASS, readiness=WARNING; acceptance={'pass': 22, 'warning': 1}; veto={'pass': 12}",摘要仍显示总体 PASS；正式实验不得把它解释为 training readiness PASS
+DG-012,通过,代码已冻结并写入发布 manifest,HEAD=52c9ec5787acbdf5615673f3fdd998fa0c01c6b9; code_commit=52c9ec5787acbdf5615673f3fdd998fa0c01c6b9; changed_since_commit=0; tracked=58,
+DG-013,通过（有附加质量缺口）,界内站点观测恢复,rows=576; stations=4; mapped grids=3; synthetic=576,576/576 unit 为空且 station_name 为空；身份正确但字段语义不完整
+DG-014,通过（时间修复；用途受限）,MEE 时间戳补全年份与 +08:00,rows=708; tz=UTC+08:00; corrupt=0; candidate_gt=708; grid_mapped=0,尚未空间映射，且 observation_candidate 已标 ground_truth；不得直接并入太湖训练标签

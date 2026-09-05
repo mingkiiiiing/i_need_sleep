@@ -1,0 +1,3130 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "蓝藻水华监测预警系统 API",
+    "description": "统一信封的模拟数据联调服务。所有模拟值均带有数据版本和非决策声明。",
+    "version": "2.1.0"
+  },
+  "paths": {
+    "/api/v1/system/capabilities": {
+      "get": {
+        "summary": "Get Capabilities",
+        "operationId": "get_capabilities_api_v1_system_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CapabilitiesData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/datasets/summary": {
+      "get": {
+        "summary": "Get Datasets Summary",
+        "operationId": "get_datasets_summary_api_v1_datasets_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_DatasetsSummaryData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipeline/runs/latest": {
+      "get": {
+        "summary": "Get Latest Pipeline Run",
+        "operationId": "get_latest_pipeline_run_api_v1_pipeline_runs_latest_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PipelineRunData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/overview": {
+      "get": {
+        "summary": "Get Dashboard Overview",
+        "operationId": "get_dashboard_overview_api_v1_dashboard_overview_get",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "historical",
+                "simulated"
+              ],
+              "type": "string",
+              "default": "simulated",
+              "title": "Mode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_OverviewData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spatial-entities": {
+      "get": {
+        "summary": "List Spatial Entities",
+        "operationId": "list_spatial_entities_api_v1_spatial_entities_get",
+        "parameters": [
+          {
+            "name": "entity_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Entity Type"
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "observed",
+                "simulated"
+              ],
+              "type": "string",
+              "default": "simulated",
+              "title": "Mode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_SpatialEntity__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spatial-entities/{entity_id}": {
+      "get": {
+        "summary": "Get Spatial Entity",
+        "operationId": "get_spatial_entity_api_v1_spatial_entities__entity_id__get",
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_SpatialEntity_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spatial-entities/{entity_id}/observations": {
+      "get": {
+        "summary": "Get Observations",
+        "operationId": "get_observations_api_v1_spatial_entities__entity_id__observations_get",
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          },
+          {
+            "name": "variable_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Variable Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_ObservationRow__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spatial-entities/{entity_id}/quality": {
+      "get": {
+        "summary": "Get Quality",
+        "operationId": "get_quality_api_v1_spatial_entities__entity_id__quality_get",
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_QualityReport_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/forecast-capabilities": {
+      "get": {
+        "summary": "Get Forecast Capabilities",
+        "operationId": "get_forecast_capabilities_api_v1_forecast_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_dict_str__str__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/forecasts": {
+      "get": {
+        "summary": "List Forecasts",
+        "operationId": "list_forecasts_api_v1_forecasts_get",
+        "parameters": [
+          {
+            "name": "spatial_entity_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Spatial Entity Id"
+            }
+          },
+          {
+            "name": "horizon_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 3,
+              "title": "Horizon Days"
+            }
+          },
+          {
+            "name": "target_metric",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "bloom_risk",
+              "title": "Target Metric"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_Forecast__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}": {
+      "get": {
+        "summary": "Get Forecast",
+        "operationId": "get_forecast_api_v1_forecasts__forecast_id__get",
+        "parameters": [
+          {
+            "name": "forecast_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Forecast Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_Forecast_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/forecasts/{forecast_id}/explanations": {
+      "get": {
+        "summary": "Get Explanation",
+        "operationId": "get_explanation_api_v1_forecasts__forecast_id__explanations_get",
+        "parameters": [
+          {
+            "name": "forecast_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Forecast Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_Explanation_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/map/layers": {
+      "get": {
+        "summary": "Get Map Layers",
+        "operationId": "get_map_layers_api_v1_map_layers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_MapLayer__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/map/risk-grid": {
+      "get": {
+        "summary": "Get Risk Grid",
+        "operationId": "get_risk_grid_api_v1_map_risk_grid_get",
+        "parameters": [
+          {
+            "name": "horizon_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 3,
+              "title": "Horizon Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_RiskGridData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/map/risk-polygons": {
+      "get": {
+        "summary": "Get Risk Polygons",
+        "operationId": "get_risk_polygons_api_v1_map_risk_polygons_get",
+        "parameters": [
+          {
+            "name": "horizon_days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 3,
+              "title": "Horizon Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_RiskPolygonsData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "summary": "Get Events",
+        "operationId": "get_events_api_v1_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_CanonicalEvent__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/time-stages": {
+      "get": {
+        "summary": "Cockpit Time Stages",
+        "operationId": "cockpit_time_stages_api_v1_cockpit_time_stages_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_TimeStage__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/points": {
+      "get": {
+        "summary": "Cockpit Points",
+        "operationId": "cockpit_points_api_v1_cockpit_points_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CockpitPointsData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/points/{entity_id}": {
+      "get": {
+        "summary": "Cockpit Point",
+        "operationId": "cockpit_point_api_v1_cockpit_points__entity_id__get",
+        "parameters": [
+          {
+            "name": "entity_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CockpitPoint_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/risk-heatmap": {
+      "get": {
+        "summary": "Cockpit Heatmap",
+        "operationId": "cockpit_heatmap_api_v1_cockpit_risk_heatmap_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_HeatFieldData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/events": {
+      "get": {
+        "summary": "Cockpit Events",
+        "operationId": "cockpit_events_api_v1_cockpit_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_CockpitEvent__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/region-summary": {
+      "get": {
+        "summary": "Cockpit Region Summary",
+        "operationId": "cockpit_region_summary_api_v1_cockpit_region_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_RegionSummaryData_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/handle-warning": {
+      "post": {
+        "summary": "Cockpit Handle Warning",
+        "operationId": "cockpit_handle_warning_api_v1_cockpit_handle_warning_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandleWarningRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_HandleWarningData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cockpit/timeline": {
+      "get": {
+        "summary": "Cockpit Timeline",
+        "operationId": "cockpit_timeline_api_v1_cockpit_timeline_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Start"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_TimelineData_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CanonicalEvent": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "occurred_at": {
+            "type": "string",
+            "title": "Occurred At"
+          },
+          "spatial_entity_id": {
+            "type": "string",
+            "title": "Spatial Entity Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "event_type",
+          "occurred_at",
+          "spatial_entity_id",
+          "title",
+          "summary",
+          "severity",
+          "data_mode",
+          "dataset_version",
+          "prediction_run_id"
+        ],
+        "title": "CanonicalEvent",
+        "description": "规范事件源（/events）。"
+      },
+      "CapabilitiesData": {
+        "properties": {
+          "data_as_of": {
+            "type": "string",
+            "title": "Data As Of"
+          },
+          "capabilities": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Capabilities"
+          },
+          "blockers": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityBlocker"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "provider_status": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Provider Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data_as_of",
+          "capabilities",
+          "blockers",
+          "provider_status"
+        ],
+        "title": "CapabilitiesData"
+      },
+      "CapabilityBlocker": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "scope",
+          "action"
+        ],
+        "title": "CapabilityBlocker"
+      },
+      "CockpitEvent": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "time": {
+            "type": "string",
+            "title": "Time"
+          },
+          "stageKey": {
+            "type": "string",
+            "title": "Stagekey"
+          },
+          "point": {
+            "type": "string",
+            "title": "Point"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "time",
+          "stageKey",
+          "point",
+          "title",
+          "summary",
+          "severity",
+          "data_mode",
+          "dataset_version",
+          "prediction_run_id"
+        ],
+        "title": "CockpitEvent",
+        "description": "兼容视图（/cockpit/events），与规范事件源共享同一组稳定 ID。"
+      },
+      "CockpitPoint": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk"
+          },
+          "riskClass": {
+            "type": "string",
+            "title": "Riskclass"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/PointMetrics"
+          },
+          "forecast": {
+            "$ref": "#/components/schemas/PointForecastBrief"
+          },
+          "factors": {
+            "items": {
+              "$ref": "#/components/schemas/PointFactor"
+            },
+            "type": "array",
+            "title": "Factors"
+          },
+          "dataMode": {
+            "type": "string",
+            "title": "Datamode"
+          },
+          "datasetVersion": {
+            "type": "string",
+            "title": "Datasetversion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "short",
+          "risk",
+          "riskClass",
+          "summary",
+          "metrics",
+          "forecast",
+          "factors",
+          "dataMode",
+          "datasetVersion"
+        ],
+        "title": "CockpitPoint"
+      },
+      "CockpitPointsData": {
+        "properties": {
+          "pointData": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CockpitPoint"
+            },
+            "type": "object",
+            "title": "Pointdata"
+          },
+          "pointPositions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ZonePosition"
+            },
+            "type": "object",
+            "title": "Pointpositions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pointData",
+          "pointPositions"
+        ],
+        "title": "CockpitPointsData"
+      },
+      "DatasetInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "record_count": {
+            "type": "integer",
+            "title": "Record Count"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "data_mode",
+          "record_count",
+          "description"
+        ],
+        "title": "DatasetInfo"
+      },
+      "DatasetsSummaryData": {
+        "properties": {
+          "datasets": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetInfo"
+            },
+            "type": "array",
+            "title": "Datasets"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "datasets",
+          "claim_boundary"
+        ],
+        "title": "DatasetsSummaryData"
+      },
+      "Envelope_CapabilitiesData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CapabilitiesData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[CapabilitiesData]"
+      },
+      "Envelope_CockpitPoint_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CockpitPoint"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[CockpitPoint]"
+      },
+      "Envelope_CockpitPointsData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CockpitPointsData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[CockpitPointsData]"
+      },
+      "Envelope_DatasetsSummaryData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DatasetsSummaryData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[DatasetsSummaryData]"
+      },
+      "Envelope_Explanation_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Explanation"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[Explanation]"
+      },
+      "Envelope_Forecast_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Forecast"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[Forecast]"
+      },
+      "Envelope_HandleWarningData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HandleWarningData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[HandleWarningData]"
+      },
+      "Envelope_HeatFieldData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HeatFieldData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[HeatFieldData]"
+      },
+      "Envelope_OverviewData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OverviewData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[OverviewData]"
+      },
+      "Envelope_PipelineRunData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PipelineRunData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[PipelineRunData]"
+      },
+      "Envelope_QualityReport_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/QualityReport"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[QualityReport]"
+      },
+      "Envelope_RegionSummaryData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RegionSummaryData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[RegionSummaryData]"
+      },
+      "Envelope_RiskGridData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RiskGridData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[RiskGridData]"
+      },
+      "Envelope_RiskPolygonsData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RiskPolygonsData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[RiskPolygonsData]"
+      },
+      "Envelope_SpatialEntity_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SpatialEntity"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[SpatialEntity]"
+      },
+      "Envelope_TimelineData_": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TimelineData"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[TimelineData]"
+      },
+      "Envelope_dict_str__str__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[dict[str, str]]"
+      },
+      "Envelope_list_CanonicalEvent__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalEvent"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[CanonicalEvent]]"
+      },
+      "Envelope_list_CockpitEvent__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CockpitEvent"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[CockpitEvent]]"
+      },
+      "Envelope_list_Forecast__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Forecast"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[Forecast]]"
+      },
+      "Envelope_list_MapLayer__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/MapLayer"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[MapLayer]]"
+      },
+      "Envelope_list_ObservationRow__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ObservationRow"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[ObservationRow]]"
+      },
+      "Envelope_list_SpatialEntity__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/SpatialEntity"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[SpatialEntity]]"
+      },
+      "Envelope_list_TimeStage__": {
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/TimeStage"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorItem"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "data",
+          "meta",
+          "errors"
+        ],
+        "title": "Envelope[list[TimeStage]]"
+      },
+      "ErrorItem": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "detail"
+        ],
+        "title": "ErrorItem"
+      },
+      "Explanation": {
+        "properties": {
+          "forecast_id": {
+            "type": "string",
+            "title": "Forecast Id"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFeature"
+            },
+            "type": "array",
+            "title": "Features"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast_id",
+          "prediction_run_id",
+          "dataset_version",
+          "method",
+          "claim_boundary",
+          "features"
+        ],
+        "title": "Explanation"
+      },
+      "ExplanationFeature": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "contribution": {
+            "type": "number",
+            "title": "Contribution"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ],
+            "title": "Direction"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "contribution",
+          "direction",
+          "label"
+        ],
+        "title": "ExplanationFeature"
+      },
+      "Forecast": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "spatial_entity_id": {
+            "type": "string",
+            "title": "Spatial Entity Id"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "title": "Horizon Days"
+          },
+          "target_metric": {
+            "type": "string",
+            "title": "Target Metric"
+          },
+          "risk_score": {
+            "type": "integer",
+            "title": "Risk Score"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "provider_type": {
+            "type": "string",
+            "title": "Provider Type"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          },
+          "uncertainty": {
+            "$ref": "#/components/schemas/ForecastUncertainty"
+          },
+          "quality_gate": {
+            "$ref": "#/components/schemas/ForecastQualityGate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "spatial_entity_id",
+          "prediction_run_id",
+          "horizon_days",
+          "target_metric",
+          "risk_score",
+          "risk_level",
+          "provider_type",
+          "model_version",
+          "claim_boundary",
+          "uncertainty",
+          "quality_gate"
+        ],
+        "title": "Forecast"
+      },
+      "ForecastQualityGate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "decision",
+          "reason"
+        ],
+        "title": "ForecastQualityGate"
+      },
+      "ForecastUncertainty": {
+        "properties": {
+          "lower": {
+            "type": "integer",
+            "title": "Lower"
+          },
+          "upper": {
+            "type": "integer",
+            "title": "Upper"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lower",
+          "upper",
+          "method"
+        ],
+        "title": "ForecastUncertainty"
+      },
+      "GridResolution": {
+        "properties": {
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "columns": {
+            "type": "integer",
+            "title": "Columns"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rows",
+          "columns",
+          "unit"
+        ],
+        "title": "GridResolution"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HandleWarningData": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "channels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Channels"
+          },
+          "persisted": {
+            "type": "boolean",
+            "title": "Persisted"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "status",
+          "channels",
+          "persisted",
+          "data_mode",
+          "dataset_version",
+          "claim_boundary"
+        ],
+        "title": "HandleWarningData"
+      },
+      "HandleWarningRequest": {
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "title": "Event Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id"
+        ],
+        "title": "HandleWarningRequest"
+      },
+      "HeatFieldData": {
+        "properties": {
+          "t1": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "T1"
+          },
+          "t3": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "T3"
+          },
+          "t7": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "T7"
+          },
+          "t15": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "T15"
+          },
+          "t30": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "T30"
+          },
+          "_scenario": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scenario"
+          }
+        },
+        "type": "object",
+        "required": [
+          "t1",
+          "t3",
+          "t7",
+          "t15",
+          "t30",
+          "_scenario"
+        ],
+        "title": "HeatFieldData"
+      },
+      "MapLayer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "layer_type": {
+            "type": "string",
+            "title": "Layer Type"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "operational_use": {
+            "type": "boolean",
+            "title": "Operational Use"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "layer_type",
+          "data_mode",
+          "operational_use",
+          "description"
+        ],
+        "title": "MapLayer"
+      },
+      "ObservationRow": {
+        "properties": {
+          "spatial_entity_id": {
+            "type": "string",
+            "title": "Spatial Entity Id"
+          },
+          "observed_at": {
+            "type": "string",
+            "title": "Observed At"
+          },
+          "variable_code": {
+            "type": "string",
+            "title": "Variable Code"
+          },
+          "clean_value": {
+            "type": "number",
+            "title": "Clean Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "value_origin": {
+            "type": "string",
+            "title": "Value Origin"
+          },
+          "quality_status": {
+            "type": "string",
+            "title": "Quality Status"
+          },
+          "is_imputed": {
+            "type": "boolean",
+            "title": "Is Imputed"
+          },
+          "proxy_flag": {
+            "type": "boolean",
+            "title": "Proxy Flag"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spatial_entity_id",
+          "observed_at",
+          "variable_code",
+          "clean_value",
+          "unit",
+          "value_origin",
+          "quality_status",
+          "is_imputed",
+          "proxy_flag",
+          "data_mode",
+          "dataset_version"
+        ],
+        "title": "ObservationRow"
+      },
+      "OverviewCard": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "spatial_scope": {
+            "type": "string",
+            "title": "Spatial Scope"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "quality": {
+            "type": "string",
+            "title": "Quality"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "value",
+          "unit",
+          "spatial_scope",
+          "data_mode",
+          "quality",
+          "prediction_run_id"
+        ],
+        "title": "OverviewCard"
+      },
+      "OverviewData": {
+        "properties": {
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/OverviewCard"
+            },
+            "type": "array",
+            "title": "Cards"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cards",
+          "prediction_run_id",
+          "claim_boundary"
+        ],
+        "title": "OverviewData"
+      },
+      "PipelineRunData": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "title": "Run Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "dataset_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dataset Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run_id",
+          "status",
+          "dataset_versions"
+        ],
+        "title": "PipelineRunData"
+      },
+      "PointFactor": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit",
+            "default": "%"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "PointFactor"
+      },
+      "PointForecastBrief": {
+        "properties": {
+          "window": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Window"
+          },
+          "title": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Title"
+          },
+          "text": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "window",
+          "title",
+          "text"
+        ],
+        "title": "PointForecastBrief"
+      },
+      "PointMetrics": {
+        "properties": {
+          "density": {
+            "type": "string",
+            "title": "Density"
+          },
+          "chla": {
+            "type": "string",
+            "title": "Chla"
+          },
+          "phosphorus": {
+            "type": "string",
+            "title": "Phosphorus"
+          },
+          "temp": {
+            "type": "string",
+            "title": "Temp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "density",
+          "chla",
+          "phosphorus",
+          "temp"
+        ],
+        "title": "PointMetrics"
+      },
+      "QualityReport": {
+        "properties": {
+          "spatial_entity_id": {
+            "type": "string",
+            "title": "Spatial Entity Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "freshness": {
+            "type": "string",
+            "title": "Freshness"
+          },
+          "observed_count": {
+            "type": "integer",
+            "title": "Observed Count"
+          },
+          "source_count": {
+            "type": "integer",
+            "title": "Source Count"
+          },
+          "is_imputed": {
+            "type": "boolean",
+            "title": "Is Imputed"
+          },
+          "value_origin": {
+            "type": "string",
+            "title": "Value Origin"
+          },
+          "proxy_flag": {
+            "type": "boolean",
+            "title": "Proxy Flag"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spatial_entity_id",
+          "status",
+          "freshness",
+          "observed_count",
+          "source_count",
+          "is_imputed",
+          "value_origin",
+          "proxy_flag",
+          "limitations"
+        ],
+        "title": "QualityReport"
+      },
+      "RegionSummaryData": {
+        "properties": {
+          "totalStations": {
+            "type": "integer",
+            "title": "Totalstations"
+          },
+          "riskCounts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Riskcounts"
+          },
+          "intensity": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Intensity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "totalStations",
+          "riskCounts",
+          "intensity"
+        ],
+        "title": "RegionSummaryData"
+      },
+      "ResponseMeta": {
+        "properties": {
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "prediction_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction Run Id"
+          },
+          "as_of": {
+            "type": "string",
+            "title": "As Of"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data_mode",
+          "dataset_version",
+          "prediction_run_id",
+          "as_of",
+          "claim_boundary",
+          "request_id"
+        ],
+        "title": "ResponseMeta"
+      },
+      "RiskGridData": {
+        "properties": {
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "title": "Horizon Days"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "grid": {
+            "items": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Grid"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "columns": {
+            "type": "integer",
+            "title": "Columns"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/GridResolution"
+          },
+          "thresholds": {
+            "additionalProperties": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Thresholds"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          },
+          "layer_type": {
+            "type": "string",
+            "title": "Layer Type"
+          },
+          "operational_use": {
+            "type": "boolean",
+            "title": "Operational Use"
+          },
+          "capability_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capability Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prediction_run_id",
+          "horizon_days",
+          "data_mode",
+          "dataset_version",
+          "grid",
+          "rows",
+          "columns",
+          "resolution",
+          "thresholds",
+          "claim_boundary",
+          "layer_type",
+          "operational_use"
+        ],
+        "title": "RiskGridData"
+      },
+      "RiskPolygonsData": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "FeatureCollection",
+            "title": "Type"
+          },
+          "features": {
+            "items": {},
+            "type": "array",
+            "title": "Features"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "title": "Horizon Days"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "empty_reason": {
+            "type": "string",
+            "title": "Empty Reason"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          },
+          "prediction_run_id": {
+            "type": "string",
+            "title": "Prediction Run Id"
+          },
+          "claim_boundary": {
+            "type": "string",
+            "title": "Claim Boundary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "features",
+          "horizon_days",
+          "source",
+          "empty_reason",
+          "data_mode",
+          "dataset_version",
+          "prediction_run_id",
+          "claim_boundary"
+        ],
+        "title": "RiskPolygonsData"
+      },
+      "SpatialEntity": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "entity_type": {
+            "type": "string",
+            "title": "Entity Type"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          },
+          "geometry_status": {
+            "type": "string",
+            "title": "Geometry Status"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "position": {
+            "$ref": "#/components/schemas/ZonePosition"
+          },
+          "risk_hint": {
+            "type": "string",
+            "title": "Risk Hint"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "entity_type",
+          "display_name",
+          "short",
+          "geometry_status",
+          "data_mode",
+          "position",
+          "risk_hint"
+        ],
+        "title": "SpatialEntity"
+      },
+      "TimeStage": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "short": {
+            "type": "string",
+            "title": "Short"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          },
+          "index": {
+            "type": "integer",
+            "title": "Index"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "capability_status": {
+            "type": "string",
+            "title": "Capability Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "short",
+          "days",
+          "index",
+          "data_mode",
+          "capability_status"
+        ],
+        "title": "TimeStage"
+      },
+      "TimelineData": {
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "title": "End Date"
+          },
+          "total_days": {
+            "type": "integer",
+            "title": "Total Days"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineRow"
+            },
+            "type": "array",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_date",
+          "end_date",
+          "total_days",
+          "data"
+        ],
+        "title": "TimelineData"
+      },
+      "TimelineRow": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "risk_score": {
+            "type": "integer",
+            "title": "Risk Score"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "dataset_version": {
+            "type": "string",
+            "title": "Dataset Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "risk_score",
+          "risk_level",
+          "data_mode",
+          "dataset_version"
+        ],
+        "title": "TimelineRow"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ZonePosition": {
+        "properties": {
+          "top": {
+            "type": "string",
+            "title": "Top"
+          },
+          "left": {
+            "type": "string",
+            "title": "Left"
+          }
+        },
+        "type": "object",
+        "required": [
+          "top",
+          "left"
+        ],
+        "title": "ZonePosition"
+      }
+    }
+  }
+}

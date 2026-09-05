@@ -1,0 +1,163 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "太湖蓝藻完整数据生成、处理与训练系统设计",
+    "description": "以现有全部数据约束机理随机生成，统一实时接入、七任务五时效、三轨发布、血缘和质量门禁。",
+    "generatedAt": "2026-09-04T18:00:00+08:00",
+    "cards": [],
+    "charts": [
+      {
+        "id": "asset_chart",
+        "title": "当前核心数据资产规模与严格标签缺口",
+        "subtitle": "行数用于说明现有数据结构，不同数据表的粒度并不相同",
+        "type": "bar",
+        "dataset": "asset_counts",
+        "sourceId": "release_audit",
+        "valueFormat": "number",
+        "encodings": {
+          "x": { "field": "asset", "type": "nominal", "label": "资产" },
+          "y": { "field": "rows", "type": "quantitative", "label": "行数" },
+          "tooltip": [{ "field": "role", "type": "nominal", "label": "正确用途" }]
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "track_table",
+        "title": "三条发布轨道",
+        "subtitle": "三轨分别验收，不允许互相替代",
+        "dataset": "tracks",
+        "sourceId": "design_source",
+        "columns": [
+          { "field": "track", "label": "轨道", "type": "text" },
+          { "field": "content", "label": "内容", "type": "text" },
+          { "field": "allowed", "label": "允许用途", "type": "text" },
+          { "field": "boundary", "label": "能力边界", "type": "text" },
+          { "field": "status", "label": "当前状态", "type": "text" }
+        ]
+      },
+      {
+        "id": "logic_table",
+        "title": "数据生成主链",
+        "subtitle": "先生成潜在真值，再模拟可见观测",
+        "dataset": "logic",
+        "sourceId": "design_source",
+        "columns": [
+          { "field": "order", "label": "顺序", "type": "number" },
+          { "field": "module", "label": "模块", "type": "text" },
+          { "field": "logic", "label": "生成逻辑", "type": "text" },
+          { "field": "outputs", "label": "输出", "type": "text" },
+          { "field": "guardrail", "label": "关键门禁", "type": "text" }
+        ]
+      },
+      {
+        "id": "task_table",
+        "title": "七类目标与五时效覆盖",
+        "subtitle": "T+1/T+3/T+7/T+15/T+30 对每项任务统一装配",
+        "dataset": "tasks",
+        "sourceId": "requirements_source",
+        "columns": [
+          { "field": "task", "label": "任务", "type": "text" },
+          { "field": "target", "label": "目标", "type": "text" },
+          { "field": "production", "label": "形成方式", "type": "text" },
+          { "field": "real_status", "label": "当前真实数据状态", "type": "text" }
+        ]
+      },
+      {
+        "id": "phase_table",
+        "title": "实施里程碑",
+        "subtitle": "先交付数据工厂，再接正式算法和真实评估",
+        "dataset": "phases",
+        "sourceId": "design_source",
+        "columns": [
+          { "field": "phase", "label": "阶段", "type": "text" },
+          { "field": "work", "label": "工作", "type": "text" },
+          { "field": "done", "label": "完成标准", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      { "id": "design_source", "label": "完整数据生成与处理系统设计 V1.0", "query": { "engine": "duckdb", "language": "sql", "sql": "SELECT * FROM snapshot_dataset", "description": "读取本报告内已固化的设计表数据。", "executed_at": "2026-09-04T18:00:00+08:00" } },
+      { "id": "requirements_source", "label": "正式实验数据集完整需求清单 V1.0 及用户截图", "query": { "engine": "duckdb", "language": "sql", "sql": "SELECT task, target, production, real_status FROM tasks", "description": "按需求清单汇总七类任务覆盖。", "executed_at": "2026-09-04T18:00:00+08:00" } },
+      { "id": "release_audit", "label": "TAIHU_CLEAN_FINAL_V1_20260831 发布包与模型数据只读核验", "query": { "engine": "duckdb", "language": "sql", "sql": "SELECT asset, rows, role FROM asset_counts", "description": "读取发布包只读核验后固化的核心资产计数。", "executed_at": "2026-09-04T18:00:00+08:00" } },
+      { "id": "algorithm_contract", "label": "成员 C 数据接入要求、模型设计与当前实现只读核验", "query": { "engine": "duckdb", "language": "sql", "sql": "SELECT * FROM algorithm_contract_fields", "description": "汇总成员 C 当前数据接口字段和任务。", "executed_at": "2026-09-04T18:00:00+08:00" } }
+    ],
+    "blocks": [
+      { "id": "title", "type": "markdown", "body": "# 太湖蓝藻完整数据生成、处理与训练系统设计 V1.0" },
+      { "id": "summary", "type": "markdown", "body": "## 核心结论\n\n**可以采用这条路线，但必须重建成真实数据约束的数据工厂。** 不采用第三方前端、后端和算法，只吸收其生成思路；我方训练期数据用于校准季节性、变量关系、空间相关性、极端事件和观测误差。月度/季度数据可以约束生成器，不能插值后冒充逐日真实标签。\n\n系统在现有统一工程的 `data-cleaning` 内新增 Data Factory，输出 SIM-V1、HYBRID-V1、REAL-V1 三条轨道。纯仿真可完整支持算法运作和模拟实验；最终真实效果必须由冻结的真实测试集证明。" },
+      { "id": "track_heading", "type": "markdown", "body": "## 三条轨道解决不同问题" },
+      { "id": "tracks", "type": "table", "tableId": "track_table" },
+      { "id": "asset_heading", "type": "markdown", "body": "## 当前拥有大量驱动和代理数据，真正缺的是连续真实标签\n\n当前发布包结构和血缘门禁通过，不代表七项真实监督任务已经就绪。下图中各表粒度不同，不能把行数直接等价成独立训练样本。" },
+      { "id": "asset_chart_block", "type": "chart", "chartId": "asset_chart" },
+      { "id": "logic_heading", "type": "markdown", "body": "## 生成顺序：潜在真值在前，观测缺失在后\n\n每个 1 km 网格每天先形成相互一致的气象、水文、营养盐、蓝藻、Chl-a 和水华覆盖潜在状态，再模拟站点采样、卫星云遮、检测限、误差、发布延迟和接口中断。这样才能区分没有水华与没有观测。" },
+      { "id": "logic", "type": "table", "tableId": "logic_table" },
+      { "id": "tasks_heading", "type": "markdown", "body": "## 覆盖全部算法任务" },
+      { "id": "tasks", "type": "table", "tableId": "task_table" },
+      { "id": "leakage", "type": "markdown", "body": "## 防泄漏是发布前置条件\n\n先按自然时间 70%/15%/15% 切分，同日全部网格进入同一 split，边界留 30 天隔离窗；随后只用训练期拟合生成器、标准化器和校准器。仿真增强只进入 train，validation/test 不采样、不插补目标；所有特征必须满足 `available_time <= issue_time`。" },
+      { "id": "realtime", "type": "markdown", "body": "## 实时接口只是观测来源之一\n\n官方地表水接口响应需原样快照、哈希、解析、质量检查、站点网格映射并按发布时间入库。接口失败只能标记失败或过期缓存，不能自动调用生成器填成真实观测。历史训练还需官方归档、已有真实文件和审计合格公开数据。" },
+      { "id": "phase_heading", "type": "markdown", "body": "## 落地路径" },
+      { "id": "phases", "type": "table", "tableId": "phase_table" },
+      { "id": "boundary", "type": "markdown", "body": "## 最重要的能力边界\n\n该方案能够生成完整、连贯、可复现、适合算法训练和对比的模拟世界，也能将我方真实数据更充分地用于校准和混合训练；它不能通过生成本身创造真实世界证据。REAL-V1 在连续真实正负标签不足时必须保持阻塞。详细字段、公式、19 类来源映射、目录、测试和一票否决规则见同目录的完整 Markdown 设计文档与需求覆盖矩阵。" }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-09-04T18:00:00+08:00",
+    "status": "partial",
+    "datasets": {
+      "asset_counts": [
+        { "asset": "最终长表", "rows": 152780, "role": "统一历史数据与来源身份" },
+        { "asset": "气象水文", "rows": 143784, "role": "真实/派生/预报驱动分列" },
+        { "asset": "水质", "rows": 6777, "role": "机理校准与部分真实特征" },
+        { "asset": "静态特征", "rows": 1107, "role": "网格固定输入" },
+        { "asset": "遥感", "rows": 907, "role": "空间形态与代理校准" },
+        { "asset": "当前模型宽表", "rows": 914, "role": "旧基线和接口样例" },
+        { "asset": "水华真实标签", "rows": 0, "role": "当前严格监督缺口" }
+      ],
+      "tracks": [
+        { "track": "SIM-V1", "content": "机理约束逐日逐网格仿真", "allowed": "算法开发、接口、消融、压力测试", "boundary": "仅仿真结论", "status": "可优先实施" },
+        { "track": "HYBRID-V1", "content": "真实训练数据加仿真增强", "allowed": "预训练、稀疏增强、稳健性", "boundary": "不能替代真实测试", "status": "可探索" },
+        { "track": "REAL-V1", "content": "审计合格真实观测", "allowed": "正式评估和效果声明", "boundary": "代理与仿真不得混入真值", "status": "七任务标签不足" }
+      ],
+      "logic": [
+        { "order": 1, "module": "空间契约", "logic": "冻结正式湖界和1km有效水网格", "outputs": "grid metadata/geometry", "guardrail": "等面积计算、grid_version" },
+        { "order": 2, "module": "外源驱动", "logic": "真实气象优先，缺口用保持相关性的情景模型", "outputs": "天气与预报驱动", "guardrail": "集合成员不当独立真值" },
+        { "order": 3, "module": "水温水文营养", "logic": "状态空间、水量平衡、负荷吸收沉降衰减", "outputs": "水温水位流量N/P/DO", "guardrail": "范围、变化率、守恒" },
+        { "order": 4, "module": "蓝藻与输运", "logic": "Monod限制增长损失加平流扩散和表层聚集", "outputs": "生物量、密度、Chl-a", "guardrail": "三种目标不直接复制" },
+        { "order": 5, "module": "水华空间", "logic": "表层状态与静风持续性形成覆盖率和几何", "outputs": "发生、面积、风险、范围", "guardrail": "有效水面积和正式CRS" },
+        { "order": 6, "module": "观测模拟", "logic": "过境、云、采样、误差、缺测、延迟", "outputs": "算法可见观测", "guardrail": "缺测不得变负样本" },
+        { "order": 7, "module": "样本装配", "logic": "滞后滚动机理特征连接未来标签", "outputs": "七任务五时效样本", "guardrail": "available_time不晚于issue_time" }
+      ],
+      "tasks": [
+        { "task": "T1", "target": "水华发生", "production": "有效覆盖证据或仿真潜在真值", "real_status": "连续正负标签不足" },
+        { "task": "T2", "target": "水华面积/覆盖率", "production": "网格有效水面积乘覆盖率后投影求和", "real_status": "缺连续审计真值" },
+        { "task": "T3", "target": "蓝藻密度", "production": "实测或生物量-细胞质量条件模型", "real_status": "低频" },
+        { "task": "T4", "target": "蓝藻生物量", "production": "增长损失输运状态", "real_status": "月度值仅校准" },
+        { "task": "T5", "target": "叶绿素a", "production": "实测/反演/仿真分列", "real_status": "当前宽表仅42个" },
+        { "task": "T6", "target": "风险等级/概率", "production": "冻结阈值与连续目标", "real_status": "依赖上游真实标签" },
+        { "task": "T7", "target": "空间范围", "production": "正网格集合与几何交叠", "real_status": "缺逐日正式几何真值" }
+      ],
+      "phases": [
+        { "phase": "M0", "work": "冻结湖界网格字段阈值任务", "done": "schema和版本通过" },
+        { "phase": "M1", "work": "19类来源纳管和字段修复", "done": "每文件唯一终态和用途" },
+        { "phase": "M2", "work": "一个湖区一个年度MVP", "done": "可复现且物理统计检查通过" },
+        { "phase": "M3", "work": "全湖五年以上逐日仿真", "done": "SIM-V1完整发布" },
+        { "phase": "M4", "work": "七任务五时效与质量门禁", "done": "覆盖矩阵无空项" },
+        { "phase": "M5", "work": "成员C适配器与正式模型", "done": "算法只消费标准训练包" },
+        { "phase": "M6", "work": "混合训练与真实独立评估", "done": "真实/代理/仿真指标分开" }
+      ]
+    },
+    "accessIssues": [
+      { "id": "missing_strict_labels", "dataset": "REAL-V1", "message": "当前缺少连续逐日、同空间粒度、正负证据完整的真实水华标签。" },
+      { "id": "blocked_remote_assets", "dataset": "remote_sensing", "message": "部分遥感资产为代理、无效像元占比高或仍受鉴权阻塞。" }
+    ]
+  },
+  "sources": [
+    { "id": "design_source", "description": "本次形成的完整系统设计、公式、字段、目录和实施方案。" },
+    { "id": "requirements_source", "description": "用户提供的正式实验需求清单与三张截图，用作目标契约和验收基线。" },
+    { "id": "release_audit", "description": "当前正式清洗发布包、各 Parquet 表和来源说明的只读核验。" },
+    { "id": "algorithm_contract", "description": "成员 C 数据接入要求、模型设计、交接 JSON 和实际代码的只读核验。" }
+  ]
+}

@@ -1,0 +1,34 @@
+﻿metric,value,unit,result,evidence
+release_manifest_files,45.0,hashed files,pass,manifest.files
+release_disk_files,51.0,files,informational,"45 payload files plus hashes, manifest and generated support files"
+release_hash_failures,0.0,files,pass,45/45 SHA-256 matched
+release_code_commit_matches_head,1.0,boolean,pass,manifest=52c9ec5787acbdf5615673f3fdd998fa0c01c6b9; HEAD=52c9ec5787acbdf5615673f3fdd998fa0c01c6b9
+data_factory_paths_changed_since_release_commit,0.0,files,pass,none
+tracked_data_factory_files,58.0,files,pass,git ls-files
+archived_old_release_files,44.0,files,pass,D:\Project\fuwai\项目完整汇总_2026-08-31\01_我们的开发\data-cleaning\storage\releases\data_factory_release\SIM-V1-audit-20260904-rejected
+whole_lake_values_still_equal_ml,1.0,boolean,warning,Numerical copying remains by approved partial-domain design
+partial_domain_coverage,0.208298,ratio,pass,TAIHU_WHOLE minimum coverage
+fit_families_at_or_before_cutoff,6.0,of 6,pass,"{""weather"": ""2024-08-28"", ""water_temp"": ""2024-08-28"", ""nutrients"": ""2024-08-01"", ""algae"": ""2024-08-01"", ""hydrology"": ""2020-12-31"", ""obs"": ""2024-08-22""}"
+satellite_labels,70.0,rows,pass,synthetic=70; ground_truth=0
+training_samples,378396.0,rows,pass,model_training_samples.parquet
+feature_observed_ratio_mean,0.6500369559931923,ratio,pass,min=0.5405; max=0.8286
+sampled_latent_feature_keys,0.0,keys,pass,"none in first 5,000 samples"
+water_level_min,2.819534,m,pass,max=3.825294; mean=3.243948
+water_level_bound_share,0.0,ratio,pass,exactly 2.0 or 5.0 m
+total_phosphorus_bound_share,0.010500774814452328,ratio,pass,lower+upper exact-bound share
+total_nitrogen_bound_share,0.0,ratio,pass,lower+upper exact-bound share
+chlorophyll_a_summer_winter_ratio,1.8351987213073113,ratio,pass,summer=5.910547; winter=3.220658
+single_class_binary_groups,4.0,groups,warning,T1/lake/validation=100%; T1/zone/validation=100%; T7/lake/validation=100%; T7/zone/validation=100%
+tasks_without_grid_labels,4.0,tasks,informational,"T3,T4,T6,T7"
+formal_contract_files_missing,0.0,files,pass,none
+row_lineage_rows,378396.0,rows,pass,sample rows=378396; id coverage=100.00%
+file_lineage_rows,8.0,rows,pass,separate file-level lineage retained
+acceptance_pass,22.0,rules,pass,"{""pass"": 22, ""warning"": 1}"
+acceptance_warning,1.0,rules,warning,A13
+veto_pass,12.0,rules,pass,"{""pass"": 12}"
+station_observation_rows,576.0,rows,pass,stations=4; grids=3
+station_observation_blank_units,576.0,rows,warning,"A06 currently validates label units, not observation units"
+station_observation_null_names,576.0,rows,warning,station_id remains populated
+mee_rows,708.0,rows,pass,timezone=UTC+08:00; corrupted_names=0
+mee_candidate_rows_already_ground_truth,708.0,rows,warning,role=observation_candidate and is_ground_truth=true
+mee_rows_mapped_to_grid,0.0,rows,warning,of 708 normalized MEE rows

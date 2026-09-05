@@ -1,0 +1,4771 @@
+# 大任务2 复审交付物：src 范围完整 diff（工作区 vs HEAD 5129340，未做任何提交）
+# 范围: src/ tokens.css README.md；untracked 新文件以 --no-index 形式附加
+# 2026-09-04 第二步复审返工后刷新
+
+========== [1] 已跟踪文件 diff --stat ==========
+ README.md                     |   30 +-
+ src/App.vue                   |   17 +-
+ src/components/GlobalNav.vue  |  428 -----------
+ src/components/HeroShell.vue  |    4 +-
+ src/composables/useTheme.js   |    6 +-
+ src/main.js                   |   49 +-
+ src/pages/Home.vue            | 1576 +++++++++++++++--------------------------
+ src/pages/ProjectOverview.vue |  250 -------
+ src/pages/TechRoute.vue       |  270 -------
+ src/styles.css                |   72 +-
+ tokens.css                    |   86 +++
+ 11 files changed, 728 insertions(+), 2060 deletions(-)
+
+========== [2] 已跟踪文件完整 diff ==========
+diff --git a/README.md b/README.md
+index b782bf7..427c86c 100644
+--- a/README.md
++++ b/README.md
+@@ -96,11 +96,13 @@ P0 数据均为 `SIMULATED` 演示数据；六个对象为 `demo_zone`，不是
+ 
+ ```
+ src/
+-├─ App.vue                       # 顶层容器，包裹路由切换动效
+-├─ main.js                       # 入口，注册路由
+-├─ styles.css                    # 全局设计系统（暗色玻璃 + 动效）
++├─ App.vue                       # 顶层容器，AppShell 基座 + 路由切换动效
++├─ main.js                       # 入口，注册懒加载路由 / 文档标题 / 防后退哨兵
++├─ styles.css                    # 全局设计系统（暗色玻璃 + 动效 + v2 基座补充）
++├─ layouts/
++│  └─ AppShell.vue               # 全站布局基座：侧栏 72 / 顶栏 64 / 数据身份栏 40 / 主内容
+ ├─ components/
+-│  ├─ GlobalNav.vue               # 全局导航栏
++│  ├─ common/                     # 公共组件：AppSidebar / AppTopBar / DataContextBar / PageHeader / BackLink / MetricCard / DataModeBadge / QualityBadge / StatePanel
+ │  ├─ HeroShell.vue               # 通用页眉组件（带入场动效 + meta slot）
+ │  ├─ TimeAxisBar.vue             # 时间轴播放器（default 按钮列表 / axis 轴线两种形式）
+ │  ├─ CockpitSubTabs.vue          # 驾驶舱子页签切换
+@@ -108,22 +110,25 @@ src/
+ │  ├─ EChart.vue                  # ECharts 容器
+ │  └─ echartsTheme.js             # ECharts 暗色主题常量
+ ├─ pages/
+-│  ├─ Home.vue                   # 主页（Marquee Hero + 右侧入口边栏）
+-│  ├─ ProjectOverview.vue        # 项目概览（01 / 03）
+-│  ├─ TechRoute.vue              # 技术路线（02 / 03）
++│  ├─ Home.vue                   # 主页（左信息 / 右太湖演示分区缩略图 + 四核心入口 + 项目方案锚点）
+ │  ├─ Cockpit.vue                # 驾驶舱总览（03 / 03）
+ │  ├─ Stations.vue               # 监测站档位研判
+ │  ├─ Heatmap.vue                # 风险热力分区
+-│  └─ History.vue                # 历史事件回放
++│  ├─ History.vue                # 历史事件回放
++│  └─ NotFound.vue               # 统一 404 页（站内来源确定性返回 / 回到首页 / 进入驾驶舱）
+ ├─ stores/
+-│  └─ cockpit.js                 # 跨页共享状态
++│  ├─ cockpit.js                 # 跨页共享状态（时间档 / 选中点位）
++│  └─ routeUi.js                 # 路由 UI 状态（懒加载进度 / 加载失败 / 业务来源）
+ ├─ services/
+ │  ├─ api.js                     # 接口适配层
+ │  └─ mock.js                    # Mock 服务
+ └─ data/
+-   └─ points.js                  # 本地数据源（6 点位 / 5 档预测 / 事件流 / 热力网格）
++   ├─ points.js                  # 本地数据源（6 点位 / 5 档预测 / 事件流 / 热力网格）
++   └─ dataIdentity.js            # 数据身份唯一事实来源（SIMULATED / 版本 / 基准 / 边界）
+ ```
+ 
++根目录历史静态多页面前端（`project-overview.html`、`tech-route.html`、`demo-flow.html`、`cockpit.html`、`stations.html`、`heatmap.html`、`history.html`、`script.js`、`styles.css`）已于 2026-09-02 确认无引用后删除。正式前端仅保留 Vite + Vue 单页应用（根目录 `index.html` 为唯一入口）。
++
+ ---
+ 
+ ## 5. 路由速览
+@@ -131,12 +136,13 @@ src/
+ | 路由 | 页面 |
+ | --- | --- |
+ | `/` | 主页 |
+-| `/project-overview` | 项目概览 |
+-| `/tech-route` | 技术路线 |
+ | `/cockpit` | 驾驶舱总览 |
+ | `/stations` | 监测站档位研判 |
+ | `/heatmap` | 风险热力分区 |
+ | `/history` | 历史事件回放 |
++| 其他任意地址 | 统一 404 页 |
++
++正式产品只包含以上五个页面。原 `/project-overview`、`/tech-route` 独立路由已删除，项目概览内容保留在主页 `#project-overview` 锚点内。
+ 
+ ---
+ 
+diff --git a/src/App.vue b/src/App.vue
+index dba2baa..dcc4bae 100644
+--- a/src/App.vue
++++ b/src/App.vue
+@@ -1,14 +1,13 @@
+ <template>
+-  <GlobalNav />
+-  <div class="route-stage">
+-    <RouterView v-slot="{ Component }">
+-      <Transition name="route" mode="out-in" appear>
+-        <component :is="Component" />
+-      </Transition>
+-    </RouterView>
+-  </div>
++  <AppShell>
++    <div class="route-stage">
++      <!-- 页面入场动效由 styles.css 的 .route-stage > * 挂载动画实现；
++           不用 <Transition> 包裹懒加载组件（异步子组件会破坏过渡状态机，导致视图滞后一拍） -->
++      <RouterView />
++    </div>
++  </AppShell>
+ </template>
+ 
+ <script setup>
+-import GlobalNav from './components/GlobalNav.vue'
++import AppShell from './layouts/AppShell.vue'
+ </script>
+diff --git a/src/components/GlobalNav.vue b/src/components/GlobalNav.vue
+deleted file mode 100644
+index b222965..0000000
+--- a/src/components/GlobalNav.vue
++++ /dev/null
+@@ -1,428 +0,0 @@
+-<template>
+-  <header class="gnav" :class="{ 'gnav-scrolled': scrolled }">
+-    <div class="gnav-inner">
+-      <!-- Logo -->
+-      <RouterLink class="gnav-brand" to="/" aria-label="返回首页">
+-        <span class="gnav-brand-mark">A23</span>
+-        <span class="gnav-brand-copy">
+-          <strong>LAKE TWIN</strong>
+-          <small>蓝藻水华监测预警</small>
+-        </span>
+-      </RouterLink>
+-
+-      <!-- 导航入口 -->
+-      <nav class="gnav-links" aria-label="全局页面导航">
+-        <RouterLink
+-          v-for="item in navItems"
+-          :key="item.num"
+-          :to="item.to"
+-          class="gnav-link"
+-          :class="{ 'router-link-active': isActive(item) }"
+-        >
+-          <span class="gnav-link-num">{{ item.num }}</span>
+-          <span class="gnav-link-label">{{ item.label }}</span>
+-        </RouterLink>
+-      </nav>
+-
+-      <!-- 右侧：时间 + 主题切换 -->
+-      <div class="gnav-right">
+-        <div class="gnav-clock" aria-label="当前时间">
+-          <span class="gnav-clock-dot" aria-hidden="true"></span>
+-          <time :datetime="isoTime">{{ liveTime }}</time>
+-        </div>
+-
+-        <button
+-          type="button"
+-          class="gnav-theme-btn"
+-          :aria-label="themeAriaLabel"
+-          :title="themeTitle"
+-          @click="cycleTheme"
+-        >
+-          <svg v-if="theme === 'dark'" class="gnav-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+-          </svg>
+-          <svg v-else-if="theme === 'light'" class="gnav-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+-            <circle cx="12" cy="12" r="4" />
+-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+-          </svg>
+-          <svg v-else class="gnav-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+-            <path d="M12 3v3" />
+-            <path d="M5.6 7.6l2.1 2.1" />
+-            <path d="M18.4 7.6l-2.1 2.1" />
+-            <path d="M3 17h18" />
+-            <path d="M6 17a6 6 0 0 1 12 0" />
+-          </svg>
+-        </button>
+-
+-        <!-- 移动端菜单按钮 -->
+-        <button
+-          type="button"
+-          class="gnav-mobile-toggle"
+-          :aria-expanded="mobileOpen"
+-          aria-label="切换导航菜单"
+-          @click="mobileOpen = !mobileOpen"
+-        >
+-          <span class="gnav-mobile-bar" :class="{ 'is-open': mobileOpen }"></span>
+-        </button>
+-      </div>
+-    </div>
+-
+-    <!-- 移动端下拉面板 -->
+-    <Transition name="gnav-mobile">
+-      <nav v-if="mobileOpen" class="gnav-mobile-panel" aria-label="移动端导航">
+-        <RouterLink
+-          v-for="item in navItems"
+-          :key="item.num"
+-          :to="item.to"
+-          class="gnav-mobile-link"
+-          @click="mobileOpen = false"
+-        >
+-          <span class="gnav-link-num">{{ item.num }}</span>
+-          <span>{{ item.label }}</span>
+-        </RouterLink>
+-      </nav>
+-    </Transition>
+-  </header>
+-</template>
+-
+-<script setup>
+-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+-import { useRoute } from 'vue-router'
+-import { useTheme } from '../composables/useTheme.js'
+-
+-const route = useRoute()
+-const { theme, cycleTheme } = useTheme()
+-
+-const navItems = [
+-  { num: '00', to: '/',                 label: '首页' },
+-  { num: '01', to: { path: '/', hash: '#project-overview' }, label: '项目概览' },
+-  { num: '02', to: '/tech-route',       label: '技术路线' },
+-  { num: '03', to: '/cockpit',          label: '驾驶舱' },
+-  { num: '04', to: '/stations',         label: '监测站' },
+-  { num: '05', to: '/heatmap',          label: '热力图' },
+-  { num: '06', to: '/history',          label: '历史事件' }
+-]
+-
+-const now = ref(new Date())
+-let clockTimer
+-
+-const liveTime = computed(() => {
+-  const v = now.value
+-  const pad = (n) => String(n).padStart(2, '0')
+-  return `${pad(v.getMonth() + 1)}-${pad(v.getDate())} ${pad(v.getHours())}:${pad(v.getMinutes())}`
+-})
+-const isoTime = computed(() => now.value.toISOString())
+-
+-const themeAriaLabel = computed(() =>
+-  theme.value === 'dark' ? '切换到浅色主题' : theme.value === 'light' ? '切换到日式暖阳主题' : '切换到深色主题'
+-)
+-const themeTitle = computed(() =>
+-  theme.value === 'dark' ? '深色主题 · 点击切换浅色' : theme.value === 'light' ? '浅色主题 · 点击切换日式暖阳' : '日式暖阳 · 点击切换深色'
+-)
+-
+-function isActive(item) {
+-  const path = typeof item.to === 'string' ? item.to : item.to.path
+-  const hash = typeof item.to === 'object' ? (item.to.hash || '') : ''
+-  if (path === '/') {
+-    if (hash) return route.path === '/' && route.hash === hash
+-    return route.path === '/' && !route.hash
+-  }
+-  return route.path.startsWith(path)
+-}
+-
+-// 滚动时增加阴影
+-const scrolled = ref(false)
+-function onScroll() {
+-  scrolled.value = window.scrollY > 8
+-}
+-
+-// 路由变化时关闭移动端菜单
+-watch(() => route.fullPath, () => {
+-  mobileOpen.value = false
+-})
+-
+-const mobileOpen = ref(false)
+-
+-onMounted(() => {
+-  clockTimer = window.setInterval(() => {
+-    now.value = new Date()
+-  }, 30000)
+-  window.addEventListener('scroll', onScroll, { passive: true })
+-  onScroll()
+-})
+-
+-onBeforeUnmount(() => {
+-  window.clearInterval(clockTimer)
+-  window.removeEventListener('scroll', onScroll)
+-})
+-</script>
+-
+-<style scoped>
+-.gnav {
+-  position: sticky;
+-  top: 0;
+-  z-index: 1000;
+-  border-bottom: 1px solid var(--c-line);
+-  background: var(--glass-bg-strong);
+-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  transition: box-shadow 0.3s var(--ease-out), border-color 0.3s ease;
+-}
+-
+-.gnav-scrolled {
+-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
+-  border-bottom-color: var(--c-line-strong);
+-}
+-
+-.gnav-inner {
+-  display: flex;
+-  align-items: center;
+-  gap: 16px;
+-  max-width: 1560px;
+-  margin: 0 auto;
+-  padding: 0 28px;
+-  height: 60px;
+-}
+-
+-/* ============ Logo ============ */
+-.gnav-brand {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 10px;
+-  flex-shrink: 0;
+-  border-radius: var(--radius-sm);
+-  transition: opacity 0.15s ease;
+-}
+-.gnav-brand:hover { opacity: 0.82; }
+-
+-.gnav-brand-mark {
+-  display: inline-grid;
+-  place-items: center;
+-  width: 38px;
+-  height: 38px;
+-  border: 1px solid var(--c-accent);
+-  border-radius: var(--radius-sm);
+-  color: var(--c-accent);
+-  font-family: var(--font-display);
+-  font-size: 13px;
+-  font-weight: 700;
+-  letter-spacing: 0.08em;
+-}
+-
+-.gnav-brand-copy {
+-  display: grid;
+-  gap: 1px;
+-}
+-.gnav-brand-copy strong {
+-  font-family: var(--font-display);
+-  font-size: 13px;
+-  letter-spacing: 0.16em;
+-  color: var(--c-text);
+-}
+-.gnav-brand-copy small {
+-  color: var(--c-muted);
+-  font-size: 10px;
+-}
+-
+-/* ============ 导航链接 ============ */
+-.gnav-links {
+-  display: flex;
+-  align-items: center;
+-  gap: 2px;
+-  flex: 1;
+-  justify-content: center;
+-  min-width: 0;
+-}
+-
+-.gnav-link {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 6px;
+-  padding: 8px 12px;
+-  border-radius: var(--radius-sm);
+-  color: var(--c-text-soft);
+-  font-size: 13px;
+-  font-weight: 600;
+-  white-space: nowrap;
+-  transition: color 0.15s ease, background 0.15s ease;
+-}
+-
+-.gnav-link:hover {
+-  color: var(--c-text);
+-  background: var(--c-surface-soft);
+-}
+-
+-.gnav-link.router-link-active {
+-  color: var(--c-accent);
+-  background: var(--c-accent-soft);
+-}
+-
+-.gnav-link-num {
+-  font-family: var(--font-mono);
+-  font-size: 10px;
+-  color: var(--c-muted);
+-  letter-spacing: 1px;
+-}
+-.gnav-link.router-link-active .gnav-link-num {
+-  color: var(--c-accent);
+-}
+-
+-/* ============ 右侧 ============ */
+-.gnav-right {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 12px;
+-  flex-shrink: 0;
+-}
+-
+-.gnav-clock {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 8px;
+-  padding: 6px 14px;
+-  border-radius: var(--radius-pill);
+-  border: 1px solid var(--c-line);
+-  background: var(--c-surface-soft);
+-  color: var(--c-text-soft);
+-  font-family: var(--font-mono);
+-  font-size: 12px;
+-  letter-spacing: 1px;
+-}
+-
+-.gnav-clock-dot {
+-  width: 7px;
+-  height: 7px;
+-  border-radius: 50%;
+-  background: var(--c-accent);
+-  box-shadow: 0 0 0 4px var(--c-accent-soft);
+-  animation: gnav-pulse 2s var(--ease-in-out) infinite;
+-}
+-
+-@keyframes gnav-pulse {
+-  0%, 100% { opacity: 1; transform: scale(1); }
+-  50% { opacity: 0.5; transform: scale(0.8); }
+-}
+-
+-.gnav-theme-btn {
+-  display: inline-grid;
+-  place-items: center;
+-  width: 38px;
+-  height: 38px;
+-  padding: 0;
+-  border: 1px solid var(--c-line-strong);
+-  border-radius: var(--radius-pill);
+-  background: var(--c-surface-soft);
+-  color: var(--c-text-soft);
+-  cursor: pointer;
+-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+-}
+-.gnav-theme-btn:hover {
+-  color: var(--c-accent);
+-  border-color: var(--c-accent-border);
+-  transform: translateY(-1px);
+-}
+-.gnav-theme-btn:active { transform: translateY(1px); }
+-.gnav-theme-btn:focus-visible {
+-  outline: 3px solid var(--c-accent-glow);
+-  outline-offset: 3px;
+-}
+-
+-.gnav-theme-icon {
+-  width: 18px;
+-  height: 18px;
+-  pointer-events: none;
+-}
+-
+-/* ============ 移动端菜单按钮 ============ */
+-.gnav-mobile-toggle {
+-  display: none;
+-  position: relative;
+-  width: 38px;
+-  height: 38px;
+-  padding: 0;
+-  border: 1px solid var(--c-line-strong);
+-  border-radius: var(--radius-sm);
+-  background: var(--c-surface-soft);
+-  cursor: pointer;
+-}
+-.gnav-mobile-bar,
+-.gnav-mobile-bar::before,
+-.gnav-mobile-bar::after {
+-  content: "";
+-  position: absolute;
+-  left: 50%;
+-  width: 16px;
+-  height: 2px;
+-  background: var(--c-text);
+-  border-radius: 2px;
+-  transform: translateX(-50%);
+-  transition: transform 0.25s ease, opacity 0.2s ease;
+-}
+-.gnav-mobile-bar { top: 50%; margin-top: -1px; }
+-.gnav-mobile-bar::before { top: -6px; }
+-.gnav-mobile-bar::after { top: 6px; }
+-.gnav-mobile-bar.is-open { background: transparent; }
+-.gnav-mobile-bar.is-open::before { transform: translateX(-50%) rotate(45deg); top: 0; }
+-.gnav-mobile-bar.is-open::after { transform: translateX(-50%) rotate(-45deg); top: 0; }
+-
+-/* ============ 移动端下拉面板 ============ */
+-.gnav-mobile-panel {
+-  display: grid;
+-  gap: 2px;
+-  padding: 12px 28px 18px;
+-  border-top: 1px solid var(--c-line);
+-  background: var(--glass-bg-strong);
+-  backdrop-filter: blur(var(--glass-blur));
+-  -webkit-backdrop-filter: blur(var(--glass-blur));
+-}
+-
+-.gnav-mobile-link {
+-  display: flex;
+-  align-items: center;
+-  gap: 10px;
+-  padding: 12px 14px;
+-  border-radius: var(--radius-sm);
+-  color: var(--c-text-soft);
+-  font-size: 14px;
+-  font-weight: 600;
+-  transition: color 0.15s ease, background 0.15s ease;
+-}
+-.gnav-mobile-link:hover {
+-  color: var(--c-text);
+-  background: var(--c-surface-soft);
+-}
+-.gnav-mobile-link.router-link-active {
+-  color: var(--c-accent);
+-  background: var(--c-accent-soft);
+-}
+-
+-.gnav-mobile-enter-active,
+-.gnav-mobile-leave-active {
+-  transition: opacity 0.25s ease, transform 0.25s ease;
+-}
+-.gnav-mobile-enter-from,
+-.gnav-mobile-leave-to {
+-  opacity: 0;
+-  transform: translateY(-8px);
+-}
+-
+-/* ============ 响应式 ============ */
+-@media (max-width: 1100px) {
+-  .gnav-link-label { display: none; }
+-  .gnav-link { padding: 8px 10px; }
+-  .gnav-link-num { font-size: 11px; }
+-  .gnav-brand-copy { display: none; }
+-}
+-
+-@media (max-width: 820px) {
+-  .gnav-links { display: none; }
+-  .gnav-mobile-toggle { display: inline-grid; place-items: center; }
+-  .gnav-clock { display: none; }
+-  .gnav-inner { padding: 0 18px; }
+-  .gnav-mobile-panel { padding: 12px 18px 18px; }
+-}
+-
+-@media (prefers-reduced-motion: reduce) {
+-  .gnav-clock-dot { animation: none; }
+-}
+-</style>
+diff --git a/src/components/HeroShell.vue b/src/components/HeroShell.vue
+index 2fdc526..b4b5501 100644
+--- a/src/components/HeroShell.vue
++++ b/src/components/HeroShell.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  <main class="hero-shell-shell">
++  <div class="hero-shell-shell">
+     <header class="hero-header" :class="{ in: ready }">
+       <div class="hero-header-left">
+         <p class="hero-eyebrow">
+@@ -23,7 +23,7 @@
+     <footer v-if="$slots.actions" class="hero-actions">
+       <slot name="actions" />
+     </footer>
+-  </main>
++  </div>
+ </template>
+ 
+ <script setup>
+diff --git a/src/composables/useTheme.js b/src/composables/useTheme.js
+index 133eb1e..194229f 100644
+--- a/src/composables/useTheme.js
++++ b/src/composables/useTheme.js
+@@ -1,6 +1,6 @@
+ // 全局主题管理：dark（默认）/ light / sunrise（日式暖阳）。
+ // 通过 <html data-theme="dark|light|sunrise"> 驱动三套 CSS token 切换，
+-// 状态持久化到 localStorage，未显式选择时跟随系统 prefers-color-scheme。
++// 状态持久化到 localStorage；无合法保存值时固定使用 dark，不跟随系统。
+ 
+ import { reactive, computed } from 'vue'
+ 
+@@ -19,9 +19,7 @@ function resolveInitialTheme() {
+   } catch (e) {
+     // localStorage 不可用（隐私模式等），忽略
+   }
+-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+-    return 'light'
+-  }
++  // 演示环境固定深色起步，不再跟随系统 prefers-color-scheme
+   return 'dark'
+ }
+ 
+diff --git a/src/main.js b/src/main.js
+index 49bc27e..e491049 100644
+--- a/src/main.js
++++ b/src/main.js
+@@ -4,25 +4,25 @@ import App from './App.vue'
+ import '../tokens.css'
+ import './styles.css'
+ import { initTheme } from './composables/useTheme.js'
++import { bindRouterUi } from './stores/routeUi.js'
+ 
+ initTheme()
+ 
+-import Home from './pages/Home.vue'
+-import ProjectOverview from './pages/ProjectOverview.vue'
+-import TechRoute from './pages/TechRoute.vue'
+-import Cockpit from './pages/Cockpit.vue'
+-import Stations from './pages/Stations.vue'
+-import Heatmap from './pages/Heatmap.vue'
+-import History from './pages/History.vue'
++// 五个正式页面全部懒加载：ECharts/Leaflet 只随对应业务页 chunk 下载
++const Home = () => import('./pages/Home.vue')
++const Cockpit = () => import('./pages/Cockpit.vue')
++const Stations = () => import('./pages/Stations.vue')
++const Heatmap = () => import('./pages/Heatmap.vue')
++const History = () => import('./pages/History.vue')
++const NotFound = () => import('./pages/NotFound.vue')
+ 
+ const routes = [
+-  { path: '/', component: Home },
+-  { path: '/project-overview', component: ProjectOverview },
+-  { path: '/tech-route', component: TechRoute },
+-  { path: '/cockpit', component: Cockpit },
+-  { path: '/stations', component: Stations },
+-  { path: '/heatmap', component: Heatmap },
+-  { path: '/history', component: History }
++  { path: '/', name: 'home', component: Home, meta: { title: '首页' } },
++  { path: '/cockpit', name: 'cockpit', component: Cockpit, meta: { title: '综合驾驶舱' } },
++  { path: '/stations', name: 'stations', component: Stations, meta: { title: '监测站点研判' } },
++  { path: '/heatmap', name: 'heatmap', component: Heatmap, meta: { title: '风险地图与时空推演' } },
++  { path: '/history', name: 'history', component: History, meta: { title: '历史事件与复盘' } },
++  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound, meta: { title: '页面未找到' } }
+ ]
+ 
+ const router = createRouter({
+@@ -31,27 +31,18 @@ const router = createRouter({
+   scrollBehavior(to, from, savedPosition) {
+     if (savedPosition) return savedPosition
+     if (to.hash) {
+-      return { el: to.hash, top: 76 }
++      // 顶栏 64 + 数据身份栏 40 + 分隔线 2，再留 8px 呼吸
++      return { el: to.hash, top: 114 }
+     }
+     return { top: 0 }
+   }
+ })
+ 
+-// 退出边界保护：hash 路由 + 直接 deep link 时，浏览器后退会掉到 about:blank。
+-// 这里在 popstate 时如果当前没有 hash，主动压回 home，保持页面不空。
+-router.afterEach((to) => {
+-  // 防后退掉站：路由进入后多压一个 sentinel history 项
+-  if (window.__sentinelFor !== to.fullPath) {
+-    window.__sentinelFor = to.fullPath
+-    history.pushState({ sentinel: true, from: to.fullPath }, '', window.location.href)
+-  }
+-})
++bindRouterUi(router)
+ 
+-window.addEventListener('popstate', (e) => {
+-  if (e.state && e.state.sentinel) {
+-    const from = e.state.from || '/'
+-    history.pushState({ sentinel: true, from }, '', '#' + from)
+-  }
++router.afterEach((to) => {
++  const base = '蓝藻水华监测预警'
++  document.title = to.meta && to.meta.title ? `${to.meta.title} · ${base}` : base
+ })
+ 
+ createApp(App).use(router).mount('#app')
+diff --git a/src/pages/Home.vue b/src/pages/Home.vue
+index 6699289..448462b 100644
+--- a/src/pages/Home.vue
++++ b/src/pages/Home.vue
+@@ -1,1207 +1,737 @@
+ <template>
+-  <main class="home-workbench" :class="{ 'is-ready': ready }">
+-    <section class="home-hero-v2" aria-labelledby="home-title">
+-      <article class="home-copy home-reveal" style="--reveal-index: 0">
+-        <p class="home-kicker">机理与 AI 融合的地表水监测系统</p>
+-        <h1 id="home-title" class="home-title-v2">
++  <main class="shell home">
++    <!-- ============ 首屏：左 5 列信息 / 右 7 列太湖缩略态势 ============ -->
++    <section class="hero" aria-labelledby="home-title">
++      <div class="hero-copy">
++        <p class="kicker">A23 · 地表水蓝藻水华监测预警</p>
++        <h1 id="home-title" class="title">
+           <span>蓝藻水华</span>
+-          <span class="home-title-accent">监测预警</span>
++          <span class="title-accent">监测预警</span>
+         </h1>
+-        <p class="home-lede">
+-          把藻类生长、水流输运等物理机理嵌入智能模型，结合多源监测数据完成早识别、早预报与早预警，形成可解释、可校正的数字孪生决策链路。
++        <p class="lede">
++          融合多源数据、机理模型与人工智能，支持全湖态势研判、站点下钻、时空推演与历史复盘。
+         </p>
+-
+-        <div class="home-actions" aria-label="首页主要操作">
+-          <RouterLink class="home-action home-action-primary" to="/cockpit">
+-            进入数字孪生驾驶舱
+-            <span aria-hidden="true">↗</span>
++        <p class="boundary">
++          <strong>{{ identity.dataModeLabel }}（{{ identity.dataMode }}）</strong>
++          当前为统一演示数据联调环境，{{ identity.claimBoundary }}。
++        </p>
++        <div class="actions">
++          <RouterLink class="btn btn-primary" to="/cockpit">
++            进入综合驾驶舱<span class="btn-arrow" aria-hidden="true">→</span>
+           </RouterLink>
+-          <RouterLink class="home-action home-action-secondary" to="/project-overview">
+-            查看项目概览
++          <RouterLink class="btn btn-ghost" :to="{ path: '/', hash: '#project-overview' }">
++            查看项目方案
+           </RouterLink>
+         </div>
+-
+-        <dl class="home-facts" aria-label="系统关键数据">
+-          <div v-for="fact in facts" :key="fact.label">
++        <dl class="facts" aria-label="系统能力状态">
++          <div v-for="fact in facts" :key="fact.label" class="fact">
+             <dt>{{ fact.label }}</dt>
+             <dd>{{ fact.value }}</dd>
+             <span>{{ fact.note }}</span>
+           </div>
+         </dl>
+-      </article>
++      </div>
+ 
+-      <figure class="lake-workbench home-reveal" style="--reveal-index: 1">
+-        <figcaption class="lake-workbench-head">
+-          <div>
+-            <span>LIVE TWIN / 湖体遥测</span>
+-            <strong>太湖监测网络</strong>
++      <figure class="lake-panel">
++        <figcaption class="lake-head">
++          <div class="lake-head-copy">
++            <strong>{{ identity.lakeName }} · 演示分区态势</strong>
++            <span>{{ identity.datasetVersionId }} · 非真实站点 · 点击分区进入站点研判</span>
+           </div>
+-          <span class="lake-workbench-stage">当前档位 · 未来 1 天</span>
++          <DataModeBadge mode="simulated" :label="identity.dataMode" />
+         </figcaption>
+ 
+-        <div class="lake-canvas" aria-label="六个湖区监测点位实时状态示意图">
+-          <div class="lake-grid" aria-hidden="true"></div>
+-          <div class="lake-shape" aria-hidden="true">
+-            <span class="lake-shape-core"></span>
+-          </div>
+-          <div class="lake-scan" aria-hidden="true"></div>
+-
+-          <div
+-            v-for="point in monitorPoints"
+-            :key="point.code"
+-            class="lake-point"
+-            :class="`is-${point.level}`"
+-            :style="{ left: point.left, top: point.top }"
++        <div class="lake-canvas" role="group" aria-label="太湖演示分区缩略态势图，六个分区可点击下钻">
++          <svg class="lake-svg" viewBox="0 0 520 400" preserveAspectRatio="none" aria-hidden="true">
++            <!-- 真实太湖轮廓（OSM relation 1126533，见 data/taihuOutline.js），evenodd 渲染岛屿镂空 -->
++            <path class="lake-body" fill-rule="evenodd" :d="TAIHU_OUTLINE.path" />
++          </svg>
++
++          <button
++            v-for="z in zones"
++            :key="z.id"
++            type="button"
++            class="zone"
++            :class="`zone--${z.riskClass}`"
++            :style="{ left: z.pos.left, top: z.pos.top }"
++            :aria-label="`演示分区 ${z.code} ${z.name}，${z.risk}，点击进入站点研判`"
++            @click="goZone(z.id)"
+           >
+-            <span class="lake-point-dot" aria-hidden="true"></span>
+-            <span class="lake-point-label">
+-              <strong>{{ point.code }}</strong>
+-              <small>{{ point.name }}</small>
++            <span class="zone-dot" aria-hidden="true"></span>
++            <span class="zone-tip">
++              <strong>{{ z.code }} {{ z.name }}</strong>
++              <em>{{ z.risk }} · 点击下钻</em>
+             </span>
+-          </div>
+-
+-          <div class="lake-insight">
+-            <span>当前研判</span>
+-            <strong>西北湖区风险抬升</strong>
+-            <small>机理层与 AI 层联合输出</small>
+-          </div>
++          </button>
+         </div>
+ 
+-        <div class="lake-workbench-foot">
+-          <span><i class="is-high"></i>红色预警 1</span>
+-          <span><i class="is-mid"></i>橙色关注 3</span>
+-          <span><i class="is-low"></i>绿色稳定 2</span>
++        <div class="lake-foot" aria-label="分区风险统计">
++          <span class="lg lg--high"><i aria-hidden="true"></i>红色预警 × {{ regionSummary.riskCounts.high }}</span>
++          <span class="lg lg--mid"><i aria-hidden="true"></i>橙色关注 × {{ regionSummary.riskCounts.mid }}</span>
++          <span class="lg lg--low"><i aria-hidden="true"></i>绿色稳定 × {{ regionSummary.riskCounts.low }}</span>
++          <a
++            class="lg-attr"
++            href="https://www.openstreetmap.org/copyright"
++            target="_blank"
++            rel="license noopener"
++          >湖岸轮廓 © OpenStreetMap 贡献者（ODbL）</a>
+         </div>
+       </figure>
+     </section>
+ 
+-    <section class="home-index home-reveal" style="--reveal-index: 2" aria-labelledby="home-index-title">
+-      <header class="home-index-head">
+-        <div>
+-          <p>系统入口</p>
+-          <h2 id="home-index-title">选择你的起点</h2>
+-        </div>
+-        <p>从项目背景到实时研判，三个模块共同组成完整演示路径。</p>
++    <!-- ============ 第二屏：四个核心入口 ============ -->
++    <section class="entries" aria-labelledby="entries-title">
++      <header class="entries-head">
++        <h2 id="entries-title">核心业务入口</h2>
++        <p>四个正式业务模块 · 全部使用演示数据</p>
+       </header>
+-
+-      <ol class="home-route-axis">
+-        <li v-for="entry in entries" :key="entry.index" class="axis-step">
+-          <RouterLink class="axis-node" :to="entry.to">
+-            <span class="axis-marker" aria-hidden="true">{{ entry.index }}</span>
+-            <span class="axis-body">
+-              <small>{{ entry.voice }} · {{ entry.meta }}</small>
+-              <strong>{{ entry.title }}</strong>
+-              <span>{{ entry.summary }}</span>
+-            </span>
+-            <span class="axis-cta">进入模块 <i aria-hidden="true">→</i></span>
+-          </RouterLink>
+-        </li>
+-      </ol>
++      <div class="entry-grid">
++        <RouterLink v-for="e in entries" :key="e.no" class="entry-card" :to="e.to">
++          <span class="entry-no">{{ e.no }}</span>
++          <span class="entry-title">{{ e.title }}</span>
++          <span class="entry-desc">{{ e.desc }}</span>
++          <span class="entry-mode">{{ e.mode }}</span>
++          <span class="entry-cta">进入 <i aria-hidden="true">→</i></span>
++        </RouterLink>
++      </div>
+     </section>
+ 
+-    <section id="project-overview" class="home-overview home-reveal" style="--reveal-index: 3" aria-labelledby="overview-title">
+-      <header class="home-overview-head">
+-        <div>
+-          <p class="home-overview-kicker">PROJECT OVERVIEW · 01</p>
+-          <h2 id="overview-title">项目概览</h2>
+-        </div>
+-        <p class="home-overview-lede">
+-          面向新三湖（滇池、太湖、巢湖）与老三湖（太湖、巢湖、滆湖）等重点湖库，建立机理与 AI 融合的蓝藻水华监测预警模型，输出从早识别、早预报到早预警的全链条能力。
++    <!-- ============ 项目方案 ============ -->
++    <section id="project-overview" class="overview" aria-labelledby="overview-title">
++      <header class="overview-head">
++        <p class="kicker">PROJECT OVERVIEW</p>
++        <h2 id="overview-title">项目方案</h2>
++        <p class="overview-lede">
++          面向重点湖库蓝藻水华监测预警，业务链贯通数据、机理、研判与复盘；当前阶段以统一演示数据完成全链路联调。
+         </p>
+       </header>
+ 
+-      <div class="overview-meta-row">
+-        <div class="overview-meta-card"><span>主题</span><strong>数据与计算</strong></div>
+-        <div class="overview-meta-card"><span>赛题</span><strong>A23 · 应用类</strong></div>
+-        <div class="overview-meta-card"><span>主办</span><strong>我有一点困</strong></div>
+-        <div class="overview-meta-card"><span>核心</span><strong>机理 × AI 融合</strong></div>
+-      </div>
+-
+-      <article class="overview-context">
+-        <p class="overview-kicker">整体背景 · CONTEXT</p>
+-        <h3 class="overview-h3">蓝藻水华是富营养化水体在特定水文气候条件下分发性增殖的生态灾变现象</h3>
+-        <p class="overview-prose">
+-          蓝藻水华严重威胁饮用水安全、水生态系统健康及流域经济社会的可持续发展。随着《水污染防治行动计划》深入推进及《"十四五"生态环境监测规划》明确要求在新老三湖等重点湖库开展蓝藻水华监测预警，传统"人工采样 + 实验室分析"的监测模式已难以满足"提前预警、精准防控"的管理需要。
+-        </p>
+-      </article>
++      <ol class="chain" aria-label="业务链路">
++        <li v-for="(step, i) in chain" :key="step" class="chain-step">
++          <span class="chain-no" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>{{ step }}
++          <span v-if="i < chain.length - 1" class="chain-arrow" aria-hidden="true">→</span>
++        </li>
++      </ol>
+ 
+-      <div class="overview-split">
+-        <article class="overview-block">
+-          <p class="overview-kicker">传统路径 · CLASSICAL</p>
+-          <h4>水动力 - 水质 - 藻类生长耦合模型</h4>
+-          <p>可刻画营养盐循环、藻类生理生态过程及物理迁移规律，具备可解释性强、外推能力好的优势，但参数率定困难、计算效率低，对突发扰动响应滞后。</p>
++      <div class="bounds">
++        <article class="bound bound-have">
++          <h3>已有</h3>
++          <p>清洗数据产物 · 统一演示接口 · 页面联动基础</p>
+         </article>
+-        <article class="overview-block">
+-          <p class="overview-kicker">数据驱动 · DATA-DRIVEN</p>
+-          <h4>深度学习 / 物理信息神经网络</h4>
+-          <p>能从多源异构监测数据中挖掘环境因子与藻华分发的非线性映射关系，实现短期预警与风险分级，但物理一致性约束弱、泛化性能不足。</p>
++        <article class="bound bound-doing">
++          <h3>进行中</h3>
++          <p>正式机理与 AI 算法接入</p>
++        </article>
++        <article class="bound bound-limit">
++          <h3>受限</h3>
++          <p>30—90 天正式预测能力尚未建成</p>
+         </article>
+-      </div>
+-
+-      <article class="overview-solution">
+-        <p class="overview-kicker">融合范式 · OUR ANSWER</p>
+-        <h3 class="overview-h3">把藻类生长动力学方程、流体水力学守恒定律等物理机理嵌入神经网络架构</h3>
+-        <p class="overview-prose">
+-          或利用 AI 对机理模型参数进行实时校正，构建兼具物理可解释性与数据自适应性的混合智能模型，依托"空 - 天 - 地 - 水"多源数据融合驱动实现蓝藻水华早识别、早预报、早预警。模型需支撑监测数据实时映射、藻华风险分级预警可视化、历史场景回溯与未来情景推演。
+-        </p>
+-      </article>
+-
+-      <div class="overview-keyline">
+-        <span>多源数据接入</span>
+-        <span class="keyline-dot" aria-hidden="true"></span>
+-        <span>数据质量控制</span>
+-        <span class="keyline-dot" aria-hidden="true"></span>
+-        <span>机理 + AI 建模</span>
+-        <span class="keyline-dot" aria-hidden="true"></span>
+-        <span>数字孪生预警</span>
+       </div>
+     </section>
+ 
+-    <footer class="home-footer-v2 home-reveal" style="--reveal-index: 4">
+-      <div>
+-        <span>赛题 A23</span>
+-        <span>数据与计算 · 应用类</span>
+-      </div>
+-      <div>
+-        <span>承办：<strong>我有一点困</strong></span>
+-        <span>机理 × AI 融合范式</span>
++    <!-- ============ 页尾 ============ -->
++    <footer class="home-foot">
++      <div class="foot-brand">
++        <strong>{{ identity.lakeName }} · 蓝藻水华监测预警系统</strong>
++        <span>A23 · 演示联调</span>
+       </div>
++      <p class="foot-identity">
++        数据模式 {{ identity.dataMode }} · {{ identity.datasetVersionId }} / {{ identity.predictionRunId }} · {{ identity.claimBoundary }}
++      </p>
++      <p class="foot-bound">{{ identity.claimNote }}</p>
+     </footer>
+   </main>
+ </template>
+ 
+ <script setup>
+-import { onMounted, ref } from 'vue'
++import { useRouter } from 'vue-router'
++import { pointData, regionSummary } from '../data/points.js'
++import { TAIHU_OUTLINE, taihuZonePos } from '../data/taihuOutline.js'
++import { dataIdentity as identity } from '../data/dataIdentity.js'
++import DataModeBadge from '../components/common/DataModeBadge.vue'
++
++const router = useRouter()
++
++// 分区编号为界面展示用简称，稳定对象 ID 仍以 points.js 为准
++const CODES = {
++  northwest_hotspot: 'NW-01',
++  central_lake: 'CN-02',
++  river_inlet: 'RI-03',
++  southeast_station: 'SE-04',
++  water_intake: 'WI-05',
++  south_channel: 'SC-06'
++}
++
++const zones = Object.values(pointData).map((p) => ({
++  ...p,
++  code: CODES[p.id] || '',
++  // 真实轮廓上的展示定位优先；pointPositions 供站点页等业务使用，不做改动
++  pos: taihuZonePos[p.id] || { top: '50%', left: '50%' }
++}))
++
++const facts = [
++  { label: '数据模式', value: identity.dataMode, note: '统一演示数据联调环境' },
++  { label: '业务对象', value: '6 个演示分区', note: '非真实监测站' },
++  { label: '预测能力', value: '1—15 天演示档位', note: 't1 / t3 / t7 / t15' },
++  { label: '长期能力', value: '30 天仅模拟预演', note: '正式 30—90 天预测未接入' }
++]
+ 
+ const entries = [
+   {
+-    to: { path: '/', hash: '#project-overview' },
+-    index: '01',
+-    title: '项目概览',
+-    voice: 'PROJECT OVERVIEW',
+-    summary: '问题定义、应用场景与系统目标。',
+-    meta: 'WHY'
++    no: '01 · P01',
++    to: '/cockpit',
++    title: '综合驾驶舱',
++    desc: '全湖态势总览：风险分区、演示事件流与预警信息一屏研判。',
++    mode: 'SIMULATED · DEMO-OBS-V1'
++  },
++  {
++    no: '02 · P03',
++    to: '/stations',
++    title: '监测站点研判',
++    desc: '点位地图 + 详情卡 + 藻密度时序 + 因子贡献逐层下钻。',
++    mode: 'SIMULATED · DEMO-OBS-V1'
+   },
+   {
+-    to: '/tech-route',
+-    index: '02',
+-    title: '技术路线',
+-    voice: 'TECH ROUTE',
+-    summary: '机理模型、AI 校正与融合预测链路。',
+-    meta: 'HOW'
++    no: '03 · P07',
++    to: '/heatmap',
++    title: '风险地图与时空推演',
++    desc: '风险热力场与 1—30 天时空档位推演，30 天仅模拟预演。',
++    mode: 'SIMULATED · DEMO-PRED-V1'
+   },
+   {
+-    to: '/cockpit',
+-    index: '03',
+-    title: '数字驾驶舱',
+-    voice: 'COCKPIT',
+-    summary: '进入站点、热力图与历史事件视图。',
+-    meta: 'ENTER'
++    no: '04',
++    to: '/history',
++    title: '历史事件与处置复盘',
++    desc: '事件链回放与处置记录复盘，沉淀研判经验。',
++    mode: 'SIMULATED · 演示事件流'
+   }
+ ]
+ 
+-const facts = [
+-  { label: '演示分区', value: '6 个', note: 'SIMULATED / 非真实站点' },
+-  { label: '演示时效', value: '1 — 15 天', note: '样例接口；30 天仅模拟预演' },
+-  { label: '当前状态', value: '演示风险场', note: '算法待接入，不是实时预警' }
+-]
+-
+-const monitorPoints = [
+-  { code: 'NW-01', name: '西北热点区', level: 'high', left: '25%', top: '29%' },
+-  { code: 'CN-02', name: '湖心浮标', level: 'mid', left: '54%', top: '42%' },
+-  { code: 'RI-03', name: '入湖河口', level: 'low', left: '14%', top: '60%' },
+-  { code: 'SE-04', name: '东南监测站', level: 'mid', left: '72%', top: '69%' },
+-  { code: 'WI-05', name: '取水口', level: 'low', left: '60%', top: '78%' },
+-  { code: 'SC-06', name: '南部通道', level: 'mid', left: '38%', top: '83%' }
+-]
+-
+-const ready = ref(false)
++const chain = ['多源数据', '数据质量', '机理与AI预测', '风险研判', '时空预演', '历史复盘']
+ 
+-onMounted(() => {
+-  requestAnimationFrame(() => {
+-    ready.value = true
+-  })
+-})
++function goZone(id) {
++  router.push({ path: '/stations', query: { p: id } })
++}
+ </script>
+ 
+ <style scoped>
+-/* Hallmark · macrostructure: Workbench · theme: Midnight · tone: restrained scientific command center · anchor hue: lake teal
+- * audience: competition judges and demo viewers · use: understand the project and enter the cockpit
+- * enrichment: Tier-A CSS lake telemetry · nav: N9 edge-aligned · footer: Ft5 statement
+- * slop: pass · honest: pass · chrome: pass · tokens: pass · responsive: pass · mobile: pass
+- */
+-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+-
+-:global(html),
+-:global(body) {
+-  overflow-x: clip;
++.home {
++  gap: 40px;
++  padding-bottom: 48px;
+ }
+ 
+-.home-workbench {
+-  min-height: 100vh;
+-  max-width: 1560px;
+-  margin-inline: auto;
+-  padding: var(--home-space-md) var(--home-space-lg) var(--home-space-xl);
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-body);
+-  overflow-x: clip;
++.kicker {
++  display: inline-flex;
++  align-items: center;
++  gap: 10px;
++  color: var(--text-muted);
++  font-family: var(--font-mono);
++  font-size: 11px;
++  font-weight: 600;
++  letter-spacing: 0.18em;
++}
++.kicker::before {
++  content: "";
++  width: 26px;
++  height: 1px;
++  background: var(--color-primary);
+ }
+ 
+-.home-hero-v2 {
++/* ============ 首屏 ============ */
++.hero {
+   display: grid;
+-  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+-  gap: var(--home-space-2xl);
+-  align-items: center;
+-  min-height: min(760px, calc(100vh - 88px));
+-  padding-block: var(--home-space-xl) var(--home-space-2xl);
++  grid-template-columns: repeat(12, minmax(0, 1fr));
++  gap: 24px;
++  align-items: stretch;
++  padding-top: 8px;
+ }
+ 
+-.home-copy {
++.hero-copy {
++  grid-column: span 5;
++  display: flex;
++  flex-direction: column;
++  justify-content: center;
++  gap: 16px;
+   min-width: 0;
+ }
+ 
+-.home-kicker {
+-  margin-bottom: var(--home-space-md);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  font-weight: 600;
+-  letter-spacing: 0.12em;
+-}
+-
+-.home-title-v2 {
++.title {
+   display: grid;
+-  gap: var(--home-space-2xs);
+-  max-width: 9ch;
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: clamp(3.4rem, 7vw, 7.2rem);
+-  font-style: normal;
+-  font-weight: 760;
+-  letter-spacing: -0.045em;
+-  line-height: 0.92;
+-  overflow-wrap: anywhere;
++  gap: 2px;
++  font-family: var(--font-display);
++  font-size: clamp(40px, 4.6vw, 64px);
++  font-weight: 750;
++  letter-spacing: -0.02em;
++  line-height: 1.04;
++  color: var(--text-primary);
+ }
++.title-accent { color: var(--color-primary); }
+ 
+-.home-title-accent {
+-  color: var(--home-color-ink-soft);
++.lede {
++  max-width: 40rem;
++  font-size: 15px;
++  line-height: 1.85;
++  color: var(--text-secondary);
+ }
+ 
+-.home-lede {
+-  max-width: 42rem;
+-  margin-top: var(--home-space-lg);
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-md);
+-  line-height: 1.8;
++.boundary {
++  padding: 10px 14px;
++  border-left: 3px solid color-mix(in srgb, var(--risk-medium) 60%, transparent);
++  border-radius: var(--radius-item);
++  background: color-mix(in srgb, var(--risk-medium) 8%, transparent);
++  font-size: 12.5px;
++  line-height: 1.7;
++  color: var(--text-secondary);
++}
++.boundary strong {
++  margin-right: 6px;
++  color: var(--text-primary);
++  font-family: var(--font-mono);
+ }
+ 
+-.home-actions {
++.actions {
+   display: flex;
+   flex-wrap: wrap;
+-  gap: var(--home-space-sm);
+-  margin-top: var(--home-space-lg);
++  gap: 12px;
+ }
+-
+-.home-action {
++.btn {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+-  gap: var(--home-space-xs);
++  gap: 8px;
+   min-height: 48px;
+-  padding-inline: var(--home-space-md);
+-  border: var(--home-rule-hair) solid var(--home-color-rule-strong);
+-  border-radius: var(--home-radius-pill);
+-  font-size: var(--home-text-sm);
++  padding: 0 22px;
++  border: 1px solid transparent;
++  border-radius: var(--radius-item);
++  font-size: 14px;
+   font-weight: 700;
+   white-space: nowrap;
+-  transition:
+-    transform var(--home-dur-short) var(--home-ease-out),
+-    background-color var(--home-dur-short) var(--home-ease-out),
+-    border-color var(--home-dur-short) var(--home-ease-out),
+-    color var(--home-dur-short) var(--home-ease-out),
+-    opacity var(--home-dur-short) var(--home-ease-out);
+-}
+-
+-.home-action:hover {
+-  transform: translateY(-2px);
+-}
+-
+-.home-action:active {
+-  transform: translateY(1px);
+-}
+-
+-.home-action:focus-visible,
+-.axis-node:focus-visible {
+-  outline: 3px solid var(--home-color-focus);
+-  outline-offset: 4px;
+-}
+-
+-.home-action[aria-disabled="true"],
+-.home-action:disabled {
+-  pointer-events: none;
+-  opacity: 0.45;
+-}
+-
+-.home-action[data-state="loading"] {
+-  cursor: wait;
+-  opacity: 0.72;
+-}
+-
+-.home-action[data-state="error"] {
+-  border-color: var(--home-color-alert);
+-  color: var(--home-color-alert);
++  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+ }
+-
+-.home-action[data-state="success"] {
+-  border-color: var(--home-color-stable);
+-  color: var(--home-color-stable);
+-}
+-
+-.home-action-primary {
+-  border-color: var(--home-color-accent);
+-  background: var(--home-color-accent);
+-  color: var(--home-color-accent-ink);
++.btn:hover { transform: translateY(-2px); }
++.btn:active { transform: translateY(0); }
++.btn-primary {
++  background: var(--color-primary);
++  color: var(--color-primary-ink);
+ }
+-
+-.home-action-primary:hover {
+-  background: var(--home-color-accent-strong);
++.btn-primary:hover { filter: brightness(1.08); }
++.btn-ghost {
++  border-color: var(--border-strong);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
+ }
+-
+-.home-action-secondary {
+-  background: var(--home-color-surface-soft);
+-  color: var(--home-color-ink);
++.btn-ghost:hover {
++  border-color: var(--color-primary);
++  color: var(--color-primary);
+ }
++.btn-arrow { transition: transform 0.15s ease; }
++.btn-primary:hover .btn-arrow { transform: translateX(3px); }
+ 
+-.home-action-secondary:hover {
+-  border-color: var(--home-color-accent);
+-  color: var(--home-color-accent);
+-}
+-
+-.home-facts {
++.facts {
+   display: grid;
+-  grid-template-columns: repeat(3, minmax(0, 1fr));
+-  margin-top: var(--home-space-xl);
+-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-bottom: var(--home-rule-hair) solid var(--home-color-rule);
+-}
+-
+-.home-facts > div {
+-  min-width: 0;
+-  padding: var(--home-space-sm) var(--home-space-sm) var(--home-space-sm) 0;
+-}
+-
+-.home-facts > div + div {
+-  padding-left: var(--home-space-sm);
+-  border-left: var(--home-rule-hair) solid var(--home-color-rule);
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 10px;
++  margin: 8px 0 0;
+ }
+-
+-.home-facts dt {
+-  color: var(--home-color-muted);
+-  font-size: var(--home-text-xs);
++.fact {
++  display: grid;
++  gap: 2px;
++  padding: 12px 14px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-item);
++  background: var(--surface-panel-soft);
++}
++.fact dt {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.1em;
++  color: var(--text-muted);
+ }
+-
+-.home-facts dd {
+-  margin: var(--home-space-2xs) 0 0;
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: var(--home-text-lg);
++.fact dd {
++  margin: 0;
++  font-family: var(--font-display);
++  font-size: 16px;
+   font-weight: 700;
++  color: var(--text-primary);
+ }
+-
+-.home-facts span {
+-  display: block;
+-  margin-top: var(--home-space-3xs);
+-  color: var(--home-color-muted);
+-  font-size: var(--home-text-xs);
+-  line-height: 1.5;
++.fact span {
++  font-size: 11.5px;
++  color: var(--text-muted);
+ }
+ 
+-.lake-workbench {
+-  width: 100%;
+-  max-width: 100%;
+-  min-width: 0;
++/* ============ 太湖缩略态势 ============ */
++.lake-panel {
++  grid-column: span 7;
++  display: flex;
++  flex-direction: column;
+   margin: 0;
+-  border: var(--home-rule-hair) solid var(--glass-border);
+-  border-radius: var(--home-radius-card);
+-  background: var(--glass-bg);
+-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+-  overflow: clip;
++  min-width: 0;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-panel);
++  background: var(--surface-panel);
+ }
+ 
+-.lake-workbench-head,
+-.lake-workbench-foot {
++.lake-head {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+-  gap: var(--home-space-md);
+-  padding: var(--home-space-sm) var(--home-space-md);
+-}
+-
+-.lake-workbench-head {
+-  border-bottom: var(--home-rule-hair) solid var(--home-color-rule);
++  gap: 12px;
++  padding: 12px 16px;
++  border-bottom: 1px solid var(--border-subtle);
+ }
+-
+-.lake-workbench-head > div {
++.lake-head-copy {
+   display: grid;
+-  gap: var(--home-space-3xs);
+-}
+-
+-.lake-workbench-head span,
+-.lake-workbench-stage {
+-  color: var(--home-color-muted);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.08em;
++  gap: 2px;
++  min-width: 0;
+ }
+-
+-.lake-workbench-head strong {
+-  font-family: var(--home-font-display);
+-  font-size: var(--home-text-md);
++.lake-head-copy strong {
++  font-size: 14px;
++  color: var(--text-primary);
+ }
+-
+-.lake-workbench-stage {
+-  padding: var(--home-space-2xs) var(--home-space-xs);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-pill);
+-  color: var(--home-color-accent);
+-  white-space: nowrap;
++.lake-head-copy span {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.06em;
++  color: var(--text-muted);
+ }
+ 
+ .lake-canvas {
+   position: relative;
+-  min-height: 510px;
+-  overflow: clip;
+-  background: var(--home-color-paper-2);
+-  isolation: isolate;
+-}
+-
+-.lake-grid {
+-  position: absolute;
+-  inset: 0;
+-  z-index: -3;
++  flex: 1;
++  min-height: 400px;
+   background-image:
+-    linear-gradient(var(--home-color-grid) var(--home-rule-hair), var(--home-color-transparent) var(--home-rule-hair)),
+-    linear-gradient(90deg, var(--home-color-grid) var(--home-rule-hair), var(--home-color-transparent) var(--home-rule-hair));
+-  background-size: 42px 42px;
++    linear-gradient(color-mix(in srgb, var(--border-subtle) 55%, transparent) 1px, transparent 1px),
++    linear-gradient(90deg, color-mix(in srgb, var(--border-subtle) 55%, transparent) 1px, transparent 1px);
++  background-size: 44px 44px;
+ }
+-
+-.lake-shape {
+-  position: absolute;
+-  inset: 16% 12% 14% 8%;
+-  z-index: -2;
+-  border: var(--home-rule-hair) solid var(--home-color-accent-border);
+-  border-radius: 62% 38% 54% 46% / 44% 58% 42% 56%;
+-  background:
+-    radial-gradient(circle at 35% 28%, var(--home-color-lake-highlight), var(--home-color-transparent) 36%),
+-    linear-gradient(145deg, var(--home-color-lake), var(--home-color-lake-deep));
+-  transform: rotate(-5deg);
+-  box-shadow: inset 0 0 46px var(--home-color-lake-shadow);
+-}
+-
+-.lake-shape-core {
+-  position: absolute;
+-  inset: 29% 24%;
+-  border: var(--home-rule-hair) solid var(--home-color-violet-border);
+-  border-radius: 58% 42% 62% 38% / 48% 60% 40% 52%;
+-  background: var(--home-color-violet-soft);
+-}
+-
+-.lake-scan {
++.lake-svg {
+   position: absolute;
+   inset: 0;
+-  z-index: -1;
+-  background: linear-gradient(
+-    180deg,
+-    var(--home-color-transparent) 0%,
+-    var(--home-color-transparent) 45%,
+-    var(--home-color-scan) 50%,
+-    var(--home-color-transparent) 55%,
+-    var(--home-color-transparent) 100%
+-  );
+-  transform: translateY(-100%);
+-  animation: home-lake-scan 5.4s linear infinite;
++  width: 100%;
++  height: 100%;
++}
++.lake-body {
++  fill: color-mix(in srgb, var(--color-primary) 15%, var(--surface-page));
++  stroke: var(--border-strong);
++  stroke-width: 1.4;
+ }
+ 
+-.lake-point {
++/* 分区按钮：44×44 触控目标，风险色 + 文字双表达 */
++.zone {
+   position: absolute;
+-  display: flex;
+-  align-items: center;
+-  gap: var(--home-space-2xs);
++  display: grid;
++  place-items: center;
++  width: 44px;
++  height: 44px;
++  padding: 0;
++  border: none;
++  background: transparent;
++  cursor: pointer;
+   transform: translate(-50%, -50%);
+-  color: var(--home-color-ink);
+-}
+-
+-.lake-point-dot {
+-  width: 10px;
+-  height: 10px;
+-  flex: 0 0 auto;
+-  border: 2px solid var(--home-color-paper-2);
+-  border-radius: var(--home-radius-pill);
+-  background: currentColor;
+-  box-shadow: 0 0 0 5px color-mix(in oklch, currentColor 22%, var(--home-color-transparent));
+ }
+-
+-.lake-point.is-high { color: var(--home-color-alert); }
+-.lake-point.is-mid { color: var(--home-color-watch); }
+-.lake-point.is-low { color: var(--home-color-stable); }
+-
+-.lake-point-label {
++.zone--high { --rc: var(--risk-critical); }
++.zone--mid { --rc: var(--risk-high); }
++.zone--low { --rc: var(--risk-low); }
++.zone-dot {
++  width: 12px;
++  height: 12px;
++  border-radius: 50%;
++  background: var(--rc);
++  border: 2px solid var(--surface-page);
++  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 28%, transparent);
++  transition: transform 0.15s ease;
++}
++.zone:hover .zone-dot,
++.zone:focus-visible .zone-dot { transform: scale(1.25); }
++.zone-tip {
++  position: absolute;
++  bottom: calc(100% + 2px);
++  left: 50%;
++  z-index: 3;
+   display: grid;
+   gap: 1px;
+-  padding: var(--home-space-2xs) var(--home-space-xs);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-sm);
+-  background: var(--home-color-label);
+-  backdrop-filter: blur(10px);
+-}
+-
+-.lake-point-label strong {
+-  color: currentColor;
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-}
+-
+-.lake-point-label small {
+-  color: var(--home-color-ink-soft);
+-  font-size: 0.68rem;
++  padding: 6px 10px;
++  border: 1px solid var(--border-strong);
++  border-radius: var(--radius-item);
++  background: var(--surface-panel-raised);
++  box-shadow: var(--shadow-sm);
+   white-space: nowrap;
++  opacity: 0;
++  pointer-events: none;
++  transform: translateX(-50%) translateY(2px);
++  transition: opacity 0.15s ease, transform 0.15s ease;
+ }
+-
+-.lake-insight {
+-  position: absolute;
+-  right: var(--home-space-md);
+-  bottom: var(--home-space-md);
+-  display: grid;
+-  gap: var(--home-space-3xs);
+-  max-width: 15rem;
+-  padding: var(--home-space-sm);
+-  border: var(--home-rule-hair) solid var(--home-color-alert-border);
+-  border-radius: var(--home-radius-md);
+-  background: var(--home-color-label-strong);
+-  box-shadow: var(--home-shadow-small);
++.zone:hover .zone-tip,
++.zone:focus-visible .zone-tip {
++  opacity: 1;
++  transform: translateX(-50%);
+ }
+-
+-.lake-insight span,
+-.lake-insight small {
+-  color: var(--home-color-muted);
+-  font-size: var(--home-text-xs);
++.zone-tip strong {
++  font-family: var(--font-mono);
++  font-size: 12px;
++  color: var(--text-primary);
+ }
+-
+-.lake-insight strong {
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: var(--home-text-md);
++.zone-tip em {
++  font-style: normal;
++  font-size: 11px;
++  color: var(--rc);
+ }
+ 
+-.lake-workbench-foot {
++.lake-foot {
++  display: flex;
+   flex-wrap: wrap;
+-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-xs);
++  gap: 8px 18px;
++  padding: 10px 16px;
++  border-top: 1px solid var(--border-subtle);
+ }
+-
+-.lake-workbench-foot span {
++.lg {
+   display: inline-flex;
+   align-items: center;
+-  gap: var(--home-space-2xs);
++  gap: 6px;
++  font-family: var(--font-mono);
++  font-size: 11.5px;
++  color: var(--text-secondary);
+ }
+-
+-.lake-workbench-foot i {
++.lg i {
+   width: 8px;
+   height: 8px;
+-  border-radius: var(--home-radius-pill);
++  border-radius: 50%;
+   background: currentColor;
+ }
+-
+-.lake-workbench-foot .is-high { color: var(--home-color-alert); }
+-.lake-workbench-foot .is-mid { color: var(--home-color-watch); }
+-.lake-workbench-foot .is-low { color: var(--home-color-stable); }
+-
+-.home-index {
+-  padding-block: var(--home-space-2xl) var(--home-space-xl);
+-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
++.lg--high { color: var(--risk-critical); }
++.lg--mid { color: var(--risk-high); }
++.lg--low { color: var(--risk-low); }
++.lg-attr {
++  margin-left: auto;
++  font-size: 11px;
++  color: var(--text-muted);
++  text-decoration: none;
++  border-bottom: 1px dashed var(--border-subtle);
+ }
++.lg-attr:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+ 
+-.home-index-head {
++/* ============ 四个核心入口 ============ */
++.entries {
+   display: grid;
+-  grid-template-columns: minmax(0, 1fr);
+-  gap: var(--home-space-sm);
+-  margin-bottom: var(--home-space-lg);
++  gap: 16px;
++  padding-top: 8px;
++  border-top: 1px solid var(--border-subtle);
+ }
+-
+-.home-index-head > div {
+-  min-width: 0;
+-}
+-
+-.home-index-head > div > p {
+-  margin-bottom: var(--home-space-2xs);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.12em;
++.entries-head {
++  display: flex;
++  align-items: baseline;
++  justify-content: space-between;
++  gap: 12px;
++  flex-wrap: wrap;
+ }
+-
+-.home-index-head h2 {
+-  max-width: 16ch;
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: clamp(2rem, 4vw, 4rem);
+-  font-style: normal;
+-  line-height: 1.05;
+-  overflow-wrap: anywhere;
++.entries-head h2 {
++  font-family: var(--font-display);
++  font-size: 22px;
++  font-weight: 700;
++  color: var(--text-primary);
+ }
+-
+-.home-index-head > p {
+-  max-width: 34rem;
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-sm);
+-  line-height: 1.75;
++.entries-head p {
++  font-family: var(--font-mono);
++  font-size: 11.5px;
++  letter-spacing: 0.08em;
++  color: var(--text-muted);
+ }
+ 
+-.home-route-axis {
++.entry-grid {
+   display: grid;
+-  grid-template-columns: repeat(3, minmax(0, 1fr));
+-  gap: var(--home-space-md);
+-  margin: 0;
+-  padding: 0;
+-  list-style: none;
+-  position: relative;
+-}
+-
+-/* 贯穿三个节点的轴线 */
+-.home-route-axis::before {
+-  content: "";
+-  position: absolute;
+-  top: 28px;
+-  left: calc(100% / 6);
+-  right: calc(100% / 6);
+-  height: 2px;
+-  background: linear-gradient(
+-    90deg,
+-    var(--home-color-transparent),
+-    var(--home-color-accent-border) 12%,
+-    var(--home-color-accent-border) 88%,
+-    var(--home-color-transparent)
+-  );
+-  z-index: 0;
+-}
+-
+-.axis-step {
+-  position: relative;
+-  z-index: 1;
+-  min-width: 0;
++  grid-template-columns: repeat(4, minmax(0, 1fr));
++  gap: 16px;
+ }
+-
+-.axis-node {
++.entry-card {
+   display: flex;
+   flex-direction: column;
+-  align-items: center;
+-  text-align: center;
+-  gap: var(--home-space-sm);
+-  padding: 0 var(--home-space-xs) var(--home-space-xs);
+-  border-radius: var(--home-radius-md);
+-  text-decoration: none;
+-  transition: transform var(--home-dur-short) var(--home-ease-out);
++  gap: 8px;
++  padding: 18px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-panel);
++  background: var(--surface-panel);
++  transition: border-color 0.15s ease, transform 0.15s ease;
++}
++.entry-card:hover {
++  border-color: var(--border-strong);
++  transform: translateY(-2px);
+ }
+-
+-.axis-node:hover {
+-  transform: translateY(-4px);
++.entry-card:active { transform: translateY(0); }
++.entry-no {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.2em;
++  color: var(--color-primary);
+ }
+-
+-.axis-marker {
+-  display: inline-grid;
+-  place-items: center;
+-  width: 56px;
+-  height: 56px;
+-  border: 2px solid var(--home-color-accent);
+-  border-radius: 50%;
+-  background: var(--home-color-paper-2);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-md);
++.entry-title {
++  font-family: var(--font-display);
++  font-size: 16px;
+   font-weight: 700;
+-  position: relative;
+-  z-index: 2;
+-  box-shadow: 0 0 0 6px color-mix(in oklch, var(--home-color-accent) 14%, var(--home-color-transparent));
+-  transition:
+-    background-color var(--home-dur-short) var(--home-ease-out),
+-    color var(--home-dur-short) var(--home-ease-out),
+-    box-shadow var(--home-dur-short) var(--home-ease-out);
++  color: var(--text-primary);
+ }
+-
+-.axis-node:hover .axis-marker {
+-  background: var(--home-color-accent);
+-  color: var(--home-color-accent-ink);
+-  box-shadow: 0 0 0 8px color-mix(in oklch, var(--home-color-accent) 22%, var(--home-color-transparent));
++.entry-desc {
++  flex: 1;
++  font-size: 13px;
++  line-height: 1.7;
++  color: var(--text-secondary);
+ }
+-
+-.axis-body {
+-  display: grid;
+-  gap: var(--home-space-3xs);
+-  min-width: 0;
++.entry-mode {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  color: var(--text-muted);
+ }
+-
+-.axis-body small {
+-  color: var(--home-color-muted);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.1em;
+-}
+-
+-.axis-body strong {
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: var(--home-text-lg);
+-  font-weight: 700;
+-}
+-
+-.axis-body > span {
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-sm);
+-  line-height: 1.6;
+-}
+-
+-.axis-cta {
++.entry-cta {
+   display: inline-flex;
+   align-items: center;
+-  gap: var(--home-space-2xs);
+-  margin-top: var(--home-space-3xs);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.08em;
++  gap: 6px;
++  font-family: var(--font-mono);
++  font-size: 12px;
++  color: var(--color-primary);
+ }
+-
+-.axis-cta i {
++.entry-cta i {
+   font-style: normal;
+-  transition: transform var(--home-dur-short) var(--home-ease-out);
+-}
+-
+-.axis-node:hover .axis-cta i {
+-  transform: translateX(4px);
+-}
+-
+-/* ============ 项目概览 ============ */
+-.home-overview {
+-  scroll-margin-top: 76px;
+-  padding-block: var(--home-space-xl) var(--home-space-lg);
+-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
++  transition: transform 0.15s ease;
+ }
++.entry-card:hover .entry-cta i { transform: translateX(4px); }
+ 
+-.home-overview-head {
++/* ============ 项目方案 ============ */
++.overview {
+   display: grid;
+-  grid-template-columns: minmax(0, 1fr);
+-  gap: var(--home-space-sm);
+-  margin-bottom: var(--home-space-lg);
+-}
+-
+-.home-overview-head > div { min-width: 0; }
+-
+-.home-overview-kicker {
+-  margin-bottom: var(--home-space-2xs);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.12em;
++  gap: 20px;
++  padding-top: 8px;
++  border-top: 1px solid var(--border-subtle);
++  scroll-margin-top: 114px;
+ }
+-
+-.home-overview-head h2 {
+-  max-width: 18ch;
+-  margin: 0;
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+-  font-weight: 760;
+-  line-height: 1.1;
+-  letter-spacing: -0.02em;
+-}
+-
+-.home-overview-lede {
+-  max-width: 48rem;
+-  margin: 0;
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-md);
+-  line-height: 1.75;
+-}
+-
+-.overview-meta-row {
+-  display: grid;
+-  grid-template-columns: repeat(4, minmax(0, 1fr));
+-  gap: var(--home-space-sm);
+-  margin-bottom: var(--home-space-lg);
+-}
+-
+-.overview-meta-card {
++.overview-head {
+   display: grid;
+-  gap: var(--home-space-3xs);
+-  padding: var(--home-space-sm) var(--home-space-sm);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-md);
+-  background: var(--home-color-surface-soft);
++  gap: 8px;
+ }
+-
+-.overview-meta-card span {
+-  color: var(--home-color-muted);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.08em;
+-}
+-
+-.overview-meta-card strong {
+-  color: var(--home-color-ink);
+-  font-size: var(--home-text-sm);
++.overview-head h2 {
++  font-family: var(--font-display);
++  font-size: 22px;
+   font-weight: 700;
++  color: var(--text-primary);
+ }
+-
+-.overview-context,
+-.overview-solution {
+-  margin-bottom: var(--home-space-lg);
+-}
+-
+-.overview-context {
+-  padding: var(--home-space-md);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-lg);
+-  background: var(--home-color-surface-soft);
++.overview-lede {
++  max-width: 60rem;
++  font-size: 13.5px;
++  line-height: 1.8;
++  color: var(--text-secondary);
+ }
+ 
+-.overview-solution {
+-  padding: var(--home-space-md);
+-  border: var(--home-rule-hair) solid var(--home-color-accent-border);
+-  border-radius: var(--home-radius-lg);
+-  background:
+-    linear-gradient(180deg, var(--home-color-accent-soft), var(--home-color-transparent));
++.chain {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: center;
++  gap: 10px;
++  margin: 0;
++  padding: 0;
++  list-style: none;
+ }
+-
+-.overview-kicker {
++.chain-step {
+   display: inline-flex;
+   align-items: center;
+-  gap: var(--home-space-xs);
+-  margin: 0 0 var(--home-space-sm);
+-  color: var(--home-color-accent);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.1em;
++  gap: 8px;
++  padding: 9px 14px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-pill);
++  background: var(--surface-panel-soft);
++  font-size: 13px;
+   font-weight: 600;
++  color: var(--text-primary);
+ }
+-
+-.overview-kicker::before {
+-  content: "";
+-  display: inline-block;
+-  width: 28px;
+-  height: 1px;
+-  background: var(--home-color-accent);
++.chain-no {
++  font-family: var(--font-mono);
++  font-size: 10.5px;
++  color: var(--color-primary);
+ }
+-
+-.overview-h3 {
+-  margin: 0 0 var(--home-space-sm);
+-  max-width: 40ch;
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: clamp(1.15rem, 2vw, 1.6rem);
+-  font-weight: 700;
+-  line-height: 1.35;
+-  letter-spacing: -0.01em;
++.chain-arrow {
++  color: var(--text-muted);
++  font-family: var(--font-mono);
+ }
+ 
+-.overview-prose {
+-  max-width: 52rem;
+-  margin: 0;
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-sm);
+-  line-height: 1.85;
+-  text-align: justify;
+-}
+-
+-.overview-split {
++.bounds {
+   display: grid;
+-  grid-template-columns: repeat(2, minmax(0, 1fr));
+-  gap: var(--home-space-sm);
+-  margin-bottom: var(--home-space-lg);
+-}
+-
+-.overview-block {
+-  padding: var(--home-space-sm) var(--home-space-md);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-lg);
+-  background:
+-    linear-gradient(180deg, var(--home-color-surface-soft), var(--home-color-transparent));
+-  position: relative;
+-  overflow: hidden;
+-}
+-
+-.overview-block::before {
+-  content: "";
+-  position: absolute;
+-  inset: 0;
+-  background:
+-    radial-gradient(circle at 100% 0%, var(--home-color-accent-soft), var(--home-color-transparent) 50%);
+-  pointer-events: none;
+-}
+-
+-.overview-block h4 {
+-  position: relative;
+-  margin: var(--home-space-3xs) 0 var(--home-space-2xs);
+-  color: var(--home-color-ink);
+-  font-family: var(--home-font-display);
+-  font-size: var(--home-text-md);
+-  font-weight: 700;
+-}
+-
+-.overview-block p {
+-  position: relative;
+-  margin: 0;
+-  color: var(--home-color-ink-soft);
+-  font-size: var(--home-text-sm);
+-  line-height: 1.75;
+-}
+-
+-.overview-keyline {
+-  display: flex;
+-  align-items: center;
+-  flex-wrap: wrap;
+-  gap: var(--home-space-sm);
+-  margin-top: var(--home-space-sm);
+-  font-family: var(--home-font-mono);
+-  font-size: var(--home-text-xs);
+-  letter-spacing: 0.06em;
+-  color: var(--home-color-ink);
+-}
+-
+-.overview-keyline > span:not(.keyline-dot) {
+-  padding: var(--home-space-2xs) var(--home-space-sm);
+-  border: var(--home-rule-hair) solid var(--home-color-rule);
+-  border-radius: var(--home-radius-pill);
+-  background: var(--home-color-surface-soft);
+-}
+-
+-.keyline-dot {
+-  width: 4px;
+-  height: 4px;
+-  flex: 0 0 auto;
+-  border-radius: 50%;
+-  background: var(--home-color-muted);
++  grid-template-columns: repeat(3, minmax(0, 1fr));
++  gap: 14px;
+ }
+-
+-.home-footer-v2 {
+-  display: flex;
+-  justify-content: space-between;
+-  gap: var(--home-space-lg);
+-  padding-top: var(--home-space-md);
+-  border-top: var(--home-rule-hair) solid var(--home-color-rule);
+-  color: var(--home-color-muted);
+-  font-size: var(--home-text-xs);
++.bound {
++  display: grid;
++  gap: 6px;
++  padding: 14px 16px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-panel);
++  background: var(--surface-panel-soft);
++}
++.bound h3 {
++  font-family: var(--font-mono);
++  font-size: 12px;
++  letter-spacing: 0.14em;
++}
++.bound p {
++  font-size: 13px;
++  line-height: 1.7;
++  color: var(--text-secondary);
++}
++.bound-have h3 { color: var(--color-secondary); }
++.bound-doing h3 { color: var(--risk-medium); }
++.bound-limit h3 { color: var(--risk-critical); }
++
++/* ============ 页尾 ============ */
++.home-foot {
++  display: grid;
++  gap: 6px;
++  padding-top: 16px;
++  border-top: 1px solid var(--border-subtle);
+ }
+-
+-.home-footer-v2 > div {
++.foot-brand {
+   display: flex;
++  align-items: baseline;
++  gap: 12px;
+   flex-wrap: wrap;
+-  gap: var(--home-space-md);
+-}
+-
+-.home-footer-v2 strong {
+-  color: var(--home-color-ink);
+-}
+-
+-.home-reveal {
+-  opacity: 0;
+-  transform: translateY(14px);
+-  transition:
+-    opacity var(--home-dur-reveal) var(--home-ease-out),
+-    transform var(--home-dur-reveal) var(--home-ease-out);
+-  transition-delay: calc(var(--reveal-index, 0) * 90ms);
+-}
+-
+-.is-ready .home-reveal {
+-  opacity: 1;
+-  transform: none;
+-}
+-
+-@keyframes home-lake-scan {
+-  from { transform: translateY(-100%); }
+-  to { transform: translateY(100%); }
+-}
+-
+-@media (max-width: 1120px) {
+-  .home-hero-v2 {
+-    grid-template-columns: 1fr;
+-    min-height: auto;
+-  }
+-
+-  .home-copy {
+-    max-width: 820px;
+-  }
+-
+-  .home-hero-v2 > * {
+-    min-width: 0;
+-  }
+-
+-  .lake-canvas {
+-    min-height: 540px;
+-  }
+-}
+-
+-@media (max-width: 768px) {
+-  .home-workbench {
+-    padding: var(--home-space-sm) var(--home-space-sm) var(--home-space-lg);
+-  }
+-
+-  .home-footer-v2 {
+-    align-items: flex-start;
+-    flex-direction: column;
+-  }
+-
+-  .home-hero-v2 {
+-    gap: var(--home-space-xl);
+-    padding-block: var(--home-space-lg) var(--home-space-xl);
+-  }
+-
+-  .home-title-v2 {
+-    font-size: clamp(3rem, 16vw, 5.2rem);
+-  }
+-
+-  .home-facts {
+-    grid-template-columns: 1fr;
+-  }
+-
+-  .home-facts > div,
+-  .home-facts > div + div {
+-    padding: var(--home-space-sm) 0;
+-    border-left: 0;
+-  }
+-
+-  .home-facts > div + div {
+-    border-top: var(--home-rule-hair) solid var(--home-color-rule);
+-  }
+-
+-  .lake-canvas {
+-    min-height: 500px;
+-  }
+-
+-  .lake-point-label small {
+-    display: none;
+-  }
+-
+-  .lake-workbench-stage {
+-    white-space: normal;
+-  }
+-
+-  .home-route-axis {
+-    grid-template-columns: 1fr;
+-    gap: var(--home-space-md);
+-  }
+-
+-  /* 轴线转为左侧竖向 */
+-  .home-route-axis::before {
+-    top: 28px;
+-    bottom: 28px;
+-    left: 28px;
+-    right: auto;
+-    width: 2px;
+-    height: auto;
+-    background: linear-gradient(
+-      180deg,
+-      var(--home-color-transparent),
+-      var(--home-color-accent-border) 12%,
+-      var(--home-color-accent-border) 88%,
+-      var(--home-color-transparent)
+-    );
+-  }
+-
+-  .axis-node {
+-    flex-direction: row;
+-    align-items: flex-start;
+-    text-align: left;
+-    gap: var(--home-space-md);
+-    padding: 0 0 var(--home-space-xs);
+-  }
+-
+-  .axis-marker {
+-    flex: 0 0 auto;
+-  }
+-
+-  .axis-body {
+-    padding-top: var(--home-space-3xs);
+-  }
+-
+-  .overview-meta-row {
+-    grid-template-columns: repeat(2, minmax(0, 1fr));
+-  }
+-
+-  .overview-split {
+-    grid-template-columns: 1fr;
+-  }
+ }
+-
+-@media (max-width: 480px) {
+-  .home-actions {
+-    display: grid;
+-  }
+-
+-  .home-action {
+-    width: 100%;
+-  }
+-
+-  .lake-workbench-head {
+-    align-items: flex-start;
+-    flex-direction: column;
+-  }
+-
+-  .lake-canvas {
+-    min-height: 460px;
+-  }
+-
+-  .lake-point {
+-    gap: var(--home-space-3xs);
+-  }
+-
+-  .lake-point-label {
+-    padding: var(--home-space-3xs) var(--home-space-2xs);
+-  }
+-
+-  .lake-insight {
+-    right: var(--home-space-xs);
+-    left: var(--home-space-xs);
+-    bottom: var(--home-space-xs);
+-    max-width: none;
+-  }
+-
+-  .axis-marker {
+-    width: 48px;
+-    height: 48px;
+-    font-size: var(--home-text-sm);
+-  }
+-
+-  .home-route-axis::before {
+-    top: 24px;
+-    bottom: 24px;
+-    left: 24px;
+-  }
+-
+-  .axis-body strong {
+-    font-size: var(--home-text-md);
+-  }
+-
+-  .overview-meta-row {
+-    grid-template-columns: 1fr;
+-  }
++.foot-brand strong {
++  font-size: 13.5px;
++  color: var(--text-primary);
+ }
+-
+-@media (prefers-reduced-motion: reduce) {
+-  .home-reveal,
+-  .home-action,
+-  .axis-node {
+-    transition-duration: 50ms;
+-  }
+-
+-  .home-reveal {
+-    transform: none;
+-  }
+-
+-  .lake-scan {
+-    animation: none;
++.foot-brand span {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.1em;
++  color: var(--text-muted);
++}
++.foot-identity {
++  font-family: var(--font-mono);
++  font-size: 11.5px;
++  letter-spacing: 0.05em;
++  color: var(--text-secondary);
++}
++.foot-bound {
++  max-width: 72rem;
++  font-size: 12px;
++  line-height: 1.7;
++  color: var(--text-muted);
++}
++
++/* ============ 响应式 ============ */
++@media (max-width: 1180px) {
++  .hero-copy,
++  .lake-panel { grid-column: span 12; }
++  .hero-copy { max-width: 820px; }
++  .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
++}
++@media (max-width: 640px) {
++  .home { gap: 28px; }
++  .facts { grid-template-columns: 1fr; }
++  .lake-canvas { min-height: 340px; }
++  .entry-grid { grid-template-columns: 1fr; }
++  .bounds { grid-template-columns: 1fr; }
++  .actions .btn { width: 100%; }
++}
++@media (hover: none) {
++  .zone-tip {
++    opacity: 1;
++    transform: translateX(-50%);
+   }
+ }
+ </style>
+diff --git a/src/pages/ProjectOverview.vue b/src/pages/ProjectOverview.vue
+deleted file mode 100644
+index 01991dd..0000000
+--- a/src/pages/ProjectOverview.vue
++++ /dev/null
+@@ -1,250 +0,0 @@
+-<template>
+-  <main class="page-narrative">
+-    <HeroShell
+-      section-no="01 / 04"
+-      eyebrow="PROJECT OVERVIEW"
+-      title="项目概览"
+-      description="面向新三湖（滇池、太湖、巢湖）与老三湖（太湖、巢湖、滆湖）等重点湖库，建立机理与 AI 融合的蓝藻水华监测预警模型，输出从早识别、早预报到早预警的全链条能力。"
+-    >
+-      <template #meta>
+-        <div class="meta-card">
+-          <span class="meta-key">主题</span>
+-          <span class="meta-value">数据与计算</span>
+-        </div>
+-        <div class="meta-card">
+-          <span class="meta-key">赛题</span>
+-          <span class="meta-value">A23 · 应用类</span>
+-        </div>
+-        <div class="meta-card">
+-          <span class="meta-key">主办</span>
+-          <span class="meta-value">我有一点困</span>
+-        </div>
+-        <div class="meta-card">
+-          <span class="meta-key">核心</span>
+-          <span class="meta-value">机理 × AI 融合</span>
+-        </div>
+-      </template>
+-
+-      <div class="narrative-section">
+-        <p class="narrative-kicker">整体背景 · CONTEXT</p>
+-        <h2 class="narrative-h2">
+-          蓝藻水华是富营养化水体在特定水文气候条件下<br />分发性增殖的生态灾变现象
+-        </h2>
+-        <p class="narrative-prose">
+-          蓝藻水华严重威胁饮用水安全、水生态系统健康及流域经济社会的可持续发展。
+-          随着《水污染防治行动计划》深入推进及《"十四五"生态环境监测规划》明确要求在新老三湖等重点湖库开展蓝藻水华监测预警，传统"人工采样 + 实验室分析"的监测模式已难以满足"提前预警、精准防控"的管理需要。
+-        </p>
+-      </div>
+-
+-      <div class="narrative-split">
+-        <article class="narrative-block">
+-          <p class="narrative-kicker">传统路径 · CLASSICAL</p>
+-          <h3>水动力 - 水质 - 藻类生长耦合模型</h3>
+-          <p>
+-            可刻画营养盐循环、藻类生理生态过程及物理迁移规律，具备可解释性强、外推能力好的优势，但参数率定困难、计算效率低，对突发扰动响应滞后。
+-          </p>
+-        </article>
+-        <article class="narrative-block">
+-          <p class="narrative-kicker">数据驱动 · DATA-DRIVEN</p>
+-          <h3>深度学习 / 物理信息神经网络</h3>
+-          <p>
+-            能从多源异构监测数据中挖掘环境因子与藻华分发的非线性映射关系，实现短期预警与风险分级，但物理一致性约束弱、泛化性能不足。
+-          </p>
+-        </article>
+-      </div>
+-
+-      <div class="narrative-section narrative-solution">
+-        <p class="narrative-kicker">融合范式 · OUR ANSWER</p>
+-        <h2 class="narrative-h2">
+-          把藻类生长动力学方程、流体水力学守恒定律等物理机理<br />嵌入神经网络架构
+-        </h2>
+-        <p class="narrative-prose">
+-          或利用 AI 对机理模型参数进行实时校正，构建兼具物理可解释性与数据自适应性的混合智能模型，依托"空 - 天 - 地 - 水"多源数据融合驱动实现蓝藻水华早识别、早预报、早预警。
+-          模型需支撑监测数据实时映射、藻华风险分级预警可视化、历史场景回溯与未来情景推演。
+-        </p>
+-      </div>
+-
+-      <div class="narrative-keyline">
+-        <span>多源数据接入</span><span class="keyline-dot"></span>
+-        <span>数据质量控制</span><span class="keyline-dot"></span>
+-        <span>机理 + AI 建模</span><span class="keyline-dot"></span>
+-        <span>数字孪生预警</span>
+-      </div>
+-
+-      <div class="narrative-image-row">
+-        <div class="image-slot tall" data-label="湖区现场照片位 · 准备后期插入"></div>
+-        <div class="image-slot tall" data-label="团队合影 / 现场调研位 · 准备后期插入"></div>
+-      </div>
+-    </HeroShell>
+-
+-    <footer class="narrative-foot">
+-      <RouterLink class="button primary" to="/tech-route">下一节：技术路线 →</RouterLink>
+-      <RouterLink class="button secondary" to="/">返回主页</RouterLink>
+-    </footer>
+-  </main>
+-</template>
+-
+-<script setup>
+-import HeroShell from '../components/HeroShell.vue'
+-</script>
+-
+-<style scoped>
+-.page-narrative {
+-  max-width: 1480px;
+-  margin: 0 auto;
+-  padding: 0 36px 60px;
+-}
+-
+-.meta-card {
+-  padding: 14px 18px;
+-  border-radius: var(--radius-md);
+-  border: 1px solid var(--panel-line);
+-  background: var(--c-surface-soft);
+-  display: flex;
+-  flex-direction: column;
+-  gap: 4px;
+-}
+-.meta-key {
+-  font-size: 11px;
+-  letter-spacing: 2px;
+-  color: var(--muted);
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-}
+-.meta-value {
+-  font-size: 15px;
+-  font-weight: 700;
+-  color: var(--text);
+-}
+-
+-.narrative-section { margin: 28px 0; }
+-.narrative-kicker {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 14px;
+-  margin: 0 0 14px;
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 11px;
+-  letter-spacing: 4px;
+-  color: var(--teal);
+-  font-weight: 700;
+-}
+-.narrative-kicker::before {
+-  content: "";
+-  display: inline-block;
+-  width: 36px;
+-  height: 1px;
+-  background: var(--teal);
+-}
+-.narrative-h2 {
+-  margin: 0 0 14px;
+-  font-family: "Bahnschrift", "PingFang SC", sans-serif;
+-  font-size: clamp(24px, 2.6vw, 36px);
+-  font-weight: 800;
+-  line-height: 1.2;
+-  color: var(--text);
+-  letter-spacing: -0.01em;
+-}
+-.narrative-prose {
+-  max-width: 880px;
+-  margin: 0;
+-  color: var(--text-soft);
+-  font-size: 15.5px;
+-  line-height: 1.85;
+-  text-align: justify;
+-  text-justify: inter-character;
+-}
+-.narrative-prose::first-letter {
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 1.15em;
+-  color: var(--teal);
+-  font-weight: 800;
+-}
+-
+-.narrative-split {
+-  display: grid;
+-  grid-template-columns: 1fr 1fr;
+-  gap: 18px;
+-  margin: 32px 0;
+-}
+-.narrative-block {
+-  padding: 24px 26px;
+-  border-radius: var(--radius-lg);
+-  border: 1px solid var(--panel-line);
+-  background:
+-    linear-gradient(180deg, var(--c-accent-soft), transparent);
+-  position: relative;
+-  overflow: hidden;
+-}
+-.narrative-block::before {
+-  content: "";
+-  position: absolute;
+-  inset: 0;
+-  background:
+-    radial-gradient(circle at 100% 0%, var(--c-accent-soft), transparent 50%);
+-  pointer-events: none;
+-}
+-.narrative-block h3 {
+-  font-family: "Bahnschrift", "PingFang SC", sans-serif;
+-  font-size: 22px;
+-  font-weight: 800;
+-  margin: 8px 0 12px;
+-  color: var(--text);
+-}
+-.narrative-block p {
+-  margin: 0;
+-  color: var(--text-soft);
+-  font-size: 14.5px;
+-  line-height: 1.8;
+-}
+-
+-.narrative-solution {
+-  padding: 32px;
+-  border-radius: var(--radius-lg);
+-  border: 1px solid var(--panel-line);
+-  background:
+-    linear-gradient(180deg, var(--c-accent-soft), transparent);
+-  margin: 32px 0;
+-}
+-
+-.narrative-keyline {
+-  display: flex;
+-  align-items: center;
+-  flex-wrap: wrap;
+-  gap: 14px;
+-  margin: 18px 0 12px;
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 13px;
+-  letter-spacing: 2px;
+-  color: var(--text);
+-}
+-.narrative-keyline > span:not(.keyline-dot) {
+-  padding: 6px 14px;
+-  border: 1px solid var(--panel-line);
+-  border-radius: 999px;
+-  background: var(--c-surface-soft);
+-}
+-.keyline-dot {
+-  width: 4px; height: 4px; border-radius: 50%; background: var(--muted);
+-}
+-
+-.narrative-image-row {
+-  display: grid;
+-  grid-template-columns: 1fr 1fr;
+-  gap: 18px;
+-  margin-top: 32px;
+-}
+-
+-.narrative-foot {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 12px;
+-  margin-top: 40px;
+-  padding-top: 20px;
+-  border-top: 1px solid var(--panel-line);
+-}
+-
+-@media (max-width: 880px) {
+-  .page-narrative { padding: 0 18px 40px; }
+-  .narrative-split, .narrative-image-row { grid-template-columns: 1fr; }
+-}
+-</style>
+\ No newline at end of file
+diff --git a/src/pages/TechRoute.vue b/src/pages/TechRoute.vue
+deleted file mode 100644
+index b30b1a2..0000000
+--- a/src/pages/TechRoute.vue
++++ /dev/null
+@@ -1,270 +0,0 @@
+-<template>
+-  <main class="page-tech">
+-    <HeroShell
+-      section-no="02 / 04"
+-      eyebrow="TECH ROUTE"
+-      title="技术路线"
+-      description="从多源数据接入到机理 + AI 融合建模，再到数字孪生预警与可视化发布，技术路线分五段递进，每一段都对应着可观测的中间产物。"
+-    >
+-      <template #meta>
+-        <div class="meta-card"><span class="meta-key">数据层</span><span class="meta-value">空 - 天 - 地 - 水</span></div>
+-        <div class="meta-card"><span class="meta-key">模型层</span><span class="meta-value">机理 + AI 融合</span></div>
+-        <div class="meta-card"><span class="meta-key">尺度</span><span class="meta-value">未来 1 → 30 天</span></div>
+-        <div class="meta-card"><span class="meta-key">交付</span><span class="meta-value">数字孪生平台</span></div>
+-      </template>
+-
+-      <ol class="tech-stream">
+-        <li class="tech-stage" v-for="(stage, i) in stages" :key="stage.key">
+-          <div class="stage-rail">
+-            <span class="stage-num">{{ String(i + 1).padStart(2, '0') }}</span>
+-            <span class="stage-line"></span>
+-          </div>
+-          <div class="stage-body">
+-            <header>
+-              <p class="stage-kicker">{{ stage.scope }}</p>
+-              <h3>{{ stage.title }}</h3>
+-            </header>
+-            <p class="stage-text">{{ stage.text }}</p>
+-            <ul class="stage-bullets">
+-              <li v-for="b in stage.bullets" :key="b">{{ b }}</li>
+-            </ul>
+-            <div class="stage-artifacts">
+-              <span class="artifact-tag" v-for="a in stage.artifacts" :key="a">{{ a }}</span>
+-            </div>
+-          </div>
+-        </li>
+-      </ol>
+-    </HeroShell>
+-
+-    <footer class="tech-foot">
+-      <RouterLink class="button primary" to="/cockpit">下一节：数字驾驶舱 →</RouterLink>
+-      <RouterLink class="button secondary" to="/project-overview">← 返回项目概览</RouterLink>
+-    </footer>
+-  </main>
+-</template>
+-
+-<script setup>
+-import HeroShell from '../components/HeroShell.vue'
+-
+-const stages = [
+-  {
+-    key: 'data',
+-    scope: 'STAGE 01 · DATA',
+-    title: '多源监测数据融合接入',
+-    text: '设计数据接入适配器，支持卫星遥感、水质自动站、气象预报、水文站等多源数据的标准化接入；实现数据质量控制算法（异常检测、一致性校验、缺失值插补）。',
+-    bullets: [
+-      '遥感影像：哨兵 2 号 L2A 级产品 / MODIS',
+-      '水质自动站：藻密度 / 叶绿素 a / 总磷',
+-      '气象预报 + 水文站上游流量',
+-      '异常检测 · 一致性校验 · 缺失值插补'
+-    ],
+-    artifacts: ['数据接入适配器', '质量控制算法', '时空对齐']
+-  },
+-  {
+-    key: 'mechanism',
+-    scope: 'STAGE 02 · MECHANISM',
+-    title: '蓝藻水华机理建模',
+-    text: '建立藻类生长动力学基础方程（Logistic 增长、 Droop 模型或 Monod 方程），耦合水温、光照、营养盐等环境因子的限制函数；集成一维 / 二维水动力输运模型，模拟藻类空间迁移。',
+-    bullets: [
+-      'Logistic / Droop / Monod 方程',
+-      '水温 · 光照 · 营养盐限制函数',
+-      '一维 / 二维水动力输运',
+-      '可解释的物理参数率定'
+-    ],
+-    artifacts: ['机理方程库', '水动力模型', '参数率定工具']
+-  },
+-  {
+-    key: 'ai',
+-    scope: 'STAGE 03 · AI',
+-    title: 'AI 增强预测模型',
+-    text: '基于时序神经网络、集成学习等构建预测预警模型与风险分级模型；实现机理模型输出作为 AI 模型输入特征的松耦合融合，或 AI 对机理模型关键参数的动态校正。',
+-    bullets: [
+-      '时序神经网络 / 集成学习',
+-      '机理 → AI 特征级融合',
+-      'AI → 机理参数动态校正',
+-      '风险分级 + 不确定性量化'
+-    ],
+-    artifacts: ['时序预测模型', '风险分级模型', '参数自校正']
+-  },
+-  {
+-    key: 'explain',
+-    scope: 'STAGE 04 · EXPLAIN',
+-    title: '可解释性分析模块',
+-    text: '集成 SHAP / LIME 等解释工具，输出单样本预测解释；实现全局特征重要性分析与关键驱动因子识别，提供"因子 - 响应"敏感性可视化曲线。',
+-    bullets: [
+-      'SHAP / LIME 单样本解释',
+-      '全局特征重要性分析',
+-      '关键驱动因子识别',
+-      '因子 - 响应敏感性曲线'
+-    ],
+-    artifacts: ['SHAP / LIME 解释器', '驱动因子清单', '敏感性曲线']
+-  },
+-  {
+-    key: 'digital-twin',
+-    scope: 'STAGE 05 · TWIN',
+-    title: '数字孪生预警平台',
+-    text: '构建流域 / 溪流 / 湖库的二维 / 三维数字孪生底图，集成监测站点、水华历史分发点等空间要素；实现预测结果的空间插值与风险分区热力图生成；开放预警信息发布模块。',
+-    bullets: [
+-      '二 / 三维数字孪生底图',
+-      '空间插值 + 热力图生成',
+-      '预警信息发布模块',
+-      '阈值触发 · 短信 / 邮件模拟'
+-    ],
+-    artifacts: ['孪生底图', '预警发布台', '响应流程编排']
+-  }
+-]
+-</script>
+-
+-<style scoped>
+-.page-tech {
+-  max-width: 1480px;
+-  margin: 0 auto;
+-  padding: 0 36px 60px;
+-}
+-
+-.meta-card {
+-  padding: 14px 18px;
+-  border-radius: var(--radius-md);
+-  border: 1px solid var(--panel-line);
+-  background: var(--c-surface-soft);
+-  display: flex;
+-  flex-direction: column;
+-  gap: 4px;
+-}
+-.meta-key { font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: "Bahnschrift", "Segoe UI", sans-serif; }
+-.meta-value { font-size: 15px; font-weight: 700; color: var(--text); }
+-
+-.tech-stream {
+-  display: flex;
+-  flex-direction: column;
+-  gap: 18px;
+-}
+-.tech-stage {
+-  display: grid;
+-  grid-template-columns: 100px 1fr;
+-  gap: 24px;
+-  padding: 26px;
+-  border-radius: var(--radius-lg);
+-  border: 1px solid var(--glass-border);
+-  background: var(--glass-bg);
+-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+-  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+-  transition: border-color .25s ease, transform .25s ease;
+-}
+-.tech-stage:hover {
+-  border-color: var(--glass-border-strong);
+-  transform: translateX(4px);
+-}
+-
+-.stage-rail {
+-  display: flex;
+-  flex-direction: column;
+-  align-items: flex-start;
+-  gap: 12px;
+-  position: relative;
+-}
+-.stage-num {
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 28px;
+-  font-weight: 800;
+-  color: var(--teal);
+-  letter-spacing: 2px;
+-}
+-.stage-line {
+-  flex: 1;
+-  width: 1px;
+-  background: linear-gradient(180deg, var(--teal), transparent);
+-  min-height: 32px;
+-}
+-
+-.stage-body header { margin-bottom: 12px; }
+-.stage-kicker {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 10px;
+-  margin: 0 0 8px;
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 11px;
+-  letter-spacing: 3px;
+-  color: var(--muted);
+-}
+-.stage-kicker::before {
+-  content: "";
+-  display: inline-block;
+-  width: 26px;
+-  height: 1px;
+-  background: var(--muted);
+-}
+-.stage-body h3 {
+-  margin: 0;
+-  font-family: "Bahnschrift", "PingFang SC", sans-serif;
+-  font-size: clamp(20px, 2vw, 26px);
+-  font-weight: 800;
+-  color: var(--text);
+-}
+-.stage-text {
+-  margin: 8px 0 14px;
+-  color: var(--text-soft);
+-  font-size: 15px;
+-  line-height: 1.8;
+-  max-width: 860px;
+-}
+-.stage-bullets {
+-  display: grid;
+-  grid-template-columns: repeat(2, minmax(0, 1fr));
+-  gap: 6px 18px;
+-  margin: 0 0 14px;
+-  padding: 0;
+-  list-style: none;
+-}
+-.stage-bullets li {
+-  position: relative;
+-  padding-left: 16px;
+-  color: var(--text-soft);
+-  font-size: 13.5px;
+-  line-height: 1.7;
+-}
+-.stage-bullets li::before {
+-  content: "";
+-  position: absolute;
+-  left: 0;
+-  top: 0.7em;
+-  width: 6px;
+-  height: 1px;
+-  background: var(--teal);
+-}
+-.stage-artifacts {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 8px;
+-  padding-top: 12px;
+-  border-top: 1px dashed var(--panel-line);
+-}
+-.artifact-tag {
+-  padding: 5px 12px;
+-  border-radius: 999px;
+-  border: 1px solid var(--panel-line);
+-  background: var(--c-accent-soft);
+-  color: var(--teal);
+-  font-family: "Bahnschrift", "Segoe UI", sans-serif;
+-  font-size: 11px;
+-  letter-spacing: 1px;
+-}
+-
+-.tech-foot {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: 12px;
+-  margin-top: 40px;
+-  padding-top: 20px;
+-  border-top: 1px solid var(--panel-line);
+-}
+-
+-@media (max-width: 880px) {
+-  .page-tech { padding: 0 18px 40px; }
+-  .tech-stage { grid-template-columns: 64px 1fr; gap: 14px; padding: 20px; }
+-  .stage-num { font-size: 22px; }
+-  .stage-bullets { grid-template-columns: 1fr; }
+-}
+-</style>
+\ No newline at end of file
+diff --git a/src/styles.css b/src/styles.css
+index 4c6694e..a5ce45b 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -984,42 +984,28 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
+ .image-slot.banner { aspect-ratio: 21 / 9; }
+ 
+ /* ===================== 路由切换过渡 ===================== */
++/* 页面级入场动画：每次路由组件挂载时播放（懒加载组件挂载即触发，无 Transition 状态机） */
+ .route-stage {
+   position: relative;
+-  min-height: calc(100vh - 60px);
+-}
+-.route-enter-from {
+-  opacity: 0;
+-  transform: translateY(24px) scale(0.995);
+-  filter: blur(6px);
+-}
+-.route-enter-active {
+-  transition: opacity .55s cubic-bezier(.22,.61,.36,1),
+-              transform .65s cubic-bezier(.22,.61,.36,1),
+-              filter .65s ease;
+-}
+-.route-enter-to {
+-  opacity: 1;
+-  transform: none;
+-  filter: blur(0);
+-}
+-.route-leave-from {
+-  opacity: 1;
+-  transform: none;
+-  filter: blur(0);
+-}
+-.route-leave-active {
+-  transition: opacity .35s ease,
+-              transform .45s ease,
+-              filter .35s ease;
+-  position: absolute;
+-  inset: 0;
+-  z-index: 0;
++  flex: 1;
++  display: flex;
++  flex-direction: column;
+ }
+-.route-leave-to {
+-  opacity: 0;
+-  transform: translateY(-18px) scale(1.005);
+-  filter: blur(4px);
++.route-stage > * {
++  width: 100%;
++  animation: route-enter 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
++}
++@keyframes route-enter {
++  from {
++    opacity: 0;
++    transform: translateY(16px);
++    filter: blur(5px);
++  }
++  to {
++    opacity: 1;
++    transform: none;
++    filter: none;
++  }
+ }
+ 
+ /* ===================== 响应式 ===================== */
+@@ -1059,3 +1045,23 @@ p, li { color: var(--c-text-soft); line-height: 1.7; }
+     transition-duration: 0.01ms !important;
+   }
+ }
++
++/* ============================================================
++   v2 设计基座补充（大任务2）
++   ------------------------------------------------------------
++   - 全局键盘焦点可见性（使用 v2 token --color-primary）
++   - AppShell 布局集成：顶栏 64px + 数据身份栏 40px + 分隔线 2px
++     共占 106px，页面根 .shell 改为撑满剩余视口
++   ============================================================ */
++:focus-visible {
++  outline: 2px solid var(--color-primary);
++  outline-offset: 2px;
++}
++
++.app-content .shell {
++  flex: 1 0 auto;
++  min-height: calc(100vh - 106px);
++}
++@media (max-width: 640px) {
++  .app-content .shell { padding: 16px 14px 48px; min-height: calc(100vh - 106px); }
++}
+diff --git a/tokens.css b/tokens.css
+index 81423c2..d27e044 100644
+--- a/tokens.css
++++ b/tokens.css
+@@ -278,3 +278,89 @@
+   --home-shadow-small: 0 12px 30px rgba(122, 82, 42, 0.16);
+   --home-shadow-panel: 0 28px 70px rgba(122, 82, 42, 0.20);
+ }
++
++/* ============================================================
++   设计基座 v2 · 全站统一 Token（唯一命名来源，供新组件使用）
++   ------------------------------------------------------------
++   风险色与数据身份色严格分离；深色主题值对齐页面效果图规范：
++   页面底 #06111F · 主青 #22D3EE · 青绿 #14B8A6。
++   旧版 --c-* 语义 token 保留，仅供尚未迁移的业务页面过渡使用。
++   ============================================================ */
++:root {
++  /* —— 主题无关 —— */
++  --color-primary: #22d3ee;
++  --color-primary-ink: #04222b;            /* 青色底上的深色文字 */
++  --color-primary-soft: rgba(34, 211, 238, 0.14);
++  --color-secondary: #14b8a6;
++  --color-secondary-soft: rgba(20, 184, 166, 0.14);
++
++  --risk-low: #22c55e;                     /* 正常 */
++  --risk-medium: #facc15;                  /* 关注 */
++  --risk-high: #f97316;                    /* 预警 */
++  --risk-critical: #ef4444;                /* 高警 */
++
++  --data-observed: #3b82f6;                /* 真实观测 · 蓝 */
++  --data-forecast: #a78bfa;                /* 算法预测 · 紫 */
++  --data-experimental: #fb923c;            /* 实验数据 · 橙 */
++
++  --spacing-1: 4px;
++  --spacing-2: 8px;
++  --spacing-3: 12px;
++  --spacing-4: 16px;
++  --spacing-5: 20px;
++  --spacing-6: 24px;
++  --spacing-7: 32px;
++  --spacing-8: 40px;
++
++  --radius-panel: 10px;
++  --radius-item: 8px;
++}
++
++/* —— 深色「Midnight」（默认，对齐效果图）—— */
++:root,
++:root[data-theme="dark"] {
++  --surface-page: #06111f;
++  --surface-panel: rgba(9, 28, 48, 0.88);
++  --surface-panel-raised: rgba(14, 40, 66, 0.94);
++  --surface-panel-soft: rgba(122, 172, 205, 0.08);
++  --border-subtle: rgba(34, 211, 238, 0.18);
++  --border-strong: rgba(34, 211, 238, 0.40);
++
++  --text-primary: #e6f4ff;
++  --text-secondary: #91a7bd;
++  --text-muted: #536779;
++
++  --data-simulated: #7cb8c9;               /* 演示预演 · 青灰 */
++}
++
++/* —— 浅色「Daylight」—— */
++:root[data-theme="light"] {
++  --surface-page: #eef3f7;
++  --surface-panel: rgba(255, 255, 255, 0.90);
++  --surface-panel-raised: rgba(255, 255, 255, 0.98);
++  --surface-panel-soft: rgba(18, 56, 88, 0.05);
++  --border-subtle: rgba(18, 56, 88, 0.16);
++  --border-strong: rgba(10, 169, 155, 0.45);
++
++  --text-primary: #13263a;
++  --text-secondary: #3a5068;
++  --text-muted: #698199;
++
++  --data-simulated: #4d7f8f;               /* 演示预演 · 青灰（浅色加深） */
++}
++
++/* —— 日式暖阳「Sunrise」—— */
++:root[data-theme="sunrise"] {
++  --surface-page: #f2e7d6;
++  --surface-panel: rgba(255, 252, 245, 0.92);
++  --surface-panel-raised: rgba(255, 252, 245, 0.98);
++  --surface-panel-soft: rgba(122, 82, 42, 0.07);
++  --border-subtle: rgba(122, 82, 42, 0.20);
++  --border-strong: rgba(217, 100, 59, 0.45);
++
++  --text-primary: #3a2e26;
++  --text-secondary: #6b5744;
++  --text-muted: #9a8570;
++
++  --data-simulated: #6f8d96;               /* 演示预演 · 青灰（暖阳） */
++}
+
+========== [3] untracked 新文件（新文件 diff） ==========
+warning: in the working copy of 'src/components/common/AppSidebar.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/AppSidebar.vue b/src/components/common/AppSidebar.vue
+new file mode 100644
+index 0000000..98264c4
+--- /dev/null
++++ b/src/components/common/AppSidebar.vue
+@@ -0,0 +1,269 @@
++<template>
++  <aside
++    ref="rootEl"
++    class="sidebar"
++    :class="{ 'sidebar--open': open }"
++    :inert="drawerHidden"
++    @keydown="onTrapKeydown"
++  >
++    <RouterLink class="sb-brand" to="/" aria-label="返回首页">
++      <svg class="sb-brand-mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
++        <rect x="1.2" y="1.2" width="25.6" height="25.6" rx="7" stroke="currentColor" stroke-width="1.5" opacity="0.55" />
++        <path d="M5.5 17.2c2.3-2.5 4.7-2.5 7 0s4.7 2.5 7 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
++        <path d="M5.5 11.4c2.3-2.5 4.7-2.5 7 0s4.7 2.5 7 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" opacity="0.55" />
++      </svg>
++      <span class="sb-brand-text">LAKE<br />TWIN</span>
++    </RouterLink>
++
++    <nav class="sb-nav" aria-label="全站主导航">
++      <RouterLink
++        v-for="item in items"
++        :key="item.to"
++        :to="item.to"
++        class="sb-item"
++        :title="`${item.num} ${item.label}`"
++      >
++        <svg
++          class="sb-icon"
++          viewBox="0 0 20 20"
++          fill="none"
++          stroke="currentColor"
++          stroke-width="1.5"
++          stroke-linecap="round"
++          stroke-linejoin="round"
++          aria-hidden="true"
++          v-html="item.icon"
++        ></svg>
++        <span class="sb-num" aria-hidden="true">{{ item.num }}</span>
++        <span class="sb-label">{{ item.label }}</span>
++      </RouterLink>
++    </nav>
++
++    <p class="sb-foot" aria-hidden="true">SIMULATED</p>
++  </aside>
++</template>
++
++<script setup>
++import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
++
++// 仅含五个正式页面入口；选中态 = 青色实底方块 + 图标/编号反色 + aria-current（RouterLink 自动）
++const props = defineProps({
++  open: { type: Boolean, default: false }
++})
++
++const rootEl = ref(null)
++const isMobile = ref(false)
++
++let mq = null
++function syncMq(e) {
++  isMobile.value = e.matches
++}
++onMounted(() => {
++  mq = window.matchMedia('(max-width: 960px)')
++  isMobile.value = mq.matches
++  mq.addEventListener('change', syncMq)
++})
++onBeforeUnmount(() => {
++  if (mq) mq.removeEventListener('change', syncMq)
++})
++
++// 移动抽屉收起时整体 inert，键盘焦点不会落入屏幕外导航
++const drawerHidden = computed(() => isMobile.value && !props.open)
++
++watch(
++  () => props.open,
++  (v) => {
++    if (!v || !isMobile.value) return
++    nextTick(() => {
++      const first = rootEl.value?.querySelector('.sb-item') || rootEl.value?.querySelector('a, button')
++      first?.focus()
++    })
++  }
++)
++
++// 打开期间 Tab 焦点圈定在抽屉内循环
++function onTrapKeydown(e) {
++  if (e.key !== 'Tab' || !isMobile.value || !props.open) return
++  const items = [...(rootEl.value?.querySelectorAll('a[href], button:not([disabled])') || [])]
++  if (!items.length) return
++  const first = items[0]
++  const last = items[items.length - 1]
++  if (e.shiftKey && document.activeElement === first) {
++    e.preventDefault()
++    last.focus()
++  } else if (!e.shiftKey && document.activeElement === last) {
++    e.preventDefault()
++    first.focus()
++  }
++}
++
++const items = [
++  {
++    num: '00',
++    to: '/',
++    label: '首页',
++    icon: '<path d="M3.5 9.2 10 3.4l6.5 5.8"/><path d="M5.2 8.8V16a1 1 0 0 0 1 1h7.6a1 1 0 0 0 1-1V8.8"/><path d="M8.2 17v-4.3h3.6V17"/>'
++  },
++  {
++    num: '01',
++    to: '/cockpit',
++    label: '综合驾驶舱',
++    icon: '<path d="M3.4 14.2a6.6 6.6 0 1 1 13.2 0"/><path d="m10 14 2.8-3.4"/><circle cx="10" cy="14" r="1.1"/>'
++  },
++  {
++    num: '02',
++    to: '/stations',
++    label: '监测站点',
++    icon: '<path d="M10 17s-5.2-4.7-5.2-8.4a5.2 5.2 0 0 1 10.4 0C15.2 12.3 10 17 10 17z"/><circle cx="10" cy="8.6" r="1.7"/>'
++  },
++  {
++    num: '03',
++    to: '/heatmap',
++    label: '时空推演',
++    icon: '<path d="M10 3.4 17 7l-7 3.6L3 7z"/><path d="m3 11 7 3.6 7-3.6"/><path d="m3 14.6 7 3.6 7-3.6"/>'
++  },
++  {
++    num: '04',
++    to: '/history',
++    label: '历史复盘',
++    icon: '<circle cx="10" cy="11" r="6.6"/><path d="M10 7.6V11l2.4 1.5"/><path d="M7 2.6h6"/>'
++  }
++]
++</script>
++
++<style scoped>
++.sidebar {
++  position: fixed;
++  top: 0;
++  bottom: 0;
++  left: 0;
++  z-index: 1200;
++  width: 72px;
++  display: flex;
++  flex-direction: column;
++  border-right: 1px solid var(--border-subtle);
++  background: var(--surface-panel);
++  backdrop-filter: blur(16px) saturate(1.2);
++  -webkit-backdrop-filter: blur(16px) saturate(1.2);
++}
++
++.sb-brand {
++  display: grid;
++  place-items: center;
++  gap: 2px;
++  height: 64px;
++  color: var(--color-primary);
++}
++.sb-brand-mark {
++  width: 30px;
++  height: 30px;
++}
++.sb-brand-text {
++  display: none;
++  font-family: var(--font-display);
++  font-size: 9px;
++  font-weight: 700;
++  letter-spacing: 0.28em;
++  line-height: 1.35;
++  text-align: center;
++  color: var(--text-secondary);
++}
++
++.sb-nav {
++  display: flex;
++  flex-direction: column;
++  gap: 4px;
++  padding: 10px 0;
++}
++.sb-item {
++  display: grid;
++  justify-items: center;
++  gap: 3px;
++  margin: 0 10px;
++  padding: 10px 2px 9px;
++  min-height: 56px;
++  border-radius: var(--radius-item);
++  color: var(--text-secondary);
++  transition: background 0.16s ease, color 0.16s ease;
++}
++.sb-item:hover {
++  color: var(--text-primary);
++  background: var(--surface-panel-soft);
++}
++.sb-icon { width: 20px; height: 20px; }
++.sb-num {
++  font-family: var(--font-mono);
++  font-size: 9px;
++  letter-spacing: 0.22em;
++  color: var(--text-muted);
++}
++.sb-label {
++  font-size: 10px;
++  font-weight: 600;
++  letter-spacing: 0.06em;
++  white-space: nowrap;
++}
++.sb-item.router-link-exact-active {
++  background: var(--color-primary);
++  color: var(--color-primary-ink);
++}
++.sb-item.router-link-exact-active .sb-num {
++  color: var(--color-primary-ink);
++  opacity: 0.78;
++}
++.sb-item.router-link-exact-active .sb-label {
++  font-weight: 700;
++}
++
++.sb-foot {
++  margin: auto 0 14px;
++  align-self: center;
++  writing-mode: vertical-rl;
++  font-family: var(--font-mono);
++  font-size: 9px;
++  letter-spacing: 0.3em;
++  color: var(--text-muted);
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-pill);
++  padding: 10px 5px;
++}
++
++/* ===== ≤960：折叠为抽屉 ===== */
++@media (max-width: 960px) {
++  .sidebar {
++    width: 264px;
++    transform: translateX(-102%);
++    transition: transform 0.28s var(--ease-out);
++    box-shadow: none;
++  }
++  .sidebar--open {
++    transform: none;
++    box-shadow: 24px 0 80px rgba(2, 8, 18, 0.55);
++  }
++  .sb-brand {
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    gap: 10px;
++  }
++  .sb-brand-text { display: block; }
++  .sb-nav { padding: 14px 0; }
++  .sb-item {
++    display: flex;
++    align-items: center;
++    gap: 12px;
++    margin: 0 12px;
++    padding: 12px 16px;
++    min-height: 48px;
++  }
++  .sb-num { font-size: 10px; }
++  .sb-label { font-size: 14px; }
++  .sb-item.router-link-exact-active {
++    background: var(--color-primary-soft);
++    color: var(--color-primary);
++    box-shadow: inset 3px 0 0 var(--color-primary);
++  }
++  .sb-item.router-link-exact-active .sb-num { color: var(--color-primary); }
++  .sb-foot { display: none; }
++}
++</style>
+warning: in the working copy of 'src/components/common/AppTopBar.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/AppTopBar.vue b/src/components/common/AppTopBar.vue
+new file mode 100644
+index 0000000..c973035
+--- /dev/null
++++ b/src/components/common/AppTopBar.vue
+@@ -0,0 +1,191 @@
++<template>
++  <header class="topbar">
++    <div class="tb-left">
++      <button
++        ref="menuButton"
++        type="button"
++        class="tb-btn tb-menu"
++        aria-label="打开导航菜单"
++        :aria-expanded="String(open)"
++        @click="$emit('toggle-sidebar')"
++      >
++        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
++          <path d="M3 5.5h14M3 10h14M3 14.5h14" />
++        </svg>
++      </button>
++      <p class="tb-brand">
++        <span class="tb-brand-strong">太湖</span>
++        <span class="tb-brand-sep" aria-hidden="true">·</span>
++        <span class="tb-brand-full">蓝藻水华监测预警系统</span>
++        <span class="tb-brand-short">监测预警</span>
++      </p>
++    </div>
++
++    <div class="tb-right">
++      <span class="tb-service" title="当前为演示联调环境，无真实生产服务">
++        <span class="tb-service-dot" aria-hidden="true"></span>演示联调
++      </span>
++      <span class="tb-update" title="演示数据统一基准时间">数据基准 {{ asOfShort }}</span>
++      <button
++        type="button"
++        class="tb-btn tb-theme"
++        :aria-label="themeAria"
++        :title="themeTitle"
++        @click="cycleTheme"
++      >
++        <svg v-if="theme === 'dark'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
++          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
++        </svg>
++        <svg v-else-if="theme === 'light'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
++          <circle cx="12" cy="12" r="4" />
++          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
++        </svg>
++        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
++          <path d="M12 3v3" />
++          <path d="M5.6 7.6l2.1 2.1" />
++          <path d="M18.4 7.6l-2.1 2.1" />
++          <path d="M3 17h18" />
++          <path d="M6 17a6 6 0 0 1 12 0" />
++        </svg>
++      </button>
++    </div>
++  </header>
++</template>
++
++<script setup>
++import { computed, ref } from 'vue'
++import { useTheme } from '../../composables/useTheme.js'
++import { dataIdentity } from '../../data/dataIdentity.js'
++
++defineProps({
++  open: { type: Boolean, default: false }
++})
++defineEmits(['toggle-sidebar'])
++
++const menuButton = ref(null)
++defineExpose({ menuButton })
++
++const { theme, cycleTheme } = useTheme()
++
++const asOfShort = computed(() => dataIdentity.asOfFull.slice(5))
++const themeAria = computed(() =>
++  theme.value === 'dark'
++    ? '切换到浅色主题'
++    : theme.value === 'light'
++      ? '切换到日式暖阳主题'
++      : '切换到深色主题'
++)
++const themeTitle = computed(() =>
++  theme.value === 'dark'
++    ? '深色主题 · 点击切换浅色'
++    : theme.value === 'light'
++      ? '浅色主题 · 点击切换日式暖阳'
++      : '日式暖阳主题 · 点击切换深色'
++)
++</script>
++
++<style scoped>
++.topbar {
++  position: sticky;
++  top: 0;
++  z-index: 1100;
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 12px;
++  height: 64px;
++  padding: 0 20px 0 16px;
++  border-bottom: 1px solid var(--border-subtle);
++  background: var(--surface-panel);
++  backdrop-filter: blur(16px) saturate(1.2);
++  -webkit-backdrop-filter: blur(16px) saturate(1.2);
++}
++
++.tb-left {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  min-width: 0;
++}
++
++.tb-btn {
++  display: grid;
++  place-items: center;
++  width: 44px;
++  height: 44px;
++  padding: 0;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-item);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
++  cursor: pointer;
++  transition: color 0.15s ease, border-color 0.15s ease;
++}
++.tb-btn:hover {
++  color: var(--color-primary);
++  border-color: var(--border-strong);
++}
++.tb-btn svg {
++  width: 20px;
++  height: 20px;
++  pointer-events: none;
++}
++.tb-menu { display: none; }
++
++.tb-brand {
++  display: flex;
++  align-items: baseline;
++  gap: 8px;
++  min-width: 0;
++  overflow: hidden;
++  font-family: var(--font-display);
++  font-size: 14px;
++  font-weight: 650;
++  letter-spacing: 0.04em;
++  color: var(--text-secondary);
++  white-space: nowrap;
++}
++.tb-brand-strong { color: var(--text-primary); font-weight: 700; }
++.tb-brand-sep { color: var(--text-muted); }
++.tb-brand-short { display: none; }
++
++.tb-right {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  flex-shrink: 0;
++}
++
++.tb-service,
++.tb-update {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  padding: 5px 12px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-pill);
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.06em;
++  color: var(--text-secondary);
++  white-space: nowrap;
++}
++.tb-service-dot {
++  width: 7px;
++  height: 7px;
++  border-radius: 50%;
++  background: var(--risk-medium);
++  box-shadow: 0 0 0 3px color-mix(in srgb, var(--risk-medium) 22%, transparent);
++}
++
++@media (max-width: 960px) {
++  .tb-menu { display: grid; }
++  .tb-brand-full { display: none; }
++  .tb-brand-short { display: inline; }
++}
++@media (max-width: 640px) {
++  .topbar { padding: 0 12px; }
++  .tb-update { display: none; }
++  .tb-service { padding: 5px 10px; }
++}
++</style>
+warning: in the working copy of 'src/components/common/BackLink.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/BackLink.vue b/src/components/common/BackLink.vue
+new file mode 100644
+index 0000000..6558957
+--- /dev/null
++++ b/src/components/common/BackLink.vue
+@@ -0,0 +1,39 @@
++<template>
++  <RouterLink class="back-link" :to="to">
++    <span class="bl-arrow" aria-hidden="true">←</span>
++    <span>{{ label }}</span>
++  </RouterLink>
++</template>
++
++<script setup>
++// 返回链接走确定性路由（由调用方显式传入 to），不依赖 history.back()
++defineProps({
++  to: { type: [String, Object], default: '/' },
++  label: { type: String, default: '返回' }
++})
++</script>
++
++<style scoped>
++.back-link {
++  display: inline-flex;
++  align-items: center;
++  gap: 8px;
++  min-height: 44px;
++  padding: 8px 16px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-item);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
++  font-size: 13px;
++  font-weight: 600;
++  white-space: nowrap;
++  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
++}
++.back-link:hover {
++  color: var(--color-primary);
++  border-color: var(--border-strong);
++}
++.bl-arrow {
++  font-family: var(--font-mono);
++}
++</style>
+warning: in the working copy of 'src/components/common/DataContextBar.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/DataContextBar.vue b/src/components/common/DataContextBar.vue
+new file mode 100644
+index 0000000..d6402a5
+--- /dev/null
++++ b/src/components/common/DataContextBar.vue
+@@ -0,0 +1,282 @@
++<template>
++  <div class="ctxbar">
++    <p
++      class="ctx-line"
++      :aria-label="`数据身份：${identity.lakeName}，${identity.dataMode}，${identity.datasetVersionId}，${identity.asOfLabel}，${identity.claimBoundary}`"
++    >
++      <span class="ctx-strong">{{ identity.lakeName }}</span>
++      <span class="ctx-sep" aria-hidden="true">｜</span>
++      <span class="ctx-mode">{{ identity.dataMode }}</span>
++      <span class="ctx-sep" aria-hidden="true">｜</span>
++      <span>{{ identity.datasetVersionId }}</span>
++      <span class="ctx-sep ctx-hide-sm" aria-hidden="true">｜</span>
++      <span class="ctx-hide-sm">{{ identity.asOfLabel }}</span>
++      <span class="ctx-sep ctx-hide-sm" aria-hidden="true">｜</span>
++      <span class="ctx-boundary ctx-hide-sm">{{ identity.claimBoundary }}</span>
++    </p>
++    <p class="ctx-line-sm">{{ identity.dataModeLabel }} · {{ identity.datasetVersionId }} · {{ identity.claimBoundary }}</p>
++
++    <button
++      ref="sourceBtn"
++      type="button"
++      class="ctx-source"
++      aria-haspopup="dialog"
++      :aria-expanded="String(open)"
++      aria-controls="ctx-source-drawer"
++      @click="open = true"
++    >
++      查看来源
++    </button>
++
++    <Teleport to="body">
++      <div v-if="open" class="ctx-mask" @click="close()"></div>
++      <aside
++        v-if="open"
++        id="ctx-source-drawer"
++        class="ctx-drawer"
++        role="dialog"
++        aria-modal="true"
++        aria-label="数据来源与使用边界"
++        @keydown="onDrawerKeydown"
++      >
++          <header class="ctx-head">
++            <h3>数据来源与使用边界</h3>
++            <button ref="closeBtn" type="button" class="ctx-close" aria-label="关闭数据来源说明" @click="close()">
++              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
++                <path d="m5 5 10 10M15 5 5 15" />
++              </svg>
++            </button>
++          </header>
++          <dl class="ctx-list">
++            <div v-for="row in identity.provenance" :key="row.label" class="ctx-row">
++              <dt>{{ row.label }}</dt>
++              <dd>
++                <strong>{{ row.value }}</strong>
++                <span>{{ row.note }}</span>
++              </dd>
++            </div>
++          </dl>
++          <p class="ctx-note">{{ identity.claimNote }}</p>
++        </aside>
++    </Teleport>
++  </div>
++</template>
++
++<script setup>
++import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
++import { dataIdentity as identity } from '../../data/dataIdentity.js'
++
++const open = ref(false)
++const sourceBtn = ref(null)
++const closeBtn = ref(null)
++
++function close() {
++  open.value = false
++}
++
++function onKey(e) {
++  if (e.key === 'Escape') close()
++}
++
++// 打开时焦点移入抽屉（关闭按钮），关闭后焦点还给触发按钮
++watch(open, (v) => {
++  if (v) {
++    window.addEventListener('keydown', onKey)
++    nextTick(() => closeBtn.value?.focus())
++  } else {
++    window.removeEventListener('keydown', onKey)
++    sourceBtn.value?.focus()
++  }
++})
++onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
++
++// 抽屉内唯一可聚焦元素是关闭按钮：Tab/Shift+Tab 停留原处，不逃逸到背景页
++function onDrawerKeydown(e) {
++  if (e.key === 'Tab') e.preventDefault()
++}
++</script>
++
++<style scoped>
++.ctxbar {
++  position: sticky;
++  top: 64px;
++  z-index: 1050;
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  height: 40px;
++  padding: 0 20px 0 16px;
++  border-bottom: 1px solid var(--border-subtle);
++  background: var(--surface-panel-soft);
++  backdrop-filter: blur(12px);
++  -webkit-backdrop-filter: blur(12px);
++}
++
++.ctx-line {
++  flex: 1;
++  min-width: 0;
++  overflow: hidden;
++  white-space: nowrap;
++  text-overflow: ellipsis;
++  font-family: var(--font-mono);
++  font-size: 11.5px;
++  letter-spacing: 0.05em;
++  color: var(--text-secondary);
++}
++.ctx-strong { color: var(--text-primary); font-weight: 700; }
++.ctx-mode { color: var(--color-primary); font-weight: 700; }
++.ctx-boundary { color: var(--text-primary); font-weight: 700; }
++.ctx-sep {
++  margin: 0 2px;
++  color: var(--text-muted);
++}
++
++.ctx-line-sm { display: none; }
++
++.ctx-source {
++  flex-shrink: 0;
++  min-height: 32px;
++  padding: 4px 14px;
++  border: 1px solid var(--border-strong);
++  border-radius: var(--radius-pill);
++  background: transparent;
++  color: var(--color-primary);
++  font-size: 12px;
++  font-weight: 600;
++  cursor: pointer;
++  transition: background 0.15s ease;
++}
++.ctx-source:hover { background: var(--color-primary-soft); }
++
++/* ===== 来源抽屉（纯 CSS 挂载动画，无 Transition 状态机） ===== */
++.ctx-mask {
++  position: fixed;
++  inset: 0;
++  z-index: 1600;
++  background: rgba(2, 8, 18, 0.55);
++  animation: ctx-fade-in 0.25s ease both;
++}
++@keyframes ctx-fade-in {
++  from { opacity: 0; }
++  to { opacity: 1; }
++}
++.ctx-drawer {
++  position: fixed;
++  top: 0;
++  right: 0;
++  bottom: 0;
++  z-index: 1601;
++  width: min(420px, 92vw);
++  display: flex;
++  flex-direction: column;
++  gap: 16px;
++  padding: 20px;
++  overflow-y: auto;
++  border-left: 1px solid var(--border-strong);
++  background: var(--surface-panel-raised);
++  box-shadow: -24px 0 80px rgba(2, 8, 18, 0.5);
++  animation: ctx-drawer-in 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) both;
++}
++@keyframes ctx-drawer-in {
++  from { transform: translateX(100%); }
++  to { transform: none; }
++}
++.ctx-head {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 12px;
++}
++.ctx-head h3 {
++  font-size: 15px;
++  font-weight: 700;
++  color: var(--text-primary);
++}
++.ctx-close {
++  display: grid;
++  place-items: center;
++  width: 40px;
++  height: 40px;
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-item);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
++  cursor: pointer;
++  transition: color 0.15s ease, border-color 0.15s ease;
++}
++.ctx-close:hover {
++  color: var(--color-primary);
++  border-color: var(--border-strong);
++}
++.ctx-close svg {
++  width: 16px;
++  height: 16px;
++}
++
++.ctx-list {
++  display: grid;
++  gap: 12px;
++  margin: 0;
++}
++.ctx-row {
++  display: grid;
++  gap: 3px;
++  padding-bottom: 12px;
++  border-bottom: 1px dashed var(--border-subtle);
++}
++.ctx-row dt {
++  font-size: 11px;
++  letter-spacing: 0.12em;
++  color: var(--text-muted);
++}
++.ctx-row dd {
++  margin: 0;
++  display: grid;
++  gap: 2px;
++}
++.ctx-row strong {
++  font-family: var(--font-mono);
++  font-size: 13px;
++  color: var(--text-primary);
++}
++.ctx-row span {
++  font-size: 12px;
++  line-height: 1.6;
++  color: var(--text-secondary);
++}
++
++.ctx-note {
++  margin-top: auto;
++  padding: 12px 14px;
++  border: 1px solid color-mix(in srgb, var(--risk-medium) 40%, transparent);
++  border-radius: var(--radius-item);
++  background: color-mix(in srgb, var(--risk-medium) 10%, transparent);
++  font-size: 12px;
++  line-height: 1.7;
++  color: var(--text-primary);
++}
++
++/* ===== 响应式 ===== */
++@media (max-width: 640px) {
++  .ctxbar {
++    top: 64px;
++    height: 48px;
++    padding: 0 12px;
++  }
++  .ctx-line { display: none; }
++  .ctx-hide-sm { display: none; }
++  .ctx-line-sm {
++    display: block;
++    flex: 1;
++    min-width: 0;
++    overflow: hidden;
++    white-space: nowrap;
++    text-overflow: ellipsis;
++    font-family: var(--font-mono);
++    font-size: 11px;
++    letter-spacing: 0.04em;
++    color: var(--text-secondary);
++  }
++  .ctx-source { min-height: 40px; }
++}
++</style>
+warning: in the working copy of 'src/components/common/DataModeBadge.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/DataModeBadge.vue b/src/components/common/DataModeBadge.vue
+new file mode 100644
+index 0000000..27faee8
+--- /dev/null
++++ b/src/components/common/DataModeBadge.vue
+@@ -0,0 +1,55 @@
++<template>
++  <span class="dmb" :class="`dmb--${variant}`">
++    <span class="dmb-dot" aria-hidden="true"></span>
++    <span class="dmb-text">{{ text }}</span>
++  </span>
++</template>
++
++<script setup>
++import { computed } from 'vue'
++
++const props = defineProps({
++  // observed | forecast | experimental | simulated
++  mode: { type: String, default: 'simulated' },
++  label: { type: String, default: '' }
++})
++
++const VALID = ['observed', 'forecast', 'experimental', 'simulated']
++const DEFAULT_LABELS = {
++  observed: '观测数据',
++  forecast: '预测数据',
++  experimental: '实验数据',
++  simulated: '模拟数据'
++}
++
++const variant = computed(() => (VALID.includes(props.mode) ? props.mode : 'simulated'))
++const text = computed(() => props.label || DEFAULT_LABELS[variant.value])
++</script>
++
++<style scoped>
++.dmb {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  padding: 2px 10px;
++  border-radius: var(--radius-pill);
++  border: 1px solid color-mix(in srgb, currentColor 36%, transparent);
++  background: color-mix(in srgb, currentColor 10%, transparent);
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.08em;
++  line-height: 1.7;
++  white-space: nowrap;
++}
++.dmb-dot {
++  width: 6px;
++  height: 6px;
++  border-radius: 50%;
++  background: currentColor;
++  flex-shrink: 0;
++}
++.dmb--observed { color: var(--data-observed); }
++.dmb--forecast { color: var(--data-forecast); }
++.dmb--experimental { color: var(--data-experimental); }
++.dmb--simulated { color: var(--data-simulated); }
++</style>
+warning: in the working copy of 'src/components/common/MetricCard.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/MetricCard.vue b/src/components/common/MetricCard.vue
+new file mode 100644
+index 0000000..b6900c3
+--- /dev/null
++++ b/src/components/common/MetricCard.vue
+@@ -0,0 +1,104 @@
++<template>
++  <article class="metric-card">
++    <header class="mc-head">
++      <span class="mc-label">{{ label }}</span>
++      <QualityBadge v-if="quality" :quality="quality" :label="qualityLabel" />
++    </header>
++    <p class="mc-value">
++      <span class="mc-num">{{ value }}</span>
++      <span v-if="unit" class="mc-unit">{{ unit }}</span>
++    </p>
++    <p v-if="delta" class="mc-delta" :class="`mc-delta--${normalizedTone}`">{{ delta }}</p>
++    <footer v-if="asOf || mode" class="mc-foot">
++      <span v-if="asOf" class="mc-asof">{{ asOf }}</span>
++      <DataModeBadge v-if="mode" :mode="mode" :label="modeLabel" />
++    </footer>
++  </article>
++</template>
++
++<script setup>
++import { computed } from 'vue'
++import QualityBadge from './QualityBadge.vue'
++import DataModeBadge from './DataModeBadge.vue'
++
++const props = defineProps({
++  label: { type: String, required: true },
++  value: { type: [String, Number], required: true },
++  unit: { type: String, default: '' },
++  // 变化说明文本（可含 ▲/▼），配合 tone 决定颜色
++  delta: { type: String, default: '' },
++  // good | warn | bad | neutral
++  tone: { type: String, default: 'neutral' },
++  // 传给 QualityBadge 的数据质量标识（good | missing | pending | fault）
++  quality: { type: String, default: '' },
++  qualityLabel: { type: String, default: '' },
++  asOf: { type: String, default: '' },
++  // 传给 DataModeBadge 的数据模式标识
++  mode: { type: String, default: '' },
++  modeLabel: { type: String, default: '' }
++})
++
++const TONES = ['good', 'warn', 'bad', 'neutral']
++const normalizedTone = computed(() => (TONES.includes(props.tone) ? props.tone : 'neutral'))
++</script>
++
++<style scoped>
++.metric-card {
++  display: grid;
++  gap: 8px;
++  padding: var(--spacing-4);
++  border: 1px solid var(--border-subtle);
++  border-radius: var(--radius-panel);
++  background: var(--surface-panel);
++}
++.mc-head {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 8px;
++}
++.mc-label {
++  font-size: 12px;
++  font-weight: 600;
++  letter-spacing: 0.06em;
++  color: var(--text-secondary);
++}
++.mc-value {
++  display: flex;
++  align-items: baseline;
++  gap: 6px;
++}
++.mc-num {
++  font-family: var(--font-mono);
++  font-size: 26px;
++  font-weight: 700;
++  letter-spacing: 0.02em;
++  color: var(--text-primary);
++  font-variant-numeric: tabular-nums;
++}
++.mc-unit {
++  font-size: 12px;
++  color: var(--text-muted);
++}
++.mc-delta {
++  font-family: var(--font-mono);
++  font-size: 12px;
++  letter-spacing: 0.04em;
++}
++.mc-delta--good { color: var(--risk-low); }
++.mc-delta--warn { color: var(--risk-medium); }
++.mc-delta--bad { color: var(--risk-critical); }
++.mc-delta--neutral { color: var(--text-secondary); }
++.mc-foot {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 8px;
++  min-height: 22px;
++}
++.mc-asof {
++  font-family: var(--font-mono);
++  font-size: 11px;
++  color: var(--text-muted);
++}
++</style>
+warning: in the working copy of 'src/components/common/PageHeader.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/PageHeader.vue b/src/components/common/PageHeader.vue
+new file mode 100644
+index 0000000..2e7192a
+--- /dev/null
++++ b/src/components/common/PageHeader.vue
+@@ -0,0 +1,68 @@
++<template>
++  <header class="page-header">
++    <p v-if="sectionNo || eyebrow" class="ph-eyebrow">
++      <span v-if="sectionNo" class="ph-no">{{ sectionNo }}</span>
++      <span v-if="eyebrow" class="ph-eyebrow-text">{{ eyebrow }}</span>
++    </p>
++    <h1 class="ph-title">{{ title }}</h1>
++    <p v-if="description" class="ph-desc">{{ description }}</p>
++    <div v-if="$slots.meta" class="ph-meta">
++      <slot name="meta" />
++    </div>
++    <div v-if="$slots.actions" class="ph-actions">
++      <slot name="actions" />
++    </div>
++  </header>
++</template>
++
++<script setup>
++defineProps({
++  sectionNo: { type: String, default: '' },
++  eyebrow: { type: String, default: '' },
++  title: { type: String, required: true },
++  description: { type: String, default: '' }
++})
++</script>
++
++<style scoped>
++.page-header {
++  display: grid;
++  gap: 10px;
++  margin-bottom: var(--spacing-5);
++}
++.ph-eyebrow {
++  display: inline-flex;
++  align-items: baseline;
++  gap: 10px;
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.22em;
++  text-transform: uppercase;
++  color: var(--text-muted);
++}
++.ph-no { color: var(--color-primary); }
++.ph-title {
++  font-family: var(--font-display);
++  font-size: clamp(22px, 2.6vw, 30px);
++  font-weight: 700;
++  letter-spacing: 0.3px;
++  line-height: 1.2;
++  color: var(--text-primary);
++}
++.ph-desc {
++  max-width: 72ch;
++  font-size: 13.5px;
++  line-height: 1.75;
++  color: var(--text-secondary);
++}
++.ph-meta {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++}
++.ph-actions {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++}
++</style>
+warning: in the working copy of 'src/components/common/QualityBadge.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/QualityBadge.vue b/src/components/common/QualityBadge.vue
+new file mode 100644
+index 0000000..0ce781b
+--- /dev/null
++++ b/src/components/common/QualityBadge.vue
+@@ -0,0 +1,51 @@
++<template>
++  <span class="qb" :class="`qb--${variant}`">
++    <span class="qb-dot" aria-hidden="true"></span>{{ text }}
++  </span>
++</template>
++
++<script setup>
++import { computed } from 'vue'
++
++const props = defineProps({
++  // good | missing | pending | fault —— 数据质量（与 DataModeBadge 的数据性质互补，不重复）
++  quality: { type: String, default: 'good' },
++  label: { type: String, default: '' }
++})
++
++const VALID = ['good', 'missing', 'pending', 'fault']
++const DEFAULT_LABELS = {
++  good: '质量正常',
++  missing: '缺测',
++  pending: '待质控',
++  fault: '质控异常'
++}
++
++const variant = computed(() => (VALID.includes(props.quality) ? props.quality : 'pending'))
++const text = computed(() => props.label || DEFAULT_LABELS[variant.value])
++</script>
++
++<style scoped>
++.qb {
++  display: inline-flex;
++  align-items: center;
++  gap: 5px;
++  font-family: var(--font-mono);
++  font-size: 11px;
++  letter-spacing: 0.06em;
++  line-height: 1.7;
++  white-space: nowrap;
++}
++.qb-dot {
++  width: 6px;
++  height: 6px;
++  border-radius: 50%;
++  background: currentColor;
++  flex-shrink: 0;
++}
++/* 质量语义用中性/警示色表达，不与风险色、数据身份色混用 */
++.qb--good { color: var(--text-secondary); }
++.qb--missing { color: var(--text-muted); }
++.qb--pending { color: var(--risk-medium); }
++.qb--fault { color: var(--risk-critical); }
++</style>
+warning: in the working copy of 'src/components/common/StatePanel.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/components/common/StatePanel.vue b/src/components/common/StatePanel.vue
+new file mode 100644
+index 0000000..3d88342
+--- /dev/null
++++ b/src/components/common/StatePanel.vue
+@@ -0,0 +1,76 @@
++<template>
++  <section class="state-panel" :class="`state-panel--${normalized}`" role="status">
++    <span class="sp-glyph" aria-hidden="true">{{ glyph }}</span>
++    <h4 class="sp-title">{{ titleText }}</h4>
++    <p v-if="description" class="sp-desc">{{ description }}</p>
++    <div v-if="$slots.default" class="sp-actions">
++      <slot />
++    </div>
++  </section>
++</template>
++
++<script setup>
++import { computed } from 'vue'
++
++const props = defineProps({
++  // empty | error | loading
++  state: { type: String, default: 'empty' },
++  title: { type: String, default: '' },
++  description: { type: String, default: '' }
++})
++
++const GLYPHS = { empty: '◌', error: '⚠', loading: '◠' }
++const DEFAULT_TITLES = { empty: '暂无数据', error: '加载失败', loading: '加载中…' }
++const VALID = ['empty', 'error', 'loading']
++
++const normalized = computed(() => (VALID.includes(props.state) ? props.state : 'empty'))
++const glyph = computed(() => GLYPHS[normalized.value])
++const titleText = computed(() => props.title || DEFAULT_TITLES[normalized.value])
++</script>
++
++<style scoped>
++.state-panel {
++  display: grid;
++  justify-items: center;
++  gap: 10px;
++  padding: var(--spacing-6) var(--spacing-4);
++  border: 1px dashed var(--border-subtle);
++  border-radius: var(--radius-panel);
++  background: var(--surface-panel-soft);
++  text-align: center;
++}
++.sp-glyph {
++  font-size: 26px;
++  line-height: 1;
++  color: var(--text-muted);
++}
++.state-panel--error .sp-glyph { color: var(--risk-critical); }
++.state-panel--loading .sp-glyph {
++  color: var(--color-primary);
++  animation: sp-spin 1.2s linear infinite;
++}
++@keyframes sp-spin {
++  to { transform: rotate(360deg); }
++}
++.sp-title {
++  font-size: 14px;
++  font-weight: 650;
++  color: var(--text-primary);
++}
++.sp-desc {
++  max-width: 46ch;
++  font-size: 12.5px;
++  line-height: 1.7;
++  color: var(--text-secondary);
++}
++.sp-actions {
++  display: flex;
++  flex-wrap: wrap;
++  justify-content: center;
++  gap: 10px;
++  margin-top: 2px;
++}
++@media (prefers-reduced-motion: reduce) {
++  .state-panel--loading .sp-glyph { animation: none; }
++}
++</style>
+warning: in the working copy of 'src/data/dataIdentity.js', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/data/dataIdentity.js b/src/data/dataIdentity.js
+new file mode 100644
+index 0000000..e0ef12a
+--- /dev/null
++++ b/src/data/dataIdentity.js
+@@ -0,0 +1,44 @@
++// 全站唯一的数据身份事实来源：数据模式、数据集版本、基准时间与使用边界
++// 一律从这里引用，任何页面/组件不得另行硬编码口径文案。
++// 当前阶段全部展示数据均为脚本生成的演示数据，不来自真实观测或模型输出。
++
++export const dataIdentity = Object.freeze({
++  lakeName: '太湖',
++  dataMode: 'SIMULATED',
++  dataModeLabel: '演示数据',
++  datasetVersionId: 'DEMO-OBS-V1',
++  predictionRunId: 'DEMO-PRED-V1',
++  asOfLabel: '基准 08:00',
++  asOfFull: '2026-08-24 08:00',
++  claimBoundary: '非决策用途',
++  claimNote:
++    '本系统全部数据均为演示用模拟数据，不代表任何真实监测或预测结果，不得用于任何实际决策。',
++  // 「查看来源」抽屉逐条展示的口径字段
++  provenance: Object.freeze([
++    {
++      label: '观测数据集',
++      value: 'DEMO-OBS-V1',
++      note: '脚本生成的模拟观测序列，非卫星/浮标实测数据'
++    },
++    {
++      label: '预测数据集',
++      value: 'DEMO-PRED-V1',
++      note: '规则推演生成的模拟预测，非算法模型输出'
++    },
++    {
++      label: '基准时间',
++      value: '2026-08-24 08:00',
++      note: '演示数据统一的生成基准时间'
++    },
++    {
++      label: '数据载体',
++      value: '后端演示接口 + 前端静态常量',
++      note: '业务页经 /api/v1 调用本地 FastAPI 演示服务，首页缩略态势为前端常量；均为脚本生成的演示数据'
++    },
++    {
++      label: '使用限制',
++      value: '非决策用途',
++      note: '仅用于功能演示与交互联调'
++    }
++  ])
++})
+warning: in the working copy of 'src/data/taihuOutline.js', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/data/taihuOutline.js b/src/data/taihuOutline.js
+new file mode 100644
+index 0000000..40939c0
+--- /dev/null
++++ b/src/data/taihuOutline.js
+@@ -0,0 +1,24 @@
++// 太湖湖体真实轮廓（含西山岛等真实岛屿镂空，fill-rule="evenodd" 渲染）
++// 来源：OpenStreetMap relation 1126533（© OpenStreetMap contributors，ODbL 协议）
++// 经 Nominatim polygon_threshold=0.01 简化，equirectangular（latMid≈31.2°N）等比缩放
++// 放入 520×400 viewBox，外环 79 点；省略了 60 余个由简化产生的亚像素碎岛。
++export const TAIHU_OUTLINE = Object.freeze({
++  source: 'OpenStreetMap relation 1126533',
++  license: 'ODbL © OpenStreetMap contributors',
++  viewBox: [520, 400],
++  path:
++    'M26.0 205.0L37.3 216.8L37.1 240.5L72.0 313.6L102.0 329.6L127.2 358.3L195.3 374.0L240.5 365.4L259.1 358.2L265.5 354.5L268.5 354.0L287.8 343.5L303.3 327.7L298.8 322.2L310.9 322.5L355.6 287.1L355.0 272.2L363.1 271.6L357.1 253.5L385.8 223.3L372.5 215.2L371.9 231.1L351.8 238.2L337.3 257.2L344.4 265.0L340.7 270.6L304.2 269.8L272.8 332.2L262.4 318.8L253.8 319.2L252.9 327.4L234.0 310.5L264.8 268.6L278.2 279.6L286.6 273.7L281.7 258.3L308.4 217.3L294.2 208.6L252.9 214.0L251.7 205.3L266.6 195.1L259.9 183.4L226.0 186.1L224.3 178.7L235.2 182.0L246.7 158.3L242.8 151.0L242.7 159.8L236.6 156.6L212.7 159.6L229.5 152.6L231.4 144.8L225.7 147.0L236.0 130.1L261.3 126.8L274.5 83.3L246.1 72.8L183.8 109.4L175.4 86.1L189.0 60.7L178.6 38.4L184.1 34.2L184.3 26.7L172.5 36.6L167.3 26.0L137.6 50.0L136.6 52.2L141.4 67.7L141.0 107.1L124.2 105.0L113.4 127.1L105.5 116.4L115.5 79.2L106.0 67.2L91.6 65.3L82.0 80.6L91.6 94.9L58.7 134.7L26.0 205.0Z' +
++    'M169.3 263.9L186.6 261.8L208.9 244.3L232.9 242.5L247.4 260.9L223.4 277.0L218.3 298.4L193.2 291.5L195.7 281.2L169.3 263.9Z' +
++    'M320.7 308.3L310.3 313.4L310.8 312.8L317.4 307.5L318.1 307.2L319.1 307.3L319.4 307.3L320.2 307.8L320.7 308.3Z'
++})
++
++// 六个演示分区在真实轮廓上的展示位置（left/top 为容器百分比）。
++// 均为湖内演示位置（演示分区非真实站点），稳定对象 ID 仍以 points.js 为准。
++export const taihuZonePos = Object.freeze({
++  northwest_hotspot: { left: '26.9%', top: '27.4%' },
++  central_lake: { left: '35.3%', top: '55.3%' },
++  river_inlet: { left: '14.9%', top: '72.1%' },
++  southeast_station: { left: '47.3%', top: '69.3%' },
++  water_intake: { left: '44.5%', top: '27.4%' },
++  south_channel: { left: '24.2%', top: '83.2%' }
++})
+warning: in the working copy of 'src/layouts/AppShell.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/layouts/AppShell.vue b/src/layouts/AppShell.vue
+new file mode 100644
+index 0000000..dc8b4a2
+--- /dev/null
++++ b/src/layouts/AppShell.vue
+@@ -0,0 +1,185 @@
++<template>
++  <div class="app-shell">
++    <a class="skip-link" href="#main-content">跳到主内容</a>
++
++    <AppSidebar :open="sidebarOpen" />
++    <div v-if="sidebarOpen" class="sidebar-mask" aria-hidden="true" @click="sidebarOpen = false"></div>
++
++    <div class="app-main">
++      <AppTopBar ref="topBarRef" :open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
++      <DataContextBar />
++
++      <div v-if="!routeUi.errorPath" id="main-content" class="app-content" tabindex="-1">
++        <slot />
++      </div>
++      <div v-else id="main-content" class="app-content app-content--error" tabindex="-1">
++        <StatePanel
++          state="error"
++          title="页面加载失败"
++          :description="`「${routeUi.errorPath}」的资源加载出现问题，可重试或返回首页。`"
++        >
++          <button type="button" class="shell-btn" @click="retry">重试加载</button>
++          <RouterLink class="shell-btn shell-btn--ghost" to="/">回到首页</RouterLink>
++        </StatePanel>
++      </div>
++    </div>
++
++    <div v-if="routeUi.loading" class="route-progress" role="progressbar" aria-label="页面资源加载中">
++      <span class="route-progress-fill"></span>
++    </div>
++  </div>
++</template>
++
++<script setup>
++import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
++import { useRoute, useRouter } from 'vue-router'
++import AppSidebar from '../components/common/AppSidebar.vue'
++import AppTopBar from '../components/common/AppTopBar.vue'
++import DataContextBar from '../components/common/DataContextBar.vue'
++import StatePanel from '../components/common/StatePanel.vue'
++import { routeUi } from '../stores/routeUi.js'
++
++const route = useRoute()
++const router = useRouter()
++const sidebarOpen = ref(false)
++const topBarRef = ref(null)
++
++function toggleSidebar() {
++  sidebarOpen.value = !sidebarOpen.value
++}
++
++// 抽屉关闭后把焦点还给汉堡按钮（仅移动抽屉形态）
++function focusMenuButton() {
++  if (!window.matchMedia('(max-width: 960px)').matches) return
++  topBarRef.value?.menuButton?.focus?.()
++}
++
++watch(
++  () => route.fullPath,
++  () => {
++    sidebarOpen.value = false
++    routeUi.errorPath = ''
++  }
++)
++
++watch(sidebarOpen, (now, before) => {
++  if (before && !now) focusMenuButton()
++})
++
++function retry() {
++  const target = routeUi.errorPath
++  routeUi.errorPath = ''
++  router.replace(target || '/')
++}
++
++function onKeydown(e) {
++  if (e.key === 'Escape') sidebarOpen.value = false
++}
++onMounted(() => window.addEventListener('keydown', onKeydown))
++onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
++</script>
++
++<style scoped>
++.app-main {
++  margin-left: 72px;
++  min-height: 100vh;
++  display: flex;
++  flex-direction: column;
++}
++
++.app-content {
++  flex: 1;
++  display: flex;
++  flex-direction: column;
++  min-width: 0;
++  outline: none;
++}
++.app-content--error {
++  align-items: center;
++  justify-content: center;
++  padding: 40px 16px;
++}
++.app-content--error :deep(.state-panel) {
++  width: min(560px, 100%);
++}
++
++.shell-btn {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  min-height: 44px;
++  padding: 0 18px;
++  border: none;
++  border-radius: var(--radius-item);
++  background: var(--color-primary);
++  color: var(--color-primary-ink);
++  font-size: 13px;
++  font-weight: 700;
++  cursor: pointer;
++  transition: filter 0.15s ease;
++}
++.shell-btn:hover { filter: brightness(1.08); }
++.shell-btn--ghost {
++  border: 1px solid var(--border-subtle);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
++}
++
++.skip-link {
++  position: fixed;
++  top: -60px;
++  left: 84px;
++  z-index: 2000;
++  padding: 12px 18px;
++  border-radius: var(--radius-item);
++  background: var(--color-primary);
++  color: var(--color-primary-ink);
++  font-size: 13px;
++  font-weight: 700;
++  transition: top 0.2s ease;
++}
++.skip-link:focus-visible { top: 12px; }
++
++.sidebar-mask {
++  position: fixed;
++  inset: 0;
++  z-index: 1150;
++  background: rgba(2, 8, 18, 0.55);
++  animation: mask-fade-in 0.2s ease both;
++}
++@keyframes mask-fade-in {
++  from { opacity: 0; }
++  to { opacity: 1; }
++}
++@media (min-width: 961px) {
++  .sidebar-mask { display: none; }
++}
++
++.route-progress {
++  position: fixed;
++  top: 0;
++  left: 72px;
++  right: 0;
++  height: 2px;
++  z-index: 1700;
++  overflow: hidden;
++}
++.route-progress-fill {
++  display: block;
++  height: 100%;
++  width: 40%;
++  border-radius: 999px;
++  background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-secondary));
++  animation: route-progress-slide 1.1s ease-in-out infinite;
++}
++@keyframes route-progress-slide {
++  from { transform: translateX(-110%); }
++  to { transform: translateX(360%); }
++}
++
++@media (max-width: 960px) {
++  .app-main { margin-left: 0; }
++  .route-progress { left: 0; }
++  .skip-link { left: 12px; }
++}
++</style>
+warning: in the working copy of 'src/pages/NotFound.vue', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/pages/NotFound.vue b/src/pages/NotFound.vue
+new file mode 100644
+index 0000000..c629bb3
+--- /dev/null
++++ b/src/pages/NotFound.vue
+@@ -0,0 +1,96 @@
++<template>
++  <main class="notfound">
++    <p class="nf-code">404</p>
++    <h1 class="nf-title">页面不存在</h1>
++    <p class="nf-note">
++      当前地址没有对应页面。正式功能仅提供：首页、综合驾驶舱、监测站点研判、时空推演、历史复盘。
++    </p>
++    <div class="nf-actions">
++      <RouterLink v-if="backPath" class="nf-btn nf-btn-solid" :to="backPath">
++        ← 返回上一业务页面
++      </RouterLink>
++      <RouterLink class="nf-btn nf-btn-solid" to="/">回到首页</RouterLink>
++      <RouterLink class="nf-btn nf-btn-ghost" to="/cockpit">进入驾驶舱</RouterLink>
++    </div>
++  </main>
++</template>
++
++<script setup>
++import { computed } from 'vue'
++import { routeUi } from '../stores/routeUi.js'
++
++// “返回上一业务页面”只在确认存在站内来源时出现，且使用确定性路由（非 history.back）
++const backPath = computed(() => routeUi.lastBusinessPath || '')
++</script>
++
++<style scoped>
++.notfound {
++  flex: 1;
++  display: grid;
++  justify-items: center;
++  align-content: center;
++  gap: 14px;
++  padding: 48px 20px;
++  text-align: center;
++}
++
++.nf-code {
++  margin: 0;
++  color: var(--color-primary);
++  font-family: var(--font-mono);
++  font-size: 64px;
++  font-weight: 700;
++  letter-spacing: 0.08em;
++  line-height: 1;
++}
++
++.nf-title {
++  margin: 0;
++  color: var(--text-primary);
++  font-family: var(--font-display);
++  font-size: 26px;
++}
++
++.nf-note {
++  margin: 0;
++  max-width: 34rem;
++  color: var(--text-secondary);
++  font-size: 14px;
++  line-height: 1.8;
++}
++
++.nf-actions {
++  display: flex;
++  flex-wrap: wrap;
++  justify-content: center;
++  gap: 12px;
++  margin-top: 8px;
++}
++
++.nf-btn {
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  min-height: 44px;
++  padding: 0 22px;
++  border-radius: var(--radius-item);
++  font-size: 14px;
++  font-weight: 600;
++  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
++}
++.nf-btn-solid {
++  border: 1px solid var(--border-strong);
++  background: var(--color-primary);
++  color: var(--color-primary-ink);
++}
++.nf-btn-solid:hover { filter: brightness(1.08); }
++.nf-btn-ghost {
++  border: 1px solid var(--border-subtle);
++  background: var(--surface-panel-soft);
++  color: var(--text-secondary);
++}
++.nf-btn-ghost:hover {
++  color: var(--color-primary);
++  border-color: var(--border-strong);
++}
++</style>
+warning: in the working copy of 'src/stores/routeUi.js', LF will be replaced by CRLF the next time Git touches it
+diff --git a/src/stores/routeUi.js b/src/stores/routeUi.js
+new file mode 100644
+index 0000000..1d9b301
+--- /dev/null
++++ b/src/stores/routeUi.js
+@@ -0,0 +1,33 @@
++// 路由级 UI 状态：懒加载进度条 + 加载失败恢复。
++// 在 main.js 中 bindRouterUi(router) 一次性注册，保证首次导航也能被捕获。
++
++import { reactive } from 'vue'
++
++export const routeUi = reactive({
++  loading: false,
++  errorPath: '',
++  // 最近一次成功进入的业务页面（404 页“返回上一业务页面”的确定性目标）
++  lastBusinessPath: ''
++})
++
++let lastTarget = '/'
++
++export function bindRouterUi(router) {
++  router.beforeEach((to) => {
++    lastTarget = to.fullPath
++    // 仅当目标组件还未解析（仍为函数）时才需要异步拉取 chunk
++    const comp = to.matched[to.matched.length - 1]?.components?.default
++    routeUi.loading = typeof comp === 'function'
++  })
++  router.afterEach((to) => {
++    routeUi.loading = false
++    routeUi.errorPath = ''
++    if (to.name !== 'not-found') {
++      routeUi.lastBusinessPath = to.fullPath
++    }
++  })
++  router.onError(() => {
++    routeUi.loading = false
++    routeUi.errorPath = lastTarget
++  })
++}

@@ -1,0 +1,74 @@
+# audit7 Git 范围证明
+
+生成时间：2026-09-05（返工轮更新）
+基线：HEAD = 977c357（feat(frontend): rebuild historical event review）
+本任务状态：返工已完成，未 commit，未 push，等待第七轮独立复审。
+
+## 返工轮（P1/P2 整改）变更摘要
+
+- P1：新增集中式解析器 contracts.dataset_version_for_path(path)；main.py 三个错误出口
+  （_error_payload 兜底、RequestValidationError、未处理 500）改按接口类别选择 dataset_version；
+  errors.py 全部 ApiError 工厂增加 dataset_version 参数，api.py 全部调用点显式携带；
+  观察类（/spatial-entities 等）业务/校验错误恢复 DEMO-OBS-V1。
+- P2：删除遗留孤立模块 backend/app/core.py（旧响应格式，全仓 grep 无引用）。
+- 验证补口：assert_error_envelope 与 live_verify.expect_error 增加 dataset_version /
+  prediction_run_id / 六键 meta 断言；新增观察类参数校验（mode=bogus）用例；
+  pytest 83→90，实机 63/63→64/64。
+
+## 一、本任务写入的文件（全部位于允许范围 backend/** 与 reports/audit7/**）
+
+修改（git diff --stat HEAD -- backend/）：
+
+```text
+backend/app/api.py                 | 495 ++++++++++++++++++++++++------------
+backend/app/core.py                |  53 ---     （git 删除，P2：遗留旧响应格式孤立模块）
+backend/app/demo_provider.py       |  74 ------   （git rm，旧 demo 路由由 api.py + providers.py 取代）
+backend/app/services.py            | 271 +++++++++++++++++++--
+backend/main.py                    | 155 +++++++++++++++++++---
+backend/tests/test_api_contract.py | 319 +++++++++++++++++---
+6 files changed, 1003 insertions(+), 364 deletions(-)
+```
+
+新增（untracked，均属允许路径）：
+
+```text
+backend/app/contracts.py            # 信封常量、envelope() 工厂、dataset_version_for_path() 集中式解析器
+backend/app/errors.py               # 稳定错误码 + ApiError 工厂（携带 dataset_version）
+backend/app/providers.py            # ObservationProvider / PredictionProvider 抽象 + simulated 实现
+backend/app/schemas.py              # 全部 Pydantic 请求/响应模型
+backend/pytest.ini                  # pythonpath + filterwarnings(error)
+backend/tests/conftest.py           # 仓库根路径注入
+backend/tests/test_error_and_provider_contract.py   # 错误契约与 Provider 边界测试
+reports/audit7/                     # 本任务全部交付物
+```
+
+reports/audit7 内容：frontend-api-consumers.md、api-contract-matrix.md、openapi.json、
+pytest.log、live-api-verification.json、live_verify.py（实机验证脚本，可复跑）、
+uvicorn-live.log（8617 真实服务启动/请求日志）、uvicorn-live8000.log（8000 浏览器联调服务日志）、
+vite-dev.log（前端联调 dev server 日志）、git-scope.txt（本文件）。
+
+## 二、任务开始前已存在的并行现场（本任务未触碰、未暂存、未恢复、未格式化）
+
+任务开始时工作区即有以下并行修改（数据工厂与前端并行任务、Wallboard 构建产物），
+第七任务全程只读跳过这些路径，`git status` 当前快照与任务开始快照一致：
+
+```text
+src/App.vue、src/main.js、src/pages/Cockpit.vue   （并行前端修改，M 状态未动）
+dist/**                                            （并行 Wallboard 构建删除/修改，未动）
+data-cleaning/**                                   （并行数据工厂修改，未动）
+里程碑7_成员C机理AI融合建模/**、shenji-pan/**       （未进入任何 git 操作）
+```
+
+当前 `git status --short src/ dist/ data-cleaning/ | wc -l` = 75 条，
+全部为任务开始前遗留状态，无本任务新增条目。
+
+## 三、未触碰证明的操作层面
+
+1. 本任务全部文件写入仅发生在：backend/app/**、backend/tests/**、backend/main.py、
+   backend/pytest.ini、reports/audit7/**。
+2. 未执行 git add / git commit / git stash / git checkout / git restore / git clean；
+   并行修改保持原有工作区状态，等待对应任务自行处理。
+3. 未修改 backend/requirements.txt（现有依赖 FastAPI 0.140.0、Pydantic 2.13.4、
+   pytest 8.4.2、uvicorn 0.51.0 已足够，无新增依赖）。
+4. Provider 边界只读不读 data-cleaning 现场：simulated Provider 仅读取
+   backend/sample-data/ 下的固定样本文件。

@@ -1,0 +1,16 @@
+﻿target_metric,spatial_type,split,samples,positives,positive_rate
+T1,grid,test,12328,265.0,0.021495781959766386
+T1,grid,train,74504,28261.0,0.37932191560184686
+T1,grid,validation,8040,8009.0,0.9961442786069652
+T1,lake,test,40,5.0,0.125
+T1,lake,train,241,116.0,0.48132780082987553
+T1,lake,validation,25,25.0,1.0
+T1,zone,test,40,34.0,0.85
+T1,zone,train,241,238.0,0.9875518672199171
+T1,zone,validation,25,25.0,1.0
+T7,lake,test,40,15.0,0.375
+T7,lake,train,241,116.0,0.48132780082987553
+T7,lake,validation,25,25.0,1.0
+T7,zone,test,40,15.0,0.375
+T7,zone,train,241,116.0,0.48132780082987553
+T7,zone,validation,25,25.0,1.0

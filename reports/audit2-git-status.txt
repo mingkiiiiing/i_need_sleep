@@ -1,0 +1,28 @@
+# 大任务2 复审交付物：Git 状态快照（2026-09-04 第二步复审返工后，未做任何提交/分支操作）
+
+## HEAD
+5129340 上传完整开发工程与正式清洗产物
+
+## src 范围状态（大任务1+2 交付范围）
+ M README.md
+ M src/App.vue
+ D src/components/GlobalNav.vue
+ M src/components/HeroShell.vue
+ M src/composables/useTheme.js
+ M src/main.js
+ M src/pages/Home.vue
+ D src/pages/ProjectOverview.vue
+ D src/pages/TechRoute.vue
+ M src/styles.css
+ M tokens.css
+?? src/components/common/
+?? src/data/dataIdentity.js
+?? src/data/taihuOutline.js
+?? src/layouts/
+?? src/pages/NotFound.vue
+?? src/stores/routeUi.js
+
+## 第二步复审返工涉及文件
+ M src/composables/useTheme.js
+ M src/pages/Home.vue
+?? src/components/common/DataContextBar.vue

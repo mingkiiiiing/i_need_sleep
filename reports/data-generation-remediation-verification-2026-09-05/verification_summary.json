@@ -1,0 +1,37 @@
+{
+  "as_of": "2026-09-05",
+  "scope": "SIM-V1 / mvp_meiliangwan_2024 / df-0.2.0",
+  "release_decision": "APPROVE_SIMULATION_ONLY_WITH_CAVEATS",
+  "formal_experiment_decision": "NOT_READY",
+  "dg_pass_or_accepted": 14,
+  "dg_unresolved": 0,
+  "accepted_limitations": [
+    "DG-007",
+    "DG-001 full-lake capability not implemented",
+    "DG-008 missing grid task capability"
+  ],
+  "new_residuals": [
+    {
+      "id": "RV-001",
+      "severity": "Medium",
+      "finding": "模拟站点观测的单位和站名为空",
+      "evidence": "station_observations: blank unit=576/576, null station_name=576/576",
+      "impact": "不影响当前 SIM 特征计算，但不满足可独立解释、跨源单位校验与外部交付的完整语义。",
+      "required_action": "按 variable_code 写入规范单位，并从 stations/mapping 回填 station_name；扩展 A06 到观测表。"
+    },
+    {
+      "id": "RV-002",
+      "severity": "High",
+      "finding": "MEE 实时记录仍不具备直接训练接入条件",
+      "evidence": "observation_candidate & ground_truth=708/708; grid_id non-null=0/708",
+      "impact": "当前数据没有进入 2024 SIM 训练集，因此未造成现包泄漏；若未来直接接入，会缺少空间粒度和候选到正式标签的审核边界。",
+      "required_action": "先完成权威站点坐标映射与 QC 状态机，再将通过记录升级为 is_ground_truth=true。"
+    }
+  ],
+  "release_hash_entries": 45,
+  "release_hash_failures": [],
+  "release_code_commit": "52c9ec5787acbdf5615673f3fdd998fa0c01c6b9",
+  "head": "52c9ec5787acbdf5615673f3fdd998fa0c01c6b9",
+  "tests": "51 passed, 1 deprecation warning",
+  "notes": "A13 and DG-007 prevent treating the package as formal experimental evidence; SIM-V1 may be used for pipeline and algorithm-operation tests with simulation boundaries visible."
+}

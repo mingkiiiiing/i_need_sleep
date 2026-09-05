@@ -1,0 +1,3 @@
+﻿id,severity,finding,evidence,impact,required_action
+RV-001,Medium,模拟站点观测的单位和站名为空,"station_observations: blank unit=576/576, null station_name=576/576",不影响当前 SIM 特征计算，但不满足可独立解释、跨源单位校验与外部交付的完整语义。,按 variable_code 写入规范单位，并从 stations/mapping 回填 station_name；扩展 A06 到观测表。
+RV-002,High,MEE 实时记录仍不具备直接训练接入条件,observation_candidate & ground_truth=708/708; grid_id non-null=0/708,当前数据没有进入 2024 SIM 训练集，因此未造成现包泄漏；若未来直接接入，会缺少空间粒度和候选到正式标签的审核边界。,先完成权威站点坐标映射与 QC 状态机，再将通过记录升级为 is_ground_truth=true。

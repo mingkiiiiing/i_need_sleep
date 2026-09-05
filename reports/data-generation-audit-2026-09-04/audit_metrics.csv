@@ -1,0 +1,29 @@
+﻿metric,value,unit,interpretation
+simulation_days,366.0,days,MVP only
+simulation_grid_cells,536.0,cells,Meiliang Bay cells
+frozen_grid_cells,2535.0,cells,Full frozen Taihu grid
+simulation_area_share,0.20829772727343024,ratio,MVP area divided by frozen full-lake area
+training_samples,378396.0,rows,All SIM-V1 synthetic samples
+task_label_rows,593722.0,rows,Includes simulation truth and satellite-derived rows
+whole_lake_equals_meiliang_bay,1.0,boolean,1 means whole-lake rows duplicate the only simulated zone
+ground_truth_wq_rows_after_fit_cutoff,15.0,rows,Rows accessible to unfiltered nutrient/algae fit
+lake_temperature_rows_after_fit_cutoff,0.0,rows,Rows accessible to unfiltered water-temperature fit
+water_level_rows_after_fit_cutoff,3.0,rows,Rows accessible to unfiltered hydrology fit
+synthetic_satellite_observation_rows,36448.0,rows,Generated from latent simulation state
+satellite_labels_marked_non_synthetic,0.0,rows,Contradicts their upstream observation origin
+satellite_labels_with_observed_status,0.0,rows,Observed label vocabulary applied to simulated retrieval
+sampled_rows_with_complete_latent_core,0.0264,ratio,"Computed from 5,000 samples"
+station_observation_rows,576.0,rows,Actual station observation layer used for MVP
+water_level_at_bounds,0.0,ratio,Hydrology values exactly at 2 m or 5 m
+chlorophyll_a_mean,4.776719535065451,ug/L,Latent simulated grid-days
+chlorophyll_a_cv,1.2217550695403643,ratio,Overall coefficient of variation
+chlorophyll_a_summer_vs_winter,0.8333090270032539,ratio,Jun-Aug mean divided by Dec-Feb mean minus one
+degenerate_binary_task_split_groups,4.0,groups,Unique-date groups with only one class
+release_files,45.0,files,Files declared by release manifest
+formal_contract_files_missing,0.0,files,
+row_lineage_rows,378396.0,rows,Current lineage table granularity
+internal_acceptance_warnings,1.0,rules,Warnings despite overall PASS
+release_hash_failures,0.0,files,Independent SHA-256 verification
+stations_outside_boundary,13.0,stations,of 61 station records
+mee_rows_with_no_year_in_timestamp,0.0,rows,Timestamp does not begin with YYYY-MM-DD
+mee_rows_with_corrupted_station_name,0.0,rows,Replacement characters in station names

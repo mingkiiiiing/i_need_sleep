@@ -22,6 +22,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# CDP 验证脚本产生的无头浏览器配置缓存不入库
+reports/**/edge-profile/
+
 # Editor and OS files
 .vscode/
 .idea/

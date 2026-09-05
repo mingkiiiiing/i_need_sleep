@@ -1,0 +1,12 @@
+Command:
+C:\Anaconda\python.exe -m pytest -q data-cleaning/tests/test_data_factory_contracts.py data-cleaning/tests/test_data_factory_simulation.py data-cleaning/tests/test_data_factory_assembly.py data-cleaning/tests/test_data_factory_audit_fixes.py
+
+Result:
+...................................................                      [100%]
+51 passed, 1 warning in 3.92s
+
+Warning:
+test_yearless_time_completed_with_current_year triggers a Python datetime.strptime
+DeprecationWarning for formats that contain day/month but no year. The current
+implementation passes the test, but should be updated before Python 3.15 changes
+the default behavior.

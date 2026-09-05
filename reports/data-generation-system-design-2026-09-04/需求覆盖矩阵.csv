@@ -1,0 +1,31 @@
+编号,需求,设计模块,主要输出,质量门禁,当前判断
+R01,至少连续五年逐日数据,simulation与assembly,bloom_grid_daily.parquet,日期连续性与闰日检查,SIM可完成REAL待补
+R02,固定1km水域网格,contracts与freeze-grid,grid_metadata.csv和grid_boundaries.geojson,湖界CRS有效水面积和版本检查,可实现
+R03,站点网格湖区三粒度,ingestion与spatial mapping,station_grid_mapping.csv,映射唯一性和覆盖检查,可实现
+R04,T1水华发生,labeling,target_observation_daily.parquet,正负unknown证据检查,SIM可完成REAL不足
+R05,T2水华面积,labeling与geometry,bloom_lake_daily.csv,等面积投影和面积守恒检查,可实现
+R06,T3蓝藻密度,algae与observation,target_observation_daily.parquet,单位范围来源检查,SIM可完成REAL稀疏
+R07,T4蓝藻生物量,algae与observation,target_observation_daily.parquet,月度值不得伪装逐日观测,SIM可完成REAL稀疏
+R08,T5叶绿素a,algae与remote sensing,target_observation_daily.parquet,实测反演仿真分层,SIM可完成REAL仅42个当前宽表标签
+R09,T6风险等级与概率,labeling与thresholds,label_thresholds.yaml,阈值冻结且目标不回流,可实现
+R10,T7空间范围,transport与geometry,grid and region geometry,空间连续与交叠面积检查,可实现
+R11,T+1/+3/+7/+15/+30,assembly,model_training_samples.parquet,issue target horizon一致性,可实现
+R12,水质特征,nutrients与ingestion,dynamic_features_grid_daily.parquet,单位范围站点血缘,已有数据可校准
+R13,气象特征,weather,dynamic_features_grid_daily.parquet,起报版本和集合成员检查,已有数据可驱动
+R14,水文特征,hydrology,dynamic_features_grid_daily.parquet,水量范围和变量码规范,需先修复乱码变量码
+R15,遥感特征,remote_sensing,dynamic_features_grid_daily.parquet,有效像元云覆盖与代理身份,已有数据仅辅助
+R16,静态特征,contracts与grid,grid_metadata.csv,grid_version冻结,已有数据可用
+R17,机理输入与中间量,mechanism adapter,dynamic_features_grid_daily.parquet,只用issue_time前信息,覆盖成员C当前输入
+R18,三态标签,labeling,label_dictionary.csv,缺失和云遮不得为负,可实现
+R19,真实派生代理仿真分离,contracts与lineage,row_lineage.parquet,身份字段非空和不可逆,必须实现
+R20,实时接口,ingestion realtime,raw snapshots和station observations,原始响应哈希与过期标记,可实现但需核实接口授权
+R21,70/15/15时间切分,assembly split,split_manifest.csv,同日同split和30日隔离,可实现
+R22,防未来泄漏,quality leakage audit,leakage_audit.csv,available_time不晚于issue_time,可实现
+R23,仿真仅增强训练集,assembly hybrid,HYBRID model samples,validation test无synthetic,必须实现
+R24,完整血缘,lineage,source_registry and row_lineage,输入输出配置种子哈希可追踪,可实现
+R25,可复现生成,generation manifest,generation_manifest.json,同种子逐行哈希一致,可实现
+R26,21项验收,quality,acceptance_21.csv,三轨分别执行,可实现
+R27,12项一票否决,quality,veto_12.csv,任何一项失败阻止对应发布,可实现
+R28,成员C算法接入,member_c_adapter,required training schema,字段单位标签身份检查,可实现
+R29,正式真实效果证明,REAL-V1,real-only metrics,冻结独立真实测试集,当前阻塞于真实标签不足
+R30,全部现有来源纳管,source registry,source_registry.csv,每文件唯一终态与用途,可实现

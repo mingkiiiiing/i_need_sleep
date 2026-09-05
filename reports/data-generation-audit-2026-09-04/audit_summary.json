@@ -1,0 +1,159 @@
+{
+  "summary": {
+    "status": "NOT_READY_FOR_FORMAL_EXPERIMENT",
+    "mvp_status": "STRUCTURALLY_RUNNABLE_WITH_CRITICAL_DATA_QUALITY_DEFECTS",
+    "critical": 2,
+    "high": 4,
+    "medium": 0,
+    "tests_observed": "35 targeted tests passed; independent audit identifies gaps not covered by those tests",
+    "scope": "mvp_meiliangwan_2024 / baseline / seed 20260904 / SIM-V1",
+    "hash_failures": [],
+    "missing_release_contract_files": []
+  },
+  "parameter_support": [
+    {
+      "family": "algae",
+      "method": "monthly_lognorm_shrunk",
+      "parameters": 64,
+      "median_n": 16.0,
+      "min_n": 16,
+      "max_n": 16
+    },
+    {
+      "family": "algae",
+      "method": "prior_fallback",
+      "parameters": 1,
+      "median_n": 0.0,
+      "min_n": 0,
+      "max_n": 0
+    },
+    {
+      "family": "hydrology",
+      "method": "ar1",
+      "parameters": 2,
+      "median_n": 6156.0,
+      "min_n": 6156,
+      "max_n": 6156
+    },
+    {
+      "family": "hydrology",
+      "method": "level_absolute_mean",
+      "parameters": 1,
+      "median_n": 6156.0,
+      "min_n": 6156,
+      "max_n": 6156
+    },
+    {
+      "family": "hydrology",
+      "method": "monthly_mean",
+      "parameters": 12,
+      "median_n": 514.0,
+      "min_n": 481,
+      "max_n": 527
+    },
+    {
+      "family": "hydrology",
+      "method": "monthly_std",
+      "parameters": 12,
+      "median_n": 514.0,
+      "min_n": 481,
+      "max_n": 527
+    },
+    {
+      "family": "nutrients",
+      "method": "monthly_lognorm_shrunk",
+      "parameters": 320,
+      "median_n": 16.0,
+      "min_n": 16,
+      "max_n": 16
+    },
+    {
+      "family": "obs",
+      "method": "config",
+      "parameters": 8,
+      "median_n": 0.0,
+      "min_n": 0,
+      "max_n": 0
+    },
+    {
+      "family": "obs",
+      "method": "monthly_cloud_rate",
+      "parameters": 12,
+      "median_n": 42.5,
+      "min_n": 31,
+      "max_n": 50
+    },
+    {
+      "family": "obs",
+      "method": "quantile",
+      "parameters": 2,
+      "median_n": 6536.0,
+      "min_n": 6536,
+      "max_n": 6536
+    },
+    {
+      "family": "obs",
+      "method": "real_calendar",
+      "parameters": 60,
+      "median_n": 16.0,
+      "min_n": 1,
+      "max_n": 19
+    },
+    {
+      "family": "water_temp",
+      "method": "constrained_lsq_shrunk",
+      "parameters": 4,
+      "median_n": 0.0,
+      "min_n": 0,
+      "max_n": 0
+    },
+    {
+      "family": "weather",
+      "method": "ar1",
+      "parameters": 6,
+      "median_n": 7180.0,
+      "min_n": 7180,
+      "max_n": 7180
+    },
+    {
+      "family": "weather",
+      "method": "harmonic_climatology",
+      "parameters": 15,
+      "median_n": 7180.0,
+      "min_n": 7180,
+      "max_n": 7180
+    },
+    {
+      "family": "weather",
+      "method": "interannual_std",
+      "parameters": 3,
+      "median_n": 7180.0,
+      "min_n": 7180,
+      "max_n": 7180
+    },
+    {
+      "family": "weather",
+      "method": "markov_gamma",
+      "parameters": 48,
+      "median_n": 600.0,
+      "min_n": 565,
+      "max_n": 620
+    },
+    {
+      "family": "weather",
+      "method": "quantile",
+      "parameters": 3,
+      "median_n": 7180.0,
+      "min_n": 7180,
+      "max_n": 7180
+    },
+    {
+      "family": "weather",
+      "method": "residual_correlation",
+      "parameters": 3,
+      "median_n": 7180.0,
+      "min_n": 7180,
+      "max_n": 7180
+    }
+  ]
+}
