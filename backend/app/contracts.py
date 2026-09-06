@@ -43,6 +43,9 @@ def dataset_version_for_path(path: str) -> str:
     RequestValidationError、兜底 500 等脱离路由上下文的错误出口
     必须经此选择 dataset_version，不得固定为预测版本。
     """
+    # 根路径成功响应展示观察数据集，兜底 500 亦须保持同一口径
+    if path == "/":
+        return OBSERVATION_VERSION
     if any(path == p or path.startswith(f"{p}/") for p in _OBSERVATION_PATHS):
         return OBSERVATION_VERSION
     return PREDICTION_VERSION

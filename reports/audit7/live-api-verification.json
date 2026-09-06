@@ -1,7 +1,7 @@
 {
   "summary": {
     "base_url": "http://127.0.0.1:8617",
-    "generated_at": "2026-09-05T12:50:51.145716+00:00",
+    "generated_at": "2026-09-05T18:01:57.218003+00:00",
     "total_cases": 64,
     "failed_cases": 0,
     "request_ids_unique": true,
@@ -14,7 +14,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=1",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_e43b75df4b874ba4a4cb5980056c2784",
+      "request_id": "req_ef96088ee0ca4d0a82df006ce2be43a7",
       "problems": []
     },
     {
@@ -23,7 +23,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=3",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_c16e5e4a4069498e8684f97c98c55489",
+      "request_id": "req_45c157ad9c994d3da0848464e2d58c47",
       "problems": []
     },
     {
@@ -32,7 +32,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=7",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_473cdefb3d8b48feadfd4e44cd438ee9",
+      "request_id": "req_bf3e11e88883479b9d52bf654d8835f0",
       "problems": []
     },
     {
@@ -41,7 +41,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=15",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_1fa4f7f9403144d6acb7c4d5e7a86e1a",
+      "request_id": "req_e6a866b30d83420babe8bdd3e40a9269",
       "problems": []
     },
     {
@@ -50,7 +50,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=30",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_18a4352f48014614b5171c386bbf324d",
+      "request_id": "req_9a59708a53ee4fdc86f284858b1bfb6b",
       "problems": []
     },
     {
@@ -59,7 +59,7 @@
       "url": "/api/health",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_f567890809af44619d79c536ad7f94a9",
+      "request_id": "req_edb0cc8d4c5e4bacbd5bfdcd25610beb",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -70,7 +70,7 @@
       "url": "/",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_979c282d70a94a3db7bc58bd3e68a540",
+      "request_id": "req_c307044901c8431ca8bbcee8c49bb8e7",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -81,7 +81,7 @@
       "url": "/api/v1/system/capabilities",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_41e25619b2de4e33b3ec0ece9c7019a9",
+      "request_id": "req_71db67bce3454e0f8db72d8319566218",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -92,7 +92,7 @@
       "url": "/api/v1/datasets/summary",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_11cfa8d3757d4be8b167f27e98be768e",
+      "request_id": "req_9d06569a442142e49bed2712a0df7cb3",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -103,7 +103,7 @@
       "url": "/api/v1/pipeline/runs/latest",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_a7df971a10604adb9369a4b1f55cf72f",
+      "request_id": "req_491af4d6695c42f982f357dde7d947ec",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -114,7 +114,7 @@
       "url": "/api/v1/dashboard/overview",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_2ff25abcb3514a0cb3f9c117776f4983",
+      "request_id": "req_c127e65b2df84bc59091b8ab0d38def5",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -125,7 +125,7 @@
       "url": "/api/v1/spatial-entities",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_51788d767fa94717ba68cd0dc4470717",
+      "request_id": "req_99605e8144a1405eb21396af510a44ac",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -136,7 +136,7 @@
       "url": "/api/v1/spatial-entities/northwest_hotspot",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_16149a2dc5754e2895e2f91a5fad0a0d",
+      "request_id": "req_5dbb7b305d9f48789efd815087ebcfb5",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -147,7 +147,7 @@
       "url": "/api/v1/spatial-entities/northwest_hotspot/observations",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_b276409ab69948ea832acaee4690b3cd",
+      "request_id": "req_5bfd3afa642545f59a7920f4b8cc1b8d",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -158,7 +158,7 @@
       "url": "/api/v1/spatial-entities/northwest_hotspot/observations?variable_code=air_temperature",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_6f6069400a6c47498a2724b7f15ec62e",
+      "request_id": "req_088ce82a20c34b29ac072c95bb4af395",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -169,7 +169,7 @@
       "url": "/api/v1/spatial-entities/northwest_hotspot/quality",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_6e545a6d60ac4a8ca022ef7f8321e61a",
+      "request_id": "req_c2851e8979dd415d8507efc0b624f266",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "problems": []
@@ -180,7 +180,7 @@
       "url": "/api/v1/forecast-capabilities",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_0be301d0b44143578e12c591a4e85853",
+      "request_id": "req_0c7fd1316627424ea5aee051434c5e47",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -191,7 +191,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=1",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_181e4868c6d64f44ae013aee858323af",
+      "request_id": "req_3b03c44c8b604f11aca0df86ef2c23a2",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -202,7 +202,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=central_lake&horizon_days=3",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_ce832b81d52544d98071895e2fbacf86",
+      "request_id": "req_912e8990baaa443281d0c4c4262cd240",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -213,7 +213,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=river_inlet&horizon_days=7",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_a409052ff84540f6b066765a61b1fda7",
+      "request_id": "req_6b9b5e24a9a84e9098538c604788ecf8",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -224,7 +224,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=southeast_station&horizon_days=15",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_8575d25e2313432f83611ebd6e8c4fad",
+      "request_id": "req_22c31395fccc449d80336ebfc13fe881",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -235,7 +235,7 @@
       "url": "/api/v1/forecasts/demo-forecast-water_intake-3d",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_499be645429a451cba190ab62951392e",
+      "request_id": "req_15e05805ada2487e9efd9538fc963614",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -246,7 +246,7 @@
       "url": "/api/v1/forecasts/demo-forecast-water_intake-3d/explanations",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_c52f15f8b005458d92f0782b1161d14f",
+      "request_id": "req_1d6cdc5537024d22a69a21e3cee1e213",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -257,7 +257,7 @@
       "url": "/api/v1/map/layers",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_64f54eb2708a4903ad76937a460a953f",
+      "request_id": "req_04bb71aa9b2d47ed9d737b7296d82fbe",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -268,7 +268,7 @@
       "url": "/api/v1/events",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_6099d8e32cf14716893451dc4783b22b",
+      "request_id": "req_254abe9395a14c0ca382a3a98f2e5aa8",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -279,7 +279,7 @@
       "url": "/api/v1/cockpit/time-stages",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_552acb6cc23e4872a07af2e109240c64",
+      "request_id": "req_0edd177ff96a4ebb93a9516066b498c9",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -290,7 +290,7 @@
       "url": "/api/v1/cockpit/points",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_74c5d49d74634c318e2480f48c9d2224",
+      "request_id": "req_0febf53ae9f2440792751b9cfbecd781",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -301,7 +301,7 @@
       "url": "/api/v1/cockpit/points/northwest_hotspot",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_d52e25c5b739456a98c1e817df9171f0",
+      "request_id": "req_ddaacca135ef4a7a921b39de82549d08",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -312,7 +312,7 @@
       "url": "/api/v1/cockpit/risk-heatmap",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_981238ea810343539b8a65f4ee42b72a",
+      "request_id": "req_60f9d0997d3f4de49b2b83ca209c15ed",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -323,7 +323,7 @@
       "url": "/api/v1/cockpit/events",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_1da42cac1714481193c6fb773be78674",
+      "request_id": "req_379f4f59ca6d4083be3f88de53595b9f",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -334,7 +334,7 @@
       "url": "/api/v1/cockpit/region-summary",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_8ced3ea036574d6ea56359e59b7e1b18",
+      "request_id": "req_3ae31099dc534d34bfdd319d71530a0d",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -345,7 +345,7 @@
       "url": "/api/v1/cockpit/timeline?start=2026-08-20&end=2026-08-22",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_3da62e727d2d4fe6a7dac25546a1b0bf",
+      "request_id": "req_57315c99eb14411192103e44f551d570",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -356,7 +356,7 @@
       "url": "/api/v1/cockpit/timeline?start=2026-06-02&end=2026-08-31",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_7c9fba06a53641a589ed2ae928d2fa81",
+      "request_id": "req_12c6b4393d3747dba3cd9f02653edd7a",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -367,7 +367,7 @@
       "url": "/api/v1/cockpit/handle-warning",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_fec3b8c0c6614762a792c354dc73afca",
+      "request_id": "req_b9e1aa5cfc194985bed834407ab2850c",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -378,7 +378,7 @@
       "url": "/api/v1/cockpit/handle-warning",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_011953484fac4430984c478680b77e75",
+      "request_id": "req_0852b65a033543678421cbfbdbfa1523",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -389,7 +389,7 @@
       "url": "/api/v1/cockpit/handle-warning",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_afa8bd50f0f24d1fb315850285b9b628",
+      "request_id": "req_8a7afc583664498db0603ba0e345ae82",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -400,7 +400,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=1",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_27466695aad94cda831ddc767b0ff5c6",
+      "request_id": "req_6b8a575b8e2b413f8e2501bec87dc340",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -411,7 +411,7 @@
       "url": "/api/v1/map/risk-polygons?horizon_days=1",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_3341b93c91f348858a91c7033640ea93",
+      "request_id": "req_075f443a5c514cafbe9edeb8b8a1ab7d",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -422,7 +422,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=3",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_cdae95d8dde5422c9309d7ebf880e76a",
+      "request_id": "req_f3629ed19ed647aeaf242f5c33d3c57f",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -433,7 +433,7 @@
       "url": "/api/v1/map/risk-polygons?horizon_days=3",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_72a60780b4794f1783d7fd9dcbd4362f",
+      "request_id": "req_f8af990511774f32b77d481d8c115053",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -444,7 +444,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=7",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_ad78aba469d2430daf8226a8ba08486d",
+      "request_id": "req_232d8599ccc84db9ae164b804c2edb7b",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -455,7 +455,7 @@
       "url": "/api/v1/map/risk-polygons?horizon_days=7",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_6d253b9a58ec473c8b7fcc5370bc71ef",
+      "request_id": "req_80810a0e8b584b7895e86ae70a88fd6b",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -466,7 +466,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=15",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_b82ac67e926c40b5a745ed269f12415d",
+      "request_id": "req_5f9ec7b28b5f4ed68dad4b009e656a85",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -477,7 +477,7 @@
       "url": "/api/v1/map/risk-polygons?horizon_days=15",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_e944ace2184f4eb1b514989e8b389d23",
+      "request_id": "req_e74178d9a8e842299daee1a39c2c3d72",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -488,7 +488,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=30",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_05492473fdc745ed816c4e38609d1102",
+      "request_id": "req_ec80421d31354311949864065d634d98",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -499,7 +499,7 @@
       "url": "/api/v1/map/risk-polygons?horizon_days=30",
       "expected_status": 200,
       "actual_status": 200,
-      "request_id": "req_64b47ab69ef14ef6b25515c31dbc21b6",
+      "request_id": "req_21c14bc376e3482597de50ee650cace5",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": "DEMO-RUN-V1",
       "problems": []
@@ -510,7 +510,7 @@
       "url": "/api/v1/spatial-entities/no_such_zone",
       "expected_status": 404,
       "actual_status": 404,
-      "request_id": "req_05388d76a6b640a28db2d048c30aca31",
+      "request_id": "req_66153f17196e4d919d08484d414166d9",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "error_code": "ENTITY_NOT_FOUND",
@@ -522,7 +522,7 @@
       "url": "/api/v1/spatial-entities/no_such_zone/observations",
       "expected_status": 404,
       "actual_status": 404,
-      "request_id": "req_db999693f8ea4254a64ab76cf3dd0c83",
+      "request_id": "req_77d212bea89f4927b7a05a1137857e12",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "error_code": "ENTITY_NOT_FOUND",
@@ -534,7 +534,7 @@
       "url": "/api/v1/spatial-entities?mode=observed",
       "expected_status": 409,
       "actual_status": 409,
-      "request_id": "req_744f701fe66849a7a3c52b67d87b94bc",
+      "request_id": "req_0d9442787970489c8bfe7b2dcf3745d7",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "error_code": "SIMULATION_ONLY",
@@ -546,7 +546,7 @@
       "url": "/api/v1/spatial-entities?mode=bogus",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_38b5d4576a524cfd9c00726b0f3ee88f",
+      "request_id": "req_b562207a4f0e4d6ab13756b740e77da5",
       "meta_dataset_version": "DEMO-OBS-V1",
       "meta_prediction_run_id": null,
       "error_code": "REQUEST_VALIDATION_FAILED",
@@ -558,7 +558,7 @@
       "url": "/api/v1/forecasts/demo-forecast-no_such_zone-3d",
       "expected_status": 404,
       "actual_status": 404,
-      "request_id": "req_277feda6a2c64deea6cfd5aef7f4c235",
+      "request_id": "req_7b6a0388a45d4762aab56fcf6851c3e5",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "ENTITY_NOT_FOUND",
@@ -570,7 +570,7 @@
       "url": "/api/v1/forecasts/demo-forecast-no_such_zone-3d/explanations",
       "expected_status": 404,
       "actual_status": 404,
-      "request_id": "req_c0c5e67f92ac4636a9770a0b6ef1bb39",
+      "request_id": "req_418c72da12fe4f7b809eb95bbc952317",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "ENTITY_NOT_FOUND",
@@ -582,7 +582,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=0",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_3853bfac83f6490d81178de534eb9907",
+      "request_id": "req_77b9801b9c6840789ac6a096e7b6cc85",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "INVALID_HORIZON",
@@ -594,7 +594,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=2",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_d32d27546aaa44f19366f19c8483c3e8",
+      "request_id": "req_e0bb52f671f3413f8acb3b4164b51cbd",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "INVALID_HORIZON",
@@ -606,7 +606,7 @@
       "url": "/api/v1/map/risk-grid?horizon_days=31",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_c298df14d84a4675b2c0aca2046be21f",
+      "request_id": "req_f5121f53a737423882550d1e0b07eef0",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "INVALID_HORIZON",
@@ -618,7 +618,7 @@
       "url": "/api/v1/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=30",
       "expected_status": 409,
       "actual_status": 409,
-      "request_id": "req_76909595765a445e81cf82f82b50ef71",
+      "request_id": "req_1fa857b98f6946bb854d06fcd3a5f82b",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "CAPABILITY_UNAVAILABLE",
@@ -630,7 +630,7 @@
       "url": "/api/v1/forecasts/demo-forecast-northwest_hotspot-30d",
       "expected_status": 409,
       "actual_status": 409,
-      "request_id": "req_55f1cd53c65e4e64b876c3ebf86af690",
+      "request_id": "req_0540f94127554434aed0f7a1898dcf10",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "CAPABILITY_UNAVAILABLE",
@@ -642,7 +642,7 @@
       "url": "/api/v1/forecasts/demo-forecast-northwest_hotspot-30d/explanations",
       "expected_status": 404,
       "actual_status": 404,
-      "request_id": "req_d6ea4f8cf74148cda3e8c4d59140764a",
+      "request_id": "req_b106f317bad24e38bc6c4ab9fae209e8",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "ENTITY_NOT_FOUND",
@@ -654,7 +654,7 @@
       "url": "/api/v1/cockpit/timeline?start=2026-08-22&end=2026-08-20",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_e7b2e52d75f648a9a368d075c156f19c",
+      "request_id": "req_7c11fba5720b4f8c99f06635237b48b5",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "INVALID_DATE_RANGE",
@@ -666,7 +666,7 @@
       "url": "/api/v1/cockpit/timeline?start=2026-06-01&end=2026-08-31",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_92a42d7cf19045349dc552758dc94af0",
+      "request_id": "req_500a4b4b6411445cb739716c182b9eaa",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "QUERY_RANGE_TOO_LARGE",
@@ -678,7 +678,7 @@
       "url": "/api/v1/cockpit/timeline?start=not-a-date&end=2026-08-20",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_78c320e9757f405f8213b3bdc26119ee",
+      "request_id": "req_0f036589d68f401ea4502902f33697d5",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "REQUEST_VALIDATION_FAILED",
@@ -690,7 +690,7 @@
       "url": "/api/v1/dashboard/overview?mode=historical",
       "expected_status": 409,
       "actual_status": 409,
-      "request_id": "req_3a2b85e9b2414dbdaec4ed3ed15fc735",
+      "request_id": "req_de56bf6388b34fc39f5a819f22873a5a",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "SIMULATION_ONLY",
@@ -702,7 +702,7 @@
       "url": "/api/v1/cockpit/handle-warning",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_dd05a1445d5c46bc896105134dd1a7f6",
+      "request_id": "req_023b00238a9c47f2bda1f89e353099eb",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "INVALID_EVENT_ID",
@@ -714,7 +714,7 @@
       "url": "/api/v1/cockpit/handle-warning",
       "expected_status": 422,
       "actual_status": 422,
-      "request_id": "req_85a9ae20f84f478389fbe17dbe6fb682",
+      "request_id": "req_c24af97d050b4f50ba95c5c9dee86c17",
       "meta_dataset_version": "DEMO-PRED-V1",
       "meta_prediction_run_id": null,
       "error_code": "REQUEST_VALIDATION_FAILED",

@@ -87,7 +87,7 @@
 
 统一错误信封：`{code:<http>, message, data:null, meta(同6键), errors:[{code,field,detail}]}`。
 
-错误响应数据身份（audit7 返工收口）：`meta.dataset_version` 由集中式解析器 `contracts.dataset_version_for_path(path)` 按接口类别决定——观察类（`/`、`/api/health`、`/api/v1/{system,datasets,pipeline,spatial-entities}`）= `DEMO-OBS-V1`，其余 `/api/v1` 路由 = `DEMO-PRED-V1`。`RequestValidationError` 与兜底 500 同样经该解析器选择版本，不得固定为预测版本；`ApiError` 工厂在路由类别明确处显式携带 `dataset_version`。错误响应 `prediction_run_id` 恒为 null。实机断言（pytest + live_verify）已覆盖：观察类业务/校验错误保持 OBS，预测类业务/校验错误保持 PRED，兜底 500 两类路径均按类别选择。
+错误响应数据身份（audit7 返工收口）：`meta.dataset_version` 由集中式解析器 `contracts.dataset_version_for_path(path)` 按接口类别决定——观察类（`/`、`/api/health`、`/api/v1/{system,datasets,pipeline,spatial-entities}`）= `DEMO-OBS-V1`，其余 `/api/v1` 路由 = `DEMO-PRED-V1`。`RequestValidationError` 与兜底 500 同样经该解析器选择版本，不得固定为预测版本；`ApiError` 工厂在路由类别明确处显式携带 `dataset_version`。错误响应 `prediction_run_id` 恒为 null。实机断言（pytest + live_verify）已覆盖：观察类业务/校验错误保持 OBS，预测类业务/校验错误保持 PRED，兜底 500 两类路径均按类别选择；根路径 `/` 有独立回归（`dataset_version_for_path("/") == DEMO-OBS-V1`，且根路径兜底 500 的 `meta.dataset_version` 保持 `DEMO-OBS-V1`）。
 
 | 错误码 | HTTP | 触发场景（实测） |
 |---|---|---|
@@ -149,8 +149,8 @@ PredictionProvider:  name/dataset_version/prediction_run_id/forecast/explanation
 
 | 验证 | 命令/方式 | 结果 |
 |---|---|---|
-| 全套测试 | `python -m pytest backend/tests -q` | **90 passed**，0 failed，0 warnings（filterwarnings=error）；返工轮新增 7 例（错误数据身份五类实测 + 兜底 500 观察类/预测类各一） |
-| 实机验证 | 真实 uvicorn（127.0.0.1:8617）+ live_verify.py | **64/64 通过**：31 成功路径 + 18 错误路径（expect_error 逐例断言 dataset_version/prediction_run_id/六键 meta，新增观察类参数校验 err-mode-bogus）+ 5 并发格网 + 10 专项（代理观测/三类预警引用/五档格网多面校验等）；request_id 全局唯一 |
+| 全套测试 | `python -m pytest backend/tests -q` | **92 passed**，0 failed，0 warnings（filterwarnings=error）；原 83 项基础上累计新增 9 例——返工轮 7 例（错误数据身份五类实测 + 兜底 500 观察类/预测类各一）+ 返工终轮 2 例（根路径解析 `dataset_version_for_path("/")`、根路径兜底 500 经 Pytest 异常注入覆盖） |
+| 实机验证 | 真实 uvicorn（127.0.0.1:8617）+ live_verify.py | **64/64 通过**：31 成功路径 + 18 错误路径（expect_error 逐例断言 dataset_version/prediction_run_id/六键 meta，新增观察类参数校验 err-mode-bogus）+ 5 并发格网 + 10 专项（代理观测/三类预警引用/五档格网多面校验等）；request_id 全局唯一。根路径兜底 500 仅由 Pytest 异常注入覆盖，本脚本不制造根路径 500 |
 | OpenAPI | `app.openapi()` | 26 paths 全部生成，响应模型带 Pydantic 校验，见 openapi.json |
 | 测试清单覆盖 | 任务规格 22 项 | 全覆盖：信封/版本分配/格网尺寸/跨接口风险一致/demo_zone/404/422/T+30 阻塞/timeline 三态/无叶绿素声称/explanation 绑定/空面披露/simulated_dispatched/persisted:false/非法事件拒绝/无真实渠道/Provider 不回退/旧前端兼容/OpenAPI/零警告 |
 | 真实浏览器联调 | vite dev(5173) → 代理 8000 真实 uvicorn，逐页操作 | 五页全过：首页能力卡诚实四态；P01 T+7 排行 77/54/54/21/21 与公式一致+驱动因素 34/24/20+时间轴；P03 六分区/观测(总磷+气温代理)/质量 proxy_flag=true/T+7=77/T+30 阻塞文案/模拟预警 simulated_dispatched(platform_simulation)；P07 11×19+209 格+阈值文案+热点排行 R04-C07=87+格详情绑定 DEMO-RUN-V1+历史/当前/导出按钮诚实禁用；History 6 事件双源同 ID 合并+证据边界"接口未提供"+4 帧回放+模拟发送"未形成持久化处置记录" |

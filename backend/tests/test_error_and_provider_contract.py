@@ -377,6 +377,28 @@ def test_unhandled_error_on_prediction_path_returns_pred_version(
     )
 
 
+# ---- 14d. 根路径 / 属观察类：解析与兜底 500 均为 OBS 版本 ----
+def test_dataset_version_for_path_root_is_observation() -> None:
+    from backend.app.contracts import OBSERVATION_VERSION, dataset_version_for_path
+
+    assert dataset_version_for_path("/") == OBSERVATION_VERSION
+
+
+def test_unhandled_error_on_root_path_returns_obs_version(
+    monkeypatch: pytest.MonkeyPatch, silent_client: TestClient
+) -> None:
+    import backend.app.contracts as contracts
+
+    monkeypatch.setattr(contracts, "envelope", _boom)
+    body = assert_error_envelope(
+        silent_client.get("/").json(),
+        status=500,
+        code="INTERNAL_ERROR",
+        dataset_version=OBS_VERSION,
+    )
+    assert body["message"] == "服务内部错误"
+
+
 # ---- 15. Provider 边界：配置未实现实现时拒绝启动/静默回退 ----
 def test_provider_defaults_to_simulated_explicitly() -> None:
     from backend.app.providers import create_observation_provider, create_prediction_provider
