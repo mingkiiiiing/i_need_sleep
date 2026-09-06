@@ -19,7 +19,11 @@ from .contracts import (
     MAX_TIMELINE_SPAN_DAYS,
     CLAIM_BOUNDARY,
     DATA_MODE,
+    OBSERVED_DATA_MODE,
+    REALTIME_CLAIM_BOUNDARY,
+    REALTIME_VERSION,
     envelope,
+    observed_envelope,
 )
 from .errors import (
     capability_unavailable,
@@ -29,8 +33,10 @@ from .errors import (
     invalid_event_id,
     invalid_horizon,
     query_range_too_large,
+    realtime_data_unavailable,
     simulation_only,
 )
+from .providers import RealtimeDataUnavailable
 from .services import service
 
 router = APIRouter(prefix="/api/v1")
@@ -49,6 +55,49 @@ def _ok(request: Request, data: Any, dataset_version: str, *, run: bool = False)
         dataset_version=dataset_version,
         prediction_run_id=PREDICTION_RUN_ID if run else None,
     )
+
+
+# ---- 实时观测轨（observed）辅助 ----
+
+
+def _is_realtime_entity(entity_id: str) -> bool:
+    return entity_id.startswith("mee-")
+
+
+def _observed_as_of() -> str:
+    try:
+        return service.realtime.as_of() or REALTIME_VERSION
+    except Exception:  # noqa: BLE001 — meta 展示字段不得因数据层异常失败
+        return REALTIME_VERSION
+
+
+def _observed_call(request: Request, fn, *args, **kwargs) -> dict[str, Any]:
+    """执行实时轨取数：无数据 → 409 REALTIME_DATA_UNAVAILABLE（禁止回退模拟）。
+
+    错误信封同样分轨：data_mode=observed + 实时 claim_boundary + 数据 as_of。
+    """
+    track = {
+        "data_mode": OBSERVED_DATA_MODE,
+        "claim_boundary": REALTIME_CLAIM_BOUNDARY,
+        "as_of": _observed_as_of(),
+    }
+    try:
+        data = fn(*args, **kwargs)
+    except RealtimeDataUnavailable as exc:
+        raise realtime_data_unavailable(
+            "实时观测数据不可用：从未成功抓取；页面必须显式提示不可用",
+            detail=str(exc),
+            dataset_version=REALTIME_VERSION,
+            **track,
+        ) from exc
+    except KeyError as exc:
+        raise entity_not_found(
+            "实时站点不存在",
+            dataset_version=REALTIME_VERSION,
+            detail=f"spatial_entity_id={exc.args[0]!r} 不在 MEE 实时站点目录中",
+            **track,
+        ) from exc
+    return observed_envelope(request, data, dataset_version=REALTIME_VERSION, as_of=_observed_as_of())
 
 
 def _require_entity(entity_id: str, *, dataset_version: str) -> None:
@@ -107,22 +156,58 @@ def get_dashboard_overview(request: Request, mode: Literal["historical", "simula
 # ---------- 空间对象与观测（P03 / P07 / 历史复盘共用） ----------
 
 
-@router.get("/spatial-entities", response_model=schemas.Envelope[list[schemas.SpatialEntity]])
+@router.get(
+    "/spatial-entities",
+    response_model=schemas.Envelope[list[schemas.SpatialEntity | schemas.MonitoringStation]],
+)
 def list_spatial_entities(
     request: Request,
     entity_type: str | None = None,
     mode: Literal["observed", "simulated"] = "simulated",
+    active: Literal["latest", "all"] = "latest",
+    province: str | None = None,
+    location_status: Literal["verified", "metadata_only", "suspicious", "missing"] | None = None,
 ):
     if mode == "observed":
-        raise simulation_only(
-            "真实站点与历史观测尚未接入业务 API；当前仅提供 demo_zone 演示分区",
-            dataset_version=OBSERVATION_VERSION,
+        if entity_type and entity_type != "monitoring_station":
+            return _ok(request, [], OBSERVATION_VERSION)
+        return _observed_call(
+            request,
+            service.realtime_stations,
+            active=active,
+            province=province,
+            location_status=location_status,
         )
     return _ok(request, service.spatial_entities(entity_type), OBSERVATION_VERSION)
 
 
-@router.get("/spatial-entities/{entity_id}", response_model=schemas.Envelope[schemas.SpatialEntity])
+@router.get("/realtime/status", response_model=schemas.Envelope[schemas.RealtimeStatus])
+def get_realtime_status(request: Request):
+    return _observed_call(request, service.realtime_status)
+
+
+@router.get("/realtime/summary", response_model=schemas.Envelope[schemas.RealtimeSummary])
+def get_realtime_summary(request: Request, snapshot: str | None = None):
+    """全湖实时汇总（驾驶舱）：类别分布、蓝藻筛查预警、均值/短期趋势、透明加权健康分、地图点位。
+
+    snapshot 参数用于真实快照回放（默认最新）。
+    """
+    return _observed_call(request, service.realtime_summary, snapshot)
+
+
+@router.get("/realtime/timeline", response_model=schemas.Envelope[schemas.RealtimeTimeline])
+def get_realtime_timeline(request: Request):
+    """快照时间轴：每个成功快照的聚合状态，驱动驾驶舱回放条。"""
+    return _observed_call(request, service.realtime_timeline)
+
+
+@router.get(
+    "/spatial-entities/{entity_id}",
+    response_model=schemas.Envelope[schemas.SpatialEntity | schemas.MonitoringStation],
+)
 def get_spatial_entity(request: Request, entity_id: str):
+    if _is_realtime_entity(entity_id):
+        return _observed_call(request, service.realtime_station, entity_id)
     _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
     entity = next((item for item in service.spatial_entities() if item["id"] == entity_id), None)
     return _ok(request, entity, OBSERVATION_VERSION)
@@ -130,15 +215,63 @@ def get_spatial_entity(request: Request, entity_id: str):
 
 @router.get(
     "/spatial-entities/{entity_id}/observations",
-    response_model=schemas.Envelope[list[schemas.ObservationRow]],
+    response_model=schemas.Envelope[list[schemas.ObservationRow | schemas.StationObservationRow]],
 )
-def get_observations(request: Request, entity_id: str, variable_code: str | None = None):
+def get_observations(
+    request: Request,
+    entity_id: str,
+    variable_code: str | None = None,
+    window: Literal["latest", "range"] = "latest",
+    start: str | None = None,
+    end: str | None = None,
+    variables: str | None = None,
+):
+    if _is_realtime_entity(entity_id):
+        track = {
+            "data_mode": OBSERVED_DATA_MODE,
+            "claim_boundary": REALTIME_CLAIM_BOUNDARY,
+            "as_of": _observed_as_of(),
+        }
+        if window == "range":
+            if not start or not end:
+                raise invalid_date_range(
+                    "window=range 需要 start 与 end（ISO 日期）",
+                    dataset_version=REALTIME_VERSION,
+                    **track,
+                )
+            try:
+                span = (date.fromisoformat(end) - date.fromisoformat(start)).days
+            except ValueError as exc:
+                raise invalid_date_range(f"日期格式无法解析: {exc}", dataset_version=REALTIME_VERSION, **track) from exc
+            if span < 0:
+                raise invalid_date_range("start 晚于 end", dataset_version=REALTIME_VERSION, **track)
+            if span > MAX_TIMELINE_SPAN_DAYS:
+                raise query_range_too_large(
+                    f"查询跨度超过上限 {MAX_TIMELINE_SPAN_DAYS} 天",
+                    dataset_version=REALTIME_VERSION,
+                    **track,
+                )
+        variable_list = [item.strip() for item in variables.split(",") if item.strip()] if variables else None
+        return _observed_call(
+            request,
+            service.realtime_observations,
+            entity_id,
+            window=window,
+            start=start,
+            end=end,
+            variables=variable_list,
+        )
     _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
     return _ok(request, service.observation.observations(entity_id, variable_code), OBSERVATION_VERSION)
 
 
-@router.get("/spatial-entities/{entity_id}/quality", response_model=schemas.Envelope[schemas.QualityReport])
+@router.get(
+    "/spatial-entities/{entity_id}/quality",
+    response_model=schemas.Envelope[schemas.QualityReport | schemas.StationQuality],
+)
 def get_quality(request: Request, entity_id: str):
+    if _is_realtime_entity(entity_id):
+        return _observed_call(request, service.realtime_quality, entity_id)
     _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
     return _ok(request, service.observation.quality(entity_id), OBSERVATION_VERSION)
 

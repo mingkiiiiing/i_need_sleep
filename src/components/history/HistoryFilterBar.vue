@@ -25,8 +25,8 @@
         <option v-for="t in options.types" :key="t" :value="t">{{ typeText(t) }}</option>
       </select>
 
-      <span class="hfb-label">演示分区</span>
-      <select v-model="draftModel.p" class="hfb-input" data-role="filter-zone" aria-label="演示分区">
+      <span class="hfb-label">情景分区</span>
+      <select v-model="draftModel.p" class="hfb-input" data-role="filter-zone" aria-label="情景分区">
         <option value="">全部分区</option>
         <option v-for="z in options.zones" :key="z.id" :value="z.id">{{ z.label }}</option>
       </select>

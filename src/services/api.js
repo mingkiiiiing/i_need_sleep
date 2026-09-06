@@ -1,5 +1,5 @@
 // 驾驶舱 API 统一入口。开发服务器将 /api 代理到本地 FastAPI。
-// 页面全部读取同一份、可追溯的 P0 演示数据：不做接口失败时的数据源切换，
+// 页面全部读取同一份、可追溯的 P0 情景数据：不做接口失败时的数据源切换，
 // 失败一律进入各页面的错误态与重试流程。
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
@@ -58,10 +58,45 @@ export function getDatasetsSummaryEnvelope() {
   return requestEnvelope('/datasets/summary')
 }
 
-// ---------- P03 监测站点研判（demo_zone 演示分区） ----------
+// ---------- P03 监测站点研判（demo_zone 情景分区） ----------
 
 export function getSpatialEntities(entityType = 'demo_zone') {
   return requestEnvelope(`/spatial-entities?entity_type=${encodeURIComponent(entityType)}&mode=simulated`)
+}
+
+// ---------- 实时观测轨（observed；MEE 国控站点，2026-09-06 大任务1/2） ----------
+// 双轨隔离：本组函数只访问 observed 轨；页面展示层禁止把两轨数据合并成“真实实时预测”。
+
+export function getRealtimeStatusEnvelope() {
+  return requestEnvelope('/realtime/status')
+}
+
+export function getRealtimeSummaryEnvelope(snapshotId) {
+  const query = snapshotId ? `?snapshot=${encodeURIComponent(snapshotId)}` : ''
+  return requestEnvelope(`/realtime/summary${query}`)
+}
+
+export function getRealtimeTimelineEnvelope() {
+  return requestEnvelope('/realtime/timeline')
+}
+
+export function getRealtimeStationsEnvelope({ province, locationStatus } = {}) {
+  const query = new URLSearchParams({ mode: 'observed', active: 'latest' })
+  if (province) query.set('province', province)
+  if (locationStatus) query.set('location_status', locationStatus)
+  return requestEnvelope(`/spatial-entities?${query.toString()}`)
+}
+
+export function getStationObservationsEnvelope(entityId, { window = 'latest', start, end, variables } = {}) {
+  const query = new URLSearchParams({ window })
+  if (start) query.set('start', start)
+  if (end) query.set('end', end)
+  if (variables && variables.length) query.set('variables', variables.join(','))
+  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/observations?${query.toString()}`)
+}
+
+export function getStationQualityEnvelope(entityId) {
+  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/quality`)
 }
 
 export function getEntityObservations(entityId) {
@@ -94,7 +129,7 @@ export function getTimelineEnvelope(start, end) {
   return requestEnvelope(`/cockpit/timeline?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
 }
 
-// ---------- P07 风险地图与时空推演（map / capabilities / 模拟预警处理） ----------
+// ---------- P07 风险地图与时空推演（map / capabilities / 情景预警处理） ----------
 
 export function getMapLayersEnvelope() {
   return requestEnvelope('/map/layers')

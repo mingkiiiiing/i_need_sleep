@@ -17,7 +17,15 @@ from .contracts import (
     PREDICTION_VERSION,
     risk_level,
 )
-from .providers import ObservationProvider, PredictionProvider, create_observation_provider, create_prediction_provider
+from .providers import (
+    MeeRealtimeObservationProvider,
+    ObservationProvider,
+    PredictionProvider,
+    RealtimeDataUnavailable,
+    create_observation_provider,
+    create_prediction_provider,
+    create_realtime_observation_provider,
+)
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
 _STAGE_DAYS = (1, 3, 7, 15, 30)
@@ -25,9 +33,76 @@ _RISK_DEMO_TEXT = {"high": "红色演示", "mid": "橙色演示", "low": "绿色
 
 
 class BackendService:
-    def __init__(self, observation: ObservationProvider, prediction: PredictionProvider) -> None:
+    def __init__(
+        self,
+        observation: ObservationProvider,
+        prediction: PredictionProvider,
+        realtime: MeeRealtimeObservationProvider | None = None,
+    ) -> None:
         self.observation = observation
         self.prediction = prediction
+        # 双轨：simulated 演示轨 + observed 实时轨；两轨数据永不混合
+        self.realtime = realtime
+
+    # ---- 实时观测轨（observed） ----
+
+    def realtime_status(self) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        return self.realtime.status()
+
+    def realtime_summary(self, snapshot_id: str | None = None) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        return self.realtime.summary(snapshot_id)
+
+    def realtime_timeline(self) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        return self.realtime.snapshot_timeline()
+
+    def realtime_stations(
+        self,
+        *,
+        active: str | None = None,
+        province: str | None = None,
+        location_status: str | None = None,
+    ) -> list[dict[str, Any]]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        return self.realtime.stations(active=active, province=province, location_status=location_status)
+
+    def realtime_station(self, entity_id: str) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        station = self.realtime.station(entity_id)
+        if station is None:
+            raise KeyError(entity_id)
+        return station
+
+    def realtime_observations(
+        self,
+        entity_id: str,
+        *,
+        window: str = "latest",
+        start: str | None = None,
+        end: str | None = None,
+        variables: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        rows = self.realtime.observations(entity_id, window=window, start=start, end=end, variables=variables)
+        if rows is None:
+            raise KeyError(entity_id)
+        return rows
+
+    def realtime_quality(self, entity_id: str) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        quality = self.realtime.quality(entity_id)
+        if quality is None:
+            raise KeyError(entity_id)
+        return quality
 
     # ---- Provider 身份（启动日志与能力披露共用） ----
     def provider_status(self) -> dict[str, str]:
@@ -35,6 +110,15 @@ class BackendService:
             "observation_provider": self.observation.name(),
             "prediction_provider": self.prediction.name(),
         }
+
+    def _realtime_capability(self) -> str:
+        if self.realtime is None:
+            return "not_configured"
+        try:
+            available = bool(self.realtime.status().get("available"))
+        except Exception:  # noqa: BLE001 — 能力披露不得因数据层异常而失败
+            return "not_configured"
+        return "observed_track_available" if available else "observed_track_no_data"
 
     # ---- 首页 ----
     def capabilities(self) -> dict[str, Any]:
@@ -49,6 +133,8 @@ class BackendService:
                 "satellite_chlorophyll": "experimental_not_operational",
                 "real_time_warning_dispatch": "not_enabled",
                 "demo_warning_dispatch": "available",
+                # 实时观测轨（observed）：与 simulated 演示轨双轨隔离，状态如实披露
+                "realtime_observation": self._realtime_capability(),
             },
             "blockers": [
                 {
@@ -279,4 +365,8 @@ class BackendService:
 
 
 _observation_provider = create_observation_provider()
-service = BackendService(_observation_provider, create_prediction_provider(_observation_provider))
+service = BackendService(
+    _observation_provider,
+    create_prediction_provider(_observation_provider),
+    create_realtime_observation_provider(),
+)

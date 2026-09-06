@@ -7,7 +7,6 @@
 
     <div class="app-main">
       <AppTopBar ref="topBarRef" :open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
-      <DataContextBar />
 
       <div v-if="!routeUi.errorPath" id="main-content" class="app-content" tabindex="-1">
         <slot />
@@ -35,7 +34,6 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppSidebar from '../components/common/AppSidebar.vue'
 import AppTopBar from '../components/common/AppTopBar.vue'
-import DataContextBar from '../components/common/DataContextBar.vue'
 import StatePanel from '../components/common/StatePanel.vue'
 import { routeUi } from '../stores/routeUi.js'
 

@@ -20,7 +20,7 @@
 
     <div ref="mapContainerRef" class="leaflet-map-container"></div>
 
-    <footer class="map-footer">
+    <footer v-if="showLegend" class="map-footer">
       <div class="legend-row">
         <span><span class="legend-dot high"></span>红色预警</span>
         <span><span class="legend-dot mid"></span>橙色关注</span>
@@ -50,6 +50,8 @@ const props = defineProps({
   // P01 图层开关：站点标注 / 风险面。默认开启，不影响既有页面行为
   pointsVisible: { type: Boolean, default: true },
   heatVisible: { type: Boolean, default: true },
+  // 底部风险图例（情景风险语义）。实时轨页面传入 false，用各自的业务图例替代
+  showLegend: { type: Boolean, default: true },
   // P01 允许风险面在地形图层同样显示（默认保持“仅卫星图层”的旧行为）
   heatAllLayers: { type: Boolean, default: false },
   // 外部递增触发：回到默认视野 + 重试瓦片
@@ -94,7 +96,8 @@ function riskColors() {
 function createMarkerIcon(point, isActive) {
   const riskClass = point.riskClass || 'low'
   const colors = riskColors()
-  const color = colors[riskClass] || colors.low
+  // point.color 允许调用方按业务语义覆盖默认风险配色（实时站点按 chla 着色等）
+  const color = point.color || colors[riskClass] || colors.low
   const dotSize = isActive ? 20 : 14
   const ringSize = isActive ? 36 : 26
 
@@ -117,14 +120,16 @@ function createMarkerIcon(point, isActive) {
     root.appendChild(pulse)
   }
 
-  const label = document.createElement('div')
-  label.className = 'lake-marker-label'
-  const code = document.createElement('strong')
-  code.textContent = point.short || ''
-  const name = document.createElement('span')
-  name.textContent = point.name || ''
-  label.append(code, name)
-  root.appendChild(label)
+  if (!point.hideLabel) {
+    const label = document.createElement('div')
+    label.className = 'lake-marker-label'
+    const code = document.createElement('strong')
+    code.textContent = point.short || ''
+    const name = document.createElement('span')
+    name.textContent = point.name || ''
+    label.append(code, name)
+    root.appendChild(label)
+  }
 
   return L.divIcon({
     className: 'lake-marker-wrapper',
@@ -183,7 +188,7 @@ async function initMap() {
     center: LAKE_CENTER,
     zoom: DEFAULT_ZOOM,
     zoomControl: true,
-    attributionControl: true,
+    attributionControl: false,
     // 锁定在太湖流域，拖拽不会超出边界 → 区域外瓦片不会加载
     maxBounds: LAKE_BOUNDS,
     maxBoundsViscosity: 1.0,
@@ -290,6 +295,13 @@ function addMarkers() {
     marker.on('click', () => {
       emit('update:modelValue', point.id)
     })
+
+    if (point.tooltipNode) {
+      // HTMLElement 悬停卡（由调用方用 textContent 填充，防注入）
+      marker.bindTooltip(point.tooltipNode, { direction: 'top', offset: [0, -14], className: 'rc-tip-host' })
+    } else if (point.tooltip) {
+      marker.bindTooltip(point.tooltip, { direction: 'top', offset: [0, -14] })
+    }
 
     marker.addTo(map)
     markers.push({ id: point.id, marker })

@@ -13,17 +13,17 @@
       >
         <header class="dlg-head">
           <span class="dlg-glyph" aria-hidden="true">⚠</span>
-          <h3 id="stn-dlg-title">确认发起模拟预警（演示）</h3>
+          <h3 id="stn-dlg-title">确认发起情景预警（情景）</h3>
         </header>
         <div id="stn-dlg-desc" class="dlg-body">
           <p>
-            即将对演示分区 <b class="mono">{{ zoneName }}</b> 执行<b>模拟预警处理</b>。
+            即将对情景分区 <b class="mono">{{ zoneName }}</b> 执行<b>情景预警处理</b>。
           </p>
           <p class="dlg-warn-line">
-            这只是系统演示流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员；处理记录仅标记为
+            这只是系统情景流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员；处理记录仅标记为
             <b class="mono">simulated_dispatched</b>。
           </p>
-          <p class="dlg-note">所有数据均为演示用模拟数据，不用于任何实际决策。</p>
+          <p class="dlg-note">所有数据均为情景用情景数据，不用于任何实际决策。</p>
         </div>
         <p v-if="error" class="dlg-error" role="alert">调用失败：{{ error }}</p>
         <footer class="dlg-foot">

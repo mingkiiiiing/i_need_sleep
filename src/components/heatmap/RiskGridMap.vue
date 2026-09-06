@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapContainerRef" class="hm-map" role="application" aria-label="太湖演示风险格网地图"></div>
+  <div ref="mapContainerRef" class="hm-map" role="application" aria-label="太湖情景风险格网地图"></div>
 </template>
 
 <script setup>
@@ -19,6 +19,8 @@ const props = defineProps({
   gridVisible: { type: Boolean, default: true },
   pointsVisible: { type: Boolean, default: true },
   labelsVisible: { type: Boolean, default: true },
+  // 拓展图层：预警范围凸包示意（虚线多边形，[[lat,lon],...]）
+  overlayLatlngs: { type: Array, default: () => [] },
   basemap: { type: String, default: 'satellite' }
 })
 
@@ -30,6 +32,7 @@ let satelliteLayer = null
 let topoLayer = null
 let labelsLayer = null
 let gridLayer = null
+let overlayLayer = null
 let markers = []
 let resizeObserver = null
 let tileErrorCount = 0
@@ -85,6 +88,8 @@ function createZoneIcon(point, isActive) {
   root.className = `hm-zone-marker${isActive ? ' is-active' : ''} lv-${point.level || 'low'}`
   const dot = document.createElement('span')
   dot.className = 'hm-zone-dot'
+  // point.color：业务语义配色覆盖（实时观测按 chla 筛查着色）
+  if (point.color) dot.style.background = point.color
   const label = document.createElement('span')
   label.className = 'hm-zone-label'
   const code = document.createElement('strong')
@@ -92,7 +97,8 @@ function createZoneIcon(point, isActive) {
   const name = document.createElement('span')
   name.textContent = point.name || ''
   label.append(code, name)
-  root.append(dot, label)
+  root.append(dot)
+  if (!point.hideLabel) root.append(label)
   return L.divIcon({ className: 'hm-zone-wrapper', html: root, iconSize: [0, 0], iconAnchor: [0, 0] })
 }
 
@@ -102,7 +108,7 @@ function initMap() {
     center: MAP_CENTER,
     zoom: DEFAULT_ZOOM,
     zoomControl: true,
-    attributionControl: true,
+    attributionControl: false,
     maxBounds: MAP_BOUNDS,
     maxBoundsViscosity: 1.0,
     scrollWheelZoom: true,
@@ -112,7 +118,7 @@ function initMap() {
     touchZoom: true,
     dragging: true
   })
-  map.setView(MAP_CENTER, DEFAULT_ZOOM, { animate: false })
+  fitLake()
 
   const tileBounds = L.latLngBounds(MAP_BOUNDS)
   satelliteLayer = L.tileLayer(
@@ -134,6 +140,7 @@ function initMap() {
 
   addMarkers()
   renderGrid()
+  renderOverlay()
 
   setTimeout(() => map && map.invalidateSize(), 200)
   resizeObserver = new ResizeObserver(() => map && map.invalidateSize())
@@ -164,7 +171,19 @@ function retryTiles() {
       layer.addTo(map)
     }
   })
-  map.setView(MAP_CENTER, DEFAULT_ZOOM)
+  fitLake()
+}
+
+// 初始/重置视野：自动缩放至情景格网全范围，保证太湖全湖完整可见
+function fitLake() {
+  if (!map) return
+  map.fitBounds(
+    [
+      [GRID_BOUNDS.south, GRID_BOUNDS.west],
+      [GRID_BOUNDS.north, GRID_BOUNDS.east]
+    ],
+    { padding: [10, 10], animate: false }
+  )
 }
 
 function applyBasemap(mode) {
@@ -195,9 +214,30 @@ function addMarkers() {
       zIndexOffset: point.id === props.selectedPoint ? 1000 : 0
     })
     marker.on('click', () => emit('select-point', point.id))
+    if (point.tooltip) {
+      marker.bindTooltip(point.tooltip, { direction: 'top', offset: [0, -12] })
+    }
     marker.addTo(map)
     markers.push({ id: point.id, marker })
   })
+}
+
+function renderOverlay() {
+  if (!map) return
+  if (overlayLayer) {
+    map.removeLayer(overlayLayer)
+    overlayLayer = null
+  }
+  const pts = props.overlayLatlngs
+  if (!Array.isArray(pts) || pts.length < 3) return
+  overlayLayer = L.polygon(pts, {
+    color: '#ff6b6b',
+    weight: 2,
+    dashArray: '6 6',
+    fillColor: '#ff6b6b',
+    fillOpacity: 0.08,
+    interactive: false
+  }).addTo(map)
 }
 
 function updateMarkerStates() {
@@ -267,6 +307,7 @@ watch(() => props.grid, () => renderGrid())
 watch(() => [props.gridVisible, props.renderMode], () => renderGrid())
 watch(() => props.selectedCell, () => refreshSelection())
 watch(() => props.points, () => addMarkers(), { deep: true })
+watch(() => props.overlayLatlngs, () => renderOverlay(), { deep: true })
 watch(() => props.selectedPoint, () => updateMarkerStates())
 watch(() => props.pointsVisible, (on) => {
   if (!map) return

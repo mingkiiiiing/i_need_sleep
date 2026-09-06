@@ -18,6 +18,7 @@ FORECAST_NOT_AVAILABLE = "FORECAST_NOT_AVAILABLE"  # 409 预测记录存在但�
 CAPABILITY_UNAVAILABLE = "CAPABILITY_UNAVAILABLE"  # 409 能力阻塞（如 30—90 天预测未就绪）
 INVALID_EVENT_ID = "INVALID_EVENT_ID"              # 422 事件/演示对象引用不存在
 SIMULATION_ONLY = "SIMULATION_ONLY"                # 409 请求真实数据/正式能力，当前仅提供模拟演示
+REALTIME_DATA_UNAVAILABLE = "REALTIME_DATA_UNAVAILABLE"  # 409 实时观测轨从未成功抓取（禁止回退模拟数据）
 REQUEST_VALIDATION_FAILED = "REQUEST_VALIDATION_FAILED"  # 422 参数类型/格式不合法（兜底）
 INTERNAL_ERROR = "INTERNAL_ERROR"                  # 500 兜底
 
@@ -25,7 +26,11 @@ _DATASET_VERSION_KEY = "_dataset_version"
 
 
 class ApiError(HTTPException):
-    """携带稳定错误码的 HTTPException；detail 由异常处理器渲染为统一信封。"""
+    """携带稳定错误码的 HTTPException；detail 由异常处理器渲染为统一信封。
+
+    data_mode/claim_boundary/as_of 用于实时观测轨（observed）错误响应的
+    双轨隔离：缺省渲染为 simulated 演示轨口径，与既有行为完全一致。
+    """
 
     def __init__(
         self,
@@ -36,7 +41,15 @@ class ApiError(HTTPException):
         field: str | None = None,
         detail: str | None = None,
         dataset_version: str = "",
+        data_mode: str | None = None,
+        claim_boundary: str | None = None,
+        as_of: str | None = None,
     ) -> None:
+        track = {
+            key: value
+            for key, value in (("data_mode", data_mode), ("claim_boundary", claim_boundary), ("as_of", as_of))
+            if value is not None
+        }
         super().__init__(
             status_code=status_code,
             detail={
@@ -45,6 +58,7 @@ class ApiError(HTTPException):
                 "field": field,
                 "detail": detail or message,
                 _DATASET_VERSION_KEY: dataset_version,
+                "_track": track,
             },
         )
 
@@ -57,23 +71,24 @@ def error_detail(exc: HTTPException) -> dict[str, Any]:
         "field": detail.get("field"),
         "detail": detail.get("detail", detail.get("message", "请求未能完成")),
         "dataset_version": detail.get(_DATASET_VERSION_KEY, ""),
+        "track": detail.get("_track") or {},
     }
 
 
-def invalid_date_range(message: str, *, field: str | None = None, detail: str | None = None, dataset_version: str = "") -> ApiError:
-    return ApiError(status_code=422, code=INVALID_DATE_RANGE, message=message, field=field, detail=detail, dataset_version=dataset_version)
+def invalid_date_range(message: str, *, field: str | None = None, detail: str | None = None, dataset_version: str = "", data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
+    return ApiError(status_code=422, code=INVALID_DATE_RANGE, message=message, field=field, detail=detail, dataset_version=dataset_version, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)
 
 
-def query_range_too_large(message: str, *, field: str | None = None, detail: str | None = None, dataset_version: str = "") -> ApiError:
-    return ApiError(status_code=422, code=QUERY_RANGE_TOO_LARGE, message=message, field=field, detail=detail, dataset_version=dataset_version)
+def query_range_too_large(message: str, *, field: str | None = None, detail: str | None = None, dataset_version: str = "", data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
+    return ApiError(status_code=422, code=QUERY_RANGE_TOO_LARGE, message=message, field=field, detail=detail, dataset_version=dataset_version, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)
 
 
 def invalid_horizon(message: str, *, field: str = "horizon_days", detail: str | None = None, dataset_version: str = "") -> ApiError:
     return ApiError(status_code=422, code=INVALID_HORIZON, message=message, field=field, detail=detail, dataset_version=dataset_version)
 
 
-def entity_not_found(message: str, *, dataset_version: str, detail: str | None = None) -> ApiError:
-    return ApiError(status_code=404, code=ENTITY_NOT_FOUND, message=message, dataset_version=dataset_version, detail=detail)
+def entity_not_found(message: str, *, dataset_version: str, detail: str | None = None, data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
+    return ApiError(status_code=404, code=ENTITY_NOT_FOUND, message=message, dataset_version=dataset_version, detail=detail, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)
 
 
 def forecast_not_available(message: str, *, detail: str | None = None, dataset_version: str = "") -> ApiError:
@@ -90,3 +105,7 @@ def invalid_event_id(message: str, *, detail: str | None = None, dataset_version
 
 def simulation_only(message: str, *, detail: str | None = None, dataset_version: str = "") -> ApiError:
     return ApiError(status_code=409, code=SIMULATION_ONLY, message=message, detail=detail, dataset_version=dataset_version)
+
+
+def realtime_data_unavailable(message: str, *, detail: str | None = None, dataset_version: str = "", data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
+    return ApiError(status_code=409, code=REALTIME_DATA_UNAVAILABLE, message=message, detail=detail, dataset_version=dataset_version, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)

@@ -8,7 +8,7 @@
           <div class="his-title-text">
             <p class="his-kicker">HISTORY · EVENT REVIEW</p>
             <h1>历史事件与处置复盘</h1>
-            <p class="his-desc">演示事件链回放，不代表真实历史灾情或正式处置档案</p>
+            <p class="his-desc">情景事件链回放，不代表真实历史灾情或正式处置档案</p>
           </div>
         </div>
         <div class="his-title-right">
@@ -27,7 +27,7 @@
             disabled
             aria-disabled="true"
             title="导出能力规划在 P2 阶段接入，当前未接入"
-          >导出演示记录 · P2/未接入</button>
+          >导出情景记录 · P2/未接入</button>
         </div>
       </header>
 
@@ -49,10 +49,10 @@
 
       <!-- ===== 主体 38% / 62% ===== -->
       <div class="his-main">
-        <aside class="his-panel his-list" aria-label="演示事件列表">
+        <aside class="his-panel his-list" aria-label="情景事件列表">
           <header class="his-panel-head">
             <div>
-              <p class="his-panel-kicker">EVENT LIST · 演示事件</p>
+              <p class="his-panel-kicker">EVENT LIST · 情景事件</p>
               <h2>事件列表</h2>
             </div>
             <span class="his-count">共 <b data-role="event-count">{{ filteredEvents.length }}</b> 条</span>
@@ -73,8 +73,8 @@
           <div v-if="!selectedEvent" class="his-detail-empty">
             <StatePanel
               state="empty"
-              title="未选择演示事件"
-              description="从事件列表选择一条演示事件后，这里展示事件身份、证据版本、摘要与能力边界。当前事件均为演示事件，不是真实历史水华事件。"
+              title="未选择情景事件"
+              description="从事件列表选择一条情景事件后，这里展示事件身份、证据版本、摘要与能力边界。当前事件均为情景事件，不是真实历史水华事件。"
             />
           </div>
           <HistoryEventDetail
@@ -117,7 +117,7 @@
       />
 
       <footer class="his-foot">
-        <span>数据模式 simulated · {{ identity.dataMode }} / {{ identity.datasetVersionId }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }} / {{ identity.claimBoundaryCode }} / {{ identity.claimBoundary }} · 当前事件为演示事件，非真实历史水华事件</span>
+        <span>数据模式 simulated · {{ identity.dataMode }} / {{ identity.datasetVersionId }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }} / {{ identity.claimBoundaryCode }} / {{ identity.claimBoundary }} · 当前事件为情景事件，非真实历史水华事件</span>
       </footer>
     </div>
 
@@ -153,7 +153,7 @@
             data-role="mb-warn"
             :disabled="!canWarn"
             :aria-disabled="String(!canWarn)"
-            :title="canWarn ? '发起模拟发送预警' : '仅高风险演示事件可发起模拟发送'"
+            :title="canWarn ? '发起模拟发送预警' : '仅高风险情景事件可发起模拟发送'"
             @click="openWarning"
           >{{ canWarn ? '模拟发送' : '仅高风险可发' }}</button>
         </template>
@@ -199,6 +199,9 @@
       @cancel="closeWarning"
       @confirm="confirmWarning"
     />
+
+    <!-- ===== 实时快照回放（observed 轨，独立于情景事件链） ===== -->
+    <StationReplayPanel class="his-rt-replay" />
   </main>
 </template>
 
@@ -223,6 +226,7 @@ import HistoryEventDetail from '../components/history/HistoryEventDetail.vue'
 import HistoryPlanPanel from '../components/history/HistoryPlanPanel.vue'
 import HistoryReplayBar from '../components/history/HistoryReplayBar.vue'
 import HistoryWarningDialog from '../components/history/HistoryWarningDialog.vue'
+import StationReplayPanel from '../components/stations/StationReplayPanel.vue'
 import {
   STATUS_UNAVAILABLE,
   eventTypeText,
@@ -264,7 +268,7 @@ async function fetchCaps() {
   }
 }
 
-// ---------- 演示分区 ----------
+// ---------- 情景分区 ----------
 const entities = ref([])
 const entitiesState = ref('loading')
 const zoneNames = computed(() =>
@@ -531,10 +535,10 @@ const frameSummary = computed(() => {
   if (replay.state !== 'ok' || !replay.frames.length) return ''
   const f = replay.frames[frameIndex.value]
   if (!f) return ''
-  return `${f.label} · ${f.date} · ${f.riskLevel ? severityText(f.riskLevel) + '（演示）' : '接口未提供'}`
+  return `${f.label} · ${f.date} · ${f.riskLevel ? severityText(f.riskLevel) + '（情景）' : '接口未提供'}`
 })
 
-// ---------- 模拟发送预警（仅高风险演示事件） ----------
+// ---------- 模拟发送预警（仅高风险情景事件） ----------
 const canWarn = computed(() => Boolean(selectedEvent.value && selectedEvent.value.severity === 'high'))
 const warnOpen = ref(false)
 const warnBusy = ref(false)
@@ -660,6 +664,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.his-rt-replay {
+  margin-top: 14px;
+}
 .page-history {
   max-width: 1760px;
   margin: 0 auto;

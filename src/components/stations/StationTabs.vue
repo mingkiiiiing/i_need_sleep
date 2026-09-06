@@ -27,11 +27,11 @@
     >
       <div class="tp-grid">
         <div class="tp-col">
-          <h4>模拟观测样本（接口实际返回）</h4>
-          <p v-if="!observations.length" class="stn-none">暂无数据：接口未返回该分区的模拟观测。</p>
+          <h4>情景观测样本（接口实际返回）</h4>
+          <p v-if="!observations.length" class="stn-none">暂无数据：接口未返回该分区的情景观测。</p>
           <div v-else class="stn-table-wrap">
             <table class="stn-table">
-              <caption class="sr-only">模拟观测样本明细</caption>
+              <caption class="sr-only">情景观测样本明细</caption>
               <thead>
                 <tr><th>时间</th><th>指标</th><th>数值</th><th>质量</th><th>来源</th><th>版本</th></tr>
               </thead>
@@ -52,19 +52,19 @@
           <h4>预测能力状态</h4>
           <div v-if="stageKey === 't30'" class="stn-forecast-blocked" role="note">
             <strong>30—90 天预测能力未就绪</strong>
-            <p>当前仅允许模拟预演，不提供正式预测结论</p>
+            <p>当前仅允许情景推演，不提供正式预测结论</p>
           </div>
           <template v-else-if="forecast">
             <dl class="stn-kv">
               <dt>档位</dt><dd class="stn-mono">{{ stageShortLabel }}</dd>
-              <dt>演示风险分数</dt><dd class="stn-mono">{{ forecast.risk_score }}（{{ riskTextOf(forecast.risk_level) }}）</dd>
+              <dt>情景风险分数</dt><dd class="stn-mono">{{ forecast.risk_score }}（{{ riskTextOf(forecast.risk_level) }}）</dd>
               <dt>不确定性</dt><dd class="stn-mono">{{ forecast.uncertainty ? `${forecast.uncertainty.lower} ~ ${forecast.uncertainty.upper}（${forecast.uncertainty.method}）` : '—' }}</dd>
-              <dt>provider / model</dt><dd class="stn-mono">{{ forecast.provider_type }} / {{ forecast.model_version }}（演示规则）</dd>
+              <dt>provider / model</dt><dd class="stn-mono">{{ forecast.provider_type }} / {{ forecast.model_version }}（情景规则）</dd>
               <dt>声明边界</dt><dd class="stn-mono">{{ forecast.claim_boundary }}</dd>
             </dl>
-            <p class="tp-note">仅展示当前档位的演示预测；切换 T+1 / T+3 / T+7 / T+15 可查看对应档位，T+30 无正式预测。</p>
+            <p class="tp-note">仅展示当前档位的情景推演；切换 T+1 / T+3 / T+7 / T+15 可查看对应档位，T+30 无正式预测。</p>
           </template>
-          <p v-else class="stn-none">当前档位暂无演示预测。</p>
+          <p v-else class="stn-none">当前档位暂无情景推演。</p>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@
       class="stn-tabpanel"
     >
       <header class="tp-head">
-        <h4>演示规则贡献</h4>
+        <h4>情景规则贡献</h4>
         <em class="sf-sim">simulation_only · 非真实 SHAP 解释</em>
       </header>
       <div v-if="explainState === 'loading'" class="stn-skel-mini" role="status" aria-label="解释数据加载中">
@@ -90,13 +90,13 @@
         v-else-if="explainState === 'error'"
         state="error"
         title="解释接口不可用"
-        :description="explainError || '演示规则贡献接口请求失败。算法接入状态：正式模型与真实 SHAP 解释尚未接入，当前阻塞原因见系统能力页说明。'"
+        :description="explainError || '情景规则贡献接口请求失败。算法接入状态：正式模型与真实 SHAP 解释尚未接入，当前阻塞原因见系统能力页说明。'"
       >
         <button type="button" class="stn-inline-btn" @click="$emit('retry-explain')">重试</button>
       </StatePanel>
       <template v-else-if="explanation">
         <p class="tp-note">
-          以下贡献来自后端演示规则（{{ explanation.method }}），仅用于展示解释结构，不代表真实算法归因。
+          以下贡献来自后端情景规则（{{ explanation.method }}），仅用于展示解释结构，不代表真实算法归因。
         </p>
         <ul class="drv-list">
           <li v-for="(f, i) in explanation.features" :key="f.name" class="drv-row">
@@ -116,7 +116,7 @@
           </li>
         </ul>
       </template>
-      <p v-else class="stn-none">当前档位暂无演示规则解释。</p>
+      <p v-else class="stn-none">当前档位暂无情景规则解释。</p>
     </div>
 
     <!-- Tab 3：数据质量 -->
@@ -156,7 +156,7 @@
             <dt>数据模式</dt><dd class="stn-mono">simulated</dd>
             <dt>统一基准时间</dt><dd class="stn-mono">{{ asOf || '—' }}</dd>
           </dl>
-          <p class="tp-note">以上字段为接口返回的原始口径，未在前端做二次加工；数据仅用于联调演示。</p>
+          <p class="tp-note">以上字段为接口返回的原始口径，未在前端做二次加工；数据仅用于联调情景。</p>
         </div>
       </div>
     </div>

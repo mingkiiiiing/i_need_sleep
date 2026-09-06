@@ -51,6 +51,9 @@ def test_registry_marks_runtime_and_pending_sources_without_claiming_unimplement
     assert by_id["earth_search_sentinel2_l2a"]["automation_status"] == "runtime_verified"
     assert by_id["zenodo_taihu_insitu_10434391"]["automation_status"] == "runtime_verified"
     assert by_id["open_meteo_ecmwf_seas5"]["automation_status"] == "runtime_verified"
+    # 2026-09-06：MEE 实时采集与 CLMS 目录每日抓取均已实现并注册计划任务
+    assert by_id["mee_surface_water_realtime"]["automation_status"] == "implemented_realtime_snapshot"
+    assert by_id["clms_lwq_catalog"]["automation_status"] == "implemented_realtime_snapshot"
     assert all(
         row["automation_status"] == "registry_only_not_implemented"
         for row in registry
@@ -67,5 +70,7 @@ def test_registry_marks_runtime_and_pending_sources_without_claiming_unimplement
             "earth_search_sentinel2_l2a",
             "zenodo_taihu_insitu_10434391",
             "open_meteo_ecmwf_seas5",
+            "mee_surface_water_realtime",
+            "clms_lwq_catalog",
         }
     )

@@ -19,7 +19,7 @@ function resolveInitialTheme() {
   } catch (e) {
     // localStorage 不可用（隐私模式等），忽略
   }
-  // 演示环境固定深色起步，不再跟随系统 prefers-color-scheme
+  // 情景环境固定深色起步，不再跟随系统 prefers-color-scheme
   return 'dark'
 }
 

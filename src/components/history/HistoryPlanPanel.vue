@@ -71,7 +71,7 @@ defineEmits(['retry-caps'])
 
 const CAP_ROWS = [
   { key: 'real_time_warning_dispatch', label: '真实预警发布' },
-  { key: 'demo_warning_dispatch', label: '演示预警发送' },
+  { key: 'demo_warning_dispatch', label: '情景预警发送' },
   { key: 'historical_observation', label: '历史真实观测' },
   { key: 'short_term_forecast_1_3d', label: '短临预测 1—3 天' }
 ]

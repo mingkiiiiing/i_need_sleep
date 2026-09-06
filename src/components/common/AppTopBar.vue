@@ -22,10 +22,6 @@
     </div>
 
     <div class="tb-right">
-      <span class="tb-service" title="当前为演示联调环境，无真实生产服务">
-        <span class="tb-service-dot" aria-hidden="true"></span>演示联调
-      </span>
-      <span class="tb-update" title="演示数据统一基准时间">数据基准 {{ asOfShort }}</span>
       <button
         type="button"
         class="tb-btn tb-theme"

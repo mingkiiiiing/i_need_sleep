@@ -3,8 +3,15 @@
     <section class="hmlp-sec" aria-label="图层开关">
       <h3 class="hmlp-h">图层</h3>
       <div class="hmlp-toggles" role="group" aria-label="地图图层开关">
-        <button type="button" :aria-pressed="String(gridVisible)" @click="$emit('update:gridVisible', !gridVisible)">演示风险格网</button>
-        <button type="button" :aria-pressed="String(pointsVisible)" @click="$emit('update:pointsVisible', !pointsVisible)">演示分区点位</button>
+        <button type="button" :aria-pressed="String(gridVisible)" @click="$emit('update:gridVisible', !gridVisible)">情景风险格网</button>
+        <button type="button" :aria-pressed="String(pointsVisible)" @click="$emit('update:pointsVisible', !pointsVisible)">情景分区点位</button>
+        <button
+          type="button"
+          class="hmlp-rt-toggle"
+          :class="{ 'hmlp-rt-toggle--on': realtimeVisible }"
+          :aria-pressed="String(realtimeVisible)"
+          @click="$emit('update:realtimeVisible', !realtimeVisible)"
+        >实时观测点位（observed）</button>
         <button type="button" :aria-pressed="String(labelsVisible)" @click="$emit('update:labelsVisible', !labelsVisible)">地图标签</button>
       </div>
       <div class="hmlp-basemap" role="group" aria-label="底图切换">
@@ -22,16 +29,60 @@
       </div>
     </section>
 
-    <section class="hmlp-sec" aria-label="未接入图层">
-      <h3 class="hmlp-h">未接入图层</h3>
-      <ul class="hmlp-disabled">
-        <li v-for="item in disabledLayers" :key="item.name">
-          <button type="button" disabled aria-disabled="true">
-            <span class="hmlp-dl-name">{{ item.name }}</span>
-            <span class="hmlp-dl-reason">{{ item.reason }}</span>
-          </button>
-        </li>
-      </ul>
+    <section class="hmlp-sec" aria-label="拓展图层（observed 真实数据）">
+      <h3 class="hmlp-h">拓展图层 <span class="hmlp-legend-hint">observed 真实数据</span></h3>
+      <div class="hmlp-extend">
+        <label class="hmlp-ext-row">
+          <span class="hmlp-ext-name">历史快照点位</span>
+          <select
+            class="hmlp-ext-select"
+            :value="snapshotId || ''"
+            aria-label="选择快照时间"
+            @change="$emit('update:snapshotId', $event.target.value || '')"
+          >
+            <option value="">最新快照</option>
+            <option v-for="snap in snapshotList" :key="snap.snapshot_id" :value="snap.snapshot_id">
+              {{ (snap.latest_observed_at || '').slice(5, 16).replace('T', ' ') }}
+            </option>
+          </select>
+        </label>
+        <button
+          type="button"
+          class="hmlp-ext-toggle"
+          :class="{ 'hmlp-ext-toggle--on': diffEnabled }"
+          :aria-pressed="String(diffEnabled)"
+          @click="$emit('update:diffEnabled', !diffEnabled)"
+        >
+          站点环比变化<span class="hmlp-ext-hint">相对上一快照</span>
+        </button>
+        <button
+          type="button"
+          class="hmlp-ext-toggle"
+          :class="{ 'hmlp-ext-toggle--on': polygonEnabled }"
+          :aria-pressed="String(polygonEnabled)"
+          @click="$emit('update:polygonEnabled', !polygonEnabled)"
+        >
+          预警范围示意<span class="hmlp-ext-hint">预警站凸包</span>
+        </button>
+        <p class="hmlp-legend-note">
+          环比变化：红=叶绿素 a 上升、绿=下降、灰=持平/缺测；预警范围为筛查预警站点的凸包示意（非模型风险场）。
+        </p>
+      </div>
+    </section>
+
+    <section class="hmlp-sec" aria-label="实时观测图例">
+      <details class="hmlp-legend" :open="!compact">
+        <summary>实时观测图例<span class="hmlp-legend-hint">observed · chla 筛查 μg/L</span></summary>
+        <div class="hmlp-legend-body">
+          <div class="hmlp-legend-item"><i class="lg" style="background:#5fd6a4"></i>正常 &lt;10</div>
+          <div class="hmlp-legend-item"><i class="lg" style="background:#f5b45d"></i>轻度 10–25</div>
+          <div class="hmlp-legend-item"><i class="lg" style="background:#ff6b6b"></i>中度 ≥25</div>
+          <div class="hmlp-legend-item"><i class="lg" style="background:#7d93a8"></i>未报数</div>
+          <p class="hmlp-legend-note">
+            站点来自 MEE 国控实时快照（官方观测未经跨源验证）；坐标待核验；阈值为筛查口径非监管判定。
+          </p>
+        </div>
+      </details>
     </section>
 
     <section class="hmlp-sec" aria-label="风险等级图例">
@@ -41,17 +92,33 @@
           <div class="hmlp-legend-item"><i class="lg lg-low"></i>低风险 0–44</div>
           <div class="hmlp-legend-item"><i class="lg lg-mid"></i>中风险 45–74</div>
           <div class="hmlp-legend-item"><i class="lg lg-high"></i>高风险 75–100</div>
-          <p class="hmlp-legend-note">格网分数为演示风险分数（risk_score），不是叶绿素 a 浓度。</p>
+          <p class="hmlp-legend-note">格网分数为情景风险分数（risk_score），不是叶绿素 a 浓度。</p>
         </div>
       </details>
+    </section>
+
+    <section class="hmlp-sec" aria-label="实时观测实况（observed）">
+      <h3 class="hmlp-h">实时观测实况 <span class="hmlp-legend-hint">observed · 非模拟</span></h3>
+      <template v-if="realtimeSummary">
+        <ul class="hmlp-caps">
+          <li>活跃站点：<b>{{ realtimeSummary.active_station_count ?? realtimeSummary.station_total }}</b></li>
+          <li>水质达标率（≤III 类）：<b>{{ realtimeSummary.class_iii_rate != null ? (realtimeSummary.class_iii_rate * 100).toFixed(0) + '%' : '—' }}</b></li>
+          <li>蓝藻筛查预警：<b :style="realtimeSummary.warnings?.length ? 'color: var(--risk-critical,#ff6b6b)' : ''">{{ realtimeSummary.warnings?.length ?? 0 }} 站</b></li>
+          <li>最新观测：<b>{{ (realtimeSummary.latest_observed_at || '').slice(5, 16).replace('T', ' ') || '—' }}</b></li>
+        </ul>
+        <p class="hmlp-legend-note">完整逐站观测见「监测站点」页；时间回放见「综合驾驶舱」。</p>
+      </template>
+      <ul v-else class="hmlp-caps">
+        <li>实时观测数据加载失败或不可用（不回退模拟）。</li>
+      </ul>
     </section>
 
     <section class="hmlp-sec" aria-label="能力说明">
       <h3 class="hmlp-h">能力说明</h3>
       <ul class="hmlp-caps">
         <li>历史风险层：<b>未接入</b></li>
-        <li>当前实况层：<b>未接入</b></li>
-        <li>未来风险场：<b>演示预演</b></li>
+        <li>当前实况层：<b>站点观测点位已接入（observed）</b></li>
+        <li>未来风险场：<b>情景推演</b></li>
       </ul>
       <ul v-if="capabilityRows.length" class="hmlp-cap-chips">
         <li v-for="row in capabilityRows" :key="row.label">
@@ -64,7 +131,7 @@
         能力接口请求失败
         <button type="button" class="hmlp-inline-btn" @click="$emit('retry-caps')">重试</button>
       </p>
-      <p class="hmlp-note">演示格网定位仅用于界面联调，不代表真实遥感像元边界。</p>
+      <p class="hmlp-note">情景格网定位仅用于界面联调，不代表真实遥感像元边界。</p>
     </section>
   </div>
 </template>
@@ -76,6 +143,13 @@ const props = defineProps({
   gridVisible: { type: Boolean, default: true },
   pointsVisible: { type: Boolean, default: true },
   labelsVisible: { type: Boolean, default: true },
+  realtimeVisible: { type: Boolean, default: true },
+  snapshotId: { type: String, default: '' },
+  snapshotList: { type: Array, default: () => [] },
+  diffEnabled: { type: Boolean, default: false },
+  polygonEnabled: { type: Boolean, default: false },
+  // 实时观测汇总（/realtime/summary）：驱动实况统计卡
+  realtimeSummary: { type: Object, default: null },
   basemap: { type: String, default: 'satellite' },
   // /forecast-capabilities 返回的 capabilities 映射
   capabilities: { type: Object, default: null },
@@ -84,14 +158,7 @@ const props = defineProps({
   compact: { type: Boolean, default: false }
 })
 
-defineEmits(['update:gridVisible', 'update:pointsVisible', 'update:labelsVisible', 'update:basemap', 'retry-caps'])
-
-const disabledLayers = [
-  { name: '历史水华点', reason: '未接入' },
-  { name: '扩散轨迹', reason: '未提供' },
-  { name: '风险多边形', reason: '当前接口为空' },
-  { name: '3D 模式', reason: '本阶段不实现' }
-]
+defineEmits(['update:gridVisible', 'update:pointsVisible', 'update:labelsVisible', 'update:realtimeVisible', 'update:snapshotId', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap', 'retry-caps'])
 
 const CAP_LABELS = {
   historical_observation: '历史观测',
@@ -100,7 +167,7 @@ const CAP_LABELS = {
   long_term_forecast_30_90d: '长期预测 30–90 天',
   satellite_chlorophyll: '卫星叶绿素',
   real_time_warning_dispatch: '实时预警发布',
-  demo_warning_dispatch: '演示预警发送'
+  demo_warning_dispatch: '情景预警发送'
 }
 
 const capabilityRows = computed(() => {
@@ -340,4 +407,39 @@ const capabilityRows = computed(() => {
     min-height: 44px;
   }
 }
+.hmlp-extend { display: grid; gap: 6px; }
+.hmlp-ext-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.hmlp-ext-name { font-size: 12px; color: var(--text-secondary); }
+.hmlp-ext-select {
+  min-height: 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--surface-panel-soft);
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 2px 8px;
+  width: 100%;
+}
+.hmlp-ext-toggle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-panel-soft);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.hmlp-ext-toggle--on {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+.hmlp-ext-hint { font-size: 9.5px; color: var(--text-muted); font-weight: 500; }
 </style>

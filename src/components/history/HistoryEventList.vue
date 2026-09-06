@@ -4,7 +4,7 @@
       v-if="state === 'loading'"
       state="loading"
       title="事件加载中…"
-      description="正在请求 /events 与 /cockpit/events 两个演示事件源。"
+      description="正在请求 /events 与 /cockpit/events 两个情景事件源。"
     />
     <StatePanel
       v-else-if="state === 'error'"
@@ -24,7 +24,7 @@
         class="hel-scroll"
         data-role="event-list"
         role="listbox"
-        aria-label="演示事件列表"
+        aria-label="情景事件列表"
         @keydown="onKeydown"
       >
         <section v-for="group in groups" :key="group.key" class="hel-group">

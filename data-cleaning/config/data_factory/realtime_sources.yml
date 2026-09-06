@@ -15,6 +15,9 @@ mee:
   # 上游站点自签证书：上游参考实现使用 verify=False；此处显式配置并留痕
   tls_verify: false
   warn_on_insecure_tls: true
+  # 新鲜度门禁（审计 2026-09-06）：观测时间滞后超过该小时数判定 stale，
+  # 采集状态留痕 mee_collection_status.json；观测层桥接直接剔除超龄行
+  freshness_max_lag_h: 24
 
 open_meteo_history:
   enabled: true

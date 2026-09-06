@@ -129,14 +129,88 @@ def _row(
     }
 
 
-def bridge_realtime_mee(mee_observations: pd.DataFrame, meta: dict[str, Any]) -> pd.DataFrame:
-    """MEE 实时快照 → 观测层。身份字段透传 ingestion QC 判定，不得改写为 ground truth。"""
+_MEE_BRIDGE_COLUMNS = [
+    "station_id",
+    "station_name",
+    "grid_id",
+    "observed_time",
+    "available_time",
+    "variable_code",
+    "value",
+    "unit",
+    "detection_limit",
+    "measurement_error_pct",
+    "quality_flag",
+    "missing_reason",
+    "value_type",
+    "is_ground_truth",
+    "is_synthetic",
+    "source_type",
+    "parent_record_ids",
+    "generator_version",
+    "generation_batch_id",
+    "qc_note",
+]
+
+
+def filter_mee_fresh(mee_frame: pd.DataFrame, max_lag_h: float, *, now: pd.Timestamp | None = None) -> tuple[pd.DataFrame, int]:
+    """MEE 实时观测新鲜度门禁（审计 2026-09-06）。
+
+    观测时间滞后超过 max_lag_h 的行不得作为实时观测进入观测层（missing_reason=stale
+    语义）；返回 (保留行, 剔除行数)。max_lag_h<=0 表示关闭门禁。
+    """
+
+    if mee_frame is None or mee_frame.empty or max_lag_h <= 0:
+        return mee_frame, 0
+    from data_factory.ingestion.mee_realtime import TZ_CN
+
+    obs_times = pd.to_datetime(mee_frame["observed_time"], errors="coerce")
+    obs_times = obs_times.dt.tz_localize(TZ_CN) if obs_times.dt.tz is None else obs_times.dt.tz_convert(TZ_CN)
+    cutoff = (now or pd.Timestamp.now(tz=TZ_CN)) - pd.Timedelta(hours=float(max_lag_h))
+    fresh_mask = obs_times.notna() & (obs_times >= cutoff)
+    return mee_frame[fresh_mask], int((~fresh_mask).sum())
+
+
+def bridge_realtime_mee(
+    mee_observations: pd.DataFrame,
+    meta: dict[str, Any],
+    *,
+    station_mapping: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """MEE 实时快照 → 观测层。身份字段透传 ingestion QC 判定，不得改写为 ground truth。
+
+    审计 2026-09-06 整改：station_name 保留可读站名不再清空；传入 station_mapping
+    （station_grid_mapping.csv）时按站名/站点ID 映射 grid_id，未映射站点 grid_id
+    置空并在 qc_note 留痕 station_not_mapped_to_grid，不得猜测网格。
+    """
 
     if mee_observations is None or mee_observations.empty:
-        return pd.DataFrame()
+        # 保留 schema：空桥接也带列，供下游 assembly 消费
+        return pd.DataFrame(columns=list(_MEE_BRIDGE_COLUMNS))
     frame = mee_observations.copy()
-    frame["station_name"] = None
-    frame["grid_id"] = None
+    if "station_name" not in frame.columns:
+        frame["station_name"] = None
+    frame["station_name"] = frame["station_name"].where(frame["station_name"].notna(), frame["station_id"])
+    if station_mapping is not None and not station_mapping.empty:
+        candidates = station_mapping
+        if "mapping_status" in candidates.columns:
+            candidates = candidates[candidates["mapping_status"] == "mapped"]
+        name_to_grid: dict[str, Any] = {}
+        for _, row in candidates.iterrows():
+            grid_id = row.get("grid_id")
+            if pd.isna(grid_id) or grid_id in (None, ""):
+                continue
+            for key in {str(row.get("station_name") or "").strip(), str(row.get("station_id") or "").strip()}:
+                if key:
+                    name_to_grid.setdefault(key, grid_id)
+        lookup = frame["station_name"].astype(str).str.strip()
+        frame["grid_id"] = lookup.map(name_to_grid)
+        unmapped = frame["grid_id"].isna()
+        if unmapped.any() and "qc_note" in frame.columns:
+            note = frame["qc_note"].fillna("").astype(str)
+            frame.loc[unmapped, "qc_note"] = (note[unmapped] + ";station_not_mapped_to_grid").str.lstrip(";")
+    else:
+        frame["grid_id"] = None
     frame["observed_time"] = pd.to_datetime(frame["observed_time"])
     frame["available_time"] = pd.to_datetime(frame["available_time"]) if "available_time" in frame.columns else frame["observed_time"]
     frame["detection_limit"] = None
@@ -152,32 +226,10 @@ def bridge_realtime_mee(mee_observations: pd.DataFrame, meta: dict[str, Any]) ->
     frame["parent_record_ids"] = frame[snapshot_col].astype(str) if snapshot_col else ""
     frame["generator_version"] = meta["generator_version"]
     frame["generation_batch_id"] = meta["generation_batch_id"]
-    keep = [
-        "station_id",
-        "station_name",
-        "grid_id",
-        "observed_time",
-        "available_time",
-        "variable_code",
-        "value",
-        "unit",
-        "detection_limit",
-        "measurement_error_pct",
-        "quality_flag",
-        "missing_reason",
-        "value_type",
-        "is_ground_truth",
-        "is_synthetic",
-        "source_type",
-        "parent_record_ids",
-        "generator_version",
-        "generation_batch_id",
-        "qc_note",
-    ]
-    for col in keep:
+    for col in _MEE_BRIDGE_COLUMNS:
         if col not in frame.columns:
             frame[col] = None
-    return frame[keep]
+    return frame[_MEE_BRIDGE_COLUMNS]
 
 
 def run_build_observations(
@@ -239,14 +291,21 @@ def run_build_observations(
 
     mee_path = base_dir / "realtime" / "mee_observations.parquet"
     mee_rows = pd.DataFrame()
+    mee_stale_dropped = 0
+    mee_gate_h: float | None = None
     if mee_path.exists():
-        mee_rows = bridge_realtime_mee(pd.read_parquet(mee_path), meta)
+        mee_frame = pd.read_parquet(mee_path)
+        if not mee_frame.empty:
+            # 新鲜度门禁（审计 2026-09-06）：超龄行剔除，剔除行数在 manifest 留痕
+            mee_gate_h = float(((config.get("realtime_sources") or {}).get("mee") or {}).get("freshness_max_lag_h", 24.0))
+            mee_frame, mee_stale_dropped = filter_mee_fresh(mee_frame, mee_gate_h)
+        mee_rows = bridge_realtime_mee(mee_frame, meta, station_mapping=mapping)
 
     out_dir = base_dir / "observations"
     out_dir.mkdir(parents=True, exist_ok=True)
     station_obs.to_parquet(out_dir / "station_observations.parquet", index=False)
     satellite_obs.to_parquet(out_dir / "satellite_observations.parquet", index=False)
-    if not mee_rows.empty:
+    if mee_path.exists():
         mee_rows.to_parquet(out_dir / "mee_realtime_observations.parquet", index=False)
 
     manifest = {
@@ -256,8 +315,12 @@ def run_build_observations(
         "station_obs_rows": int(len(station_obs)),
         "satellite_obs_rows": int(len(satellite_obs)),
         "mee_realtime_rows": int(len(mee_rows)),
+        "mee_stale_rows_dropped": mee_stale_dropped,
+        "mee_freshness_max_lag_h": mee_gate_h,
+        "mee_unmapped_station_rows": int(mee_rows["grid_id"].isna().sum()) if not mee_rows.empty else 0,
         "stations_used": int(mapping["station_id"].nunique()),
-        "rule": "仅真实采样日/过境日生成观测；below_detection_limit 与 instrument_missing 记 missing_reason 不造值",
+        "rule": "仅真实采样日/过境日生成观测；below_detection_limit 与 instrument_missing 记 missing_reason 不造值；"
+        "MEE 实时观测经 freshness_max_lag_h 门禁，超龄行剔除不进入观测层",
         "outputs": {
             "station_observations": str(out_dir / "station_observations.parquet"),
             "satellite_observations": str(out_dir / "satellite_observations.parquet"),

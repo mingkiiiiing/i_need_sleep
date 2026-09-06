@@ -1,4 +1,4 @@
-// P03 监测站点研判：演示分区展示口径统一入口。
+// P03 监测站点研判：情景分区展示口径统一入口。
 // 只做“展示格式化”，不制造任何接口未返回的数值或状态。
 
 export const GRID_BOUNDS = { south: 30.9, north: 31.48, west: 119.88, east: 120.38 }
@@ -77,7 +77,7 @@ export function formatValue(value) {
 }
 
 // 时间窗口（相对数据自身最新观测时间，而非墙钟时间）：
-// 演示观测样本基准为 2026-08-21，相对“现在”开窗会全部落空，因此以数据基准为锚。
+// 情景观测样本基准为 2026-08-21，相对“现在”开窗会全部落空，因此以数据基准为锚。
 export function filterByWindow(rows, windowKey) {
   if (!rows.length) return []
   const latest = rows.reduce((acc, r) => {

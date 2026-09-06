@@ -1,6 +1,7 @@
 # A23 前后端联调说明
 
-> 当前阶段：P0 模拟数据联调。接口返回的数值均为 `simulated`，只用于页面联调和答辩情景展示，不能作为实时监测、真实模型精度或监管决策依据。
+> 双轨口径（2026-09-06 起）：`simulated` 演示轨用于页面联调和答辩情景展示；`observed` 实时轨承载 MEE 国控站点
+> 官方观测（未经跨源验证，is_ground_truth=false），两轨数据永不混合。实时站点页为 `/stations`，大屏为 `/wallboard`。
 
 ## 启动
 
@@ -57,6 +58,10 @@ Vite 会将 `/api` 代理到 `http://127.0.0.1:8000`。默认前端请求 `/api/
 | `GET /map/risk-grid` | `simulated_scenario` 风险格网 |
 | `GET /events` | 演示事件 |
 | `GET /cockpit/*` | 当前驾驶舱兼容视图 |
+| `GET /realtime/status` | **实时链路状态**（observed）：抓取时间、新鲜度、活跃站点数 |
+| `GET /spatial-entities?mode=observed&active=latest` | **实时站点列表**（observed）：MEE 国控站全量摘要，支持 province / location_status 筛选 |
+| `GET /spatial-entities/{mee-*}/observations?window=latest\|range` | **站点观测**（observed）：每站固定 11 项指标状态，缺测显式（missing_reason=upstream_missing） |
+| `GET /spatial-entities/{mee-*}/quality` | **站点质量**（observed）：覆盖率、滞后、缺测清单、坐标可信度、适用性 |
 
 `/cockpit/time-stages` 中的 T+30 为模拟预演，明确不代表 30—90 天正式预测能力。
 

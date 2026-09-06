@@ -13,24 +13,24 @@
       >
         <header class="hwd-head">
           <span class="hwd-glyph" aria-hidden="true">⚠</span>
-          <h3 id="hwd-title">确认模拟发送预警（演示）</h3>
+          <h3 id="hwd-title">确认模拟发送预警（情景）</h3>
         </header>
         <div id="hwd-desc" class="hwd-body" data-role="warn-confirm-body">
           <dl class="hwd-kv">
-            <div><dt>数据模式</dt><dd>SIMULATED（simulated）</dd></div>
-            <div><dt>演示事件 ID</dt><dd class="mono">{{ eventId || '—' }}</dd></div>
-            <div><dt>演示分区</dt><dd>{{ zoneLabel || '—' }}</dd></div>
-            <div><dt>风险等级</dt><dd>{{ levelText || '—' }}（演示）</dd></div>
+            <div><dt>数据模式</dt><dd>情景推演（simulated）</dd></div>
+            <div><dt>情景事件 ID</dt><dd class="mono">{{ eventId || '—' }}</dd></div>
+            <div><dt>情景分区</dt><dd>{{ zoneLabel || '—' }}</dd></div>
+            <div><dt>风险等级</dt><dd>{{ levelText || '—' }}（情景）</dd></div>
             <div><dt>渠道</dt><dd class="mono">platform_simulation</dd></div>
             <div><dt>模板</dt><dd>接口未提供</dd></div>
             <div><dt>接收人</dt><dd>无真实接收人</dd></div>
           </dl>
           <p class="hwd-warn-line">
-            这是系统演示流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员。
+            这是系统情景流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员。
             成功后仅返回 <b class="mono">simulated_dispatched</b> 模拟状态，
             <b>不形成持久化处置记录</b>。
           </p>
-          <p class="hwd-note">当前事件为演示事件（SIMULATED · simulation_only · 非决策用途）。</p>
+          <p class="hwd-note">当前事件为情景事件（simulation_only · 非决策用途）。</p>
         </div>
         <p v-if="error" class="hwd-error" role="alert">发送失败：{{ error }}（可重试，未产生真实发送）</p>
         <footer class="hwd-foot">

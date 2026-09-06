@@ -6,7 +6,7 @@
 
     <header class="hed-head">
       <div class="hed-head-text">
-        <p class="hed-kicker">EVENT DETAIL · 演示事件详情</p>
+        <p class="hed-kicker">EVENT DETAIL · 情景事件详情</p>
         <h2 data-role="detail-title">{{ event.title || '事件标题未提供' }}</h2>
       </div>
       <span class="hed-badge" :class="severity ? `lv-${severity}` : 'lv-none'" data-role="detail-severity">
@@ -19,11 +19,11 @@
       <div><dt>事件 ID</dt><dd data-role="detail-id" class="mono">{{ event.id || '—' }}</dd></div>
       <div><dt>事件类型</dt><dd data-role="detail-type">{{ typeText || '未提供' }}</dd></div>
       <div>
-        <dt>关联演示分区</dt>
+        <dt>关联情景分区</dt>
         <dd data-role="detail-zone">
           <template v-if="zoneName">{{ zoneName }}（{{ event.spatial_entity_id }}）</template>
           <template v-else>{{ event.spatial_entity_id || '未提供' }}</template>
-          <em class="hed-zone-note">演示分区，非真实监测站</em>
+          <em class="hed-zone-note">情景分区，非真实监测站</em>
         </dd>
       </div>
       <div><dt>数据模式</dt><dd data-role="detail-mode">{{ event.data_mode || '未提供' }}</dd></div>
@@ -55,8 +55,8 @@
           class="hed-link"
           data-role="detail-link-stations"
           :to="{ path: '/stations', query: { t: stageKey, p: event.spatial_entity_id } }"
-        >查看演示分区研判 →</RouterLink>
-        <span v-else class="hed-link hed-link--off" aria-disabled="true">查看演示分区研判（缺少档位或分区）</span>
+        >查看情景分区研判 →</RouterLink>
+        <span v-else class="hed-link hed-link--off" aria-disabled="true">查看情景分区研判（缺少档位或分区）</span>
         <RouterLink
           v-if="stageKey && event.spatial_entity_id"
           class="hed-link"
@@ -68,9 +68,9 @@
     </section>
 
     <section class="hed-sec">
-      <h3>模拟发送预警（演示）</h3>
+      <h3>模拟发送预警（情景）</h3>
       <p class="hed-gate" data-role="warn-gate">
-        仅高风险演示事件可发起模拟发送；真实预警通道未启用。
+        仅高风险情景事件可发起模拟发送；真实预警通道未启用。
       </p>
       <div class="hed-actions">
         <button
@@ -82,7 +82,7 @@
           @click="$emit('open-warning')"
         >
           模拟发送预警
-          <small v-if="!canWarn">仅高风险（high）演示事件可发起</small>
+          <small v-if="!canWarn">仅高风险（high）情景事件可发起</small>
         </button>
         <button
           type="button"

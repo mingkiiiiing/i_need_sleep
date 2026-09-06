@@ -24,7 +24,7 @@ export function riskLevel(score) {
   return 'low'
 }
 
-// 与 P01/P03 相同的演示格网地理映射边界（仅用于界面联调定位，不代表真实像元边界）
+// 与 P01/P03 相同的情景格网地理映射边界（仅用于界面联调定位，不代表真实像元边界）
 export const GRID_BOUNDS = { south: 30.9, north: 31.48, west: 119.88, east: 120.38 }
 
 export function cellId(row, col) {
@@ -104,7 +104,7 @@ export function sharePct(count, total) {
   return Math.round((count / total) * 100)
 }
 
-// 两个演示场景的客户端比较：只基于两个接口返回的二维数组做差。
+// 两个情景场景的客户端比较：只基于两个接口返回的二维数组做差。
 // 不计算面积、岸线长度、迁移速度或置信区间。
 export function diffGrids(gridA, gridB) {
   const a = flattenCells(gridA)
@@ -151,7 +151,7 @@ export function buildDiffGrid(gridA, gridB) {
   })
 }
 
-// 热点位置变化：每个已加载档位的最高分格网 + 高风险格的演示格网中心索引。
+// 热点位置变化：每个已加载档位的最高分格网 + 高风险格的情景格网中心索引。
 // 只是格网索引变化，不是真实迁移轨迹或扩散速度。
 export function hotspotTrack(stageEntries) {
   return stageEntries

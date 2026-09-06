@@ -190,7 +190,11 @@ def map_stations(stations: pd.DataFrame, cells: pd.DataFrame, geom_wgs84: Any, *
         else:
             lon, lat = _num_or_none(lon_raw), _num_or_none(lat_raw)
         if not sane:
-            status, reason = "bad_coordinates", "coords_outside_taihu_domain_or_nonnumeric"
+            if lon_raw is None or lat_raw is None:
+                # 注册表未登记坐标（如 MEE 国控断面坐标待补）：如实标注，不得猜测
+                status, reason = "bad_coordinates", "coordinates_missing"
+            else:
+                status, reason = "bad_coordinates", "coords_outside_taihu_domain_or_nonnumeric"
         elif not inside:
             status, reason = "outside_boundary", "outside_lake_boundary"
         elif cell is None:
@@ -277,11 +281,11 @@ def run_freeze_grid(config: dict[str, Any], *, boundary_gpkg: Path, out_dir: Pat
                     "station_type": s.get("type", "unknown"),
                     "lon": s.get("lon"),
                     "lat": s.get("lat"),
-                    "provenance_type": "metadata_only",
-                    "registry_source": "taihugurad_stations_json",
+                    "provenance_type": s.get("provenance_type", "metadata_only"),
+                    # 透传注册表来源：taihugurad_stations_json / mee_gjz_realtime 等
+                    "registry_source": s.get("registry_source", "taihugurad_stations_json"),
                 }
                 for s in entries
-                if s.get("lon") is not None and s.get("lat") is not None
             ]
         )
     mapping_df = map_stations(stations, cells, geom_wgs84) if not stations.empty else pd.DataFrame(columns=["station_id", "station_name", "station_type", "lon", "lat", "grid_id", "lake_zone", "zone_code", "outside_boundary", "mapping_status", "unmapped_reason", "map_distance_m", "provenance_type", "registry_source"])

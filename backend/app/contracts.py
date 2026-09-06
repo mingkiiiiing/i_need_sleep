@@ -17,6 +17,11 @@ CLAIM_BOUNDARY = "simulation_only"
 # 演示数据统一的生成基准时间（与前端 asOfFull 一致），非服务器墙钟时间
 AS_OF = "2026-08-24T08:00:00+08:00"
 
+# ---- 实时观测轨（双轨隔离：observed 与 simulated 各自成轨，永不混合） ----
+OBSERVED_DATA_MODE = "observed"
+REALTIME_VERSION = "MEE-RT-V1"
+REALTIME_CLAIM_BOUNDARY = "official_observation_not_cross_validated"
+
 # ---- 风险阈值（0—44 低 / 45—74 中 / 75—100 高，与前端 gridCore.js 一致） ----
 RISK_THRESHOLDS = {"low": [0, 44], "mid": [45, 74], "high": [75, 100]}
 GRID_ROWS = 11
@@ -34,6 +39,7 @@ _OBSERVATION_PATHS = (
     "/api/v1/datasets",
     "/api/v1/pipeline",
     "/api/v1/spatial-entities",
+    "/api/v1/realtime",
 )
 
 
@@ -67,13 +73,21 @@ def request_id_of(request: Any) -> str:
     return request_id
 
 
-def response_meta(request: Any, *, dataset_version: str, prediction_run_id: str | None = None) -> dict[str, Any]:
+def response_meta(
+    request: Any,
+    *,
+    dataset_version: str,
+    prediction_run_id: str | None = None,
+    data_mode: str = DATA_MODE,
+    as_of: str = AS_OF,
+    claim_boundary: str = CLAIM_BOUNDARY,
+) -> dict[str, Any]:
     return {
-        "data_mode": DATA_MODE,
+        "data_mode": data_mode,
         "dataset_version": dataset_version,
         "prediction_run_id": prediction_run_id,
-        "as_of": AS_OF,
-        "claim_boundary": CLAIM_BOUNDARY,
+        "as_of": as_of,
+        "claim_boundary": claim_boundary,
         "request_id": request_id_of(request),
     }
 
@@ -84,12 +98,38 @@ def envelope(
     *,
     dataset_version: str,
     prediction_run_id: str | None = None,
+    data_mode: str = DATA_MODE,
+    as_of: str = AS_OF,
+    claim_boundary: str = CLAIM_BOUNDARY,
 ) -> dict[str, Any]:
-    """统一成功信封。meta 固定六键，任何字段不得在 data/meta 间漂移。"""
+    """统一成功信封。meta 固定六键，任何字段不得在 data/meta 间漂移。
+
+    实时观测轨经 data_mode="observed" + REALTIME_CLAIM_BOUNDARY 显式分轨，
+    与 simulated 轨共用同一信封结构。
+    """
     return {
         "code": 200,
         "message": "ok",
         "data": data,
-        "meta": response_meta(request, dataset_version=dataset_version, prediction_run_id=prediction_run_id),
+        "meta": response_meta(
+            request,
+            dataset_version=dataset_version,
+            prediction_run_id=prediction_run_id,
+            data_mode=data_mode,
+            as_of=as_of,
+            claim_boundary=claim_boundary,
+        ),
         "errors": [],
     }
+
+
+def observed_envelope(request: Any, data: Any, *, dataset_version: str = REALTIME_VERSION, as_of: str) -> dict[str, Any]:
+    """observed 轨专用信封：官方观测未经跨源验证，claim_boundary 必须如实披露。"""
+    return envelope(
+        request,
+        data,
+        dataset_version=dataset_version,
+        data_mode=OBSERVED_DATA_MODE,
+        as_of=as_of,
+        claim_boundary=REALTIME_CLAIM_BOUNDARY,
+    )

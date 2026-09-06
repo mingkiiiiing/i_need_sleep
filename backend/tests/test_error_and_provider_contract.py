@@ -268,12 +268,14 @@ def test_real_data_modes_return_409_simulation_only() -> None:
         code="SIMULATION_ONLY",
         dataset_version=PRED_VERSION,
     )
-    assert_error_envelope(
-        client.get("/api/v1/spatial-entities?mode=observed").json(),
-        status=409,
-        code="SIMULATION_ONLY",
-        dataset_version=OBS_VERSION,
-    )
+    # 2026-09-06 大任务1：observed 实时轨已接入 /spatial-entities，不再 409；
+    # 成功响应必须是 observed 信封（双轨隔离），仅当数据目录缺失时才 409 REALTIME_DATA_UNAVAILABLE
+    observed = client.get("/api/v1/spatial-entities?mode=observed")
+    assert observed.status_code == 200
+    meta = observed.json()["meta"]
+    assert meta["data_mode"] == "observed"
+    assert meta["claim_boundary"] == "official_observation_not_cross_validated"
+    assert meta["dataset_version"] == "MEE-RT-V1"
 
 
 # ---- 14b. 错误路径数据身份：观察类=OBS / 预测类=PRED（audit7 返工新增） ----
@@ -298,12 +300,12 @@ def test_observation_endpoint_business_error_carries_obs_version() -> None:
         code="ENTITY_NOT_FOUND",
         dataset_version=OBS_VERSION,
     )
-    assert_error_envelope(
-        client.get("/api/v1/spatial-entities?mode=observed").json(),
-        status=409,
-        code="SIMULATION_ONLY",
-        dataset_version=OBS_VERSION,
-    )
+    # 实时轨 404 同样保持统一信封，但 meta 按双轨隔离渲染为 observed 口径
+    realtime_404 = client.get("/api/v1/spatial-entities/mee-00000000")
+    assert realtime_404.status_code == 404
+    assert realtime_404.json()["errors"][0]["code"] == "ENTITY_NOT_FOUND"
+    assert realtime_404.json()["meta"]["data_mode"] == "observed"
+    assert realtime_404.json()["meta"]["dataset_version"] == "MEE-RT-V1"
 
 
 def test_observation_endpoint_validation_error_carries_obs_version() -> None:

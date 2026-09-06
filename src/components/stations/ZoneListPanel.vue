@@ -1,7 +1,7 @@
 <template>
   <section class="stn-block stn-list-panel" aria-label="分区搜索、筛选与列表">
     <header class="stn-sec-head">
-      <h2>演示分区</h2>
+      <h2>情景分区</h2>
       <span class="stn-sec-tag">共 {{ rows.length }} 个 · 按当前档位风险排序</span>
     </header>
 
@@ -10,7 +10,7 @@
         <input
           v-model="searchInput"
           type="search"
-          aria-label="搜索演示分区编号或名称"
+          aria-label="搜索情景分区编号或名称"
           placeholder="搜索编号 / 名称，如 NW-01"
           @input="emitSearch"
         />
@@ -43,7 +43,7 @@
       v-else-if="state === 'error'"
       state="error"
       title="分区列表加载失败"
-      description="演示分区接口请求失败，可重试加载。"
+      description="情景分区接口请求失败，可重试加载。"
     >
       <button type="button" class="stn-inline-btn" @click="$emit('retry')">重试</button>
     </StatePanel>
@@ -72,7 +72,7 @@
     </div>
 
     <div v-else class="stn-list-empty">
-      <p class="sle-title">未找到匹配的演示分区</p>
+      <p class="sle-title">未找到匹配的情景分区</p>
       <p class="sle-desc">当前搜索或筛选条件下没有分区。可调整关键词，或清除全部条件。</p>
       <button type="button" class="stn-inline-btn" @click="$emit('reset-filters')">清除搜索和筛选</button>
     </div>

@@ -12,8 +12,8 @@ export const TAIHU_OUTLINE = Object.freeze({
     'M320.7 308.3L310.3 313.4L310.8 312.8L317.4 307.5L318.1 307.2L319.1 307.3L319.4 307.3L320.2 307.8L320.7 308.3Z'
 })
 
-// 六个演示分区在真实轮廓上的展示位置（left/top 为容器百分比）。
-// 均为湖内演示位置（演示分区非真实站点），稳定对象 ID 仍以 points.js 为准。
+// 六个情景分区在真实轮廓上的展示位置（left/top 为容器百分比）。
+// 均为湖内情景位置（情景分区非真实站点），稳定对象 ID 仍以 points.js 为准。
 export const taihuZonePos = Object.freeze({
   northwest_hotspot: { left: '26.9%', top: '27.4%' },
   central_lake: { left: '35.3%', top: '55.3%' },

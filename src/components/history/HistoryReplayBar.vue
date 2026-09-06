@@ -1,15 +1,15 @@
 <template>
-  <section class="hrp" data-role="replay-panel" aria-label="演示事件回放轴">
+  <section class="hrp" data-role="replay-panel" aria-label="情景事件回放轴">
     <header class="hrp-head">
       <div>
-        <p class="hrp-kicker">REPLAY · 演示回放轴</p>
+        <p class="hrp-kicker">REPLAY · 情景回放轴</p>
         <h3>事件前 24h ← 事件时刻 → 事件后 24h → 事件后 48h</h3>
       </div>
-      <span class="hrp-flag" data-role="replay-note">按日演示序列，不是 72 小时逐时真实观测</span>
+      <span class="hrp-flag" data-role="replay-note">按日情景序列，不是 72 小时逐时真实观测</span>
     </header>
 
     <div v-if="state === 'idle'" class="hrp-state" data-role="replay-state" data-state="idle">
-      <p>从上方事件列表选择一条演示事件后，按事件日期加载回放窗口。</p>
+      <p>从上方事件列表选择一条情景事件后，按事件日期加载回放窗口。</p>
     </div>
     <div v-else-if="state === 'loading'" class="hrp-state" data-role="replay-state" data-state="loading" role="status">
       <p>回放时间轴加载中…（/cockpit/timeline）</p>
@@ -36,7 +36,7 @@
         >
           <span class="hrp-frame-label">{{ frame.label }}</span>
           <span class="hrp-frame-date">{{ frame.date || '日期未提供' }}</span>
-          <span class="hrp-frame-risk">{{ frame.riskLevel ? riskText(frame.riskLevel) + '（演示）' : '接口未提供' }}</span>
+          <span class="hrp-frame-risk">{{ frame.riskLevel ? riskText(frame.riskLevel) + '（情景）' : '接口未提供' }}</span>
         </button>
       </div>
 
@@ -84,7 +84,7 @@
       </div>
       <p class="hrp-sync" data-role="replay-sync">
         当前帧：{{ currentLabel }} · {{ currentDate || '日期未提供' }} ·
-        {{ currentRisk ? riskText(currentRisk) + '（演示风险等级）' : '该日数据接口未提供' }}。
+        {{ currentRisk ? riskText(currentRisk) + '（情景风险等级）' : '该日数据接口未提供' }}。
         播放到事件后 48h 自动停止，不循环。
       </p>
     </template>

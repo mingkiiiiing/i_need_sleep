@@ -6,15 +6,15 @@
         class="stn-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label="切换演示分区"
+        aria-label="切换情景分区"
         tabindex="-1"
         @keydown="onKeydown"
       >
         <header class="dr-head">
-          <h3>切换演示分区</h3>
+          <h3>切换情景分区</h3>
           <button ref="closeRef" type="button" class="dr-close" aria-label="关闭分区抽屉" @click="$emit('close')">×</button>
         </header>
-        <p class="dr-sub">共 {{ rows.length }} 个演示分区 · 按当前档位风险排序</p>
+        <p class="dr-sub">共 {{ rows.length }} 个情景分区 · 按当前档位风险排序</p>
         <div class="dr-list">
           <button
             v-for="row in rows"

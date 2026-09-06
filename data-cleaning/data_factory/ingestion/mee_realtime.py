@@ -7,13 +7,16 @@
 
 from __future__ import annotations
 
+import http.client
 import json
 import re
+import ssl
 import time
 import warnings
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode, urlsplit
 
 import pandas as pd
 
@@ -24,6 +27,7 @@ MEE_API_URL = "https://szzdjc.cnemc.cn:8070/GJZ/Ajax/Publish.ashx"
 MEE_RIVER_ID = "1200000000"
 SOURCE_ID = "mee_surface_water_realtime"
 TZ_CN = timezone(timedelta(hours=8))
+FRESHNESS_DEFAULT_MAX_LAG_H = 24.0
 
 # QC 物理范围（对齐 config/qc_rules.yml 物理界限；单位为 CANONICAL_CODES 规范化后单位）
 QC_RANGES: dict[str, tuple[float, float]] = {
@@ -78,10 +82,54 @@ def _extract_value(html_str: Any) -> float | None:
         return None
 
 
+def _ssl_context(verify: bool) -> ssl.SSLContext:
+    context = ssl.create_default_context()
+    if not verify:
+        # 上游站点自签证书：关闭校验但仍走 TLS；留痕见 manifest tls_verify 字段
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+    return context
+
+
+def _post_form(url: str, params: dict[str, Any], *, timeout: float, verify: bool) -> tuple[int, dict[str, str], bytes]:
+    """标准库 http.client POST 表单。
+
+    实测（2026-09-06）：urllib3 2.5.0（requests）对上游的 TLS ClientHello 会被
+    WAF 直接断连（SSL UNEXPECTED_EOF_WHILE_READING），标准库 ssl ClientHello
+    可正常完成 TLS 1.3 握手并取得数据，因此固定使用 http.client。
+    """
+    parsed = urlsplit(url)
+    target = parsed.path or "/"
+    if parsed.query:
+        target = f"{target}?{parsed.query}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": f"{parsed.scheme}://{parsed.netloc}/GJZ/",
+        "Origin": f"{parsed.scheme}://{parsed.netloc}",
+        "Connection": "close",
+    }
+    if parsed.scheme == "https":
+        conn: http.client.HTTPConnection = http.client.HTTPSConnection(
+            parsed.hostname, parsed.port or 443, context=_ssl_context(verify), timeout=timeout
+        )
+    elif parsed.scheme == "http":
+        conn = http.client.HTTPConnection(parsed.hostname, parsed.port or 80, timeout=timeout)
+    else:
+        raise ValueError(f"unsupported scheme in MEE api_url: {url}")
+    try:
+        conn.request("POST", target, body=urlencode(params), headers=headers)
+        resp = conn.getresponse()
+        payload = resp.read()
+        return resp.status, {key: value for key, value in resp.getheaders()}, payload
+    finally:
+        conn.close()
+
+
 def fetch_snapshot(cfg: dict[str, Any], *, verify: bool) -> tuple[bytes, int, dict[str, str], int]:
     """POST getRealDatas，返回 (payload, http_status, headers, retries_used)。"""
-
-    import requests
 
     params = {
         "action": "getRealDatas",
@@ -97,11 +145,12 @@ def fetch_snapshot(cfg: dict[str, Any], *, verify: bool) -> tuple[bytes, int, di
     last_error: Exception | None = None
     for attempt in range(1, max_retries + 1):
         try:
-            resp = requests.post(cfg.get("api_url", MEE_API_URL), data=params, timeout=timeout, verify=verify)
-            resp.raise_for_status()
-            data = resp.json()
+            status, headers, payload = _post_form(cfg.get("api_url", MEE_API_URL), params, timeout=timeout, verify=verify)
+            if status != 200:
+                raise RuntimeError(f"http status {status}")
+            data = json.loads(payload.decode("utf-8"))
             if data.get("result") and data["result"] != 0:
-                return resp.content, resp.status_code, dict(resp.headers), attempt - 1
+                return payload, status, headers, attempt - 1
             last_error = RuntimeError(f"api returned no data (result={data.get('result')})")
         except Exception as exc:  # noqa: BLE001 — 网络异常统一重试
             last_error = exc
@@ -171,8 +220,11 @@ def _station_id_ok(station_id: Any) -> bool:
 
 
 def normalize(records: list[dict[str, Any]], *, retrieved_at: datetime, snapshot_file: str) -> pd.DataFrame:
-    """补全年份+北京时间时区，并执行 QC 门：时间/站点名/物理范围全部通过才
-    value_type=observed + is_ground_truth=true，否则 pending_review + observation_candidate。"""
+    """补全年份+北京时间时区，并执行 QC 门：时间/站点名/物理范围任一不通过则
+    pending_review + observation_candidate；全部通过仅标 value_type=observed。
+    is_ground_truth 恒为 False——值域/时间 QC 不构成独立验证（无设备质控、无
+    交叉来源核验），升级真值须经 station_validate 等独立校验后另行标记
+    （审计 2026-09-06 实时数据可信边界整改）。"""
     now_cn = retrieved_at.astimezone(TZ_CN)
     retrieved_str = retrieved_at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     rows: list[dict[str, Any]] = []
@@ -206,7 +258,7 @@ def normalize(records: list[dict[str, Any]], *, retrieved_at: datetime, snapshot
                     "snapshot_file": snapshot_file,
                     "value_type": "observed" if passed else "observation_candidate",
                     "provenance_type": "observed",
-                    "is_ground_truth": passed,
+                    "is_ground_truth": False,
                     "role": "observation_candidate",
                     "quality_flag": "pass" if passed else "pending_review",
                     "qc_note": "" if passed else ";".join(reasons),
@@ -215,11 +267,51 @@ def normalize(records: list[dict[str, Any]], *, retrieved_at: datetime, snapshot
     return pd.DataFrame(rows)
 
 
-def run_collect_mee(config: dict[str, Any], *, out_dir: Path, raw_root: Path | None = None) -> dict[str, Any]:
+def _status_path(out_dir: Path) -> Path:
+    return out_dir / "mee_collection_status.json"
+
+
+def _write_status(out_dir: Path, payload: dict[str, Any]) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = _status_path(out_dir)
+    previous: dict[str, Any] = {}
+    if path.exists():
+        try:
+            previous = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            previous = {}
+    payload["last_success_utc"] = previous.get("last_success_utc") if payload.get("status") != "completed" else payload.get("last_success_utc")
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def _evaluate_freshness(observations: pd.DataFrame, now_cn: datetime, max_lag_h: float) -> dict[str, Any]:
+    if observations.empty or "observed_time" not in observations.columns:
+        return {"latest_observed_time": None, "freshness_lag_h": None, "freshness_status": "unknown"}
+    latest = observations["observed_time"].max()
+    if pd.isna(latest):
+        return {"latest_observed_time": None, "freshness_lag_h": None, "freshness_status": "unknown"}
+    lag_h = (now_cn - latest).total_seconds() / 3600.0
+    return {
+        "latest_observed_time": pd.Timestamp(latest).isoformat(),
+        "freshness_lag_h": round(float(lag_h), 2),
+        "freshness_status": "fresh" if float(lag_h) <= max_lag_h else "stale",
+    }
+
+
+def run_collect_mee(
+    config: dict[str, Any],
+    *,
+    out_dir: Path,
+    raw_root: Path | None = None,
+    catalog_dir: Path | None = None,
+    catalog_registry_path: Path | None = None,
+) -> dict[str, Any]:
     cfg = (config.get("realtime_sources") or {}).get("mee") or config.get("mee") or {}
     if not cfg.get("enabled", True):
         return {"status": "disabled", "command": "collect-realtime", "rows_written": 0}
     verify = bool(cfg.get("tls_verify", False))
+    max_lag_h = float(cfg.get("freshness_max_lag_h", FRESHNESS_DEFAULT_MAX_LAG_H))
     warnings_list: list[str] = []
     if not verify:
         message = "tls_verify=false: 上游证书校验关闭（上游自签证书），已在 manifest 留痕"
@@ -227,7 +319,23 @@ def run_collect_mee(config: dict[str, Any], *, out_dir: Path, raw_root: Path | N
         warnings_list.append(message)
 
     now_utc = datetime.now(timezone.utc)
-    payload, http_status, headers, retries = fetch_snapshot(cfg, verify=verify)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        payload, http_status, headers, retries = fetch_snapshot(cfg, verify=verify)
+    except Exception as exc:
+        _write_status(
+            out_dir,
+            {
+                "source_id": SOURCE_ID,
+                "status": "failed",
+                "last_attempt_utc": now_utc.astimezone(timezone.utc).isoformat(),
+                "last_error": f"{type(exc).__name__}: {exc}",
+                "freshness_max_lag_h": max_lag_h,
+                "freshness_status": "unknown",
+            },
+        )
+        raise
+
     snapshot = write_raw_snapshot(
         SOURCE_ID,
         payload,
@@ -243,18 +351,59 @@ def run_collect_mee(config: dict[str, Any], *, out_dir: Path, raw_root: Path | N
     body = json.loads(payload.decode("utf-8"))
     records = parse_tbody(body)
     observations = normalize(records, retrieved_at=now_utc, snapshot_file=str(snapshot))
-    qc_pass = int((observations["quality_flag"] == "pass").sum()) if not observations.empty else 0
 
-    out_dir.mkdir(parents=True, exist_ok=True)
     parquet_path = out_dir / "mee_observations.parquet"
     if parquet_path.exists():
         existing = pd.read_parquet(parquet_path)
         observations = pd.concat([existing, observations], ignore_index=True).drop_duplicates(
             subset=["station_id", "observed_time", "variable_code"], keep="last"
         )
+    # 可信边界统一重标：历史行若由旧版本写入 ground_truth=true，一并降级
+    observations["is_ground_truth"] = False
     observations.to_parquet(parquet_path, index=False)
 
-    return {
+    qc_pass = int((observations["quality_flag"] == "pass").sum()) if not observations.empty else 0
+
+    now_cn = now_utc.astimezone(TZ_CN)
+    freshness = _evaluate_freshness(observations, now_cn, max_lag_h)
+    status_payload = {
+        "source_id": SOURCE_ID,
+        "status": "completed",
+        "last_attempt_utc": now_utc.isoformat(),
+        "last_success_utc": now_utc.isoformat(),
+        "http_status": http_status,
+        "retries": retries,
+        "station_count": len(records),
+        "rows_total": int(len(observations)),
+        "freshness_max_lag_h": max_lag_h,
+        **freshness,
+        "snapshot": str(snapshot),
+        "output": str(parquet_path),
+    }
+    _write_status(out_dir, status_payload)
+
+    # 三层结构重建（Snapshot→Station 目录→完整缺测观测）：以原始快照为唯一事实来源，
+    # 失败不回滚本次采集（raw/parquet 已落盘），错误在 manifest 留痕。
+    # catalog_dir/catalog_registry_path 可覆盖（测试必须指向临时目录，禁止写正式 silver）
+    catalog_summary: dict[str, Any] | None = None
+    catalog_error = None
+    try:
+        from data_factory.contracts.constants import MEE_REALTIME_CATALOG_DIR, STATION_REGISTRY_MERGED
+
+        from .mee_realtime_catalog import build_catalog
+
+        if catalog_registry_path is None:
+            catalog_registry_path = STATION_REGISTRY_MERGED if STATION_REGISTRY_MERGED.exists() else None
+        catalog_summary = build_catalog(
+            raw_root=raw_root or RAW_ROOT,
+            out_dir=catalog_dir or MEE_REALTIME_CATALOG_DIR,
+            registry_path=catalog_registry_path,
+            collection_status_path=_status_path(out_dir),
+        )
+    except Exception as exc:  # noqa: BLE001 — 目录构建失败不阻断采集，但必须留痕
+        catalog_error = f"{type(exc).__name__}: {exc}"
+
+    result = {
         "status": "completed",
         "command": "collect-realtime",
         "source_id": SOURCE_ID,
@@ -268,5 +417,22 @@ def run_collect_mee(config: dict[str, Any], *, out_dir: Path, raw_root: Path | N
         "tls_verify": verify,
         "retries": retries,
         "warnings": warnings_list,
-        "next_action": "数据为观测候选；接口失败只允许 missing_reason=api_unavailable，不得用模拟值补位",
+        "freshness_max_lag_h": max_lag_h,
+        **freshness,
+        "next_action": "数据为官方接口观测（is_ground_truth=false，待独立验证）；freshness_status=stale 表示上游停更，"
+        "观测层桥接会按 freshness_max_lag_h 门禁剔除；接口失败只允许 missing_reason=api_unavailable，不得用模拟值补位",
     }
+    if freshness["freshness_status"] == "stale":
+        result["warnings"] = warnings_list + [
+            f"freshness stale: 最新观测落后 {freshness['freshness_lag_h']}h（门禁 {max_lag_h}h），已留痕 mee_collection_status.json"
+        ]
+    if catalog_error:
+        result["warnings"] = result.get("warnings", []) + [f"mee_realtime_catalog build failed: {catalog_error}"]
+        result["catalog_error"] = catalog_error
+    elif catalog_summary:
+        result["catalog"] = {
+            k: catalog_summary[k]
+            for k in ("station_count", "active_station_count", "snapshot_count", "observation_rows", "freshness_status", "output")
+            if k in catalog_summary
+        }
+    return result

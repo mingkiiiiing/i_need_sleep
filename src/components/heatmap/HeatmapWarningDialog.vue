@@ -13,18 +13,18 @@
       >
         <header class="dlg-head">
           <span class="dlg-glyph" aria-hidden="true">⚠</span>
-          <h3 id="hm-dlg-title">确认发起模拟预警（演示）</h3>
+          <h3 id="hm-dlg-title">确认发起情景预警（情景）</h3>
         </header>
         <div id="hm-dlg-desc" class="dlg-body">
           <p>
-            即将对当前演示帧中的高风险格 <b class="mono">{{ cellId }}</b> 执行<b>模拟预警处理</b>：
-            档位 <b class="mono">{{ stageLabel }}</b> · 演示风险分数 <b class="mono">{{ score }}</b>（{{ levelText }}，阈值 75）。
+            即将对当前情景帧中的高风险格 <b class="mono">{{ cellId }}</b> 执行<b>情景预警处理</b>：
+            档位 <b class="mono">{{ stageLabel }}</b> · 情景风险分数 <b class="mono">{{ score }}</b>（{{ levelText }}，阈值 75）。
           </p>
           <p class="dlg-warn-line">
-            这只是系统演示流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员；
-            处理记录仅标记为 <b class="mono">simulated_dispatched</b>，事件标识为页面演示格网编号，非真实事件。
+            这只是系统情景流程：<b>不会发送真实短信、邮件或政府预警</b>，不会通知任何真实人员；
+            处理记录仅标记为 <b class="mono">simulated_dispatched</b>，事件标识为页面情景格网编号，非真实事件。
           </p>
-          <p class="dlg-note">所有数据均为演示用模拟数据（SIMULATED · simulation_only），不用于任何实际决策。</p>
+          <p class="dlg-note">本页数据为情景推演口径（simulation_only），不用于任何实际决策。</p>
         </div>
         <p v-if="error" class="dlg-error" role="alert">调用失败：{{ error }}</p>
         <footer class="dlg-foot">

@@ -1,8 +1,8 @@
 <template>
-  <section class="stn-block stn-sec-events" aria-label="分区事件与模拟预警">
+  <section class="stn-block stn-sec-events" aria-label="分区事件与情景预警">
     <header class="stn-sec-head">
-      <h2>事件与模拟预警</h2>
-      <span class="stn-sec-tag">演示事件流</span>
+      <h2>事件与情景预警</h2>
+      <span class="stn-sec-tag">情景事件流</span>
     </header>
     <div v-if="eventsState === 'loading'" class="stn-skel-mini" role="status" aria-label="事件加载中">
       <div class="skel-row"></div>
@@ -10,7 +10,7 @@
     <StatePanel v-else-if="eventsState === 'error'" state="error" description="事件接口请求失败，可重试。">
       <button type="button" class="stn-inline-btn" @click="$emit('retry-events')">重试</button>
     </StatePanel>
-    <p v-else-if="!events.length" class="stn-none">该分区暂无演示事件。</p>
+    <p v-else-if="!events.length" class="stn-none">该分区暂无情景事件。</p>
     <ul v-else class="stn-event-list">
       <li v-for="ev in events" :key="ev.id">
         <span class="se-time mono">{{ formatStamp(ev.occurred_at) }}</span>
@@ -20,7 +20,7 @@
     </ul>
 
     <div v-if="warningResult" class="stn-warn-result" role="status">
-      演示处理结果：<b class="stn-mono">{{ warningResult.status }}</b>
+      情景处理结果：<b class="stn-mono">{{ warningResult.status }}</b>
       <span v-if="warningResult.channels && warningResult.channels.length" class="stn-mono">（{{ warningResult.channels.join(' / ') }}）</span>
     </div>
     <p v-else-if="warningError" class="stn-warn-error" role="alert">模拟处理调用失败：{{ warningError }}</p>
@@ -33,7 +33,7 @@
       @click="$emit('warn')"
     >
       <span aria-hidden="true">⚠</span>
-      模拟预警（演示处理，非真实发布）
+      情景预警（情景处理，非真实发布）
     </button>
   </section>
 </template>

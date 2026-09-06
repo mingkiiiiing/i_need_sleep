@@ -127,6 +127,155 @@ class QualityReport(BaseModel):
     limitations: list[str]
 
 
+# ---- 实时观测轨（observed；MEE 国控站点） ----
+class StationLocation(BaseModel):
+    lon: float | None
+    lat: float | None
+    location_status: Literal["verified", "metadata_only", "suspicious", "missing"]
+    registry_source: str | None
+
+
+class MonitoringStation(BaseModel):
+    id: str
+    entity_type: Literal["monitoring_station"]
+    source_id: str
+    source_station_name: str
+    display_name: str
+    aliases: list[str]
+    province: str | None
+    basin: str | None
+    location: StationLocation
+    active_in_latest_snapshot: bool
+    first_seen_at: str | None
+    last_seen_at: str | None
+    latest_observed_at: str | None
+    latest_snapshot_id: str | None
+    latest_water_quality_level: int | None
+    available_variable_count: int
+    qc_rejected_variable_count: int
+    missing_variable_count: int
+    data_mode: str
+    dataset_version: str
+
+
+class StationObservationRow(BaseModel):
+    station_entity_id: str
+    snapshot_id: str
+    observed_at: str | None
+    retrieved_at: str | None
+    variable_code: str
+    value: float | None
+    unit: str | None
+    observation_status: Literal["ok", "missing", "qc_rejected", "parse_failed"]
+    missing_reason: str | None
+    source_quality_note: str | None
+    qc_status: str
+    evidence_level: str
+    verification_state: str
+    is_ground_truth: bool
+    data_mode: str
+    dataset_version: str
+
+
+class StationQuality(BaseModel):
+    station_entity_id: str
+    status: str
+    observed_lag_h: float | None
+    retrieval_lag_h: float | None
+    variable_coverage: dict[str, int]
+    coverage_ratio: float
+    missing_variables: list[str]
+    qc_rejected_variables: list[str]
+    snapshot_count: int
+    location_status: str
+    is_ground_truth: bool
+    verification_state: str
+    suitability: dict[str, bool]
+    limitations: list[str]
+    data_mode: str
+    dataset_version: str
+
+
+class RealtimeStationMarker(BaseModel):
+    id: str
+    name: str | None
+    province: str | None = None
+    basin: str | None = None
+    lon: float
+    lat: float
+    location_status: str
+    chla: float | None
+    water_level: int | None
+    metrics: dict[str, float] = {}
+    observed_at: str | None
+
+
+class RealtimeWarningItem(BaseModel):
+    station_id: str
+    station_name: str | None
+    chla: float
+    band: Literal["light", "moderate"]
+    lon: float | None
+    lat: float | None
+    location_status: str
+
+
+class RealtimeSummary(BaseModel):
+    source: str
+    dataset_version: str
+    as_of: str | None
+    freshness_status: str
+    observed_lag_h: float | None
+    latest_snapshot_id: str
+    selected_snapshot_id: str
+    is_latest: bool
+    retrieved_at: str | None
+    latest_observed_at: str | None
+    station_total: int
+    class_counts: dict[str, int]
+    class_total: int
+    dominant_class: str | None
+    class_iii_rate: float | None
+    class_compliance: dict[str, int]
+    chla_report_stations: int
+    warnings: list[RealtimeWarningItem]
+    warning_thresholds: dict[str, float]
+    means: dict[str, dict[str, Any]]
+    trends: dict[str, dict[str, Any]]
+    health: dict[str, Any]
+    markers: list[RealtimeStationMarker]
+
+
+class RealtimeTimeline(BaseModel):
+    source: str
+    dataset_version: str
+    latest_snapshot_id: str | None
+    warning_thresholds: dict[str, float]
+    snapshots: list[dict[str, Any]]
+
+
+class RealtimeStatus(BaseModel):
+    source: str
+    dataset_version: str
+    available: bool
+    collection_status: str
+    freshness_status: str
+    snapshot_count: int
+    active_station_count: int
+    latest_station_count: int | None
+    latest_observed_at: str | None
+    observed_lag_h: float | None
+    as_of: str | None
+    last_attempt_at: str | None
+    last_success_at: str | None
+    last_error: str | None
+    last_error_code: str | None
+    declared_record_count: int | None = None
+    parsed_station_count: int | None = None
+    latest_snapshot_id: str | None = None
+    note: str | None = None
+
+
 # ---- 预测 ----
 class ForecastUncertainty(BaseModel):
     lower: int

@@ -18,6 +18,11 @@ BOUNDARY_MANIFEST = STORAGE / "silver" / "geo" / "taihu_boundary_manifest.json"
 DEFAULT_RELEASE_TABLES = STORAGE / "final_cleaned" / "TAIHU_CLEAN_FINAL_V1_20260831"
 SOURCE_REGISTRY_CSV = PACKAGE_ROOT / "config" / "data_source_registry.csv"
 TAIHUGURAD_STATIONS = PACKAGE_ROOT.parents[1] / "taihugurad" / "data" / "stations.json"
+# 合并站点注册表：taihugurad 61 站 + MEE 国控断面（坐标缺失站如实登记待补），
+# freeze-grid 默认源（审计 2026-09-06：站点-网格映射覆盖 MEE 实时断面）
+STATION_REGISTRY_MERGED = CONFIG_DIR / "stations.json"
+# MEE 实时站点三层结构（Snapshot→Station 目录→完整缺测观测）落盘根
+MEE_REALTIME_CATALOG_DIR = STORAGE / "silver" / "mee_realtime"
 NASA_POWER_RAW = PACKAGE_ROOT.parents[1] / "02_全部原始数据" / "01_当前主原始数据" / "nasa_power_hourly"
 TIMEZONE = "Asia/Shanghai"
 

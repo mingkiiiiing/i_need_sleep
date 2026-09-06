@@ -63,7 +63,11 @@ class TestDG014MeeTimestampQc:
         assert bad_tn["value_type"] == "observation_candidate"
         assert "out_of_range" in bad_tn["qc_note"]
         good_do = frame[(frame["station_id"] == "断面002") & (frame["variable_code"] == "dissolved_oxygen")].iloc[0]
-        assert good_do["quality_flag"] == "pass" and good_do["is_ground_truth"]
+        # 审计 2026-09-06 可信边界整改：值域/时间 QC 通过也只是官方观测，
+        # is_ground_truth 恒为 False，升级真值须独立验证
+        assert good_do["quality_flag"] == "pass"
+        assert good_do["value_type"] == "observed"
+        assert not good_do["is_ground_truth"]
         assert len(by_note) >= 3
         assert frame["observed_time"].dt.tz is not None
 

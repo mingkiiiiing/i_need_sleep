@@ -19,7 +19,7 @@ const DEFAULT_LABELS = {
   observed: '观测数据',
   forecast: '预测数据',
   experimental: '实验数据',
-  simulated: '模拟数据'
+  simulated: '情景数据'
 }
 
 const variant = computed(() => (VALID.includes(props.mode) ? props.mode : 'simulated'))

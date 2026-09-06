@@ -2,23 +2,14 @@
   <main class="page-heatmap">
     <div class="hm-body">
       <!-- ===== 标题区 ===== -->
-      <header class="hm-title" aria-label="风险地图与时空推演标题与数据身份">
+      <header class="hm-title" aria-label="风险地图与时空推演标题">
         <div class="hm-title-left">
           <BackLink :to="cockpitLink" label="返回驾驶舱" />
           <div class="hm-title-text">
-            <p class="hm-kicker">P07 · SPATIOTEMPORAL RISK</p>
             <h1>风险地图与时空推演</h1>
           </div>
         </div>
         <div class="hm-title-right">
-          <div class="hm-chips" aria-label="数据身份">
-            <span class="hm-chip hm-chip--notice">{{ dataIdentity.dataMode }}</span>
-            <span class="hm-chip">{{ predVersion }}</span>
-            <span class="hm-chip">{{ runId }}</span>
-            <span class="hm-chip" data-role="stage-chip">档位 <b>{{ stageShortLabel }}</b></span>
-            <span class="hm-chip hm-chip--notice">{{ dataIdentity.claimBoundaryCode }}</span>
-            <span class="hm-chip hm-chip--notice">{{ dataIdentity.claimBoundary }}</span>
-          </div>
           <div class="hm-modes" role="group" aria-label="时间模式（历史 / 当前 / 未来预演）">
             <button type="button" data-mode-btn="history" disabled aria-disabled="true">
               历史
@@ -30,25 +21,18 @@
             </button>
             <button type="button" data-mode-btn="future" class="active" aria-pressed="true">
               未来预演
-              <small>演示推演 · 当前可用</small>
+              <small>情景推演 · 当前可用</small>
             </button>
           </div>
         </div>
       </header>
 
-      <!-- ===== KPI ===== -->
-      <section class="hm-kpis" aria-label="当前档位风险格网 KPI">
-        <MetricCard
-          v-for="kpi in kpis"
-          :key="kpi.key"
-          :data-kpi="kpi.key"
-          :label="kpi.label"
-          :value="kpi.value"
-          :unit="kpi.unit"
-          mode="simulated"
-          mode-label="演示数据"
-        />
-      </section>
+      <!-- 数据口径披露：当前热力场为情景推演；实时站点稀疏且坐标未核验，不构建真实插值热力图 -->
+      <p class="hm-data-note" role="note">
+        本页热力场为情景推演数据（非实时插值）。MEE 实时站点共 79 处，叶绿素/藻密度缺测率高且坐标未经核验，
+        在可靠空间插值方法落地前，系统不将稀疏站点值伪装成真实连续热力图；实时观测请见
+        <RouterLink to="/stations">监测站点研判</RouterLink>。
+      </p>
 
       <!-- ===== 主三栏 ===== -->
       <div class="hm-main">
@@ -57,6 +41,12 @@
           <HeatmapLayersPanel
             v-model:grid-visible="layerGrid"
             v-model:points-visible="layerPoints"
+            v-model:realtime-visible="layerRealtime"
+            v-model:snapshot-id="rtSnapshotId"
+            :snapshot-list="rtTimeline"
+            v-model:diff-enabled="rtDiff"
+            v-model:polygon-enabled="rtPolygon"
+            :realtime-summary="realtimeSummary"
             v-model:labels-visible="layerLabels"
             v-model:basemap="basemap"
             :capabilities="capabilities"
@@ -66,7 +56,7 @@
         </aside>
 
         <!-- 中央：风险格网地图 -->
-        <section class="hm-panel hm-center" aria-label="太湖演示风险格网地图">
+        <section class="hm-panel hm-center" aria-label="太湖情景风险格网地图">
           <div class="hm-map-tools">
             <div class="hm-ab-modes" role="group" aria-label="地图显示场景">
               <button
@@ -110,7 +100,7 @@
                 </option>
               </select>
             </label>
-            <span v-if="abMode !== 'stage'" class="hm-map-flag">客户端演示场景比较 · 非模型评估结论</span>
+            <span v-if="abMode !== 'stage'" class="hm-map-flag">客户端情景场景比较 · 非模型评估结论</span>
             <span v-if="tileError" class="hm-map-flag hm-map-flag--warn" role="status">
               地图瓦片加载失败
               <button type="button" class="hm-inline-btn" @click="retryTiles">重试图层</button>
@@ -122,11 +112,12 @@
               ref="mapRef"
               :grid="displayGrid"
               :render-mode="abMode === 'diff' ? 'diff' : 'stage'"
-              :points="mapPoints"
+              :points="allMapPoints"
+              :overlay-latlngs="warningHull"
               :selected-cell="selectedCellId"
               :selected-point="store.selectedPoint"
               :grid-visible="layerGrid"
-              :points-visible="layerPoints"
+              :points-visible="layerPoints || layerRealtime"
               :labels-visible="layerLabels"
               :basemap="basemap"
               @select-cell="onSelectCell"
@@ -147,18 +138,18 @@
           </div>
 
           <div v-if="stageKey === 't30'" class="hm-t30-banner" data-role="t30-banner" role="note">
-            30—90 天正式预测能力未就绪 · 当前格网仅为固定规则模拟预演
+            30—90 天正式预测能力未就绪 · 当前格网仅为固定规则情景推演
           </div>
           <p class="hm-map-note">
-            演示格网定位仅用于界面联调，不代表真实遥感像元边界。阈值：0–44 低 / 45–74 中 / 75–100 高。
+            情景格网定位仅用于界面联调，不代表真实遥感像元边界。阈值：0–44 低 / 45–74 中 / 75–100 高。
           </p>
         </section>
 
         <!-- 右栏：当前帧研判 -->
         <aside class="hm-panel hm-right" aria-label="当前帧研判">
-          <!-- 当前演示帧摘要 -->
-          <section class="hm-sec" aria-label="当前演示帧摘要">
-            <h3 class="hm-sec-h">当前演示帧 <span>{{ stageShortLabel }} · 演示数据</span></h3>
+          <!-- 当前情景帧摘要 -->
+          <section class="hm-sec" aria-label="当前情景帧摘要">
+            <h3 class="hm-sec-h">当前情景帧 <span>{{ stageShortLabel }} · 情景数据</span></h3>
             <StatePanel
               v-if="frameOverlay"
               :state="frameOverlay"
@@ -183,7 +174,7 @@
                   <small data-frame="share-low">{{ frameStats.lowShare }}%</small>
                 </div>
                 <div class="hm-frame-row is-plain">
-                  <span>最大 / 平均演示分数</span>
+                  <span>最大 / 平均情景分数</span>
                   <strong data-frame="max-avg">{{ frameStats.max }} / {{ frameStats.avg }}</strong>
                 </div>
               </div>
@@ -200,7 +191,7 @@
                 <div><dt>格网编号</dt><dd data-cd="id">{{ selectedCell.id }}</dd></div>
                 <div><dt>行 / 列</dt><dd data-cd="rowcol">第 {{ selectedCell.row + 1 }} 行 · 第 {{ selectedCell.col + 1 }} 列</dd></div>
                 <div><dt>当前档位</dt><dd data-cd="stage">{{ stageShortLabel }}</dd></div>
-                <div><dt>演示风险分数</dt><dd data-cd="score">{{ selectedCell.value }}</dd></div>
+                <div><dt>情景风险分数</dt><dd data-cd="score">{{ selectedCell.value }}</dd></div>
                 <div><dt>风险等级</dt><dd data-cd="level">{{ levelText(selectedCell.level) }}（阈值 0–44 / 45–74 / 75–100）</dd></div>
                 <div><dt>数据模式</dt><dd data-cd="data-mode">{{ cellProvenance.dataMode }}</dd></div>
                 <div><dt>预测运行</dt><dd data-cd="run-id">{{ cellProvenance.runId }}</dd></div>
@@ -214,7 +205,7 @@
                 :aria-disabled="String(!canWarn)"
                 @click="openWarning"
               >
-                模拟预警
+                情景预警
                 <small v-if="!canWarn">仅高风险格（≥75）可发起</small>
               </button>
               <p v-if="warnResult" class="hm-warn-result" data-role="warn-result" role="status">
@@ -227,7 +218,7 @@
 
           <!-- 热点排行 -->
           <section class="hm-sec" aria-label="热点排行">
-            <h3 class="hm-sec-h">热点排行 <span>演示分数前 5</span></h3>
+            <h3 class="hm-sec-h">热点排行 <span>情景分数前 5</span></h3>
             <p v-if="!hotspots.length" class="hm-empty-hint">当前档位格网加载后显示。</p>
             <ol v-else class="hm-hotspots">
               <li v-for="(cell, i) in hotspots" :key="cell.id">
@@ -249,9 +240,9 @@
             </ol>
           </section>
 
-          <!-- 演示分区参考 -->
-          <section class="hm-sec" aria-label="演示分区参考">
-            <h3 class="hm-sec-h">演示分区参考 <span>{{ stageShortLabel }} 档位</span></h3>
+          <!-- 情景分区参考 -->
+          <section class="hm-sec" aria-label="情景分区参考">
+            <h3 class="hm-sec-h">情景分区参考 <span>{{ stageShortLabel }} 档位</span></h3>
             <StatePanel
               v-if="zoneOverlay"
               :state="zoneOverlay === 'blocked' ? 'empty' : zoneOverlay"
@@ -282,7 +273,7 @@
           </section>
 
           <button type="button" class="hm-export-btn" data-role="export-btn" disabled aria-disabled="true" title="导出接口尚未接入">
-            导出演示帧 · 尚未接入
+            导出情景帧 · 尚未接入
           </button>
         </aside>
       </div>
@@ -297,15 +288,15 @@
           <StatePanel
             v-if="trendState !== 'ok'"
             :state="trendState"
-            :title="trendState === 'loading' ? '演示档位预加载中…' : '部分档位格网加载失败'"
-            :description="trendState === 'error' ? '趋势仅统计成功加载的演示档位，失败档位不补 0。' : ''"
+            :title="trendState === 'loading' ? '情景档位预加载中…' : '部分档位格网加载失败'"
+            :description="trendState === 'error' ? '趋势仅统计成功加载的情景档位，失败档位不补 0。' : ''"
           >
             <button v-if="trendState === 'error'" type="button" class="hm-inline-btn" data-role="trend-retry" @click="retryTrend">重试失败档位</button>
           </StatePanel>
           <template v-else>
             <EChart :option="trendOption" :height="150" />
           </template>
-          <p class="hm-sec-note">仅统计五个档位各自的 /map/risk-grid 演示格网，不使用固定数组。</p>
+          <p class="hm-sec-note">仅统计五个档位各自的 /map/risk-grid 情景格网，不使用固定数组。</p>
         </section>
 
         <section class="hm-panel hm-chart-panel" aria-label="A/B 差异与热点位置变化">
@@ -318,7 +309,7 @@
                 v-else-if="abPanelState !== 'ok'"
                 :state="abPanelState"
                 :title="abPanelState === 'loading' ? '场景格网加载中…' : '场景格网加载失败'"
-                :description="abPanelState === 'error' ? 'A/B 比较必须基于两个成功加载的演示格网。' : ''"
+                :description="abPanelState === 'error' ? 'A/B 比较必须基于两个成功加载的情景格网。' : ''"
               >
                 <button v-if="abPanelState === 'error'" type="button" class="hm-inline-btn" @click="retryAb">重试场景格网</button>
               </StatePanel>
@@ -333,10 +324,10 @@
                   <span data-ab="high-to-mid">高→中 <b>{{ abStats.transitions['high->mid'] }}</b></span>
                   <span data-ab="mid-to-low">中→低 <b>{{ abStats.transitions['mid->low'] }}</b></span>
                 </div>
-                <p class="hm-sec-note">客户端演示场景比较 · 非模型评估结论。仅基于两个演示格网数组做差，不计算面积、岸线或迁移速度。</p>
+                <p class="hm-sec-note">客户端情景场景比较 · 非模型评估结论。仅基于两个情景格网数组做差，不计算面积、岸线或迁移速度。</p>
               </template>
               <div class="hm-track">
-                <h4>热点位置变化（演示格网索引）</h4>
+                <h4>热点位置变化（情景格网索引）</h4>
                 <table class="hm-track-table">
                   <thead>
                     <tr><th>档位</th><th>最高分格网</th><th>最大分数</th><th>高风险格中心</th></tr>
@@ -350,7 +341,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <p class="hm-sec-note">仅为演示格网行列索引变化，不是真实蓝藻迁移轨迹或扩散速度。</p>
+                <p class="hm-sec-note">仅为情景格网行列索引变化，不是真实蓝藻迁移轨迹或扩散速度。</p>
               </div>
             </div>
           </details>
@@ -358,7 +349,7 @@
       </div>
 
       <footer class="hm-foot">
-        <span>图层目录：{{ layersText }} · 数据模式 simulated · SIMULATED / simulation_only / 非决策用途</span>
+        <span>图层目录：{{ layersText }} · 情景推演口径（simulation_only）· 非决策用途</span>
       </footer>
     </div>
 
@@ -393,6 +384,12 @@
               compact
               v-model:grid-visible="layerGrid"
               v-model:points-visible="layerPoints"
+              v-model:realtime-visible="layerRealtime"
+              v-model:snapshot-id="rtSnapshotId"
+              :snapshot-list="rtTimeline"
+              v-model:diff-enabled="rtDiff"
+              v-model:polygon-enabled="rtPolygon"
+              :realtime-summary="realtimeSummary"
               v-model:labels-visible="layerLabels"
               v-model:basemap="basemap"
               :capabilities="capabilities"
@@ -431,10 +428,10 @@ import {
   postHandleWarningEnvelope
 } from '../services/api.js'
 import BackLink from '../components/common/BackLink.vue'
-import MetricCard from '../components/common/MetricCard.vue'
 import StatePanel from '../components/common/StatePanel.vue'
 import EChart from '../components/cockpit/EChart.vue'
 import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
+import { chlaColor, fetchRealtimeSummary, fetchRealtimeTimeline } from '../services/realtime.js'
 import { palette, tooltipTheme } from '../components/cockpit/echartsTheme.js'
 import { useTheme } from '../composables/useTheme.js'
 import { dataIdentity } from '../data/dataIdentity.js'
@@ -506,7 +503,7 @@ const layersText = computed(() =>
     : '未获取'
 )
 
-// ---------- 演示分区 ----------
+// ---------- 情景分区 ----------
 const entities = ref([])
 const entitiesState = ref('loading')
 async function fetchEntities() {
@@ -553,6 +550,12 @@ const mapPoints = computed(() => {
     .filter((p) => p.coord)
     .map((p) => ({ id: p.id, short: p.short, name: p.name, level: p.level, lat: p.coord.lat, lon: p.coord.lon }))
 })
+
+// 情景分区点位 + 实时观测点位：同一地图、两个图层开关分别控制
+const allMapPoints = computed(() => [
+  ...mapPoints.value,
+  ...(layerRealtime.value ? realtimePoints.value : [])
+])
 
 // ---------- 风险格网（每档位独立缓存 + 令牌防串写） ----------
 function blankGrid() {
@@ -610,32 +613,6 @@ watch(stageKey, (key, old) => {
   fetchZoneScores(key)
 })
 
-// ---------- KPI ----------
-const resolutionText = computed(() => {
-  const raw = currentEntry.value.raw
-  const res = raw && raw.resolution
-  return res && res.rows && res.columns ? `${res.rows}×${res.columns}` : '—'
-})
-
-const qualityLine = computed(() => {
-  if (stageKey.value === 't30') return 'simulation_only · 30—90 天阻塞'
-  if (capsState.value === 'ok') return 'simulated · 演示接口就绪'
-  if (capsState.value === 'error') return 'simulated · 能力状态未知'
-  return 'simulated · 能力查询中'
-})
-
-const kpis = computed(() => {
-  const ok = currentEntry.value.state === 'ok'
-  const stats = currentStats.value
-  return [
-    { key: 'grid-size', label: '格网规模', value: resolutionText.value, unit: '行×列' },
-    { key: 'valid-cells', label: '有效演示格数', value: ok ? String(stats.valid) : '—', unit: '格' },
-    { key: 'high-cells', label: '高风险格数', value: ok ? String(stats.high) : '—', unit: '格' },
-    { key: 'max-score', label: '当前最大演示风险分数', value: ok ? String(stats.max) : '—', unit: 'risk_score' },
-    { key: 'quality-status', label: '数据质量与能力状态', value: qualityLine.value, unit: '' }
-  ]
-})
-
 // ---------- 帧摘要 ----------
 const predVersion = computed(
   () => (currentEntry.value.raw && currentEntry.value.raw.meta && currentEntry.value.raw.meta.dataset_version) || dataIdentity.predVersionId
@@ -678,7 +655,7 @@ function onSelectCell(payload) {
   selectedCellId.value = payload.id
 }
 
-// ---------- 模拟预警 ----------
+// ---------- 情景预警 ----------
 const canWarn = computed(() => Boolean(selectedCell.value && selectedCell.value.level === 'high'))
 const warnScore = computed(() => (selectedCell.value ? selectedCell.value.value : ''))
 const warnOpen = ref(false)
@@ -702,7 +679,7 @@ async function confirmWarning() {
   warnBusy.value = true
   warnError.value = ''
   try {
-    // 演示处理接口：event_id 为页面演示格网编号，后端仅回显 simulated_dispatched，不产生真实预警
+    // 情景处理接口：event_id 为页面情景格网编号，后端仅回显 simulated_dispatched，不产生真实预警
     const { data } = await postHandleWarningEnvelope(selectedCellId.value)
     warnResult.value = data
     warnOpen.value = false
@@ -779,7 +756,7 @@ const zoneOverlayTitle = computed(() => {
   return '分区预测加载中…'
 })
 const zoneOverlayText = computed(() => {
-  if (entitiesState.value === 'error') return '演示分区接口请求失败。'
+  if (entitiesState.value === 'error') return '情景分区接口请求失败。'
   if (zoneScores[stageKey.value].state === 'blocked') {
     return '预测接口对该档位返回能力阻塞（CAPABILITY_UNAVAILABLE）：30—90 天预测尚未就绪，不提供分区预测分数。'
   }
@@ -805,6 +782,118 @@ const zoneRows = computed(() => {
 const mapRef = ref(null)
 const layerGrid = ref(true)
 const layerPoints = ref(true)
+const layerRealtime = ref(true)
+const realtimeSummary = ref(null)
+// 拓展图层（observed 真实数据）：历史快照 / 站点环比变化 / 预警范围凸包
+const rtSnapshotId = ref('')
+const rtDiff = ref(false)
+const rtPolygon = ref(false)
+const rtTimeline = ref([])
+const prevSummary = ref(null)
+
+function fetchSummaryFor(snapshotId) {
+  return fetchRealtimeSummary({ snapshotId: snapshotId || undefined })
+}
+
+// 选中快照 → 展示该快照点位；环比开启时并联前一快照
+watch(rtSnapshotId, async (id, old) => {
+  try {
+    realtimeSummary.value = await fetchSummaryFor(id)
+  } catch {
+    realtimeSummary.value = null
+  }
+  if (rtDiff.value) {
+    const snaps = rtTimeline.value || []
+    const at = snaps.findIndex((s) => s.snapshot_id === (id || (rtTimeline.value?.latest_snapshot_id || '')))
+    const prevId = at > 0 ? snaps[at - 1].snapshot_id : ''
+    try {
+      prevSummary.value = prevId ? await fetchSummaryFor(prevId) : null
+    } catch {
+      prevSummary.value = null
+    }
+  }
+})
+
+watch([rtDiff, rtTimeline], async ([on]) => {
+  if (!on) {
+    prevSummary.value = null
+    return
+  }
+  const snaps = rtTimeline.value || []
+  const currentId = rtSnapshotId.value || snaps[snaps.length - 1]?.snapshot_id
+  const at = snaps.findIndex((s) => s.snapshot_id === currentId)
+  const prevId = at > 0 ? snaps[at - 1].snapshot_id : ''
+  try {
+    prevSummary.value = prevId ? await fetchSummaryFor(prevId) : null
+  } catch {
+    prevSummary.value = null
+  }
+})
+
+// 站点环比变化（chla Δ，相对上一快照）
+const chlaDeltaByStation = computed(() => {
+  const delta = {}
+  if (!rtDiff.value || !prevSummary.value) return delta
+  const prevChla = {}
+  ;(prevSummary.value.markers || []).forEach((m) => { prevChla[m.id] = m.chla })
+  ;(realtimeSummary.value?.markers || []).forEach((m) => {
+    const prev = prevChla[m.id]
+    if (prev == null || m.chla == null) return
+    const d = Number((m.chla - prev).toFixed(2))
+    if (Math.abs(d) < 0.05) return
+    delta[m.id] = d
+  })
+  return delta
+})
+
+// 预警范围凸包（Andrew monotone chain，lon/lat 平面近似；结果为 [[lat,lon],...] 首尾不闭合）
+function convexHull(points) {
+  if (points.length < 3) return []
+  const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1])
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+  const lower = []
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop()
+    lower.push(p)
+  }
+  const upper = []
+  for (let i = pts.length - 1; i >= 0; i -= 1) {
+    const p = pts[i]
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop()
+    upper.push(p)
+  }
+  upper.pop()
+  lower.pop()
+  return lower.concat(upper).map(([lon, lat]) => [lat, lon])
+}
+
+const warningHull = computed(() => {
+  if (!rtPolygon.value) return []
+  const pts = (realtimeSummary.value?.warnings || [])
+    .filter((w) => w.lon != null && w.lat != null)
+    .map((w) => [w.lon, w.lat])
+  return convexHull(pts)
+})
+
+// 实时观测点位（observed 轨）：与情景格网同图分轨展示，颜色按 chla 筛查口径
+const realtimePoints = computed(() =>
+  (realtimeSummary.value?.markers || []).map((m) => {
+    const delta = chlaDeltaByStation.value[m.id]
+    const color = delta != null ? (delta > 0 ? '#ff6b6b' : '#5fd6a4') : chlaColor(m.chla)
+    const deltaText = delta != null ? ` · 环比 ${delta > 0 ? '+' : ''}${delta} μg/L` : ''
+    return {
+      id: m.id,
+      short: '',
+      name: '',
+      hideLabel: true,
+      level: 'low',
+      color,
+      lat: m.lat,
+      lon: m.lon,
+      tooltip: `${m.name}（位置待核验）${m.chla != null ? ` · Chl-a ${m.chla} μg/L` : ' · Chl-a 缺测'}${deltaText}`
+    }
+  })
+)
 const layerLabels = ref(true)
 const basemap = ref('satellite')
 const tileError = ref(false)
@@ -897,13 +986,13 @@ const mapOverlayState = computed(() => {
 })
 
 const mapOverlayTitle = computed(() => {
-  if (mapOverlayState.value === 'loading') return '演示风险格网加载中…'
+  if (mapOverlayState.value === 'loading') return '情景风险格网加载中…'
   if (mapOverlayState.value === 'same') return '两个场景相同，无差异'
-  return '演示风险格网加载失败'
+  return '情景风险格网加载失败'
 })
 const mapOverlayDesc = computed(() => {
-  if (mapOverlayState.value === 'loading') return '正在请求 /map/risk-grid 演示接口。'
-  if (mapOverlayState.value === 'same') return '请选择两个不同档位进行演示场景比较。'
+  if (mapOverlayState.value === 'loading') return '正在请求 /map/risk-grid 情景接口。'
+  if (mapOverlayState.value === 'same') return '请选择两个不同档位进行情景场景比较。'
   const entry = abMode.value === 'a' ? grids[abA.value] : abMode.value === 'b' ? grids[abB.value] : currentEntry.value
   return (entry && entry.error) || '接口请求失败，不展示旧档位格网。'
 })
@@ -980,11 +1069,11 @@ const axisStages = STAGE_KEYS.map((key) => ({
   days: STAGE_DAYS[key]
 }))
 const subLabels = {
-  t1: '演示预测',
-  t3: '演示预测',
-  t7: '演示预测',
-  t15: '演示预测',
-  t30: '模拟预演'
+  t1: '情景推演',
+  t3: '情景推演',
+  t7: '情景推演',
+  t15: '情景推演',
+  t30: '情景推演'
 }
 
 function togglePlay() {
@@ -1050,6 +1139,9 @@ onMounted(() => {
   fetchEntities()
   // 当前档位优先，随后预加载其余档位供趋势与 A/B 使用
   fetchGrid(stageKey.value).then(() => preloadTrend())
+  // 实时观测图层（observed）：失败不打断情景推演主视图
+  fetchRealtimeSummary().then((s) => { realtimeSummary.value = s }).catch(() => { realtimeSummary.value = null })
+  fetchRealtimeTimeline().then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => { rtTimeline.value = [] })
   mobileMq?.addEventListener('change', onMobileMqChange)
 })
 
@@ -1060,6 +1152,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.hm-data-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  border: 1px dashed color-mix(in srgb, var(--risk-medium, #f5b45d) 45%, transparent);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--risk-medium, #f5b45d) 6%, var(--surface-panel));
+  padding: 8px 14px;
+}
+.hm-data-note a { color: var(--color-primary); }
 .page-heatmap {
   max-width: 1760px;
   margin: 0 auto;
@@ -1072,7 +1175,6 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     'title'
-    'kpis'
     'hmain'
     'dock'
     'charts'
@@ -1086,7 +1188,7 @@ onBeforeUnmount(() => {
   grid-area: title;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 6px 16px;
   padding: 6px 14px;
@@ -1096,19 +1198,12 @@ onBeforeUnmount(() => {
 }
 .hm-title-left {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   min-width: 0;
 }
-.hm-kicker {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  color: var(--color-primary);
-}
 .hm-title h1 {
-  margin: 1px 0 0;
+  margin: 0;
   font-family: var(--font-display);
   font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 700;
@@ -1121,31 +1216,6 @@ onBeforeUnmount(() => {
   align-items: flex-end;
   gap: 6px;
   min-width: 0;
-}
-.hm-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 5px;
-}
-.hm-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 9px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  background: var(--surface-panel-soft);
-  font-size: 10.5px;
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-.hm-chip b { color: var(--text-primary); font-weight: 600; }
-.hm-chip--notice {
-  border-color: color-mix(in srgb, var(--data-simulated, #7cb8c9) 45%, transparent);
-  color: var(--data-simulated, #7cb8c9);
 }
 .hm-modes {
   display: inline-flex;
@@ -1191,19 +1261,11 @@ onBeforeUnmount(() => {
   outline-offset: 1px;
 }
 
-/* ---------- KPI ---------- */
-.hm-kpis {
-  grid-area: kpis;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-}
-
 /* ---------- 主三栏 ---------- */
 .hm-main {
   grid-area: hmain;
   display: grid;
-  grid-template-columns: minmax(218px, 19fr) minmax(0, 62fr) minmax(252px, 19fr);
+  grid-template-columns: minmax(206px, 15fr) minmax(0, 70fr) minmax(240px, 15fr);
   grid-template-areas: 'hleft hcenter hright';
   gap: 6px;
   align-items: start;
@@ -1351,7 +1413,7 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 .hm-map-wrap :deep(.hm-map) {
-  height: clamp(250px, 29vh, 320px);
+  height: clamp(420px, 62vh, 820px);
 }
 .hm-map-overlay {
   position: absolute;
@@ -1799,7 +1861,7 @@ onBeforeUnmount(() => {
 /* ---------- 响应式 ---------- */
 @media (max-width: 1280px) {
   .hm-main {
-    grid-template-columns: minmax(200px, 26fr) minmax(0, 74fr);
+    grid-template-columns: minmax(190px, 22fr) minmax(0, 78fr);
     grid-template-areas: 'hcenter hright';
   }
   .hm-left {
@@ -1825,7 +1887,6 @@ onBeforeUnmount(() => {
   .hm-body {
     grid-template-areas:
       'title'
-      'kpis'
       'hcenter'
       'dock'
       'hright'
@@ -1837,12 +1898,6 @@ onBeforeUnmount(() => {
   }
   .hm-center { grid-area: hcenter; }
   .hm-right { grid-area: hright; }
-  .hm-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .hm-kpis [data-kpi='quality-status'] {
-    display: none;
-  }
   .hm-right {
     max-height: none;
     overflow: visible;
@@ -1885,7 +1940,6 @@ onBeforeUnmount(() => {
   }
 
   /* 触摸目标 ≥44×44 */
-  .hm-chip,
   .hm-ab-modes button,
   .hm-ab-select select,
   .hm-inline-btn,
@@ -1903,7 +1957,7 @@ onBeforeUnmount(() => {
     min-height: 44px;
   }
   .hm-map-wrap :deep(.hm-map) {
-    height: 300px;
+    height: clamp(340px, 52vh, 560px);
   }
 }
 </style>

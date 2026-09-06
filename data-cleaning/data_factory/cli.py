@@ -14,6 +14,7 @@ from data_factory.contracts.constants import (
     BOUNDARY_GPKG,
     DEFAULT_RELEASE_TABLES,
     RAW_ROOT,
+    STATION_REGISTRY_MERGED,
     TAIHUGURAD_STATIONS,
     run_dir,
     yaml_path,
@@ -56,7 +57,7 @@ def cmd_freeze_grid(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         config,
         boundary_gpkg=Path(args.boundary) if args.boundary else BOUNDARY_GPKG,
         out_dir=run_dir(args.dataset) / "grid",
-        stations_json=Path(args.stations) if args.stations else TAIHUGURAD_STATIONS,
+        stations_json=Path(args.stations) if args.stations else (STATION_REGISTRY_MERGED if STATION_REGISTRY_MERGED.exists() else TAIHUGURAD_STATIONS),
     )
     return manifest, 0
 
@@ -108,6 +109,19 @@ def cmd_collect_realtime(args: argparse.Namespace) -> tuple[dict[str, Any], int]
         return {"status": "blocked", "message": f"unknown source: {args.source} (available: {', '.join(VALID_SOURCES)})"}, 2
     if "BLOCKED" in str(manifest.get("status", "")).upper() or "blocked" in str(manifest.get("status", "")).lower():
         return manifest, 2
+    return manifest, 0
+
+
+def cmd_build_mee_catalog(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    from data_factory.contracts.constants import MEE_REALTIME_CATALOG_DIR, RAW_ROOT, STATION_REGISTRY_MERGED
+    from data_factory.ingestion.mee_realtime_catalog import build_catalog
+
+    manifest = build_catalog(
+        raw_root=RAW_ROOT,
+        out_dir=MEE_REALTIME_CATALOG_DIR,
+        registry_path=STATION_REGISTRY_MERGED if STATION_REGISTRY_MERGED.exists() else None,
+        collection_status_path=run_dir(args.dataset) / "realtime" / "mee_collection_status.json",
+    )
     return manifest, 0
 
 
@@ -236,6 +250,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--start", default="2024-01-01", help="gee 计划窗口起点")
     p.add_argument("--end", default="2024-12-31", help="gee 计划窗口终点")
 
+    p = sub.add_parser("build-mee-catalog", help="从全部不可变快照重建 MEE 站点目录三层结构（幂等回填）")
+
     sub.add_parser("lock-splits", help="锁定 70/15/15 + 隔离窗切分")
 
     p = sub.add_parser("fit", help="仅用 train 真值拟合校准参数")
@@ -274,6 +290,7 @@ def main(argv: list[str] | None = None) -> int:
         "freeze-grid": cmd_freeze_grid,
         "ingest-history": cmd_ingest_history,
         "collect-realtime": cmd_collect_realtime,
+        "build-mee-catalog": cmd_build_mee_catalog,
         "lock-splits": cmd_lock_splits,
         "fit": cmd_fit,
         "simulate": cmd_simulate,

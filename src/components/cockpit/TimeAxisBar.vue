@@ -64,7 +64,7 @@ const props = defineProps({
   autoRange: { type: Boolean, default: true },
   // default: 按钮列表；axis: 轴线节点形式
   variant: { type: String, default: 'default' },
-  // 档位副标签覆盖（如能力状态：演示预测接口 / 模拟预演），缺省用内置文案
+  // 档位副标签覆盖（如能力状态：情景推演接口 / 情景推演），缺省用内置文案
   subLabelMap: { type: Object, default: () => ({}) }
 })
 

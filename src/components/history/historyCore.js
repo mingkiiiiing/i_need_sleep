@@ -133,7 +133,7 @@ export function eventTimeLabel(ev) {
   return ''
 }
 
-const EVENT_TYPE_TEXT = { model: '预测运行（演示）' }
+const EVENT_TYPE_TEXT = { model: '预测运行（情景）' }
 export function eventTypeText(type) {
   if (!type) return ''
   return EVENT_TYPE_TEXT[type] || type
@@ -143,7 +143,7 @@ const STAGE_TEXT = { t1: 'T+1d', t3: 'T+3d', t7: 'T+7d', t15: 'T+15d', t30: 'T+3
 export function stageLabelOf(key) {
   if (!key) return ''
   const base = STAGE_TEXT[key] || key
-  return key === 't30' ? `${base} · 模拟预演` : `${base} · 演示预测`
+  return key === 't30' ? `${base} · 情景推演` : `${base} · 情景推演`
 }
 
 export function serializeFilters(f, eventId = '') {
@@ -171,7 +171,7 @@ export const REPLAY_FRAME_DEFS = [
   { key: 'after48', label: '事件后48h', offset: 2 }
 ]
 
-// 仅使用接口返回的 risk_level 组装演示回放帧；接口缺某日数据则该帧标记 null
+// 仅使用接口返回的 risk_level 组装情景回放帧；接口缺某日数据则该帧标记 null
 export function buildReplayFrames(timelineData, eventDateIso) {
   const win = replayWindow(eventDateIso)
   if (!win) return []
@@ -193,7 +193,7 @@ export function buildReplayFrames(timelineData, eventDateIso) {
 
 // 规划中的三套预案模板：仅静态名称与用途说明，无适配分 / 负责人 / 措施状态
 export const PLAN_TEMPLATES = Object.freeze([
-  { id: 'intake_protection', name: '取水口保护', note: '面向取水口周边演示分区的巡查与防护模板' },
+  { id: 'intake_protection', name: '取水口保护', note: '面向取水口周边情景分区的巡查与防护模板' },
   { id: 'bay_patrol', name: '重点湖湾加密巡查', note: '面向重点湖湾的加密巡查模板' },
   { id: 'river_mouth_monitor', name: '强降雨后入湖河口加密监测', note: '面向强降雨后入湖河口的加密监测模板' }
 ])

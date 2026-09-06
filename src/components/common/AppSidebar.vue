@@ -38,8 +38,6 @@
         <span class="sb-label">{{ item.label }}</span>
       </RouterLink>
     </nav>
-
-    <p class="sb-foot" aria-hidden="true">SIMULATED</p>
   </aside>
 </template>
 
@@ -127,6 +125,12 @@ const items = [
     to: '/history',
     label: '历史复盘',
     icon: '<circle cx="10" cy="11" r="6.6"/><path d="M10 7.6V11l2.4 1.5"/><path d="M7 2.6h6"/>'
+  },
+  {
+    num: '05',
+    to: '/wallboard',
+    label: '实时大屏',
+    icon: '<rect x="3" y="4" width="14" height="9.5" rx="1"/><path d="M7 16.5h6"/><path d="M10 13.5v3"/>'
   }
 ]
 </script>

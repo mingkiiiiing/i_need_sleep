@@ -2,7 +2,7 @@
   <section class="stn-block stn-trend-panel" aria-label="指标趋势与预测能力状态">
     <header class="stn-sec-head">
       <h2>指标趋势</h2>
-      <span class="stn-sec-tag">模拟观测样本 · 不插值</span>
+      <span class="stn-sec-tag">情景观测样本 · 不插值</span>
     </header>
 
     <div class="stn-chip-rows">
@@ -41,7 +41,7 @@
       v-else-if="state === 'error'"
       state="error"
       title="观测数据加载失败"
-      description="模拟观测接口请求失败，可重试加载。"
+      description="情景观测接口请求失败，可重试加载。"
     >
       <button type="button" class="stn-inline-btn" @click="$emit('retry')">重试</button>
     </StatePanel>
@@ -50,17 +50,17 @@
       <div v-if="windowRows.length" class="stn-trend-body">
         <EChart :option="chartOption" :height="chartHeight" />
         <p v-if="singlePointOnly" class="stn-trend-note stn-trend-note--sparse" role="status">
-          当前数据不足以形成连续趋势：窗口内每个指标最多 1 个模拟观测点，仅显示点标记。
+          当前数据不足以形成连续趋势：窗口内每个指标最多 1 个情景观测点，仅显示点标记。
         </p>
       </div>
       <StatePanel
         v-else
         state="empty"
         title="当前时间窗口内没有观测点"
-        description="模拟观测样本未落在所选窗口内。可切换更大的时间范围查看实际返回的数据点。"
+        description="情景观测样本未落在所选窗口内。可切换更大的时间范围查看实际返回的数据点。"
       />
       <p class="stn-trend-note">
-        当前曲线来自模拟观测样本；数据稀疏时不进行插值，不代表真实历史趋势。
+        当前曲线来自情景观测样本；数据稀疏时不进行插值，不代表真实历史趋势。
       </p>
     </template>
   </section>

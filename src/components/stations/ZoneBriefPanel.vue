@@ -4,7 +4,7 @@
     <section class="stn-block stn-sec-profile" aria-label="当前分区档案">
       <header class="stn-sec-head">
         <h2>分区档案</h2>
-        <span class="stn-sec-tag">{{ briefRefreshing ? '更新中…' : 'SIMULATED' }}</span>
+        <span class="stn-sec-tag">{{ briefRefreshing ? '更新中…' : '情景' }}</span>
       </header>
       <div v-if="entity" class="stn-brief-head">
         <span class="sb-code">{{ entity.short }}</span>
@@ -29,10 +29,10 @@
     </section>
 
     <!-- 当前指标 -->
-    <section class="stn-block stn-sec-metrics" aria-label="当前演示指标">
+    <section class="stn-block stn-sec-metrics" aria-label="当前情景指标">
       <header class="stn-sec-head">
         <h2>当前指标</h2>
-        <span class="stn-sec-tag">最近模拟观测</span>
+        <span class="stn-sec-tag">最近情景观测</span>
       </header>
       <div v-if="obsState === 'loading'" class="stn-skel-mini" role="status" aria-label="指标加载中">
         <div class="skel-row"></div>
@@ -45,7 +45,7 @@
       >
         <button type="button" class="stn-inline-btn" @click="$emit('retry-obs')">重试</button>
       </StatePanel>
-      <p v-else-if="!latestMetrics.length" class="stn-none">暂无数据：接口未返回该分区的模拟观测。</p>
+      <p v-else-if="!latestMetrics.length" class="stn-none">暂无数据：接口未返回该分区的情景观测。</p>
       <ul v-else class="stn-metric-list">
         <li v-for="m in latestMetrics" :key="m.code">
           <span class="sm-name">{{ m.label }}</span>
@@ -97,7 +97,7 @@
       </header>
       <div v-if="stageKey === 't30'" class="stn-forecast-blocked" role="note">
         <strong>30—90 天预测能力未就绪</strong>
-        <p>当前仅允许模拟预演，不提供正式预测结论</p>
+        <p>当前仅允许情景推演，不提供正式预测结论</p>
       </div>
       <template v-else>
         <div v-if="forecastState === 'loading'" class="stn-skel-mini" role="status" aria-label="预测数据加载中">
@@ -111,13 +111,13 @@
           <div class="sf-top">
             <span class="sf-score mono">{{ forecast.risk_score }}</span>
             <span class="sb-risk" :class="`lv-${forecast.risk_level}`">{{ riskTextOf(forecast.risk_level) }}</span>
-            <em class="sf-sim">SIMULATED · 仅模拟</em>
+            <em class="sf-sim">情景推演 · 非决策依据</em>
           </div>
           <dl class="stn-kv">
             <dt>不确定性区间</dt>
             <dd class="stn-mono">{{ forecast.uncertainty ? `${forecast.uncertainty.lower} ~ ${forecast.uncertainty.upper}` : '—' }}</dd>
             <dt>provider</dt><dd class="stn-mono">{{ forecast.provider_type }}</dd>
-            <dt>model</dt><dd class="stn-mono">{{ forecast.model_version }}（演示规则）</dd>
+            <dt>model</dt><dd class="stn-mono">{{ forecast.model_version }}（情景规则）</dd>
             <dt>quality_gate</dt>
             <dd class="stn-mono">{{ forecast.quality_gate ? `${forecast.quality_gate.status} · ${forecast.quality_gate.decision}` : '—' }}</dd>
           </dl>
@@ -125,11 +125,11 @@
             质量门禁：{{ forecast.quality_gate.reason }}
           </p>
         </div>
-        <p v-else class="stn-none">暂无当前档位演示预测。</p>
+        <p v-else class="stn-none">暂无当前档位情景推演。</p>
       </template>
     </section>
 
-    <!-- 分区事件与模拟预警由 ZoneEventsPanel 承载（移动端需独立排序） -->
+    <!-- 分区事件与情景预警由 ZoneEventsPanel 承载（移动端需独立排序） -->
   </div>
 </template>
 

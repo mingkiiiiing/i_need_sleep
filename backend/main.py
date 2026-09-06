@@ -90,17 +90,18 @@ async def request_id_middleware(request: Request, call_next):
     return response
 
 
-def _error_payload(request: Request, *, status_code: int, code: str, message: str, field: str | None, detail: str, dataset_version: str) -> dict[str, Any]:
+def _error_payload(request: Request, *, status_code: int, code: str, message: str, field: str | None, detail: str, dataset_version: str, track: dict[str, str] | None = None) -> dict[str, Any]:
+    track = track or {}
     return {
         "code": status_code,
         "message": message,
         "data": None,
         "meta": {
-            "data_mode": DATA_MODE,
+            "data_mode": track.get("data_mode") or DATA_MODE,
             "dataset_version": dataset_version or dataset_version_for_path(request.url.path),
             "prediction_run_id": None,
-            "as_of": AS_OF,
-            "claim_boundary": CLAIM_BOUNDARY,
+            "as_of": track.get("as_of") or AS_OF,
+            "claim_boundary": track.get("claim_boundary") or CLAIM_BOUNDARY,
             "request_id": request_id_of(request),
         },
         "errors": [{"code": code, "field": field, "detail": detail}],
@@ -120,6 +121,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
             field=detail["field"],
             detail=detail["detail"],
             dataset_version=detail["dataset_version"],
+            track=detail.get("track"),
         ),
     )
 
