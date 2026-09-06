@@ -51,6 +51,16 @@ export async function requestEnvelope(path, options = {}) {
   return { data: body.data, meta: body.meta || {} }
 }
 
+// ---------- 首页：系统能力 / 数据集摘要（观察类契约，meta 驱动身份展示） ----------
+
+export function getSystemCapabilitiesEnvelope() {
+  return requestEnvelope('/system/capabilities')
+}
+
+export function getDatasetsSummaryEnvelope() {
+  return requestEnvelope('/datasets/summary')
+}
+
 // ---------- P03 监测站点研判（demo_zone 演示分区） ----------
 
 export function getSpatialEntities(entityType = 'demo_zone') {

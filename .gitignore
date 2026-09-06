@@ -24,6 +24,8 @@ pnpm-debug.log*
 
 # CDP 验证脚本产生的无头浏览器配置缓存不入库
 reports/**/edge-profile/
+# audit8 固定版本 chrome-headless-shell 本地缓存不入库
+reports/audit8/.browser-cache/
 
 # Editor and OS files
 .vscode/

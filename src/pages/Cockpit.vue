@@ -13,7 +13,7 @@
           <span class="ckp-chip">数据版本 <b>{{ dataIdentity.datasetVersionId }} / {{ datasetVersion }}</b></span>
           <span class="ckp-chip">数据质量 <QualityBadge quality="pending" label="演示数据" /></span>
           <span class="ckp-chip">预测能力 <b>{{ capabilityLabel || '—' }}</b></span>
-          <span class="ckp-chip ckp-chip--notice">SIMULATED · 非决策用途</span>
+          <span class="ckp-chip ckp-chip--notice">{{ dataIdentity.dataMode }} · {{ dataIdentity.claimBoundary }}</span>
           <button type="button" class="ckp-reset" @click="resetFilters">恢复默认筛选</button>
         </div>
       </header>
@@ -229,7 +229,7 @@
           <dt>演示分区</dt><dd>{{ region ? `${region.totalStations} / 6 已接入` : '—' }}</dd>
           <dt>风险分布</dt><dd>{{ riskDistributionText || '—' }}</dd>
           <dt>数据版本</dt><dd>{{ dataIdentity.datasetVersionId }} · 预测 {{ datasetVersion }}</dd>
-          <dt>数据模式</dt><dd>SIMULATED · 非决策用途</dd>
+          <dt>数据模式</dt><dd>{{ dataIdentity.dataMode }} · {{ dataIdentity.claimBoundary }}（{{ dataIdentity.claimBoundaryCode }}）</dd>
           <dt>扩散轨迹</dt><dd>当前数据未提供</dd>
         </dl>
       </section>
@@ -257,7 +257,6 @@
           <RouterLink :to="stationsLink">进入站点诊断</RouterLink>
           <RouterLink to="/heatmap">进入风险研判</RouterLink>
           <RouterLink to="/history">进入事件复盘</RouterLink>
-          <RouterLink class="ckp-wallboard-entry" to="/wallboard">打开综合展示大屏</RouterLink>
         </nav>
       </Teleport>
     </div>
@@ -419,7 +418,7 @@ const axisStages = computed(() => stages.value.map((s) => ({
 
 const selectedPointData = computed(() => points.value.find((p) => p.id === store.selectedPoint) || null)
 const datasetVersion = computed(() =>
-  selectedPointData.value?.datasetVersion || points.value[0]?.datasetVersion || dataIdentity.predictionRunId
+  selectedPointData.value?.datasetVersion || points.value[0]?.datasetVersion || dataIdentity.predVersionId
 )
 
 // 演示分区无经纬度字段：用后端 pointPositions 百分比映射到太湖范围（与 LakeMap 热力网格同边界）
@@ -1367,6 +1366,18 @@ function resetFilters() {
 @media (max-width: 759px) {
   .page-cockpit {
     padding: 14px 14px calc(78px + env(safe-area-inset-bottom));
+  }
+  /* 移动端触摸目标：Leaflet 默认缩放按钮 30×30，提到 44×44；署名链接同步 ≥44px */
+  .ckp-map-wrap :deep(.leaflet-control-zoom a) {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
+  .ckp-map-wrap :deep(.leaflet-control-attribution a) {
+    display: inline-block;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 4px;
   }
   .ckp-body {
     gap: 12px;

@@ -12,8 +12,8 @@
           融合多源数据、机理模型与人工智能，支持全湖态势研判、站点下钻、时空推演与历史复盘。
         </p>
         <p class="boundary">
-          <strong>{{ identity.dataModeLabel }}（{{ identity.dataMode }}）</strong>
-          当前为统一演示数据联调环境，{{ identity.claimBoundary }}。
+          <strong>{{ identity.dataModeLabel }}（{{ apiDataMode }}）</strong>
+          当前为统一演示数据联调环境（claim_boundary：{{ apiClaimBoundaryCode }}），{{ identity.claimBoundary }}。
         </p>
         <div class="actions">
           <RouterLink class="btn btn-primary" to="/cockpit">
@@ -23,20 +23,46 @@
             查看项目方案
           </RouterLink>
         </div>
-        <dl class="facts" aria-label="系统能力状态">
-          <div v-for="fact in facts" :key="fact.label" class="fact">
-            <dt>{{ fact.label }}</dt>
-            <dd>{{ fact.value }}</dd>
-            <span>{{ fact.note }}</span>
-          </div>
-        </dl>
+
+        <!-- 系统能力四态：loading / error（含重试）/ empty / ok，全部来自后端契约 -->
+        <div class="capability-block" aria-label="系统能力状态（后端接口）">
+          <StatePanel
+            v-if="capabilityState === 'loading'"
+            state="loading"
+            title="系统能力加载中…"
+            description="正在从 /api/v1 读取能力状态、数据集摘要与演示分区。"
+          />
+          <StatePanel
+            v-else-if="capabilityState === 'error'"
+            state="error"
+            title="系统能力加载失败"
+            description="无法连接后端演示接口，能力卡与分区统计暂不可用。可重试，或稍后再试。"
+          >
+            <button type="button" class="btn btn-ghost home-retry" @click="loadCapabilities">重试</button>
+          </StatePanel>
+          <StatePanel
+            v-else-if="capabilityState === 'empty'"
+            state="empty"
+            title="后端暂无能力数据"
+            description="接口返回为空，能力卡暂无可展示内容。可重试。"
+          >
+            <button type="button" class="btn btn-ghost home-retry" @click="loadCapabilities">重试</button>
+          </StatePanel>
+          <dl v-else class="facts" aria-label="系统能力状态">
+            <div v-for="fact in facts" :key="fact.label" class="fact">
+              <dt>{{ fact.label }}</dt>
+              <dd>{{ fact.value }}</dd>
+              <span>{{ fact.note }}</span>
+            </div>
+          </dl>
+        </div>
       </div>
 
       <figure class="lake-panel">
         <figcaption class="lake-head">
           <div class="lake-head-copy">
             <strong>{{ identity.lakeName }} · 演示分区态势</strong>
-            <span>{{ identity.datasetVersionId }} · 非真实站点 · 点击分区进入站点研判</span>
+            <span>{{ apiObsVersion }} · 非真实站点 · 点击分区进入站点研判</span>
           </div>
           <DataModeBadge mode="simulated" :label="identity.dataMode" />
         </figcaption>
@@ -66,9 +92,9 @@
         </div>
 
         <div class="lake-foot" aria-label="分区风险统计">
-          <span class="lg lg--high"><i aria-hidden="true"></i>红色预警 × {{ regionSummary.riskCounts.high }}</span>
-          <span class="lg lg--mid"><i aria-hidden="true"></i>橙色关注 × {{ regionSummary.riskCounts.mid }}</span>
-          <span class="lg lg--low"><i aria-hidden="true"></i>绿色稳定 × {{ regionSummary.riskCounts.low }}</span>
+          <span class="lg lg--high"><i aria-hidden="true"></i>红色预警 × {{ zoneRiskCounts.high }}</span>
+          <span class="lg lg--mid"><i aria-hidden="true"></i>橙色关注 × {{ zoneRiskCounts.mid }}</span>
+          <span class="lg lg--low"><i aria-hidden="true"></i>绿色稳定 × {{ zoneRiskCounts.low }}</span>
           <a
             class="lg-attr"
             href="https://www.openstreetmap.org/copyright"
@@ -136,7 +162,7 @@
         <span>A23 · 演示联调</span>
       </div>
       <p class="foot-identity">
-        数据模式 {{ identity.dataMode }} · {{ identity.datasetVersionId }} / {{ identity.predictionRunId }} · {{ identity.claimBoundary }}
+        数据模式 {{ apiDataModeRaw }} · {{ identity.dataMode }} / {{ apiObsVersion }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }} / {{ apiClaimBoundaryCode }} / {{ identity.claimBoundary }}
       </p>
       <p class="foot-bound">{{ identity.claimNote }}</p>
     </footer>
@@ -144,15 +170,90 @@
 </template>
 
 <script setup>
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { pointData, regionSummary } from '../data/points.js'
 import { TAIHU_OUTLINE, taihuZonePos } from '../data/taihuOutline.js'
 import { dataIdentity as identity } from '../data/dataIdentity.js'
+import { getSystemCapabilitiesEnvelope, getDatasetsSummaryEnvelope, getSpatialEntities } from '../services/api.js'
 import DataModeBadge from '../components/common/DataModeBadge.vue'
+import StatePanel from '../components/common/StatePanel.vue'
 
 const router = useRouter()
 
-// 分区编号为界面展示用简称，稳定对象 ID 仍以 points.js 为准
+// ---------- 后端契约接入：能力状态 / 数据集摘要 / 演示分区（全部观察类） ----------
+// meta 优先驱动身份展示，事实源 dataIdentity 仅作请求失败/首帧前的明确 fallback。
+const capabilityState = ref('loading') // loading | ok | error | empty
+const sysMeta = ref(null) // 最近一次成功响应的 meta（六键）
+const capabilities = ref(null)
+const blockers = ref([])
+const datasets = ref([])
+const entities = ref([])
+const apiError = ref('')
+
+async function loadCapabilities() {
+  capabilityState.value = 'loading'
+  apiError.value = ''
+  try {
+    const [capsRes, dsRes, zoneRes] = await Promise.all([
+      getSystemCapabilitiesEnvelope(),
+      getDatasetsSummaryEnvelope(),
+      getSpatialEntities('demo_zone')
+    ])
+    // CapabilitiesData 结构：{ data_as_of, capabilities:{能力键→状态}, blockers:[], provider_status }
+    capabilities.value = capsRes.data?.capabilities || {}
+    blockers.value = capsRes.data?.blockers || []
+    datasets.value = dsRes.data?.datasets || []
+    entities.value = Array.isArray(zoneRes.data) ? zoneRes.data : []
+    // 统一以能力接口的 meta 为首页身份口径（三个响应同属观察类，meta 一致）
+    sysMeta.value = capsRes.meta && Object.keys(capsRes.meta).length ? capsRes.meta : null
+    const capsEmpty = !capabilities.value || Object.keys(capabilities.value).length === 0
+    if (capsEmpty && !datasets.value.length && !entities.value.length) {
+      capabilityState.value = 'empty'
+    } else {
+      capabilityState.value = 'ok'
+    }
+  } catch (err) {
+    apiError.value = err?.message || String(err)
+    capabilityState.value = 'error'
+  }
+}
+onMounted(loadCapabilities)
+
+// ---------- meta 优先的身份展示（fallback = 事实源） ----------
+const apiDataModeRaw = computed(() => sysMeta.value?.data_mode || 'simulated')
+const apiDataMode = computed(() => apiDataModeRaw.value.toUpperCase())
+const apiObsVersion = computed(() => sysMeta.value?.dataset_version || identity.datasetVersionId)
+const apiClaimBoundaryCode = computed(() => sysMeta.value?.claim_boundary || identity.claimBoundaryCode)
+const apiAsOf = computed(() => (sysMeta.value?.as_of || identity.asOfFull).replace('T', ' ').slice(0, 16))
+
+// ---------- 能力卡：由 capabilities 状态推导，不做硬编码假设 ----------
+const CAP_TEXT = {
+  dataset_available_backend_pending: { value: '演示观测已接入', note: '后端正式接入待接' },
+  dataset_ready_model_pending: { value: '演示档位可用', note: '正式模型待接入' },
+  blocked_auth: { value: '仅模拟预演', note: '正式能力未建成' },
+  experimental_not_operational: { value: '试验能力', note: '不作为业务数据来源' },
+  not_enabled: { value: '未开启', note: '无真实分发渠道' },
+  available: { value: '演示通道可用', note: 'platform_simulation' }
+}
+const facts = computed(() => {
+  const caps = capabilities.value || {}
+  const capValue = (key) => {
+    const status = caps[key]
+    return CAP_TEXT[status]?.value || status || '—'
+  }
+  const capNote = (key) => CAP_TEXT[caps[key]]?.note || ''
+  const shortReady = /dataset_ready|available/.test(caps.short_term_forecast_1_3d || '')
+  const mediumReady = /dataset_ready|available/.test(caps.medium_term_forecast_7_15d || '')
+  return [
+    { label: '数据模式', value: apiDataMode.value, note: `基准 ${apiAsOf.value} · ${apiClaimBoundaryCode.value}` },
+    { label: '业务对象', value: `${entities.value.length || 0} 个演示分区`, note: '来自 /spatial-entities · 非真实监测站' },
+    { label: '预测能力', value: shortReady && mediumReady ? '1—15 天演示档位' : capValue('short_term_forecast_1_3d'), note: shortReady && mediumReady ? 't1 / t3 / t7 / t15' : capNote('short_term_forecast_1_3d') },
+    { label: '长期能力', value: capValue('long_term_forecast_30_90d'), note: blockers.value[0]?.action || capNote('long_term_forecast_30_90d') }
+  ]
+})
+
+// 分区编号为界面展示用简称，稳定对象 ID 仍以接口/points.js 为准
 const CODES = {
   northwest_hotspot: 'NW-01',
   central_lake: 'CN-02',
@@ -162,19 +263,30 @@ const CODES = {
   south_channel: 'SC-06'
 }
 
-const zones = Object.values(pointData).map((p) => ({
+// 湖面分区：接口分区优先（位置/风险/名称来自后端），失败或为空时回退静态常量
+const apiZones = computed(() => entities.value.map((e) => ({
+  id: e.id,
+  code: e.short || CODES[e.id] || '',
+  name: e.display_name || '',
+  riskClass: e.risk_hint || 'low',
+  risk: { high: '红色预警', mid: '橙色关注', low: '绿色稳定' }[e.risk_hint] || '绿色稳定',
+  pos: { top: e.position?.top || '50%', left: e.position?.left || '50%' }
+})))
+const staticZones = Object.values(pointData).map((p) => ({
   ...p,
   code: CODES[p.id] || '',
   // 真实轮廓上的展示定位优先；pointPositions 供站点页等业务使用，不做改动
   pos: taihuZonePos[p.id] || { top: '50%', left: '50%' }
 }))
+const zones = computed(() => (apiZones.value.length ? apiZones.value : staticZones))
 
-const facts = [
-  { label: '数据模式', value: identity.dataMode, note: '统一演示数据联调环境' },
-  { label: '业务对象', value: '6 个演示分区', note: '非真实监测站' },
-  { label: '预测能力', value: '1—15 天演示档位', note: 't1 / t3 / t7 / t15' },
-  { label: '长期能力', value: '30 天仅模拟预演', note: '正式 30—90 天预测未接入' }
-]
+// 分区风险统计：接口 risk_hint 优先，回退静态 regionSummary
+const zoneRiskCounts = computed(() => {
+  if (!apiZones.value.length) return regionSummary.riskCounts
+  const counts = { high: 0, mid: 0, low: 0 }
+  for (const z of apiZones.value) counts[z.riskClass] = (counts[z.riskClass] || 0) + 1
+  return counts
+})
 
 const entries = [
   {
@@ -182,28 +294,28 @@ const entries = [
     to: '/cockpit',
     title: '综合驾驶舱',
     desc: '全湖态势总览：风险分区、演示事件流与预警信息一屏研判。',
-    mode: 'SIMULATED · DEMO-OBS-V1'
+    mode: `SIMULATED · ${identity.predVersionId} / ${identity.predictionRunId}`
   },
   {
     no: '02 · P03',
     to: '/stations',
     title: '监测站点研判',
     desc: '点位地图 + 详情卡 + 藻密度时序 + 因子贡献逐层下钻。',
-    mode: 'SIMULATED · DEMO-OBS-V1'
+    mode: `SIMULATED · ${identity.datasetVersionId} / ${identity.predVersionId}`
   },
   {
     no: '03 · P07',
     to: '/heatmap',
     title: '风险地图与时空推演',
     desc: '风险热力场与 1—30 天时空档位推演，30 天仅模拟预演。',
-    mode: 'SIMULATED · DEMO-PRED-V1'
+    mode: `SIMULATED · ${identity.predVersionId} / ${identity.predictionRunId}`
   },
   {
     no: '04',
     to: '/history',
     title: '历史事件与处置复盘',
     desc: '事件链回放与处置记录复盘，沉淀研判经验。',
-    mode: 'SIMULATED · 演示事件流'
+    mode: `SIMULATED · ${identity.predVersionId} / ${identity.predictionRunId}`
   }
 ]
 
@@ -333,6 +445,18 @@ function goZone(id) {
   gap: 10px;
   margin: 8px 0 0;
 }
+.capability-block {
+  margin: 8px 0 0;
+  min-height: 96px;
+}
+.capability-block .state-panel {
+  width: 100%;
+  text-align: left;
+}
+.home-retry {
+  min-height: 44px;
+  border-radius: var(--radius-item);
+}
 .fact {
   display: grid;
   gap: 2px;
@@ -455,7 +579,10 @@ function goZone(id) {
   border-radius: var(--radius-item);
   background: var(--surface-panel-raised);
   box-shadow: var(--shadow-sm);
-  white-space: nowrap;
+  white-space: normal;
+  /* 触靠右/左边缘的分区提示不越出画布（390px 小屏亦不产生横向溢出） */
+  max-width: min(46vw, 200px);
+  overflow-wrap: anywhere;
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(2px);
@@ -509,6 +636,15 @@ function goZone(id) {
   border-bottom: 1px dashed var(--border-subtle);
 }
 .lg-attr:hover { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+/* 小屏触摸目标：署名链接点击区提到 ≥44px 高 */
+@media (max-width: 640px) {
+  .lg-attr {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 6px;
+  }
+}
 
 /* ============ 四个核心入口 ============ */
 .entries {

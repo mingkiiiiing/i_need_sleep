@@ -13,12 +13,12 @@
         </div>
         <div class="his-title-right">
           <div class="his-chips" aria-label="数据身份">
-            <span class="his-chip his-chip--notice">SIMULATED</span>
-            <span class="his-chip">DEMO-OBS-V1</span>
-            <span class="his-chip">DEMO-PRED-V1</span>
-            <span class="his-chip">DEMO-RUN-V1</span>
-            <span class="his-chip his-chip--notice">simulation_only</span>
-            <span class="his-chip his-chip--notice">非决策用途</span>
+            <span class="his-chip his-chip--notice">{{ identity.dataMode }}</span>
+            <span class="his-chip">{{ identity.datasetVersionId }}</span>
+            <span class="his-chip">{{ identity.predVersionId }}</span>
+            <span class="his-chip">{{ identity.predictionRunId }}</span>
+            <span class="his-chip his-chip--notice">{{ identity.claimBoundaryCode }}</span>
+            <span class="his-chip his-chip--notice">{{ identity.claimBoundary }}</span>
           </div>
           <button
             type="button"
@@ -117,7 +117,7 @@
       />
 
       <footer class="his-foot">
-        <span>数据模式 simulated · SIMULATED / DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only / 非决策用途 · 当前事件为演示事件，非真实历史水华事件</span>
+        <span>数据模式 simulated · {{ identity.dataMode }} / {{ identity.datasetVersionId }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }} / {{ identity.claimBoundaryCode }} / {{ identity.claimBoundary }} · 当前事件为演示事件，非真实历史水华事件</span>
       </footer>
     </div>
 
@@ -206,6 +206,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { cockpitState, useCockpitStore } from '../stores/cockpit.js'
+import { dataIdentity as identity } from '../data/dataIdentity.js'
 import {
   getEventsEnvelope,
   getCockpitEventsEnvelope,

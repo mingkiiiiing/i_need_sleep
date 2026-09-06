@@ -16,9 +16,10 @@
             <span v-if="selectedEntity" class="stn-chip stn-chip--zone">
               {{ selectedEntity.short }} · {{ selectedEntity.display_name }}
             </span>
-            <span class="stn-chip stn-chip--notice">SIMULATED</span>
+            <span class="stn-chip stn-chip--notice">{{ dataIdentity.dataMode }}</span>
             <span class="stn-chip">{{ obsVersion }}</span>
-            <span class="stn-chip stn-chip--notice">非决策用途</span>
+            <span class="stn-chip">{{ predVersion }}</span>
+            <span class="stn-chip stn-chip--notice">{{ dataIdentity.claimBoundary }}</span>
             <span class="stn-chip">档位 <b>{{ stageShortLabel }}</b></span>
             <span class="stn-chip">基准 <b>{{ dataIdentity.asOfFull }}</b></span>
           </div>
@@ -243,7 +244,7 @@ const heatField = ref({})
 const heatError = ref(false)
 const refreshing = ref(false)
 
-const predVersion = ref(dataIdentity.predictionRunId)
+const predVersion = ref(dataIdentity.predVersionId)
 
 let rankToken = 0
 // 观测与质量各自独立令牌：两者并发发起，不能共用一个自增计数器
@@ -834,6 +835,13 @@ onBeforeUnmount(() => {
 }
 @media (max-width: 960px) {
   .page-stations { padding: 12px 12px calc(84px + env(safe-area-inset-bottom, 0px)); }
+  /* 移动端触摸目标：地图署名链接点击区 ≥44px */
+  .stn-map-wrap :deep(.leaflet-control-attribution a) {
+    display: inline-block;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 4px;
+  }
   .stn-body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:

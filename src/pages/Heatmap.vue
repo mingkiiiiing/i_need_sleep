@@ -12,12 +12,12 @@
         </div>
         <div class="hm-title-right">
           <div class="hm-chips" aria-label="数据身份">
-            <span class="hm-chip hm-chip--notice">SIMULATED</span>
+            <span class="hm-chip hm-chip--notice">{{ dataIdentity.dataMode }}</span>
             <span class="hm-chip">{{ predVersion }}</span>
             <span class="hm-chip">{{ runId }}</span>
             <span class="hm-chip" data-role="stage-chip">档位 <b>{{ stageShortLabel }}</b></span>
-            <span class="hm-chip hm-chip--notice">simulation_only</span>
-            <span class="hm-chip hm-chip--notice">非决策用途</span>
+            <span class="hm-chip hm-chip--notice">{{ dataIdentity.claimBoundaryCode }}</span>
+            <span class="hm-chip hm-chip--notice">{{ dataIdentity.claimBoundary }}</span>
           </div>
           <div class="hm-modes" role="group" aria-label="时间模式（历史 / 当前 / 未来预演）">
             <button type="button" data-mode-btn="history" disabled aria-disabled="true">
@@ -638,9 +638,9 @@ const kpis = computed(() => {
 
 // ---------- 帧摘要 ----------
 const predVersion = computed(
-  () => (currentEntry.value.raw && currentEntry.value.raw.meta && currentEntry.value.raw.meta.dataset_version) || dataIdentity.predictionRunId
+  () => (currentEntry.value.raw && currentEntry.value.raw.meta && currentEntry.value.raw.meta.dataset_version) || dataIdentity.predVersionId
 )
-const runId = computed(() => (currentEntry.value.raw && currentEntry.value.raw.prediction_run_id) || '—')
+const runId = computed(() => (currentEntry.value.raw && currentEntry.value.raw.prediction_run_id) || dataIdentity.predictionRunId)
 const dataMode = computed(() => (currentEntry.value.raw && currentEntry.value.raw.data_mode) || 'simulated')
 
 const frameOverlay = computed(() => overlayOf(currentEntry.value))
@@ -1809,6 +1809,18 @@ onBeforeUnmount(() => {
 @media (max-width: 960px) {
   .page-heatmap {
     padding: 8px 12px calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+  /* 移动端触摸目标：Leaflet 默认缩放按钮 30×30，提到 44×44；署名链接同步 ≥44px */
+  .hm-map-wrap :deep(.leaflet-control-zoom a) {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+  }
+  .hm-map-wrap :deep(.leaflet-control-attribution a) {
+    display: inline-block;
+    min-height: 44px;
+    line-height: 44px;
+    padding: 0 4px;
   }
   .hm-body {
     grid-template-areas:

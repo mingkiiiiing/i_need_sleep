@@ -2,19 +2,19 @@
   <div class="ctxbar">
     <p
       class="ctx-line"
-      :aria-label="`数据身份：${identity.lakeName}，${identity.dataMode}，${identity.datasetVersionId}，${identity.asOfLabel}，${identity.claimBoundary}`"
+      :aria-label="`数据身份：${identity.lakeName}，${identity.dataMode}，观测${identity.datasetVersionId}，预测${identity.predVersionId}，运行${identity.predictionRunId}，${identity.asOfLabel}，${identity.claimBoundaryCode}`"
     >
       <span class="ctx-strong">{{ identity.lakeName }}</span>
       <span class="ctx-sep" aria-hidden="true">｜</span>
       <span class="ctx-mode">{{ identity.dataMode }}</span>
       <span class="ctx-sep" aria-hidden="true">｜</span>
-      <span>{{ identity.datasetVersionId }}</span>
+      <span>{{ identity.datasetVersionId }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }}</span>
       <span class="ctx-sep ctx-hide-sm" aria-hidden="true">｜</span>
       <span class="ctx-hide-sm">{{ identity.asOfLabel }}</span>
       <span class="ctx-sep ctx-hide-sm" aria-hidden="true">｜</span>
-      <span class="ctx-boundary ctx-hide-sm">{{ identity.claimBoundary }}</span>
+      <span class="ctx-boundary ctx-hide-sm">{{ identity.claimBoundaryCode }}</span>
     </p>
-    <p class="ctx-line-sm">{{ identity.dataModeLabel }} · {{ identity.datasetVersionId }} · {{ identity.claimBoundary }}</p>
+    <p class="ctx-line-sm">{{ identity.dataModeLabel }} · {{ identity.datasetVersionId }} / {{ identity.predVersionId }} · {{ identity.claimBoundary }}</p>
 
     <button
       ref="sourceBtn"
@@ -277,6 +277,6 @@ function onDrawerKeydown(e) {
     letter-spacing: 0.04em;
     color: var(--text-secondary);
   }
-  .ctx-source { min-height: 40px; }
+  .ctx-source { min-height: 44px; }
 }
 </style>

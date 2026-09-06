@@ -1,0 +1,129 @@
+# audit8 Git 范围证明
+
+生成时间：2026-09-06（返工轮更新）
+当前 HEAD = 7f21d32（fix(backend): audit7 返工终轮——根路径 / 归入观察类数据身份并同步审计材料）
+本任务状态：第八任务返工完成，未 commit，未 push，等待第八轮独立复审。
+
+## 一、第七任务检查点（已提交）
+
+审计确认的 5 个文件已按指示先行提交，第八任务在该检查点之上进行：
+
+```text
+7f21d32 fix(backend): audit7 返工终轮——根路径 / 归入观察类数据身份并同步审计材料
+  backend/app/contracts.py
+  backend/tests/test_error_and_provider_contract.py
+  reports/audit7/api-contract-matrix.md
+  reports/audit7/git-scope.txt
+  reports/audit7/live-api-verification.json
+  5 files changed, 166 insertions(+), 122 deletions(-)
+```
+
+提交后 `git status --short` 全净，随后进入第八任务。
+
+## 二、第八任务未提交改动（当前工作区）
+
+源码（`git diff --stat`，+构建产物 dist/**）：
+
+```text
+ src/services/api.js                      |  10 ++       # 新增 system/capabilities、datasets/summary envelope 方法（P1-1）
+ src/pages/Home.vue                       | 188 +++++-   # 接入三接口（capabilities/datasets/spatial-entities）、meta 优先身份行、
+                                                        #   loading/error/empty/ok 四态 + 重试、分区悬浮提示防溢出（P1-1）
+ src/data/dataIdentity.js                 |  13 ++-      # 唯一事实源：predVersionId/RUN/claimBoundaryCode + provenance 预测运行行
+ src/pages/Cockpit.vue                    |  19 ++-      # PRED 回退修正、芯片接事实源、移除 /wallboard 入口（P2-3）、移动端缩放钮/署名 44px
+ src/pages/Stations.vue                   |  14 ++-      # predVersion 初始值修正、芯片接事实源、署名链接 44px
+ src/pages/Heatmap.vue                    |  22 ++-      # PRED/RUN 回退修正、芯片接事实源、缩放钮/署名链接 44px
+ src/pages/History.vue                    |  15 ++-      # 身份芯片与页脚由硬编码改为事实源引用
+ src/components/common/DataContextBar.vue |  10 ++-      # 公共身份栏 OBS/PRED/RUN 三元组 + simulation_only
+ src/layouts/AppShell.vue                 |   3 +        # skip-link min-height 44px（视觉隐藏元素，无外观变化）
+ package.json / package-lock.json         |  4 +         # devDependencies 新增 puppeteer-core、@puppeteer/browsers（仅复验脚本使用）
+ .gitignore                               |  2 +         # 忽略 reports/audit8/.browser-cache/（固定版本 headless-shell 本地缓存）
+ dist/**（构建产物，vite build 重新生成）  |              # dist 在本仓库为已跟踪构建产物，随源码同步重建
+ reports/audit8/**（新增）                |              # 本任务全部交付物
+```
+
+reports/audit8 内容：delivery-report.md、audit8-verify.mjs（可复跑、失败可退出、
+支持外部地址与 CDP 连接、run_id 防陈旧）、verify.log（正式运行 161/161、
+run_id=2026-09-06T04-45-39-397Z、status=passed、退出码 0）、verify-results.json、
+console-network-report.md、console-network-report.json、api-consumer-matrix.md、
+git-scope.txt（本文件）、screenshots/（24 张：五页 × 1920/1440/390 + 首页 empty/错误/
+恢复态、stations/heatmap 错误与恢复态 + 抽屉）、.browser-cache/（固定版本
+chrome-headless-shell@152.0.7977.82 本地缓存，已 gitignore，不入库）。
+
+## 三、范围保证（逐项核对 git status）
+
+1. **backend/** 零改动**：任务期间未修改任何后端文件；发现口径差异一律按后端契约为准。
+2. **data-cleaning/** 零改动：任务开始与结束时均不在 git status 中。
+3. **P02、P08、/wallboard**：三者的页面源文件零改动。按 P2-3 已移除驾驶舱
+   "打开综合展示大屏"入口，且脚本逐页断言五页无 wallboard/P02/P08 链接；
+   `/wallboard` 直达路由与页面文件按审计意见保留至第九任务清理。
+4. 未触碰用户并行现场：任务开始时 5173/4173 端口存在旧 Vite 进程（PID 77588/16944），
+   全程未杀、未占用；自建服务使用 4180（静态）与 8617—8621 临时端口（均已停止，
+   负向验证确认 4180/8618 无残留监听）。
+5. rework7-frontend-changes.patch（仓库外）仅作参考，逐项判断后重新实现；未整体 apply。
+6. 未执行 git add / git commit / git stash / git clean（第七任务检查点提交除外）。
+
+## 四、返工轮（第二轮）findings 逐条处置记录
+
+- **P1-1 首页接入后端契约**：Home.vue 新增三接口并行加载（观察类 capabilities /
+  datasets-summary / spatial-entities），能力卡与分区数据由接口推导、meta 优先驱动
+  身份展示；新增 loading/error/empty/ok 四态与重试；脚本删除"首页零 API 合法"豁免
+  并注入三接口失败验证错误态→重试恢复（截图 home-error / home-error-recovered）。
+- **P1-2 失败路径可退出**：清理改为可等待异步关闭（HTTP close 回调 + 子进程退出等待
+  + 5s 超时 SIGKILL 兜底），正常/断言失败/浏览器启动失败全路径执行，结束显式
+  process.exit；Edge 启动重试 3 次（独立临时 profile）。负向实测：无效 Edge 路径
+  输出 FATAL 原因、退出码 2、进程结束、4180/8618 无残留监听。
+- **P2-1 自定义地址语义**：显式 URL = 外部服务，不可达快速失败；未显式 = 按端口自建；
+  内置前端反代一律指向实际 BACK_URL。已用外部后端 8621 端到端验证 159/159。
+- **P2-2 触摸检查全页覆盖**：移除首屏限制，逐页测量全部已渲染交互元素（23/40/36/49/21 个，
+  输出测量数与失败明细）；抽屉展开状态单独测量（28 个）。据此修复 Leaflet 缩放钮/
+  署名链接、首页 OSM 署名链接、skip-link 三处既有小目标。
+- **P2-3 五页无冻结入口**：移除驾驶舱 /wallboard 入口；脚本逐页断言无
+  wallboard/P02/P08 链接；Wallboard 文件与直达路由留待第九任务。
+
+## 五、验证结果快照（第五轮正式 run：run_id=2026-09-06T04-45-39-397Z）
+
+- npm run build：通过（ECharts chunk 体积提示为既有行为）。
+- python -m pytest backend/tests -q：92 passed（基线实测）。
+- audit7 live_verify.py：64/64，0 失败（基线；audit7 JSON 随后恢复到检查点版本）。
+- audit8 audit8-verify.mjs 正式运行：**161/161 PASS，status=passed，退出码 0**，
+  进程正常结束；verify.log / verify-results.json / console-network-report.json
+  同一 run_id，审计引用以该 run 为准。
+- 负向验证：浏览器启动失败（AUDIT8_EDGE 指向非浏览器可执行文件）→ 3 次尝试含完整
+  stderr → FATAL + 启动诊断，退出码 2，结果文件即时 status=fatal（不残留旧通过结果），
+  进程结束，4180/8618 无残留监听；外部后端死端口 → 快速失败退出码 2。
+- git diff --check：通过。
+
+## 六、第三轮 findings 逐条处置记录
+
+- **P1 首页能力结构解析**：Home.vue 改按 CapabilitiesData 结构取
+  `data.capabilities` / `data.blockers`；脚本新增"B·首页能力卡消费接口数据"断言
+  （预测能力=1—15 天演示档位、长期能力=仅模拟预演、无 `—` 占位），正式 run 实测通过。
+- **P1 empty 态可达**：空判定改为 `Object.keys(capabilities).length===0` 且三接口数据
+  均空；脚本新增"200+合法信封+空载荷"注入用例（home-empty@1440 独立会话），
+  断言进入 empty 态、截图 home-empty.png、重试后恢复真实能力卡。
+- **P1 启动可复现**：候选浏览器依序探测（Edge→Chrome 兜底；AUDIT8_EDGE 显式指定
+  不存在即报错不回退）；每候选三种启动方式逐次尝试（默认 WS / pipe 传输 / 精简参数），
+  独立临时 profile；成功后日志与 JSON 记录可执行文件、版本、方式、profile；
+  失败逐次记录完整错误于 browser_diag.attempts。本轮实测 Edg/152.0.4191.53 首选成功。
+- **P2 结果防陈旧**：运行开始即写 status=running 占位；正常结束写 passed/failed +
+  exit_code + started_at/finished_at；FATAL 即时写 fatal + 错误与诊断；三个产物文件
+  携带同一 run_id。负向实测：注入启动失败后 verify-results.json 即为 status=fatal，
+  不再残留旧通过结果。
+
+## 七、第五轮 findings 逐条处置记录
+
+- **P1 成功路径稳定复现**：浏览器方案改为三级优先——① AUDIT8_CDP_URL 连接预启动
+  浏览器（CDP，不拉起进程，CDP 失败自动落回下一级并实测）；② 固定版本
+  chrome-headless-shell@152.0.7977.82（经 @puppeteer/browsers 安装至
+  reports/audit8/.browser-cache/ 本地缓存，缺失自动一次性安装；与系统 Edge 的
+  运行状态/策略完全解耦；本轮正式 run 即采用该方案）；③ 系统 Edge/Chrome 兜底
+  （ws/pipe/精简参数逐次尝试，独立临时 profile，失败逐次记录完整 stderr）。
+  AUDIT8_EDGE 显式指定不存在即报错不回退。附带修复：第三方底图瓦片（ArcGIS 等
+  跨域请求）与第一方资源分级——第一方失败仍不通过，第三方瓦片按条记录并断言页面
+  以图层错误态/重试图层诚实处理，避免外部瓦片服务瞬断使验收门不确定。
+- **P2 日志状态一致性**：终端汇总行改用与 JSON 相同的计算状态变量（failed 时终端
+  输出 status=failed，不再固定输出 passed）；running 占位 finished_at=null，
+  仅 passed/failed/fatal 记录完成时间。已在一次真实第三方瓦片瞬断运行中验证：
+  终端与 JSON 同为 status=failed。
+- 本轮未修改 Home 或任何业务页面代码；产物以第五轮正式 run
+  （run_id=2026-09-06T04-45-39-397Z，161/161，status=passed）为准。

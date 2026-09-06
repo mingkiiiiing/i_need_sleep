@@ -130,6 +130,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
   top: -60px;
   left: 84px;
   z-index: 2000;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 12px 18px;
   border-radius: var(--radius-item);
   background: var(--color-primary);
