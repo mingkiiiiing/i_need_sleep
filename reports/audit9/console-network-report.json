@@ -1,0 +1,1046 @@
+{
+  "run_id": "2026-09-06T06-49-03-068Z",
+  "started_at": "2026-09-06T06:49:03.069Z",
+  "finished_at": "2026-09-06T06:50:24.820Z",
+  "status": "passed",
+  "exit_code": 0,
+  "front": "http://127.0.0.1:4191",
+  "back": "http://127.0.0.1:8629",
+  "browser": {
+    "kind": "chrome-headless-shell@152.0.7977.82",
+    "executable": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\reports\\audit9\\.browser-cache\\chrome-headless-shell\\win64-152.0.7977.82\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+    "mode": "固定版本 headless-shell（首选）",
+    "headless": true,
+    "userDataDir": null,
+    "ok": true,
+    "browserVersion": "HeadlessChrome/152.0.7977.82"
+  },
+  "pass": 167,
+  "fail": 0,
+  "total": 167,
+  "results": [
+    {
+      "name": "A·信封 /api/health",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /api/v1/system/capabilities",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /api/v1/datasets/summary",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /api/v1/pipeline/runs/latest",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /api/v1/spatial-entities?entity_type=demo_zone&mode=simulated",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /",
+      "ok": true,
+      "detail": "dataset_version=DEMO-OBS-V1 run=null"
+    },
+    {
+      "name": "A·信封 /api/v1/cockpit/time-stages",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/cockpit/points",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/cockpit/region-summary",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/cockpit/events",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/map/risk-grid?horizon_days=3",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/forecast-capabilities",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·信封 /api/v1/events",
+      "ok": true,
+      "detail": "dataset_version=DEMO-PRED-V1 run=DEMO-RUN-V1"
+    },
+    {
+      "name": "A·错误信封 404 保持身份（错误响应 run 恒 null）",
+      "ok": true,
+      "detail": "OBS 404 + PRED 404 均按类别，run=null"
+    },
+    {
+      "name": "B·渲染 home @ 1920×1080",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 home @ 1920×1080",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 home @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·首页能力卡消费接口数据",
+      "ok": true,
+      "detail": "数据模式=SIMULATED｜业务对象=6 个演示分区｜预测能力=1—15 天演示档位｜长期能力=仅模拟预演"
+    },
+    {
+      "name": "B·无横向溢出 home @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 home @ 1920×1080",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 home @ 1920×1080",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 home @ 1920×1080",
+      "ok": true,
+      "detail": "3 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 home @ 1920×1080",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / SIMULATED"
+    },
+    {
+      "name": "B·<main> 唯一 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "5 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 cockpit @ 1920×1080",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 stations @ 1920×1080",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 stations @ 1920×1080",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 stations @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·地图署名 stations @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 stations @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 stations @ 1920×1080",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 stations @ 1920×1080",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 stations @ 1920×1080",
+      "ok": true,
+      "detail": "12 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 stations @ 1920×1080",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·地图署名 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "14 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 heatmap @ 1920×1080",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 history @ 1920×1080",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 history @ 1920×1080",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1"
+    },
+    {
+      "name": "B·<main> 唯一 history @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 history @ 1920×1080",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 history @ 1920×1080",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 history @ 1920×1080",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 history @ 1920×1080",
+      "ok": true,
+      "detail": "4 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 history @ 1920×1080",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 home @ 1440×900",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 home @ 1440×900",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 home @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 home @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 home @ 1440×900",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 home @ 1440×900",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 home @ 1440×900",
+      "ok": true,
+      "detail": "3 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 home @ 1440×900",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / SIMULATED"
+    },
+    {
+      "name": "B·<main> 唯一 cockpit @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 cockpit @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "5 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 cockpit @ 1440×900",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 stations @ 1440×900",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 stations @ 1440×900",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 stations @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·地图署名 stations @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 stations @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 stations @ 1440×900",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 stations @ 1440×900",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 stations @ 1440×900",
+      "ok": true,
+      "detail": "12 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 stations @ 1440×900",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·<main> 唯一 heatmap @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·地图署名 heatmap @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 heatmap @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "14 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 heatmap @ 1440×900",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 history @ 1440×900",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 history @ 1440×900",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1"
+    },
+    {
+      "name": "B·<main> 唯一 history @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 history @ 1440×900",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 history @ 1440×900",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 history @ 1440×900",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 history @ 1440×900",
+      "ok": true,
+      "detail": "4 个响应全部符合"
+    },
+    {
+      "name": "B·无冻结页入口 history @ 1440×900",
+      "ok": true,
+      "detail": "无 /wallboard、P02、P08 链接"
+    },
+    {
+      "name": "B·渲染 home @ 390×844",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 home @ 390×844",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·无横向溢出 home @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 home @ 390×844",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 home @ 390×844",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 home @ 390×844",
+      "ok": true,
+      "detail": "3 个响应全部符合"
+    },
+    {
+      "name": "B·移动触摸目标（全页 home @ 390×844）",
+      "ok": true,
+      "detail": "测量 23 个交互元素（全页），均 ≥44×44"
+    },
+    {
+      "name": "B·渲染 cockpit @ 390×844",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 cockpit @ 390×844",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / SIMULATED"
+    },
+    {
+      "name": "B·无横向溢出 cockpit @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 cockpit @ 390×844",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 cockpit @ 390×844",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 cockpit @ 390×844",
+      "ok": true,
+      "detail": "5 个响应全部符合"
+    },
+    {
+      "name": "B·移动触摸目标（全页 cockpit @ 390×844）",
+      "ok": true,
+      "detail": "测量 40 个交互元素（全页），均 ≥44×44"
+    },
+    {
+      "name": "B·渲染 stations @ 390×844",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 stations @ 390×844",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / simulation_only"
+    },
+    {
+      "name": "B·地图署名 stations @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 stations @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 stations @ 390×844",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 stations @ 390×844",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 stations @ 390×844",
+      "ok": true,
+      "detail": "12 个响应全部符合"
+    },
+    {
+      "name": "B·移动触摸目标（全页 stations @ 390×844）",
+      "ok": true,
+      "detail": "测量 36 个交互元素（全页），均 ≥44×44"
+    },
+    {
+      "name": "B·渲染 heatmap @ 390×844",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 heatmap @ 390×844",
+      "ok": true,
+      "detail": "DEMO-PRED-V1 / DEMO-RUN-V1 / simulation_only"
+    },
+    {
+      "name": "B·地图署名 heatmap @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·无横向溢出 heatmap @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 heatmap @ 390×844",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 heatmap @ 390×844",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 heatmap @ 390×844",
+      "ok": true,
+      "detail": "14 个响应全部符合"
+    },
+    {
+      "name": "B·移动触摸目标（全页 heatmap @ 390×844）",
+      "ok": true,
+      "detail": "测量 49 个交互元素（全页），均 ≥44×44"
+    },
+    {
+      "name": "B·渲染 history @ 390×844",
+      "ok": true,
+      "detail": "成功状态渲染"
+    },
+    {
+      "name": "B·数据身份展示 history @ 390×844",
+      "ok": true,
+      "detail": "DEMO-OBS-V1 / DEMO-PRED-V1 / DEMO-RUN-V1"
+    },
+    {
+      "name": "B·无横向溢出 history @ 390×844",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "B·控制台无错误 history @ 390×844",
+      "ok": true,
+      "detail": "无错误"
+    },
+    {
+      "name": "B·网络无失败 history @ 390×844",
+      "ok": true,
+      "detail": "静态资源与 API 全部正常"
+    },
+    {
+      "name": "B·API 身份契约 history @ 390×844",
+      "ok": true,
+      "detail": "4 个响应全部符合"
+    },
+    {
+      "name": "B·移动触摸目标（全页 history @ 390×844）",
+      "ok": true,
+      "detail": "测量 21 个交互元素（全页），均 ≥44×44"
+    },
+    {
+      "name": "C·首页进入四个业务页面",
+      "ok": true,
+      "detail": "四入口可达"
+    },
+    {
+      "name": "C·P01 点位进入 P03 对应对象",
+      "ok": true,
+      "detail": "点击 02CN-02湖心演示分区中风险54，#/stations?t=t7&p=central_lake"
+    },
+    {
+      "name": "C·P01 返回后筛选与 URL 同步",
+      "ok": true,
+      "detail": "后退/前进状态保持"
+    },
+    {
+      "name": "C·P01 风险区域进入 P07",
+      "ok": true,
+      "detail": "进入风险研判"
+    },
+    {
+      "name": "C·P01/P07 事件进入历史复盘",
+      "ok": true,
+      "detail": "历史事件 6 条"
+    },
+    {
+      "name": "C·跨页 ID 与 canonical 一致",
+      "ok": true,
+      "detail": "事件/分区 ID 与后端一致"
+    },
+    {
+      "name": "D·cockpit 合法参数冷启动恢复",
+      "ok": true,
+      "detail": "#/cockpit?t=t3&p=water_intake"
+    },
+    {
+      "name": "D·cockpit 刷新后状态保持",
+      "ok": true,
+      "detail": "刷新保持"
+    },
+    {
+      "name": "D·stations 合法参数冷启动 + 刷新",
+      "ok": true,
+      "detail": "选中 river_inlet"
+    },
+    {
+      "name": "D·非法参数不白屏（cockpit ?t=bogus&p=bogus）",
+      "ok": true,
+      "detail": "页面正常，非法档位清理"
+    },
+    {
+      "name": "D·非法参数不白屏（stations ?p=bogus）",
+      "ok": true,
+      "detail": "页面正常，非法分区清理"
+    },
+    {
+      "name": "D·history 冷启动与刷新",
+      "ok": true,
+      "detail": "6 条事件"
+    },
+    {
+      "name": "D·冷启动与同文档跳转一致",
+      "ok": true,
+      "detail": "cockpit/heatmap 签名一致"
+    },
+    {
+      "name": "E·/wallboard → 404 页面",
+      "ok": true,
+      "detail": "URL 保持 #/wallboard，404 文案出现，无自动跳转"
+    },
+    {
+      "name": "E·/p02 → 404 页面",
+      "ok": true,
+      "detail": "URL 保持 #/p02，404 文案出现，无自动跳转"
+    },
+    {
+      "name": "E·/p08 → 404 页面",
+      "ok": true,
+      "detail": "URL 保持 #/p08，404 文案出现，无自动跳转"
+    },
+    {
+      "name": "E·/p02/detail → 404 页面",
+      "ok": true,
+      "detail": "URL 保持 #/p02/detail，404 文案出现，无自动跳转"
+    },
+    {
+      "name": "E·404 提供返回首页/驾驶舱入口",
+      "ok": true,
+      "detail": "#/, #/cockpit"
+    },
+    {
+      "name": "F·源码无 wallboard/P02/P08 残留",
+      "ok": true,
+      "detail": "已扫描 src/**（.vue/.js/.css/.html），0 命中"
+    },
+    {
+      "name": "F·构建产物无 wallboard/P02/P08 残留",
+      "ok": true,
+      "detail": "已扫描 dist/**（.js/.css/.html），0 命中"
+    },
+    {
+      "name": "F·活动交付文档与 scripts/ 无废弃残留",
+      "ok": true,
+      "detail": "已扫描 6 份活动文档 + scripts/**，0 命中（历史报告/交接文档列入白名单不扫描）"
+    },
+    {
+      "name": "F·已删除路径不存在且无 mock 配置残留",
+      "ok": true,
+      "detail": "15 个已删除路径确认不存在；根目录无维护脚本；活动文档无 mock 配置与已删 API 引用"
+    },
+    {
+      "name": "F·home 可见文本无废弃残留与超范围声明",
+      "ok": true,
+      "detail": "无废弃残留、无超范围声明"
+    },
+    {
+      "name": "F·cockpit 可见文本无废弃残留与超范围声明",
+      "ok": true,
+      "detail": "无废弃残留、无超范围声明"
+    },
+    {
+      "name": "F·stations 可见文本无废弃残留与超范围声明",
+      "ok": true,
+      "detail": "无废弃残留、无超范围声明"
+    },
+    {
+      "name": "F·heatmap 可见文本无废弃残留与超范围声明",
+      "ok": true,
+      "detail": "无废弃残留、无超范围声明"
+    },
+    {
+      "name": "F·history 可见文本无废弃残留与超范围声明",
+      "ok": true,
+      "detail": "无废弃残留、无超范围声明"
+    },
+    {
+      "name": "G·数据来源抽屉 ARIA/Esc/焦点归还（桌面）",
+      "ok": true,
+      "detail": "dialog/aria-modal/Esc/焦点 OK"
+    },
+    {
+      "name": "G·Tab 焦点圈定（抽屉内）",
+      "ok": true,
+      "detail": "Tab 循环内不逃逸"
+    },
+    {
+      "name": "G·移动端抽屉与底部操作栏（history）",
+      "ok": true,
+      "detail": "抽屉 + 底栏 OK（抽屉态测量 28 个交互元素）"
+    },
+    {
+      "name": "G·移动端抽屉与底部操作栏（stations）",
+      "ok": true,
+      "detail": "抽屉 OK"
+    }
+  ],
+  "sessions": [
+    {
+      "label": "home@1920",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 3
+    },
+    {
+      "label": "cockpit@1920",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 5
+    },
+    {
+      "label": "stations@1920",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 12
+    },
+    {
+      "label": "heatmap@1920",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 14
+    },
+    {
+      "label": "history@1920",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 4
+    },
+    {
+      "label": "home@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 3
+    },
+    {
+      "label": "cockpit@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 5
+    },
+    {
+      "label": "stations@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 12
+    },
+    {
+      "label": "heatmap@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 14
+    },
+    {
+      "label": "history@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 4
+    },
+    {
+      "label": "home@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 3
+    },
+    {
+      "label": "cockpit@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 5
+    },
+    {
+      "label": "stations@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 12
+    },
+    {
+      "label": "heatmap@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 14
+    },
+    {
+      "label": "history@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 4
+    },
+    {
+      "label": "cross-link@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 107
+    },
+    {
+      "label": "url-state@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 86
+    },
+    {
+      "label": "legacy-404@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 0
+    },
+    {
+      "label": "claims@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 38
+    },
+    {
+      "label": "aria@1440",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 3
+    },
+    {
+      "label": "aria@390",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "requestFailures": [],
+      "badResponses": [],
+      "apiCount": 16
+    }
+  ],
+  "allowlist": [
+    {
+      "match": {},
+      "reason": "Vue 开发提示（生产构建通常不出现；出现时无业务影响）"
+    },
+    {
+      "match": {},
+      "reason": "Vue 透传属性提示，既有行为，不影响渲染与交互"
+    },
+    {
+      "match": {},
+      "reason": "Chrome 对长任务的性能建议，非页面错误"
+    },
+    {
+      "match": {},
+      "reason": "ECharts 内部 resize 防抖超时提示，无业务影响"
+    }
+  ]
+}

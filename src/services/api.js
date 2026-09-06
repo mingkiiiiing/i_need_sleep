@@ -1,10 +1,7 @@
 // 驾驶舱 API 统一入口。开发服务器将 /api 代理到本地 FastAPI。
-// VITE_USE_MOCK=true 才使用本地 mock；默认不在接口失败时切换另一套数据源，
-// 以保证页面全部读取同一份、可追溯的 P0 演示数据。
-import * as mock from './mock.js'
-
+// 页面全部读取同一份、可追溯的 P0 演示数据：不做接口失败时的数据源切换，
+// 失败一律进入各页面的错误态与重试流程。
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -67,10 +64,6 @@ export function getSpatialEntities(entityType = 'demo_zone') {
   return requestEnvelope(`/spatial-entities?entity_type=${encodeURIComponent(entityType)}&mode=simulated`)
 }
 
-export function getSpatialEntity(entityId) {
-  return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}`)
-}
-
 export function getEntityObservations(entityId) {
   return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/observations`)
 }
@@ -111,10 +104,6 @@ export function getRiskGridEnvelope(horizonDays) {
   return requestEnvelope(`/map/risk-grid?horizon_days=${encodeURIComponent(horizonDays)}`)
 }
 
-export function getRiskPolygonsEnvelope(horizonDays) {
-  return requestEnvelope(`/map/risk-polygons?horizon_days=${encodeURIComponent(horizonDays)}`)
-}
-
 export function getForecastCapabilitiesEnvelope() {
   return requestEnvelope('/forecast-capabilities')
 }
@@ -126,63 +115,39 @@ export function postHandleWarningEnvelope(eventId) {
   })
 }
 
-async function useConfiguredSource(apiCall, mockCall) {
-  if (USE_MOCK) return mockCall()
-  return apiCall()
-}
+// ---------- P01 驾驶舱（cockpit 视图接口，旧 request 结构） ----------
 
 export function getTimeStages() {
-  return useConfiguredSource(() => request('/cockpit/time-stages'), mock.fetchTimeStages)
+  return request('/cockpit/time-stages')
 }
 
 export function getPoints() {
-  return useConfiguredSource(() => request('/cockpit/points'), mock.fetchPoints)
-}
-
-export function getPointDetail(id) {
-  return useConfiguredSource(() => request(`/cockpit/points/${encodeURIComponent(id)}`), () => mock.fetchPointDetail(id))
+  return request('/cockpit/points')
 }
 
 export function getHeatField() {
-  return useConfiguredSource(() => request('/cockpit/risk-heatmap'), mock.fetchHeatField)
+  return request('/cockpit/risk-heatmap')
 }
 
 export function getEvents() {
-  return useConfiguredSource(() => request('/cockpit/events'), mock.fetchEvents)
+  return request('/cockpit/events')
 }
 
 export function getRegionSummary() {
-  return useConfiguredSource(() => request('/cockpit/region-summary'), mock.fetchRegionSummary)
-}
-
-export function getPrediction(stationId, targetMetric = 'chlorophyll_a', forecastScale = 'short_term') {
-  const horizonDays = { short_term: 3, mid_term: 7, long_term: 30 }[forecastScale] || 3
-  return useConfiguredSource(
-    () => request(`/forecasts?spatial_entity_id=${encodeURIComponent(stationId)}&horizon_days=${horizonDays}&target_metric=${encodeURIComponent(targetMetric)}`).then((forecasts) => forecasts[0]),
-    mock.fetchPrediction
-  )
+  return request('/cockpit/region-summary')
 }
 
 export function getExplanation(predictionId) {
-  return useConfiguredSource(
-    () => request(`/forecasts/${encodeURIComponent(predictionId)}/explanations`),
-    mock.fetchExplanation
-  )
+  return request(`/forecasts/${encodeURIComponent(predictionId)}/explanations`)
 }
 
 export function handleWarning(eventId) {
-  return useConfiguredSource(
-    () => request('/cockpit/handle-warning', {
-      method: 'POST',
-      body: JSON.stringify({ event_id: eventId })
-    }),
-    () => mock.fetchHandleWarning(eventId)
-  )
+  return request('/cockpit/handle-warning', {
+    method: 'POST',
+    body: JSON.stringify({ event_id: eventId })
+  })
 }
 
 export function getTimeline(startDate, endDate) {
-  return useConfiguredSource(
-    () => request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`),
-    () => mock.fetchTimeline(startDate, endDate)
-  )
+  return request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
 }

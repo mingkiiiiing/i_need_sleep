@@ -1,5 +1,5 @@
-// 仅在本项目中作为 mock 数据源，后端接口完成后请将其替换为 services/api.js 中的真实请求。
-// 数据结构保持稳定，方便直接从 mock 切到真实接口。
+// 前端静态演示数据：驾驶舱档位定义与首页湖面分区的静态回退。
+// 业务页以 /api/v1 接口数据优先，本文件仅作请求失败/首帧前的明确 fallback（不静默切换）。
 
 export const pointData = {
   northwest_hotspot: {

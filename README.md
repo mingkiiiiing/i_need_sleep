@@ -72,22 +72,9 @@ npm run preview
 
 vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统一使用 `/api/v1` 相对路径。默认必须先启动后端；后端异常会显示调用错误，不会自动切换为 mock。
 
-### 3.3 切换数据源
+### 3.3 数据源说明
 
-是否走真实接口由环境变量 VITE_USE_MOCK 控制（见 src/services/api.js）：
-
-```js
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
-```
-
-- 未设置 / false（默认）：正常调 `/api/v1/*`，失败时显式报错
-- true：完全不调后端，所有数据走前端 mock
-
-强制全 mock 时，在项目根目录创建 `.env.local` 写入：
-
-```
-VITE_USE_MOCK=true
-```
+前端只连接后端：所有页面统一请求 `/api/v1/*`，不存在 mock 数据源或数据源切换开关（历史 mock 配置与 mock 服务文件已于第九任务清理删除）。后端不可达时页面进入各自的错误态并提供重试，不会静默切换数据。
 
 P0 数据均为 `SIMULATED` 演示数据；六个对象为 `demo_zone`，不是实时站点。1/3/7/15 天仅为样例接口，30 天仅为模拟预演，30—90 天正式预测不可用。详见 [INTEGRATION.md](./INTEGRATION.md)。
 ---
@@ -102,13 +89,11 @@ src/
 ├─ layouts/
 │  └─ AppShell.vue               # 全站布局基座：侧栏 72 / 顶栏 64 / 数据身份栏 40 / 主内容
 ├─ components/
-│  ├─ common/                     # 公共组件：AppSidebar / AppTopBar / DataContextBar / PageHeader / BackLink / MetricCard / DataModeBadge / QualityBadge / StatePanel
-│  ├─ HeroShell.vue               # 通用页眉组件（带入场动效 + meta slot）
-│  ├─ TimeAxisBar.vue             # 时间轴播放器（default 按钮列表 / axis 轴线两种形式）
-│  ├─ CockpitSubTabs.vue          # 驾驶舱子页签切换
-│  ├─ LakeMap.vue                 # 点位地图（Leaflet + 热力层）
-│  ├─ EChart.vue                  # ECharts 容器
-│  └─ echartsTheme.js             # ECharts 暗色主题常量
+│  ├─ common/                     # 公共组件：AppSidebar / AppTopBar / DataContextBar / BackLink / MetricCard / DataModeBadge / QualityBadge / StatePanel
+│  ├─ cockpit/                    # 驾驶舱组件：TimeAxisBar（时间轴播放器）/ LakeMap（点位地图 + 热力层）/ EChart 容器 / echartsTheme
+│  ├─ heatmap/                    # 热力页组件：图层面板 / 风险格网地图 / 预警弹窗 / gridCore
+│  ├─ history/                    # 历史页组件：事件列表 / 详情 / 筛选 / 回放 / 预案 + historyCore
+│  └─ stations/                   # 站点页组件：分页签 / 分区面板 / stationDisplay
 ├─ pages/
 │  ├─ Home.vue                   # 主页（左信息 / 右太湖演示分区缩略图 + 四核心入口 + 项目方案锚点）
 │  ├─ Cockpit.vue                # 驾驶舱总览（03 / 03）
@@ -120,10 +105,10 @@ src/
 │  ├─ cockpit.js                 # 跨页共享状态（时间档 / 选中点位）
 │  └─ routeUi.js                 # 路由 UI 状态（懒加载进度 / 加载失败 / 业务来源）
 ├─ services/
-│  ├─ api.js                     # 接口适配层
-│  └─ mock.js                    # Mock 服务
+│  └─ api.js                     # 接口适配层（统一信封 + meta；前端只连接后端，无 mock）
 └─ data/
-   ├─ points.js                  # 本地数据源（6 点位 / 5 档预测 / 事件流 / 热力网格）
+   ├─ points.js                  # 前端静态演示数据（首页缩略态势回退 / 驾驶舱档位）
+   ├─ taihuOutline.js            # 太湖真实轮廓（OSM relation 1126533）
    └─ dataIdentity.js            # 数据身份唯一事实来源（SIMULATED / 版本 / 基准 / 边界）
 ```
 

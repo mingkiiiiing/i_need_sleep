@@ -12,7 +12,7 @@ backend\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127
 
 接口文档：`http://127.0.0.1:8000/docs`。
 
-前端默认请求 `/api/v1`，经 Vite 代理到本服务。后端失败时前端会显示错误；只有显式设置 `VITE_USE_MOCK=true` 才会使用前端 mock。
+前端默认请求 `/api/v1`，经 Vite 代理到本服务。前端只连接后端，无 mock 数据源（历史 mock 配置与 mock 服务文件已于第九任务删除）；后端失败时前端会显示错误态并提供重试。
 
 ## P0 边界
 

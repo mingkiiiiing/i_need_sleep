@@ -1,0 +1,100 @@
+# audit9 Git 范围证明
+
+生成时间：2026-09-06（第九任务收口）
+基线 HEAD = 72a7b7b（feat(frontend): audit8 五页全链路联调与最终体验验收——数据身份唯一事实源、首页接入后端契约、自动化复验 161 项）
+本任务状态：第九任务全部完成，未 commit，未 push，等待第九轮独立审计。
+
+## 一、前置动作（按任务书要求先行完成）
+
+1. 第八任务报告陈旧文字已修正：全目录无旧 `started_at`（04:12:30.103Z）与"第四轮"表述，
+   三份材料与正式 JSON 的 run_id/时间完全一致。
+2. 第八任务 Git 检查点（复审 PASS 后建立）：
+
+```text
+72a7b7b feat(frontend): audit8 五页全链路联调与最终体验验收
+  78 files changed, 4604 insertions(+), 77 deletions(-)
+  范围：src/**（数据身份/首页契约/触摸目标）、dist/**、package.json、.gitignore、reports/audit8/**
+  提交后 git status 全净，随后开始第九任务。
+```
+
+## 二、第九任务未提交改动（当前工作区）
+
+删除（git rm，7 个文件）：
+
+```text
+ src/pages/Wallboard.vue                    # 废弃大屏页面（路由同步删除）
+ src/components/HeroShell.vue               # 无引用组件
+ src/components/cockpit/CockpitSubTabs.vue  # 无引用组件
+ src/components/common/PageHeader.vue       # 无引用组件
+ src/services/adapters.js                   # 无引用服务层
+ src/services/_mapping.js                   # 仅被 adapters.js 引用
+ src/services/mock.js                       # 废弃开发期 mock 数据源（mock 配置从未启用）
+```
+
+根目录一次性维护脚本（8 个，git rm，返工轮补充）：
+
+```text
+ inject-ai.cjs / patch-stations.cjs         # 引用已删除 API（getPrediction 等），审计点名删除
+ fix4.cjs                                    # 一次性源码行级修补脚本，修补目标早已合入
+ regression2.cjs / repro-back.cjs / repro-back2.cjs / test-back.cjs / test-heatmap.cjs
+                                            # 一次性 playwright 调试脚本（playwright 未安装不可运行），职责由 audit9-verify.mjs 取代
+```
+
+修改（6 个文件）：
+
+```text
+ src/main.js        # 删除 /wallboard 路由项与 Wallboard 懒加载导入
+ src/App.vue        # 删除仅服务 Wallboard 的 route.meta.fullscreen 分支
+ src/services/api.js # 删除 USE_MOCK/useConfiguredSource/mock 包装（11 函数改直连后端）；
+                    #   删除 4 个零引用导出（getSpatialEntity/getRiskPolygonsEnvelope/getPointDetail/getPrediction）
+ src/data/points.js # 头注释由"mock 数据源"改为"前端静态演示数据（接口优先/静态回退）"（返工轮）
+ README.md          # 删除 mock 切换说明与已删组件目录项，目录树按真实结构重写（返工轮）
+ INTEGRATION.md、backend/README.md # 删除 mock 配置指引，改为"前端只连接后端"（返工轮）
+```
+
+构建产物：`dist/**` 随源码重建（wallboard chunk 消失，grep 0 残留）。
+新增：`reports/audit9/**`（本任务全部交付物）与 `.browser-cache`（audit9 目录内，
+已 gitignore）。**backend/**、`data-cleaning/**` 零改动。**
+
+reports/audit9 内容：delivery-report.md、removed-assets.md、route-final-matrix.md、
+console-network-report.md、git-scope.txt（本文件）、audit9-verify.mjs、verify.log、
+verify-results.json、console-network-report.json、screenshots/（19 张：五页 ×
+1920/1440/390 + 404 页 + 3 个抽屉状态）。
+
+## 三、范围保证（逐项核对 git status）
+
+1. **backend/** 零改动**：后端契约接口（含 /map/risk-polygons）一律不因前端暂不调用而删除。
+2. **data-cleaning/** 零改动：开始与结束均不在 git status 中。
+3. 未新增业务页面、未引入第二套 UI 组件库、未改变五页核心交互（仅删除与死代码重构）。
+4. 未触碰用户并行现场（5173/4173 旧 Vite 进程全程未动）；自建服务用 4191/8629
+   （注：4190 被 Node fetch/undici 列为 bad port，故前端默认端口改用 4191），
+   负向与正式运行结束后均无残留监听。
+5. 未执行 git add / git commit / git stash / git clean（第八任务检查点提交除外）。
+
+## 四、验证结果快照（正式 run：run_id=2026-09-06T06-49-03-068Z）
+
+- npm run build：通过。
+- audit9 audit9-verify.mjs：**167/167 PASS，status=passed，退出码 0**，进程正常结束。
+  分组：A 后端信封身份 14 项、B 五页×三视口 122 项、C 跨页链路 6 项、D URL 状态 7 项、
+  E 废弃路由 404 5 项、F 残留与声明扫描 7 项、G 弹层可访问性 4 项。
+- 负向实测①：显式浏览器路径启动失败 → 3 次尝试全记录（均 ok=false）、退出码 2、
+  status=fatal、进程正常结束、无残留监听。
+- 负向实测②（P2-2）：自建后端成功 + 外部前端不可达 → "初始化失败，回滚已启动服务" →
+  FATAL、退出码 2、status=fatal、8629 无残留监听（ensureServices 自身回滚已启句柄，
+  服务初始化纳入统一 try/finally，无清理前 process.exit）。
+- git diff --check：通过。
+
+## 五、返工轮（第三轮）findings 逐条处置记录
+
+- **P1 活动文档仍指导使用已删除功能**：README.md 删除"3.3 切换数据源"节并重写目录树；
+  INTEGRATION.md、backend/README.md 删除 mock 配置指引，统一改为"前端只连接后端"；
+  删除 8 个根目录 .cjs（2 个引用已删 API 系审计点名，6 个为不可运行的一次性脚本）；
+  src/data/points.js 头注释修正；removed-assets.md 同步扩展并修正"全仓 grep 0 命中"
+  表述（原结论仅覆盖 src/**）。
+- **P2-1 扫描名称与实现不一致**：F 组正则改为覆盖 wallboard/综合展示大屏/P02/P08；
+  扫描范围扩展至 6 份活动文档与 scripts/**；历史记录（reports/audit1-8、history/
+  design-export/历史交接文档）列入白名单；新增断言：15 个已删除路径不存在、根目录
+  无 .cjs、活动文档无 VITE_USE_MOCK 与已删 API 引用。
+- **P2-2 服务初始化失败绕过异步清理**：ensureServices 失败时回滚自身已启句柄再抛出；
+  服务初始化纳入统一 try/finally，全部路径经 cleanup 后以退出码返回，无清理前
+  process.exit；补两类负向用例并实测无残留。
