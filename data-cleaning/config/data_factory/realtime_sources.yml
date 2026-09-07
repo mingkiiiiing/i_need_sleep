@@ -1,6 +1,7 @@
 # 实时与在线数据源接入配置 (设计 §8；taihugurad 采集能力重写式适配)
-# Windows 计划任务建议（示例）：
-#   schtasks /create /tn "data-factory-mee" /sc hourly /mo 4 /tr "python -m data_factory collect-realtime --source mee"
+# Windows：用提升的 PowerShell 执行 scripts/register_mee_realtime_task.ps1 -RunAsSystem 安装后台任务。
+# 该任务每 30 分钟采集一次（上游观测通常按小时发布），休眠后恢复补跑，失败后每 15 分钟重试 3 次；
+# SYSTEM 任务在用户锁屏或退出后仍可运行；非管理员时可不带 -RunAsSystem 安装降级版。
 # 或 Linux crontab: 0 0,4,8,12,16,20 * * * cd /path/data-cleaning && python -m data_factory collect-realtime --source mee
 
 mee:

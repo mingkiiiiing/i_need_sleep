@@ -21,8 +21,8 @@ const routes = [
   { path: '/', name: 'home', component: Home, meta: { title: '首页' } },
   { path: '/cockpit', name: 'cockpit', component: Cockpit, meta: { title: '综合驾驶舱' } },
   { path: '/stations', name: 'stations', component: Stations, meta: { title: '监测站点研判' } },
-  { path: '/heatmap', name: 'heatmap', component: Heatmap, meta: { title: '风险地图与时空推演' } },
-  { path: '/history', name: 'history', component: History, meta: { title: '历史事件与复盘' } },
+  { path: '/heatmap', name: 'heatmap', component: Heatmap, meta: { title: '卫星遥感与时空推演' } },
+  { path: '/history', name: 'history', component: History, meta: { title: '实时观测历史复盘' } },
   { path: '/wallboard', name: 'wallboard', component: Wallboard, meta: { title: '实时大屏' } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound, meta: { title: '页面未找到' } }
 ]

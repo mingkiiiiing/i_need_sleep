@@ -5,7 +5,10 @@
 """
 from __future__ import annotations
 
+import json
+import os
 from datetime import date
+from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request
@@ -22,6 +25,10 @@ from .contracts import (
     OBSERVED_DATA_MODE,
     REALTIME_CLAIM_BOUNDARY,
     REALTIME_VERSION,
+    RS_AS_OF,
+    RS_CLAIM_BOUNDARY,
+    RS_DATA_MODE,
+    RS_VERSION,
     envelope,
     observed_envelope,
 )
@@ -295,7 +302,7 @@ def list_forecasts(
     if horizon_days > 15:
         raise capability_unavailable(
             "30—90 天预测尚未就绪，不能返回演示算法结果作为正式预测",
-            detail="T+30 分区预测被能力阻塞；风险地图的 T+30 演示格网请使用 /map/risk-grid",
+            detail="T+30 分区预测被能力阻塞；情景格网已下线，历史观测请使用 /rs/manifest 遥感图层",
             dataset_version=PREDICTION_VERSION,
         )
     _require_entity(spatial_entity_id, dataset_version=PREDICTION_VERSION)
@@ -363,30 +370,77 @@ def get_map_layers(request: Request):
         request,
         [
             {
-                "id": "demo-risk-grid",
-                "layer_type": "simulated_scenario",
-                "data_mode": DATA_MODE,
+                "id": "rs-annual-chla",
+                "layer_type": "satellite_retrieval",
+                "data_mode": RS_DATA_MODE,
                 "operational_use": False,
-                "description": "演示风险格网，非监管决策用途",
-            }
+                "description": "THQBCA-V2 年度叶绿素 a 遥感反演图层（1984–2019，真实历史观测）",
+            },
+            {
+                "id": "rs-annual-fac",
+                "layer_type": "satellite_retrieval",
+                "data_mode": RS_DATA_MODE,
+                "operational_use": False,
+                "description": "THQBCA-V2 年度漂浮藻类覆盖率反演图层（2003–2022，真实历史观测）",
+            },
+            {
+                "id": "realtime-station-points",
+                "layer_type": "station_observation",
+                "data_mode": OBSERVED_DATA_MODE,
+                "operational_use": False,
+                "description": "MEE 国控站实时观测点位（observed）",
+            },
         ],
         PREDICTION_VERSION,
         run=True,
     )
 
 
-def _grid_data(horizon_days: int) -> dict[str, Any]:
-    data = service.prediction.risk_grid(horizon_days)
-    data["layer_type"] = "simulated_scenario"
-    data["operational_use"] = False
-    data["capability_status"] = "long_term_forecast_blocked_simulation_only" if horizon_days == 30 else None
-    return data
+# ---------- 卫星遥感图层（P07；THQBCA-V2 年度反演产品） ----------
 
 
-@router.get("/map/risk-grid", response_model=schemas.Envelope[schemas.RiskGridData])
-def get_risk_grid(request: Request, horizon_days: int = Query(3)):
-    _require_horizon(horizon_days)
-    return _ok(request, _grid_data(horizon_days), PREDICTION_VERSION, run=True)
+def _rs_overlays_dir() -> Path:
+    override = os.environ.get("RS_OVERLAYS_DIR")
+    if override:
+        return Path(override)
+    here = Path(__file__).resolve().parent
+    for candidate in (here.parent / "rs_overlays", here / "rs_overlays"):
+        if candidate.is_dir():
+            return candidate
+    return here.parent / "rs_overlays"
+
+
+@router.get("/rs/manifest", response_model=schemas.Envelope[dict[str, Any]])
+def get_rs_manifest(request: Request):
+    manifest_path = _rs_overlays_dir() / "manifest.json"
+    if not manifest_path.is_file():
+        raise capability_unavailable(
+            "遥感图层产物尚未生成：请先运行 data-cleaning/scripts/build_rs_overlays.py",
+            detail=f"manifest 不存在：{manifest_path}",
+            dataset_version=RS_VERSION,
+            data_mode=RS_DATA_MODE,
+            claim_boundary=RS_CLAIM_BOUNDARY,
+            as_of=RS_AS_OF,
+        )
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise capability_unavailable(
+            "遥感图层清单不可读",
+            detail=f"{manifest_path}: {exc}",
+            dataset_version=RS_VERSION,
+            data_mode=RS_DATA_MODE,
+            claim_boundary=RS_CLAIM_BOUNDARY,
+            as_of=RS_AS_OF,
+        ) from exc
+    return envelope(
+        request,
+        data,
+        dataset_version=RS_VERSION,
+        data_mode=RS_DATA_MODE,
+        as_of=RS_AS_OF,
+        claim_boundary=RS_CLAIM_BOUNDARY,
+    )
 
 
 @router.get("/map/risk-polygons", response_model=schemas.Envelope[schemas.RiskPolygonsData])

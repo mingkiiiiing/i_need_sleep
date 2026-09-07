@@ -2,7 +2,11 @@
   <section class="stn-block slp" aria-label="实时站点列表">
     <div class="stn-sec-head">
       <h2>实时站点（{{ stations.length }}）</h2>
-      <span class="stn-sec-tag">排序：数据异常 → 严重过期 → 延迟 → 正常</span>
+      <span class="stn-sec-legend" role="img" aria-label="数据状态图例：正常、延迟、过期/异常">
+        <span><i style="background: var(--risk-low, #5fd6a4)"></i>正常</span>
+        <span><i style="background: var(--risk-medium, #f5b45d)"></i>延迟</span>
+        <span><i style="background: var(--risk-critical, #ff6b6b)"></i>过期/异常</span>
+      </span>
     </div>
 
     <div class="slp-search stn-search-row">
@@ -167,6 +171,23 @@ const rows = computed(() => {
 
 <style scoped>
 .slp { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.stn-sec-legend {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.stn-sec-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: -1px;
+}
 .slp-search { position: relative; display: flex; }
 .slp-search input {
   width: 100%;

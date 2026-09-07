@@ -5,7 +5,7 @@
       <LakeMap
         :model-value="selectedId"
         :point-list="mapPoints"
-        title="太湖流域 · MEE 国控站点实时态势"
+        title="太湖流域 · MEE 国控站点实时监测预警"
         :show-tabs="false"
         :show-legend="false"
         points-visible
@@ -29,17 +29,12 @@
     </div>
     <div v-else-if="summary" class="rc-chip rc-chip--top" role="status">
       <strong>{{ monthDayText }}</strong>
-      <span>全湖以 <b>{{ summary.dominant_class }} 类</b>为主（{{ compliancePct }}% 达标 III 类）</span>
-      <span class="rc-chip-warn" :class="{ 'rc-chip-warn--on': summary.warnings.length }">
-        {{ summary.warnings.length }} 站蓝藻筛查预警{{ warnBrief }}
+      <span>
+        实时监测预警：全湖以 <b>{{ summary.dominant_class }} 类</b>为主（{{ compliancePct }}% 达标 III 类）
+        <span v-if="summary.warnings.length" class="rc-chip-warn--on"> · {{ summary.warnings.length }} 站蓝藻筛查预警{{ warnBrief }}</span>
       </span>
     </div>
 
-    <!-- ===== 更新时间 ===== -->
-    <div v-if="summary" class="rc-chip rc-chip--updated">
-      <span class="rc-dot" :class="summary.freshness_status === 'normal' ? 'rc-dot--ok' : 'rc-dot--warn'"></span>
-      更新 {{ formatStamp(summary.latest_observed_at) }}
-    </div>
 
     <!-- ===== 右侧浮层卡片 ===== -->
     <aside class="rc-cards" aria-label="全湖实时态势卡片">
@@ -204,6 +199,7 @@ import {
   healthGradeText,
   trendChip
 } from '../services/realtime.js'
+import { setRealtimeUpdate, clearRealtimeUpdate } from '../stores/realtimeUpdate.js'
 
 const summary = ref(null)
 const state = ref('loading')
@@ -217,6 +213,7 @@ const timeline = ref(null)
 const activeSnapshotId = ref('')
 const playing = ref(false)
 let playTimer = null
+let refreshTimer = null
 
 const GAUGE_LEN = 2 * Math.PI * 52
 
@@ -228,9 +225,11 @@ async function load(force = false) {
       snapshotId: activeSnapshotId.value || undefined
     })
     state.value = 'ok'
+    setRealtimeUpdate(summary.value)
   } catch {
     summary.value = null
     state.value = 'error'
+    clearRealtimeUpdate()
   }
 }
 
@@ -286,6 +285,17 @@ function togglePlay() {
 onMounted(() => {
   load()
   loadTimeline()
+  refreshTimer = setInterval(async () => {
+    await loadTimeline(true)
+    // 历史回放时只更新可用快照列表，不把用户强制拉回最新。
+    if (!activeSnapshotId.value) await load(true)
+  }, 60_000)
+})
+
+onBeforeUnmount(() => {
+  stopPlay()
+  if (refreshTimer) clearInterval(refreshTimer)
+  clearRealtimeUpdate()
 })
 
 

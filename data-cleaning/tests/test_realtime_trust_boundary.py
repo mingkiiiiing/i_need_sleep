@@ -158,6 +158,9 @@ class TestRunCollectMeeStatusFile:
         status = json.loads((tmp_path / "mee_collection_status.json").read_text(encoding="utf-8"))
         assert status["status"] == "failed"
         assert "SSL UNEXPECTED_EOF_WHILE_READING" in status["last_error"]
+        published = json.loads((tmp_path / "catalog" / "status.json").read_text(encoding="utf-8"))
+        assert published["collection_status"] == "failed"
+        assert published["last_error_code"] == "UPSTREAM_TLS_FAILURE"
 
     def test_failure_keeps_last_success(self, tmp_path, monkeypatch):
         _run_collect(tmp_path, monkeypatch)
@@ -171,3 +174,7 @@ class TestRunCollectMeeStatusFile:
         second = json.loads((tmp_path / "mee_collection_status.json").read_text(encoding="utf-8"))
         assert second["status"] == "failed"
         assert second["last_success_utc"] == first["last_success_utc"]
+        published = json.loads((tmp_path / "catalog" / "status.json").read_text(encoding="utf-8"))
+        assert published["collection_status"] == "failed"
+        assert published["last_success_at"] == first["last_success_utc"]
+        assert published["snapshot_count"] == 1

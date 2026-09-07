@@ -313,18 +313,20 @@ def build_catalog(
 
     out_dir.mkdir(parents=True, exist_ok=True)
     stations_list = sorted(entities.values(), key=lambda item: item["entity_id"])
-    (out_dir / "stations.json").write_text(
+    _atomic_write_text(
+        out_dir / "stations.json",
         json.dumps({"source_id": SOURCE_ID, "generated_at_utc": datetime.now(timezone.utc).isoformat(), "station_count": len(stations_list), "stations": stations_list}, ensure_ascii=False, indent=2),
-        encoding="utf-8",
     )
-    (out_dir / "snapshots.json").write_text(
+    _atomic_write_text(
+        out_dir / "snapshots.json",
         json.dumps({"source_id": SOURCE_ID, "snapshot_count": len(snapshot_summaries), "snapshots": snapshot_summaries}, ensure_ascii=False, indent=2),
-        encoding="utf-8",
     )
-    observations.to_parquet(out_dir / "observations.parquet", index=False)
+    _atomic_write_parquet(observations, out_dir / "observations.parquet")
 
     status = _build_status(snapshots, snapshot_summaries, entities, observations, collection_status_path)
-    (out_dir / "status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
+    # status.json is the publication marker and must be replaced last.  Readers
+    # reload only after this file changes, so they never observe a half-written bundle.
+    _atomic_write_text(out_dir / "status.json", json.dumps(status, ensure_ascii=False, indent=2))
 
     return {
         "status": "completed",
@@ -337,6 +339,18 @@ def build_catalog(
         "output": str(out_dir),
         **{k: status[k] for k in ("freshness_status", "as_of", "latest_observed_at")},
     }
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    temp = path.with_name(f".{path.name}.tmp")
+    temp.write_text(text, encoding="utf-8")
+    temp.replace(path)
+
+
+def _atomic_write_parquet(frame: pd.DataFrame, path: Path) -> None:
+    temp = path.with_name(f".{path.name}.tmp")
+    frame.to_parquet(temp, index=False)
+    temp.replace(path)
 
 
 def _location_status_counts(stations: list[dict[str, Any]]) -> dict[str, int]:

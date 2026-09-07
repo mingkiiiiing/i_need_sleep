@@ -115,39 +115,26 @@ export function getExplanationEnvelope(forecastId) {
   return requestEnvelope(`/forecasts/${encodeURIComponent(forecastId)}/explanations`)
 }
 
-export function getEventsEnvelope() {
-  return requestEnvelope('/events')
-}
-
-// ---------- 第六任务：历史事件复盘（cockpit 事件兼容源 + 回放时间轴，均需 meta） ----------
-
-export function getCockpitEventsEnvelope() {
-  return requestEnvelope('/cockpit/events')
-}
-
-export function getTimelineEnvelope(start, end) {
-  return requestEnvelope(`/cockpit/timeline?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`)
-}
-
-// ---------- P07 风险地图与时空推演（map / capabilities / 情景预警处理） ----------
+// ---------- P07 卫星遥感与时空推演（map / capabilities） ----------
 
 export function getMapLayersEnvelope() {
   return requestEnvelope('/map/layers')
 }
 
-export function getRiskGridEnvelope(horizonDays) {
-  return requestEnvelope(`/map/risk-grid?horizon_days=${encodeURIComponent(horizonDays)}`)
+// 卫星遥感年度图层（THQBCA-V2 反演 PNG + manifest）。
+// 静态 PNG 挂在后端根路径 /rs（不经 /api/v1）；API_BASE_URL 为绝对地址时跟随其源。
+const API_ROOT = API_BASE_URL.startsWith('http') ? new URL(API_BASE_URL).origin : ''
+
+export function getRsManifestEnvelope() {
+  return requestEnvelope('/rs/manifest')
+}
+
+export function rsImageUrl(relativePath) {
+  return `${API_ROOT}/rs/${relativePath}`
 }
 
 export function getForecastCapabilitiesEnvelope() {
   return requestEnvelope('/forecast-capabilities')
-}
-
-export function postHandleWarningEnvelope(eventId) {
-  return requestEnvelope('/cockpit/handle-warning', {
-    method: 'POST',
-    body: JSON.stringify({ event_id: eventId })
-  })
 }
 
 // ---------- P01 驾驶舱（cockpit 视图接口，旧 request 结构） ----------

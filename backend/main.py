@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -14,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 try:  # Supports `python -m uvicorn backend.main:app` from the repository root.
     from .app import errors as err
@@ -65,6 +67,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+
+# 卫星遥感年度 PNG（build_rs_overlays.py 生成产物）；目录缺失时跳过挂载，/rs/manifest 会给出明确错误
+_RS_OVERLAYS_DIR = Path(__file__).resolve().parent / "rs_overlays"
+if _RS_OVERLAYS_DIR.is_dir():
+    app.mount("/rs", StaticFiles(directory=str(_RS_OVERLAYS_DIR)), name="rs")
 
 
 @asynccontextmanager

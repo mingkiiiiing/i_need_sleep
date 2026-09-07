@@ -329,28 +329,6 @@ class MapLayer(BaseModel):
     description: str
 
 
-class GridResolution(BaseModel):
-    rows: int
-    columns: int
-    unit: str
-
-
-class RiskGridData(BaseModel):
-    prediction_run_id: str
-    horizon_days: int
-    data_mode: str
-    dataset_version: str
-    grid: list[list[int]]
-    rows: int
-    columns: int
-    resolution: GridResolution
-    thresholds: dict[str, list[int]]
-    claim_boundary: str
-    layer_type: str
-    operational_use: bool
-    capability_status: str | None = None
-
-
 class RiskPolygonsData(BaseModel):
     type: Literal["FeatureCollection"]
     features: list[Any]

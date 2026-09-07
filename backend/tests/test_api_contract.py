@@ -37,7 +37,6 @@ GET_ENDPOINTS = [
     "/forecasts/demo-forecast-northwest_hotspot-3d",
     "/forecasts/demo-forecast-northwest_hotspot-3d/explanations",
     "/map/layers",
-    "/map/risk-grid?horizon_days=3",
     "/map/risk-polygons?horizon_days=3",
     "/events",
     "/cockpit/time-stages",
@@ -89,7 +88,6 @@ def test_observation_and_prediction_dataset_versions_are_assigned_by_domain():
     prediction_side = [
         "/forecasts?spatial_entity_id=northwest_hotspot&horizon_days=3",
         "/forecast-capabilities",
-        "/map/risk-grid?horizon_days=3",
         "/events",
         "/cockpit/points",
         "/cockpit/region-summary",
@@ -103,27 +101,6 @@ def test_observation_and_prediction_dataset_versions_are_assigned_by_domain():
         body = client.get(f"/api/v1{path}").json()
         assert body["meta"]["dataset_version"] == PRED_VERSION, path
         assert body["meta"]["prediction_run_id"] == RUN_ID, path
-
-
-def test_risk_grids_have_fixed_shape_values_and_thresholds():
-    for horizon in (1, 3, 7, 15, 30):
-        body = client.get(f"/api/v1/map/risk-grid?horizon_days={horizon}").json()
-        data = body["data"]
-        grid = data["grid"]
-        assert data["rows"] == 11
-        assert data["columns"] == 19
-        assert len(grid) == 11
-        assert all(len(row) == 19 for row in grid)
-        assert data["resolution"] == {"rows": 11, "columns": 19, "unit": "risk_score"}
-        assert data["thresholds"] == {"low": [0, 44], "mid": [45, 74], "high": [75, 100]}
-        flat = [value for row in grid for value in row]
-        assert all(isinstance(value, int) and 0 <= value <= 100 for value in flat)
-        assert data["prediction_run_id"] == RUN_ID
-        assert data["data_mode"] == "simulated"
-        if horizon == 30:
-            assert data["capability_status"] == "long_term_forecast_blocked_simulation_only"
-        else:
-            assert data["capability_status"] is None
 
 
 def test_risk_levels_are_consistent_across_endpoints():
@@ -213,7 +190,7 @@ def test_openapi_schema_is_generated():
     assert len(schema["paths"]) >= 24
     for path in [
         "/api/v1/system/capabilities",
-        "/api/v1/map/risk-grid",
+        "/api/v1/rs/manifest",
         "/api/v1/forecasts",
         "/api/v1/events",
         "/api/v1/cockpit/handle-warning",

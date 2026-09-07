@@ -2,32 +2,19 @@
   <main class="page-history">
     <div class="his-body" :class="mobileBodyClass">
       <!-- ===== 标题区 ===== -->
-      <header class="his-title" aria-label="历史事件与处置复盘标题与数据身份">
+      <header class="his-title" aria-label="实时观测历史复盘标题">
         <div class="his-title-left">
           <BackLink :to="cockpitLink" label="返回驾驶舱" />
           <div class="his-title-text">
-            <p class="his-kicker">HISTORY · EVENT REVIEW</p>
-            <h1>历史事件与处置复盘</h1>
-            <p class="his-desc">情景事件链回放，不代表真实历史灾情或正式处置档案</p>
+            <h1>实时观测历史复盘</h1>
           </div>
         </div>
         <div class="his-title-right">
-          <div class="his-chips" aria-label="数据身份">
-            <span class="his-chip his-chip--notice">{{ identity.dataMode }}</span>
-            <span class="his-chip">{{ identity.datasetVersionId }}</span>
-            <span class="his-chip">{{ identity.predVersionId }}</span>
-            <span class="his-chip">{{ identity.predictionRunId }}</span>
-            <span class="his-chip his-chip--notice">{{ identity.claimBoundaryCode }}</span>
-            <span class="his-chip his-chip--notice">{{ identity.claimBoundary }}</span>
+          <div class="his-chips">
+            <span class="his-chip">observed · 真实观测</span>
+            <span class="his-chip">{{ tlMeta.dataset_version || 'MEE-RT-V1' }}</span>
+            <span class="his-chip his-chip--notice">官方观测未经跨源验证</span>
           </div>
-          <button
-            type="button"
-            class="his-export-btn"
-            data-role="export-btn"
-            disabled
-            aria-disabled="true"
-            title="导出能力规划在 P2 阶段接入，当前未接入"
-          >导出情景记录 · P2/未接入</button>
         </div>
       </header>
 
@@ -37,57 +24,143 @@
       </div>
 
       <!-- ===== 桌面筛选区 ===== -->
-      <section class="his-panel his-filterbar" aria-label="事件筛选">
-        <HistoryFilterBar
-          :draft="draft"
-          :options="filterOptions"
-          :error="filterError"
-          @apply="onApplyFilters"
-          @reset="onResetFilters"
-        />
+      <section class="his-panel his-filterbar" aria-label="快照时间筛选">
+        <div class="his-date-filter" data-role="date-filter">
+          <label class="his-date-field">
+            <span>开始日期</span>
+            <input v-model="draft.start" type="date" data-role="filter-start" aria-label="开始日期" />
+          </label>
+          <label class="his-date-field">
+            <span>结束日期</span>
+            <input v-model="draft.end" type="date" data-role="filter-end" aria-label="结束日期" />
+          </label>
+          <button type="button" class="his-btn his-btn--primary" data-role="filter-apply" @click="onApplyFilters">应用</button>
+          <button type="button" class="his-btn" data-role="filter-reset" @click="onResetFilters">重置</button>
+          <p v-if="filterError" class="his-filter-error" role="alert">{{ filterError }}</p>
+        </div>
       </section>
 
       <!-- ===== 主体 38% / 62% ===== -->
       <div class="his-main">
-        <aside class="his-panel his-list" aria-label="情景事件列表">
+        <aside class="his-panel his-list" aria-label="实时快照列表">
           <header class="his-panel-head">
             <div>
-              <p class="his-panel-kicker">EVENT LIST · 情景事件</p>
-              <h2>事件列表</h2>
+              <p class="his-panel-kicker">SNAPSHOT LIST · 实时快照</p>
+              <h2>快照列表</h2>
             </div>
-            <span class="his-count">共 <b data-role="event-count">{{ filteredEvents.length }}</b> 条</span>
+            <span class="his-count">共 <b data-role="snapshot-count">{{ filteredSnapshots.length }}</b> 个</span>
           </header>
-          <HistoryEventList
-            :state="eventsState"
-            :error="eventsError"
-            :groups="eventGroups"
-            :selected-id="selectedEventId"
-            :zone-names="zoneNames"
-            @select="selectEvent"
-            @retry="fetchEvents"
-            @clear-filters="onResetFilters"
-          />
+          <div v-if="tlState === 'loading'" class="his-list-note">正在加载快照时间轴…</div>
+          <div v-else-if="tlState === 'error'" class="his-list-note his-list-note--bad" role="alert">
+            {{ tlError || '快照时间轴请求失败' }}
+            <button type="button" class="his-btn" @click="fetchTimeline">重试</button>
+          </div>
+          <div v-else-if="!filteredSnapshots.length" class="his-list-note">
+            该日期范围内没有快照。系统自 2026-09-04 起随抓取自动积累，不做模拟补齐。
+            <button type="button" class="his-btn" @click="onResetFilters">清除日期筛选</button>
+          </div>
+          <ul v-else class="his-snap-list" data-role="snapshot-list">
+            <li v-for="snap in filteredSnapshots" :key="snap.snapshot_id">
+              <button
+                type="button"
+                class="his-snap-item"
+                :class="{ active: snap.snapshot_id === selectedSnapshotId }"
+                :data-snapshot="snap.snapshot_id"
+                @click="selectSnapshot(snap.snapshot_id)"
+              >
+                <span class="his-snap-time">{{ formatStamp(snap.latest_observed_at) }}</span>
+                <span class="his-snap-meta">
+                  <b>{{ snap.station_count }}</b> 站 ·
+                  达标 <b>{{ complianceText(snap) }}</b> ·
+                  预警 <b :class="{ 'his-snap-warn': snap.warning_count > 0 }">{{ snap.warning_count }}</b>
+                </span>
+                <span class="his-snap-sub">叶绿素均值 {{ snap.chla_mean != null ? snap.chla_mean + ' μg/L' : '—' }} · {{ snap.chla_report_stations }} 站报数</span>
+              </button>
+            </li>
+          </ul>
         </aside>
 
-        <section class="his-panel his-detail" aria-label="事件详情">
-          <div v-if="!selectedEvent" class="his-detail-empty">
+        <section class="his-panel his-detail" aria-label="快照详情">
+          <div v-if="!selectedSnapshotId" class="his-detail-empty">
             <StatePanel
               state="empty"
-              title="未选择情景事件"
-              description="从事件列表选择一条情景事件后，这里展示事件身份、证据版本、摘要与能力边界。当前事件均为情景事件，不是真实历史水华事件。"
+              title="未选择快照"
+              description="从快照列表选择一次真实抓取快照后，这里展示该时刻的全站观测状态、达标构成与蓝藻筛查预警。所有内容均为官方观测（observed），无情景数据。"
             />
           </div>
-          <HistoryEventDetail
-            v-else
-            :event="selectedEvent"
-            :zone-name="zoneNames[selectedEvent.spatial_entity_id] || ''"
-            :meta="{ datasetVersion: eventsMeta.dataset_version, claimBoundary: eventsMeta.claim_boundary }"
-            :frame-summary="frameSummary"
-            :can-warn="canWarn"
-            :dispatch-result="dispatchResult"
-            @open-warning="openWarning"
-            @back-to-list="mobileView = 'list'"
-          />
+          <div v-else-if="sumState === 'loading'" class="his-detail-empty">
+            <StatePanel state="loading" title="快照详情加载中…" />
+          </div>
+          <div v-else-if="sumState === 'error'" class="his-detail-empty">
+            <StatePanel state="error" title="快照详情加载失败" :description="sumError">
+              <button type="button" class="his-btn" @click="fetchSnapshotSummary">重试</button>
+            </StatePanel>
+          </div>
+          <div v-else-if="summary" class="his-detail-body" data-role="snapshot-detail">
+            <header class="his-detail-head">
+              <h3>快照详情 <span>{{ formatStamp(summary.latest_observed_at) }}</span></h3>
+              <span class="his-detail-flag" :class="{ 'his-detail-flag--old': !summary.is_latest }">
+                {{ summary.is_latest ? '最新快照' : '历史快照回放（非最新）' }}
+              </span>
+            </header>
+
+            <ul class="his-caps" data-role="snapshot-caps">
+              <li>活跃站点：<b>{{ summary.station_total }}</b></li>
+              <li>水质达标率（≤III 类）：<b>{{ summary.class_iii_rate != null ? (summary.class_iii_rate * 100).toFixed(1) + '%' : '—' }}</b></li>
+              <li>蓝藻筛查预警：<b :class="{ 'his-cap-warn': (summary.warnings || []).length }">{{ (summary.warnings || []).length }} 站</b></li>
+              <li>叶绿素 a 均值：<b>{{ chlaMeanText }}</b>（{{ summary.chla_report_stations }} 站报数）</li>
+              <li>数据新鲜度：<b>{{ freshnessText }}</b>（滞后 {{ formatLag(summary.observed_lag_h) }}）</li>
+              <li>抓取时间：<b>{{ formatStamp(summary.retrieved_at) }} UTC</b></li>
+            </ul>
+
+            <div class="his-class-row" data-role="class-counts">
+              <span class="his-class-label">水质类别构成：</span>
+              <span v-for="(count, cls) in summary.class_counts" :key="cls" class="his-class-chip">{{ classText(cls) }}：{{ count }}</span>
+            </div>
+
+            <section class="his-sec" aria-label="蓝藻筛查预警站点">
+              <h4>蓝藻筛查预警站点<span class="his-sec-hint">chla ≥{{ summary.warning_thresholds?.light ?? 10 }} 轻度 / ≥{{ summary.warning_thresholds?.moderate ?? 25 }} 中度</span></h4>
+              <table v-if="(summary.warnings || []).length" class="his-table">
+                <thead>
+                  <tr><th>站点</th><th>叶绿素 a（μg/L）</th><th>筛查档位</th><th>坐标状态</th></tr>
+                </thead>
+                <tbody>
+                  <tr v-for="w in summary.warnings" :key="w.station_id" data-role="warning-row">
+                    <td>{{ w.station_name }}</td>
+                    <td class="his-mono">{{ w.chla != null ? w.chla : '—' }}</td>
+                    <td>{{ bandText(w.band) }}</td>
+                    <td class="his-miss">{{ locationText(w.location_status) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p v-else class="his-sec-empty">该快照无蓝藻筛查预警站点。</p>
+            </section>
+
+            <section class="his-sec" aria-label="站点观测明细">
+              <h4>站点观测明细<span class="his-sec-hint">{{ (summary.markers || []).length }} 站（仅有坐标站点）· 其余 {{ Math.max(0, summary.station_total - (summary.markers || []).length) }} 站无坐标，见「监测站点」页 · 缺测显式标注</span></h4>
+              <div class="his-table-wrap">
+                <table class="his-table">
+                  <thead>
+                    <tr>
+                      <th>站点</th><th>省份</th><th>水质类别</th><th>叶绿素 a</th><th>溶解氧</th><th>总磷</th><th>总氮</th><th>坐标状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="m in summary.markers" :key="m.id" data-role="marker-row">
+                      <td>{{ m.name }}</td>
+                      <td>{{ m.province || '—' }}</td>
+                      <td>{{ m.water_level != null ? classText(String(m.water_level)) : '—' }}</td>
+                      <td :class="{ 'his-miss': m.chla == null }" class="his-mono">{{ m.chla != null ? m.chla : '缺测' }}</td>
+                      <td :class="{ 'his-miss': m.metrics?.dissolved_oxygen == null }" class="his-mono">{{ m.metrics?.dissolved_oxygen ?? '缺测' }}</td>
+                      <td :class="{ 'his-miss': m.metrics?.total_phosphorus == null }" class="his-mono">{{ m.metrics?.total_phosphorus ?? '缺测' }}</td>
+                      <td :class="{ 'his-miss': m.metrics?.total_nitrogen == null }" class="his-mono">{{ m.metrics?.total_nitrogen ?? '缺测' }}</td>
+                      <td class="his-miss">{{ locationText(m.location_status) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         </section>
       </div>
 
@@ -99,25 +172,11 @@
         @retry-caps="fetchCaps"
       />
 
-      <!-- ===== 事件回放轴 ===== -->
-      <HistoryReplayBar
-        class="his-replay"
-        :state="replay.state"
-        :error="replay.error"
-        :frames="replay.frames"
-        :index="frameIndex"
-        :playing="playing"
-        :speed="speed"
-        @prev="stepFrame(-1)"
-        @next="stepFrame(1)"
-        @toggle-play="togglePlay"
-        @set-speed="setSpeed"
-        @select-frame="jumpFrame"
-        @retry="fetchReplay"
-      />
+      <!-- ===== 单站观测回放（observed 轨） ===== -->
+      <StationReplayPanel class="his-rt-replay" />
 
       <footer class="his-foot">
-        <span>数据模式 simulated · {{ identity.dataMode }} / {{ identity.datasetVersionId }} / {{ identity.predVersionId }} / {{ identity.predictionRunId }} / {{ identity.claimBoundaryCode }} / {{ identity.claimBoundary }} · 当前事件为情景事件，非真实历史水华事件</span>
+        <span>数据模式 observed · {{ tlMeta.dataset_version || 'MEE-RT-V1' }} / {{ tlMeta.claim_boundary || 'official_observation_not_cross_validated' }} · 官方实时观测未经跨源验证；阈值为筛查口径非监管判定</span>
       </footer>
     </div>
 
@@ -131,31 +190,30 @@
             type="button"
             class="his-mb-btn"
             data-role="mb-current"
-            :disabled="!selectedEventId"
-            :aria-disabled="String(!selectedEventId)"
-            title="查看当前选中事件的详情"
-            @click="goCurrentEvent"
-          >当前事件</button>
+            :disabled="!selectedSnapshotId"
+            :aria-disabled="String(!selectedSnapshotId)"
+            title="查看当前选中快照的详情"
+            @click="goCurrentSnapshot"
+          >当前快照</button>
         </template>
         <template v-else>
           <button type="button" class="his-mb-btn" data-role="mb-back-list" @click="mobileView = 'list'">返回列表</button>
           <button
             type="button"
             class="his-mb-btn"
-            data-role="mb-plan-match"
-            disabled
-            aria-disabled="true"
-            title="预案匹配接口未实现，无法执行匹配"
-          >匹配预案</button>
+            data-role="mb-prev"
+            :disabled="!hasPrevSnapshot"
+            :aria-disabled="String(!hasPrevSnapshot)"
+            @click="stepSnapshot(-1)"
+          >上一快照</button>
           <button
             type="button"
-            class="his-mb-btn his-mb-btn--warn"
-            data-role="mb-warn"
-            :disabled="!canWarn"
-            :aria-disabled="String(!canWarn)"
-            :title="canWarn ? '发起模拟发送预警' : '仅高风险情景事件可发起模拟发送'"
-            @click="openWarning"
-          >{{ canWarn ? '模拟发送' : '仅高风险可发' }}</button>
+            class="his-mb-btn"
+            data-role="mb-next"
+            :disabled="!hasNextSnapshot"
+            :aria-disabled="String(!hasNextSnapshot)"
+            @click="stepSnapshot(1)"
+          >下一快照</button>
         </template>
       </nav>
     </Teleport>
@@ -168,90 +226,48 @@
           class="his-drawer"
           role="dialog"
           aria-modal="true"
-          aria-label="事件筛选"
+          aria-label="快照时间筛选"
           @keydown="onDrawerKeydown"
         >
           <header class="his-drawer-head">
-            <h3>筛选事件</h3>
+            <h3>筛选快照时间</h3>
             <button ref="drawerCloseRef" type="button" class="his-drawer-close" data-role="drawer-close" aria-label="关闭筛选抽屉" @click="closeDrawer">关闭</button>
           </header>
           <div class="his-drawer-body">
-            <HistoryFilterBar
-              compact
-              :draft="draft"
-              :options="filterOptions"
-              :error="filterError"
-              @apply="onDrawerApply"
-              @reset="onResetFilters"
-            />
+            <div class="his-date-filter">
+              <label class="his-date-field">
+                <span>开始日期</span>
+                <input v-model="draft.start" type="date" aria-label="开始日期" />
+              </label>
+              <label class="his-date-field">
+                <span>结束日期</span>
+                <input v-model="draft.end" type="date" aria-label="结束日期" />
+              </label>
+              <button type="button" class="his-btn his-btn--primary" @click="onDrawerApply">应用</button>
+              <button type="button" class="his-btn" @click="onResetFilters">重置</button>
+              <p v-if="filterError" class="his-filter-error" role="alert">{{ filterError }}</p>
+            </div>
           </div>
         </div>
       </div>
     </Teleport>
-
-    <HistoryWarningDialog
-      :open="warnOpen"
-      :event-id="selectedEvent ? selectedEvent.id : ''"
-      :zone-label="selectedEvent ? (zoneNames[selectedEvent.spatial_entity_id] || selectedEvent.spatial_entity_id || '—') : ''"
-      :level-text="selectedEvent ? severityText(selectedEvent.severity) : ''"
-      :busy="warnBusy"
-      :error="warnError"
-      @cancel="closeWarning"
-      @confirm="confirmWarning"
-    />
-
-    <!-- ===== 实时快照回放（observed 轨，独立于情景事件链） ===== -->
-    <StationReplayPanel class="his-rt-replay" />
   </main>
 </template>
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { cockpitState, useCockpitStore } from '../stores/cockpit.js'
-import { dataIdentity as identity } from '../data/dataIdentity.js'
-import {
-  getEventsEnvelope,
-  getCockpitEventsEnvelope,
-  getSpatialEntities,
-  getTimelineEnvelope,
-  getForecastCapabilitiesEnvelope,
-  postHandleWarningEnvelope
-} from '../services/api.js'
+import { getForecastCapabilitiesEnvelope, getRealtimeTimelineEnvelope } from '../services/api.js'
+import { fetchRealtimeSummary, formatStamp, formatLag, LOCATION_STATUS_TEXT } from '../services/realtime.js'
 import BackLink from '../components/common/BackLink.vue'
 import StatePanel from '../components/common/StatePanel.vue'
-import HistoryFilterBar from '../components/history/HistoryFilterBar.vue'
-import HistoryEventList from '../components/history/HistoryEventList.vue'
-import HistoryEventDetail from '../components/history/HistoryEventDetail.vue'
 import HistoryPlanPanel from '../components/history/HistoryPlanPanel.vue'
-import HistoryReplayBar from '../components/history/HistoryReplayBar.vue'
-import HistoryWarningDialog from '../components/history/HistoryWarningDialog.vue'
 import StationReplayPanel from '../components/stations/StationReplayPanel.vue'
-import {
-  STATUS_UNAVAILABLE,
-  eventTypeText,
-  filterEvents,
-  groupByDateDesc,
-  mergeEvents,
-  normalizeQuery,
-  rangeError,
-  replayWindow,
-  buildReplayFrames,
-  eventDateOf,
-  serializeFilters,
-  severityText,
-  sortEventsDesc
-} from '../components/history/historyCore.js'
 
 const route = useRoute()
 const router = useRouter()
-useCockpitStore()
-const store = cockpitState()
 
-const cockpitLink = computed(() => ({
-  path: '/cockpit',
-  query: { t: store.stageKey, p: store.selectedPoint }
-}))
+const cockpitLink = '/cockpit'
 
 // ---------- 能力状态 ----------
 const capabilities = ref(null)
@@ -268,312 +284,223 @@ async function fetchCaps() {
   }
 }
 
-// ---------- 情景分区 ----------
-const entities = ref([])
-const entitiesState = ref('loading')
-const zoneNames = computed(() =>
-  Object.fromEntries(entities.value.map((e) => [e.id, e.display_name || e.short || e.id]))
-)
-async function fetchEntities() {
-  entitiesState.value = 'loading'
-  try {
-    const { data } = await getSpatialEntities()
-    entities.value = Array.isArray(data) ? data : []
-    entitiesState.value = 'ok'
-    normalizeFiltersAgainstData()
-  } catch {
-    entities.value = []
-    entitiesState.value = 'error'
-    normalizeFiltersAgainstData()
-  }
-}
+// ---------- 快照时间轴（observed，唯一数据源 /realtime/timeline） ----------
+const tlState = ref('loading')
+const tlError = ref('')
+const snapshots = ref([])
+const tlMeta = ref({})
+let timelineToken = 0
 
-// ---------- 事件双源（/events + /cockpit/events，仅按相同 ID 合并） ----------
-const eventsState = ref('loading')
-const eventsError = ref('')
-const mergedEvents = ref([])
-const eventsMeta = ref({})
-const runIdChip = ref('—')
-let eventsToken = 0
-
-async function fetchEvents() {
-  const token = ++eventsToken
-  eventsState.value = 'loading'
-  eventsError.value = ''
+async function fetchTimeline() {
+  const token = ++timelineToken
+  tlState.value = 'loading'
+  tlError.value = ''
   try {
-    const [basic, cockpit] = await Promise.all([getEventsEnvelope(), getCockpitEventsEnvelope()])
-    if (token !== eventsToken) return
-    eventsMeta.value = basic.meta || {}
-    mergedEvents.value = sortEventsDesc(mergeEvents(basic.data, cockpit.data))
-    const run = mergedEvents.value.find((e) => e.prediction_run_id)
-    runIdChip.value = run ? run.prediction_run_id : '—'
-    eventsState.value = 'ok'
-    normalizeFiltersAgainstData()
+    const { data, meta } = await getRealtimeTimelineEnvelope()
+    if (token !== timelineToken) return
+    snapshots.value = Array.isArray(data?.snapshots) ? data.snapshots : []
+    tlMeta.value = meta || {}
+    tlState.value = 'ok'
+    normalizeSnapshotAgainstData()
   } catch (err) {
-    if (token !== eventsToken) return
-    mergedEvents.value = []
-    eventsMeta.value = {}
-    runIdChip.value = '—'
-    eventsState.value = 'error'
-    eventsError.value = err && err.message ? err.message : '事件接口请求失败'
+    if (token !== timelineToken) return
+    snapshots.value = []
+    tlMeta.value = {}
+    tlState.value = 'error'
+    tlError.value = err && err.message ? err.message : '快照时间轴请求失败'
   }
 }
 
 // ---------- 筛选（applied 生效值 / draft 编辑值，URL 为事实来源） ----------
 const applied = reactive(normalizeQuery(route.query))
-const draft = reactive({ ...normalizeQuery(route.query) })
+const draft = reactive({ start: applied.start, end: applied.end })
 const filterError = ref('')
-const selectedEventId = ref('')
+const selectedSnapshotId = ref(applied.snapshot || '')
 
-const filterOptions = computed(() => ({
-  types: [...new Set(mergedEvents.value.map((e) => e.event_type).filter(Boolean))],
-  zones: entities.value.map((e) => ({ id: e.id, label: `${e.display_name || e.id}（${e.short || '—'}）` })),
-  modes: [...new Set(mergedEvents.value.map((e) => e.data_mode).filter(Boolean))]
-}))
+function normalizeQuery(query = {}) {
+  const start = typeof query.start === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(query.start) ? query.start : ''
+  const end = typeof query.end === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(query.end) ? query.end : ''
+  const snapshot = typeof query.snapshot === 'string' ? query.snapshot : ''
+  return { start, end, snapshot }
+}
 
-// 数据到位后剔除无效筛选值（非法分区/类型/模式不参与过滤，也不留在 URL）。
-// 每类校验以其数据源就绪为前提：fetchEntities 与 fetchEvents 都会调用本函数，
-// 先返回的一方不能把尚未加载的数据当作“非法”清掉（否则冷启动恢复的 event 会被误删）。
-function normalizeFiltersAgainstData() {
-  const patch = {}
-  if (entitiesState.value === 'ok' && applied.p && !entities.value.some((e) => e.id === applied.p)) patch.p = ''
-  const types = filterOptions.value.types
-  if (eventsState.value === 'ok' && applied.type && !types.includes(applied.type)) patch.type = ''
-  const modes = filterOptions.value.modes
-  if (eventsState.value === 'ok' && applied.mode && !modes.includes(applied.mode)) patch.mode = ''
-  if (Object.keys(patch).length) {
-    Object.assign(applied, patch)
-    Object.assign(draft, patch)
+function rangeError(start, end) {
+  if (start && end && start > end) return '开始日期不能晚于结束日期'
+  return ''
+}
+
+// 按观测日期过滤快照（两端闭区间；空值表示不限）
+const filteredSnapshots = computed(() => {
+  const { start, end } = applied
+  return snapshots.value.filter((snap) => {
+    const day = String(snap.latest_observed_at || '').slice(0, 10)
+    if (!day) return false
+    if (start && day < start) return false
+    if (end && day > end) return false
+    return true
+  })
+})
+
+function normalizeSnapshotAgainstData() {
+  if (tlState.value !== 'ok') return
+  const exists = snapshots.value.some((s) => s.snapshot_id === selectedSnapshotId.value)
+  if (selectedSnapshotId.value && !exists) {
+    selectedSnapshotId.value = ''
     syncUrl()
   }
-  if (eventsState.value === 'ok' && selectedEventId.value && !mergedEvents.value.some((e) => e.id === selectedEventId.value)) {
-    selectedEventId.value = ''
+  // 无有效选中时默认选中最新快照（时间轴已按时间升序，末位即最新）
+  if (!selectedSnapshotId.value && snapshots.value.length) {
+    selectedSnapshotId.value = snapshots.value[snapshots.value.length - 1].snapshot_id
     syncUrl()
   }
 }
-
-const filteredEvents = computed(() => filterEvents(mergedEvents.value, applied))
-const eventGroups = computed(() => groupByDateDesc(filteredEvents.value))
-
-watch(filteredEvents, (list) => {
-  if (selectedEventId.value && !list.some((e) => e.id === selectedEventId.value)) {
-    selectedEventId.value = ''
-    syncUrl()
-  }
-})
 
 function onApplyFilters() {
   const err = rangeError(draft.start, draft.end)
   filterError.value = err
   if (err) return
-  Object.assign(applied, {
-    start: draft.start,
-    end: draft.end,
-    type: draft.type,
-    p: draft.p,
-    mode: draft.mode,
-    status: STATUS_UNAVAILABLE
-  })
+  applied.start = draft.start
+  applied.end = draft.end
   syncUrl()
 }
 
 function onResetFilters() {
   filterError.value = ''
-  Object.assign(draft, { start: '', end: '', type: '', p: '', mode: '' })
-  Object.assign(applied, { start: '', end: '', type: '', p: '', mode: '', status: STATUS_UNAVAILABLE })
+  draft.start = ''
+  draft.end = ''
+  applied.start = ''
+  applied.end = ''
   syncUrl()
 }
 
 function syncUrl() {
-  router.replace({ query: serializeFilters(applied, selectedEventId.value) }).catch(() => {})
+  router.replace({ query: serializeFilters(applied, selectedSnapshotId.value) }).catch(() => {})
+}
+
+function serializeFilters(state, snapshotId) {
+  const query = {}
+  if (state.start) query.start = state.start
+  if (state.end) query.end = state.end
+  if (snapshotId) query.snapshot = snapshotId
+  return query
 }
 
 // 外部 URL 变化（前进/后退、手改地址）→ 归一化并应用；自身 replace 因幂等不触发循环。
-// 非法 event 在此被清空后必须回写 URL，否则非法参数会一直留在地址栏。
 watch(() => route.query, (q) => {
   const n = normalizeQuery(q)
-  const cur = serializeFilters(applied, selectedEventId.value)
-  const next = serializeFilters(n, n.event)
+  const cur = serializeFilters(applied, selectedSnapshotId.value)
+  const next = serializeFilters(n, n.snapshot)
   if (JSON.stringify(next) === JSON.stringify(cur)) return
-  Object.assign(applied, { start: n.start, end: n.end, type: n.type, p: n.p, mode: n.mode, status: STATUS_UNAVAILABLE })
-  Object.assign(draft, { start: n.start, end: n.end, type: n.type, p: n.p, mode: n.mode })
-  selectedEventId.value =
-    n.event && (eventsState.value !== 'ok' || mergedEvents.value.some((e) => e.id === n.event))
-      ? n.event
-      : ''
+  applied.start = n.start
+  applied.end = n.end
+  draft.start = n.start
+  draft.end = n.end
+  selectedSnapshotId.value = n.snapshot
   syncUrl()
 })
 
 const filterSummaryText = computed(() => {
-  const parts = [
-    applied.start && applied.end ? `${applied.start} ~ ${applied.end}` : '全部日期',
-    applied.type ? eventTypeText(applied.type) : '全部类型',
-    applied.p ? (zoneNames.value[applied.p] || applied.p) : '全部分区',
-    applied.mode || '全部模式'
-  ]
-  return parts.join(' · ')
+  const range = applied.start || applied.end ? `${applied.start || '…'} ~ ${applied.end || '…'}` : '全部日期'
+  return `${range} · ${filteredSnapshots.value.length} 个快照`
 })
 
-// ---------- 事件选择 ----------
-const selectedEvent = computed(() =>
-  mergedEvents.value.find((e) => e.id === selectedEventId.value) || null
+// ---------- 快照选择与详情 ----------
+const selectedSnapshot = computed(() =>
+  snapshots.value.find((s) => s.snapshot_id === selectedSnapshotId.value) || null
 )
 
-function selectEvent(id) {
-  if (!id) return
-  if (id !== selectedEventId.value) {
-    selectedEventId.value = id
-    syncUrl()
-  }
+function selectSnapshot(id) {
+  if (!id || id === selectedSnapshotId.value) return
+  selectedSnapshotId.value = id
+  syncUrl()
   if (isMobileViewport.value) mobileView.value = 'detail'
 }
 
-function goCurrentEvent() {
-  if (selectedEventId.value && isMobileViewport.value) mobileView.value = 'detail'
+function goCurrentSnapshot() {
+  if (selectedSnapshotId.value && isMobileViewport.value) mobileView.value = 'detail'
 }
 
-// ---------- 回放（-24h → +48h，仅接口 risk_level） ----------
-const replay = reactive({ state: 'idle', frames: [], error: '' })
-const frameIndex = ref(0)
-const playing = ref(false)
-const speed = ref(1)
-const replayToken = { n: 0 }
+const sumState = ref('idle')
+const sumError = ref('')
+const summary = ref(null)
+let summaryToken = 0
 
-async function fetchReplay() {
-  const ev = selectedEvent.value
-  if (!ev) {
-    replay.state = 'idle'
-    replay.frames = []
-    replay.error = ''
-    stopPlay()
+async function fetchSnapshotSummary() {
+  const id = selectedSnapshotId.value
+  if (!id) {
+    sumState.value = 'idle'
+    summary.value = null
     return
   }
-  const date = eventDateOf(ev)
-  const win = replayWindow(date)
-  if (!win) {
-    replay.state = 'blocked'
-    replay.frames = []
-    replay.error = ''
-    stopPlay()
-    return
-  }
-  const token = ++replayToken.n
-  replay.state = 'loading'
-  replay.frames = []
-  replay.error = ''
-  frameIndex.value = 0
-  stopPlay()
+  const token = ++summaryToken
+  sumState.value = 'loading'
+  sumError.value = ''
   try {
-    const { data } = await getTimelineEnvelope(win.start, win.end)
-    if (token !== replayToken.n) return
-    replay.frames = buildReplayFrames(data, date)
-    replay.state = 'ok'
-    frameIndex.value = 0
+    summary.value = await fetchRealtimeSummary({ snapshotId: id })
+    if (token !== summaryToken) return
+    sumState.value = 'ok'
   } catch (err) {
-    if (token !== replayToken.n) return
-    replay.frames = []
-    replay.state = 'error'
-    replay.error = err && err.message ? err.message : '回放时间轴请求失败'
+    if (token !== summaryToken) return
+    summary.value = null
+    sumState.value = 'error'
+    sumError.value = err && err.message ? err.message : '快照详情请求失败'
   }
 }
 
-// 监听选中的事件对象而非 ID：冷启动/刷新时 URL 的 event 先于事件列表恢复，
-// 列表到达后 selectedEvent 才从 null 变为有效事件，此时必须补发回放请求。
-// 事件列表重挂载（同 ID 新对象）也只触发这一次请求，token 保证不串写。
-watch(selectedEvent, () => {
-  dispatchResult.value = null
-  fetchReplay()
+// 监听选中 ID：URL 冷启动恢复、列表点击、上一/下一快照都汇聚到这一处请求。
+watch(selectedSnapshotId, (id) => {
+  if (id) fetchSnapshotSummary()
+  else {
+    summary.value = null
+    sumState.value = 'idle'
+  }
 })
 
-function stepFrame(delta) {
-  const next = frameIndex.value + delta
-  if (next < 0 || next > replay.frames.length - 1) return
-  frameIndex.value = next
-}
-
-function jumpFrame(i) {
-  if (i < 0 || i > replay.frames.length - 1) return
-  frameIndex.value = i
-  playing.value = false
-}
-
-let playTimer = null
-function stopPlay() {
-  playing.value = false
-}
-function syncPlayTimer() {
-  if (playTimer) {
-    clearInterval(playTimer)
-    playTimer = null
-  }
-  if (!playing.value) return
-  playTimer = setInterval(() => {
-    if (frameIndex.value < replay.frames.length - 1) {
-      frameIndex.value++
-    } else {
-      // 播放到事件后 48h 自动停止，不循环
-      playing.value = false
-    }
-  }, 1200 / speed.value)
-}
-watch(playing, syncPlayTimer)
-watch(speed, syncPlayTimer)
-
-function togglePlay() {
-  if (!replay.frames.length) return
-  if (!playing.value && frameIndex.value >= replay.frames.length - 1) {
-    frameIndex.value = 0
-  }
-  playing.value = !playing.value
-}
-
-function setSpeed(s) {
-  speed.value = s
-}
-
-const frameSummary = computed(() => {
-  if (replay.state !== 'ok' || !replay.frames.length) return ''
-  const f = replay.frames[frameIndex.value]
-  if (!f) return ''
-  return `${f.label} · ${f.date} · ${f.riskLevel ? severityText(f.riskLevel) + '（情景）' : '接口未提供'}`
+// 快照到达后若 URL 携带的 snapshot 已失效，归一化并默认选中最新
+watch(tlState, (s) => {
+  if (s === 'ok') normalizeSnapshotAgainstData()
 })
 
-// ---------- 模拟发送预警（仅高风险情景事件） ----------
-const canWarn = computed(() => Boolean(selectedEvent.value && selectedEvent.value.severity === 'high'))
-const warnOpen = ref(false)
-const warnBusy = ref(false)
-const warnError = ref('')
-const dispatchResult = ref(null)
-let warnReturnFocus = null
+// ---------- 上一 / 下一快照（在筛选后的列表内步进，时间升序） ----------
+const snapshotIndex = computed(() =>
+  filteredSnapshots.value.findIndex((s) => s.snapshot_id === selectedSnapshotId.value)
+)
+const hasPrevSnapshot = computed(() => snapshotIndex.value > 0)
+const hasNextSnapshot = computed(() => snapshotIndex.value >= 0 && snapshotIndex.value < filteredSnapshots.value.length - 1)
 
-function openWarning() {
-  if (!canWarn.value || warnBusy.value) return
-  warnReturnFocus = document.activeElement
-  warnError.value = ''
-  warnOpen.value = true
+function stepSnapshot(delta) {
+  const next = filteredSnapshots.value[snapshotIndex.value + delta]
+  if (next) selectSnapshot(next.snapshot_id)
 }
-function closeWarning() {
-  warnOpen.value = false
-  if (warnReturnFocus && warnReturnFocus.focus) warnReturnFocus.focus()
-  warnReturnFocus = null
+
+// ---------- 展示口径 ----------
+function complianceText(snap) {
+  const { num, den } = snap.class_compliance || {}
+  if (!den) return '—'
+  return `${Math.round((num / den) * 100)}%`
 }
-async function confirmWarning() {
-  // 请求期间禁止重复提交：一次确认仅产生一次 POST
-  if (warnBusy.value || !selectedEvent.value) return
-  warnBusy.value = true
-  warnError.value = ''
-  try {
-    const { data } = await postHandleWarningEnvelope(selectedEvent.value.id)
-    dispatchResult.value = data
-    warnOpen.value = false
-    if (warnReturnFocus && warnReturnFocus.focus) warnReturnFocus.focus()
-    warnReturnFocus = null
-  } catch (err) {
-    warnError.value = err && err.message ? err.message : '调用失败'
-  } finally {
-    warnBusy.value = false
-  }
+
+function classText(cls) {
+  return { 1: 'I 类', 2: 'II 类', 3: 'III 类', 4: 'IV 类', 5: 'V 类', 6: '劣 V 类' }[String(cls)] || `类别 ${cls}`
 }
+
+function bandText(band) {
+  return { light: '轻度筛查', moderate: '中度筛查' }[band] || band || '—'
+}
+
+function locationText(status) {
+  return LOCATION_STATUS_TEXT[status] || status || '—'
+}
+
+const freshnessText = computed(() =>
+  ({ normal: '正常', delayed: '数据延迟', severely_overdue: '严重过期', unavailable: '不可用' })[summary.value?.freshness_status] || summary.value?.freshness_status || '—'
+)
+
+// /realtime/summary 不返回 chla_mean（仅时间轴有），回退到所选快照的时间轴统计
+const chlaMeanText = computed(() => {
+  const v = summary.value?.chla_mean ?? selectedSnapshot.value?.chla_mean
+  return v != null ? `${v} μg/L` : '—'
+})
 
 // ---------- 移动端视图与抽屉 ----------
 const mobileMq = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
@@ -631,35 +558,27 @@ function onDrawerKeydown(e) {
   }
 }
 
-watch([warnOpen, drawerOpen], ([w, d]) => {
-  document.body.style.overflow = w || d ? 'hidden' : ''
+watch([drawerOpen], ([d]) => {
+  document.body.style.overflow = d ? 'hidden' : ''
 })
 
 // ---------- 初始化 ----------
 onMounted(() => {
   const n = normalizeQuery(route.query)
-  Object.assign(applied, n)
-  Object.assign(draft, { start: n.start, end: n.end, type: n.type, p: n.p, mode: n.mode })
-  selectedEventId.value = n.event
-  // 立即回写归一化后的参数：非法值不残留在地址栏
+  applied.start = n.start
+  applied.end = n.end
+  draft.start = n.start
+  draft.end = n.end
+  selectedSnapshotId.value = n.snapshot
   syncUrl()
   fetchCaps()
-  fetchEntities()
-  fetchEvents()
+  fetchTimeline()
   mobileMq?.addEventListener('change', onMobileMqChange)
-})
-
-// 事件加载完成后：URL 中携带合法 event 时，移动端直接进入详情视图
-watch(eventsState, (s) => {
-  if (s === 'ok' && selectedEventId.value && mergedEvents.value.some((e) => e.id === selectedEventId.value)) {
-    if (isMobileViewport.value) mobileView.value = 'detail'
-  }
 })
 
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
   mobileMq?.removeEventListener('change', onMobileMqChange)
-  if (playTimer) clearInterval(playTimer)
 })
 </script>
 
@@ -707,13 +626,6 @@ onBeforeUnmount(() => {
   gap: 12px;
   min-width: 0;
 }
-.his-kicker {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  color: var(--color-primary);
-}
 .his-title h1 {
   margin: 1px 0 0;
   font-family: var(--font-display);
@@ -721,11 +633,6 @@ onBeforeUnmount(() => {
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.15;
-}
-.his-desc {
-  margin: 3px 0 0;
-  font-size: 11px;
-  color: var(--text-muted);
 }
 .his-title-right {
   display: flex;
@@ -758,21 +665,60 @@ onBeforeUnmount(() => {
   border-color: color-mix(in srgb, var(--data-simulated, #7cb8c9) 45%, transparent);
   color: var(--data-simulated, #7cb8c9);
 }
-.his-export-btn {
-  appearance: none;
-  min-height: 32px;
-  padding: 4px 12px;
-  border: 1px dashed var(--border-subtle);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: not-allowed;
+
+/* ---------- 筛选区 ---------- */
+.his-date-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
 }
-.his-export-btn:focus-visible {
+.his-date-field {
+  display: grid;
+  gap: 3px;
+}
+.his-date-field span {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+.his-date-field input {
+  min-height: 38px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  background: var(--surface-panel-soft);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+}
+.his-date-field input:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
+}
+.his-btn {
+  appearance: none;
+  min-height: 38px;
+  padding: 4px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  background: var(--surface-panel-soft);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.his-btn--primary {
+  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+}
+.his-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.his-filter-error {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--risk-critical, #ff6b6b);
 }
 
 /* ---------- 筛选摘要（移动列表视图） ---------- */
@@ -833,6 +779,78 @@ onBeforeUnmount(() => {
   color: var(--text-primary);
 }
 
+/* ---------- 快照列表 ---------- */
+.his-list {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 620px;
+  overflow-y: auto;
+}
+.his-list-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.his-list-note--bad {
+  color: var(--risk-critical, #ff6b6b);
+}
+.his-snap-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.his-snap-item {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-panel-soft);
+  cursor: pointer;
+}
+.his-snap-item:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+.his-snap-item.active {
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+.his-snap-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+.his-snap-time {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.his-snap-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.his-snap-meta b {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+.his-snap-warn {
+  color: var(--risk-critical, #ff6b6b);
+}
+.his-snap-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
 /* ---------- 主体 38 / 62 ---------- */
 .his-main {
   grid-area: main;
@@ -842,17 +860,7 @@ onBeforeUnmount(() => {
   align-items: start;
   min-width: 0;
 }
-.his-list {
-  padding: 10px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 560px;
-  overflow-y: auto;
-}
 .his-detail {
-  /* 桌面端作为 .his-main 第二个网格项自动放入 62% 列；
-     grid-area: mdetail 仅限移动端模板（隐式命名线会在桌面造出第三列） */
   padding: 12px 14px;
   min-height: 320px;
 }
@@ -860,6 +868,133 @@ onBeforeUnmount(() => {
   display: grid;
   min-height: 280px;
   align-items: center;
+}
+.his-detail-body {
+  display: grid;
+  gap: 12px;
+}
+.his-detail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.his-detail-head h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.his-detail-head h3 span {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+.his-detail-flag {
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #5fd6a4 50%, transparent);
+  color: #5fd6a4;
+}
+.his-detail-flag--old {
+  border-color: color-mix(in srgb, #f5b45d 50%, transparent);
+  color: #f5b45d;
+}
+.his-caps {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-panel-soft);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 6px 14px;
+}
+.his-caps li {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+.his-caps b {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+.his-cap-warn {
+  color: var(--risk-critical, #ff6b6b);
+}
+.his-class-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.his-class-label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+.his-class-chip {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 2px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-panel-soft);
+  color: var(--text-secondary);
+}
+.his-sec {
+  display: grid;
+  gap: 8px;
+}
+.his-sec h4 {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.his-sec-hint {
+  margin-left: 8px;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.his-sec-empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.his-table-wrap {
+  overflow: auto;
+  max-height: 340px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+}
+.his-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.his-table th,
+.his-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.his-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-panel);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 10.5px;
+}
+.his-mono {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+.his-miss {
+  color: var(--text-muted);
 }
 
 .his-plan {
@@ -965,9 +1100,7 @@ onBeforeUnmount(() => {
   .his-filter-summary {
     display: flex;
   }
-  .his-export-btn,
-  .his-chip,
-  .his-count {
+  .his-chip {
     min-height: 44px;
     display: inline-flex;
     align-items: center;
@@ -985,7 +1118,7 @@ onBeforeUnmount(() => {
   }
   .his-body--m-list .his-detail,
   .his-body--m-list .his-plan,
-  .his-body--m-list .his-replay,
+  .his-body--m-list .his-rt-replay,
   .his-body--m-list .his-filterbar {
     display: none;
   }
@@ -994,22 +1127,19 @@ onBeforeUnmount(() => {
     grid-template-areas:
       'title'
       'mdetail'
-      'mreplay'
       'mplan'
       'foot';
   }
   .his-body--m-detail .his-detail {
     grid-area: mdetail;
   }
-  .his-body--m-detail .his-replay {
-    grid-area: mreplay;
-  }
   .his-body--m-detail .his-plan {
     grid-area: mplan;
   }
   .his-body--m-detail .his-list,
   .his-body--m-detail .his-filterbar,
-  .his-body--m-detail .his-filter-summary {
+  .his-body--m-detail .his-filter-summary,
+  .his-body--m-detail .his-rt-replay {
     display: none;
   }
 
@@ -1046,19 +1176,9 @@ onBeforeUnmount(() => {
     cursor: not-allowed;
     opacity: 0.55;
   }
-  .his-mb-btn--warn {
-    border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 55%, transparent);
-    color: var(--risk-critical, #ef4444);
-    background: color-mix(in srgb, var(--risk-critical, #ef4444) 10%, transparent);
-  }
   .his-mb-btn:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
-  }
-
-  /* 触摸目标 ≥44×44（页面自身元素；子组件内部由各自 scoped 样式负责） */
-  .his-export-btn {
-    min-height: 44px;
   }
 }
 </style>

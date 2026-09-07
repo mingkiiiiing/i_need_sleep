@@ -2,7 +2,6 @@
   <section class="panel map-panel">
     <header class="panel-head">
       <div>
-        <p class="panel-kicker">LAKE TWIN MAP &middot; SATELLITE</p>
         <h2>{{ title }}</h2>
       </div>
       <div class="map-controls">
@@ -12,7 +11,7 @@
         </div>
         <div v-if="showTabs" class="map-tools">
           <RouterLink class="tool-chip" :class="{ active: activeTab === 'stations' }" to="/stations">监测站</RouterLink>
-          <RouterLink class="tool-chip" :class="{ active: activeTab === 'heatmap' }" to="/heatmap">风险分区</RouterLink>
+          <RouterLink class="tool-chip" :class="{ active: activeTab === 'heatmap' }" to="/heatmap">卫星遥感</RouterLink>
           <RouterLink class="tool-chip" :class="{ active: activeTab === 'history' }" to="/history">历史轨迹</RouterLink>
         </div>
       </div>

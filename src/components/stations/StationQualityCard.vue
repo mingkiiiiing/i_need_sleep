@@ -32,16 +32,6 @@
       <p v-if="quality.qc_rejected_variables && quality.qc_rejected_variables.length" class="sqc-line sqc-line--bad">
         <strong>上游质控不合格：</strong>{{ quality.qc_rejected_variables.map(variableLabel).join('、') }}
       </p>
-
-      <ul class="sqc-limits">
-        <li v-for="(item, i) in quality.limitations" :key="i">{{ item }}</li>
-      </ul>
-
-      <p class="sqc-suit">
-        适用性：展示 {{ quality.suitability?.display ? '✓' : '✗' }} ·
-        趋势分析 {{ quality.suitability?.trend ? '✓' : '✗' }} ·
-        模型使用 {{ quality.suitability?.model_use ? '✓' : '✗' }}
-      </p>
     </template>
   </section>
 </template>
@@ -79,12 +69,4 @@ const locationText = computed(() => {
 .sqc-warn { color: var(--risk-medium, #f5b45d); }
 .sqc-line { margin: 4px 0; font-size: 11.5px; color: var(--text-secondary); line-height: 1.6; }
 .sqc-line--bad strong { color: var(--risk-critical, #ff6b6b); }
-.sqc-limits {
-  margin: 6px 0;
-  padding-left: 16px;
-  display: grid;
-  gap: 3px;
-}
-.sqc-limits li { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
-.sqc-suit { margin: 6px 0 0; font-size: 11.5px; color: var(--text-secondary); }
 </style>

@@ -2,36 +2,27 @@
   <main class="page-heatmap">
     <div class="hm-body">
       <!-- ===== 标题区 ===== -->
-      <header class="hm-title" aria-label="风险地图与时空推演标题">
+      <header class="hm-title" aria-label="卫星遥感与时空推演标题">
         <div class="hm-title-left">
-          <BackLink :to="cockpitLink" label="返回驾驶舱" />
+          <BackLink :to="{ path: '/cockpit' }" label="返回驾驶舱" />
           <div class="hm-title-text">
-            <h1>风险地图与时空推演</h1>
+            <h1>卫星遥感与时空推演</h1>
           </div>
         </div>
         <div class="hm-title-right">
-          <div class="hm-modes" role="group" aria-label="时间模式（历史 / 当前 / 未来预演）">
-            <button type="button" data-mode-btn="history" disabled aria-disabled="true">
-              历史
-              <small>真实历史风险帧尚未接入</small>
-            </button>
-            <button type="button" data-mode-btn="current" disabled aria-disabled="true">
-              当前
-              <small>实时风险实况层未接入</small>
-            </button>
-            <button type="button" data-mode-btn="future" class="active" aria-pressed="true">
-              未来预演
-              <small>情景推演 · 当前可用</small>
-            </button>
+          <div class="hm-id-chips" aria-label="数据身份">
+            <span class="hm-chip">{{ rsIdentity.version }}</span>
+            <span class="hm-chip hm-chip--observed">{{ rsIdentity.dataMode }}</span>
+            <span class="hm-chip hm-chip--notice">{{ rsIdentity.boundary }}</span>
           </div>
         </div>
       </header>
 
-      <!-- 数据口径披露：当前热力场为情景推演；实时站点稀疏且坐标未核验，不构建真实插值热力图 -->
+      <!-- 数据口径披露：年度遥感反演产品（真实历史观测），非实时插值 -->
       <p class="hm-data-note" role="note">
-        本页热力场为情景推演数据（非实时插值）。MEE 实时站点共 79 处，叶绿素/藻密度缺测率高且坐标未经核验，
-        在可靠空间插值方法落地前，系统不将稀疏站点值伪装成真实连续热力图；实时观测请见
-        <RouterLink to="/stations">监测站点研判</RouterLink>。
+        本页展示 THQBCA-V2 年度卫星遥感反演产品（叶绿素 a / 漂浮藻类覆盖率，真实历史观测、非实时）。
+        MEE 实时站点的逐时观测见
+        <RouterLink to="/stations">监测站点研判</RouterLink>；实时观测点位与遥感图层同图叠加（observed 轨）。
       </p>
 
       <!-- ===== 主三栏 ===== -->
@@ -39,15 +30,12 @@
         <!-- 左栏：图层 / 图例 / 能力说明 -->
         <aside class="hm-panel hm-left" aria-label="图层与图例">
           <HeatmapLayersPanel
-            v-model:grid-visible="layerGrid"
-            v-model:points-visible="layerPoints"
             v-model:realtime-visible="layerRealtime"
             v-model:snapshot-id="rtSnapshotId"
             :snapshot-list="rtTimeline"
             v-model:diff-enabled="rtDiff"
             v-model:polygon-enabled="rtPolygon"
             :realtime-summary="realtimeSummary"
-            v-model:labels-visible="layerLabels"
             v-model:basemap="basemap"
             :capabilities="capabilities"
             :caps-state="capsState"
@@ -55,52 +43,49 @@
           />
         </aside>
 
-        <!-- 中央：风险格网地图 -->
-        <section class="hm-panel hm-center" aria-label="太湖情景风险格网地图">
+        <!-- 中央：卫星遥感地图 -->
+        <section class="hm-panel hm-center" aria-label="太湖卫星遥感地图">
           <div class="hm-map-tools">
-            <div class="hm-ab-modes" role="group" aria-label="地图显示场景">
+            <div class="hm-ab-modes" role="group" aria-label="遥感图层切换">
               <button
+                v-for="layer in rsLayers"
+                :key="layer.id"
                 type="button"
-                :aria-pressed="String(abMode === 'stage')"
-                :class="{ active: abMode === 'stage' }"
-                @click="abMode = 'stage'"
-              >当前帧</button>
-              <button
-                type="button"
-                :aria-pressed="String(abMode === 'a')"
-                :class="{ active: abMode === 'a' }"
-                @click="showAb('a')"
-              >场景 A</button>
-              <button
-                type="button"
-                :aria-pressed="String(abMode === 'b')"
-                :class="{ active: abMode === 'b' }"
-                @click="showAb('b')"
-              >场景 B</button>
-              <button
-                type="button"
-                :aria-pressed="String(abMode === 'diff')"
-                :class="{ active: abMode === 'diff' }"
-                @click="showAb('diff')"
-              >差值</button>
+                :aria-pressed="String(rsLayerId === layer.id)"
+                :class="{ active: rsLayerId === layer.id }"
+                @click="selectLayer(layer.id)"
+              >{{ layer.name }}</button>
             </div>
             <label class="hm-ab-select">
-              <span>A</span>
-              <select v-model="abA" data-role="ab-a" aria-label="场景 A 档位" @change="ensureAb(abA)">
-                <option v-for="item in abSelectOptions" :key="item.key" :value="item.key">
-                  {{ item.label }}
-                </option>
+              <span>年份 A</span>
+              <select v-model.number="yearA" data-role="rs-year-a" aria-label="影像 A 年份">
+                <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
               </select>
             </label>
-            <label class="hm-ab-select">
-              <span>B</span>
-              <select v-model="abB" data-role="ab-b" aria-label="场景 B 档位" @change="ensureAb(abB)">
-                <option v-for="item in abSelectOptions" :key="item.key" :value="item.key">
-                  {{ item.label }}
-                </option>
-              </select>
-            </label>
-            <span v-if="abMode !== 'stage'" class="hm-map-flag">客户端情景场景比较 · 非模型评估结论</span>
+            <template v-if="rsCompare">
+              <label class="hm-ab-select">
+                <span>年份 B</span>
+                <select v-model.number="yearB" data-role="rs-year-b" aria-label="影像 B 年份">
+                  <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+                </select>
+              </label>
+            </template>
+            <div class="hm-ab-modes" role="group" aria-label="对比模式">
+              <button
+                type="button"
+                :aria-pressed="String(!rsCompare)"
+                :class="{ active: !rsCompare }"
+                @click="rsCompare = false"
+              >单年</button>
+              <button
+                type="button"
+                :aria-pressed="String(rsCompare)"
+                :class="{ active: rsCompare }"
+                data-role="rs-compare-toggle"
+                @click="rsCompare = true"
+              >对比模式</button>
+            </div>
+            <span class="hm-map-flag">年度反演 · 非实时 · 色标全期固定</span>
             <span v-if="tileError" class="hm-map-flag hm-map-flag--warn" role="status">
               地图瓦片加载失败
               <button type="button" class="hm-inline-btn" @click="retryTiles">重试图层</button>
@@ -108,259 +93,124 @@
           </div>
 
           <div class="hm-map-wrap">
-            <RiskGridMap
+            <RsMap
               ref="mapRef"
-              :grid="displayGrid"
-              :render-mode="abMode === 'diff' ? 'diff' : 'stage'"
-              :points="allMapPoints"
-              :overlay-latlngs="warningHull"
-              :selected-cell="selectedCellId"
-              :selected-point="store.selectedPoint"
-              :grid-visible="layerGrid"
-              :points-visible="layerPoints || layerRealtime"
-              :labels-visible="layerLabels"
+              :image-a="imageA"
+              :image-b="imageB"
+              :compare="rsCompare"
+              :badge-a="badgeA"
+              :badge-b="badgeB"
+              :points="realtimePoints"
+              :points-visible="layerRealtime"
+              :hull="warningHull"
               :basemap="basemap"
-              @select-cell="onSelectCell"
-              @select-point="store.selectedPoint = $event"
+              :opacity="rsOpacity"
+              :reset-token="resetToken"
               @tile-error="onTileError"
             />
-            <div v-if="mapOverlayState" class="hm-map-overlay" data-role="grid-state" :data-state="mapOverlayState">
+            <div v-if="rsOverlay" class="hm-map-overlay" data-role="rs-state" :data-state="rsOverlay">
               <StatePanel
-                :state="mapOverlayState === 'same' ? 'empty' : mapOverlayState"
-                :title="mapOverlayTitle"
-                :description="mapOverlayDesc"
+                :state="rsOverlay"
+                :title="rsOverlay === 'loading' ? '遥感图层加载中…' : '遥感图层加载失败'"
+                :description="rsOverlay === 'error' ? rsError || '清单接口请求失败。' : ''"
               >
-                <button v-if="mapOverlayState === 'error'" type="button" class="hm-inline-btn" data-role="grid-retry" @click="retryMapOverlay">
-                  重试当前档位
+                <button v-if="rsOverlay === 'error'" type="button" class="hm-inline-btn" data-role="rs-retry" @click="fetchRsManifest">
+                  重试
                 </button>
               </StatePanel>
             </div>
           </div>
 
-          <div v-if="stageKey === 't30'" class="hm-t30-banner" data-role="t30-banner" role="note">
-            30—90 天正式预测能力未就绪 · 当前格网仅为固定规则情景推演
+          <!-- 年份滑轴 -->
+          <div v-if="years.length" class="hm-rs-year">
+            <span class="hm-rs-year-label">{{ activeLayerName }} · <b>{{ yearA ?? '—' }}</b></span>
+            <input
+              v-if="years.length > 1"
+              class="hm-rs-slider"
+              type="range"
+              :min="0"
+              :max="years.length - 1"
+              step="1"
+              :value="yearIndexA"
+              data-role="rs-year-slider"
+              aria-label="年份滑轴"
+              @input="onSlideYear"
+            />
+            <span class="hm-rs-year-range">{{ years[0] }}—{{ years[years.length - 1] }}</span>
           </div>
-          <p class="hm-map-note">
-            情景格网定位仅用于界面联调，不代表真实遥感像元边界。阈值：0–44 低 / 45–74 中 / 75–100 高。
-          </p>
+
+          <!-- 色带图例（全期固定尺度） -->
+          <div v-if="activeLayer" class="hm-rs-legend" aria-label="色带图例">
+            <span class="hm-rs-legend-min">{{ activeLayer.vmin }} {{ activeLayer.unit }}</span>
+            <span class="hm-rs-legend-bar" :style="{ background: legendGradient }"></span>
+            <span class="hm-rs-legend-max">≥ {{ activeLayer.vmax }} {{ activeLayer.unit }}</span>
+          </div>
         </section>
 
-        <!-- 右栏：当前帧研判 -->
-        <aside class="hm-panel hm-right" aria-label="当前帧研判">
-          <!-- 当前情景帧摘要 -->
-          <section class="hm-sec" aria-label="当前情景帧摘要">
-            <h3 class="hm-sec-h">当前情景帧 <span>{{ stageShortLabel }} · 情景数据</span></h3>
+        <!-- 右栏：年度统计与数据来源 -->
+        <aside class="hm-panel hm-right" aria-label="年度统计与数据来源">
+          <!-- 年度统计 -->
+          <section class="hm-sec" aria-label="年度统计">
+            <h3 class="hm-sec-h">年度统计 <span>{{ activeLayerName }} · {{ yearA ?? '—' }}</span></h3>
             <StatePanel
-              v-if="frameOverlay"
-              :state="frameOverlay"
-              :title="frameOverlay === 'loading' ? '格网加载中…' : '格网加载失败'"
-              :description="frameOverlay === 'error' ? '当前档位格网不可用，摘要暂无数据。' : ''"
+              v-if="rsOverlay"
+              :state="rsOverlay"
+              :title="rsOverlay === 'loading' ? '遥感清单加载中…' : '遥感清单加载失败'"
+              :description="rsOverlay === 'error' ? '年度统计依赖 /rs/manifest 清单。' : ''"
             />
-            <template v-else>
-              <div class="hm-frame-rows">
-                <div class="hm-frame-row lv-high">
-                  <span><i></i>高风险格数</span>
-                  <strong data-frame="high">{{ frameStats.high }}</strong>
-                  <small data-frame="share-high">{{ frameStats.highShare }}%</small>
-                </div>
-                <div class="hm-frame-row lv-mid">
-                  <span><i></i>中风险格数</span>
-                  <strong data-frame="mid">{{ frameStats.mid }}</strong>
-                  <small data-frame="share-mid">{{ frameStats.midShare }}%</small>
-                </div>
-                <div class="hm-frame-row lv-low">
-                  <span><i></i>低风险格数</span>
-                  <strong data-frame="low">{{ frameStats.low }}</strong>
-                  <small data-frame="share-low">{{ frameStats.lowShare }}%</small>
-                </div>
-                <div class="hm-frame-row is-plain">
-                  <span>最大 / 平均情景分数</span>
-                  <strong data-frame="max-avg">{{ frameStats.max }} / {{ frameStats.avg }}</strong>
-                </div>
-              </div>
-              <p class="hm-frame-meta" data-frame="version">{{ predVersion }} · {{ runId }} · {{ dataMode }}</p>
-            </template>
-          </section>
-
-          <!-- 选中格详情 -->
-          <section class="hm-sec" aria-label="选中格详情">
-            <h3 class="hm-sec-h">选中格详情</h3>
-            <p v-if="!selectedCellId" class="hm-empty-hint">点击地图格网或热点排行选择一格。</p>
-            <template v-else-if="selectedCell">
-              <dl class="hm-kv" data-role="cell-detail">
-                <div><dt>格网编号</dt><dd data-cd="id">{{ selectedCell.id }}</dd></div>
-                <div><dt>行 / 列</dt><dd data-cd="rowcol">第 {{ selectedCell.row + 1 }} 行 · 第 {{ selectedCell.col + 1 }} 列</dd></div>
-                <div><dt>当前档位</dt><dd data-cd="stage">{{ stageShortLabel }}</dd></div>
-                <div><dt>情景风险分数</dt><dd data-cd="score">{{ selectedCell.value }}</dd></div>
-                <div><dt>风险等级</dt><dd data-cd="level">{{ levelText(selectedCell.level) }}（阈值 0–44 / 45–74 / 75–100）</dd></div>
-                <div><dt>数据模式</dt><dd data-cd="data-mode">{{ cellProvenance.dataMode }}</dd></div>
-                <div><dt>预测运行</dt><dd data-cd="run-id">{{ cellProvenance.runId }}</dd></div>
-                <div><dt>使用边界</dt><dd data-cd="boundary">{{ cellProvenance.boundary }}</dd></div>
+            <template v-else-if="yearEntry">
+              <dl class="hm-kv" data-role="rs-stats">
+                <div><dt>均值</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>p95</dt><dd>{{ yearEntry.stats.p95 }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>最大</dt><dd>{{ yearEntry.stats.max }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>最小</dt><dd>{{ yearEntry.stats.min }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>有效像元</dt><dd>{{ yearEntry.stats.valid_pct }}%</dd></div>
               </dl>
-              <button
-                type="button"
-                class="hm-warn-btn"
-                data-role="warn-trigger"
-                :disabled="!canWarn || warnBusy"
-                :aria-disabled="String(!canWarn)"
-                @click="openWarning"
-              >
-                情景预警
-                <small v-if="!canWarn">仅高风险格（≥75）可发起</small>
-              </button>
-              <p v-if="warnResult" class="hm-warn-result" data-role="warn-result" role="status">
-                模拟处理记录：<b>{{ warnResult.status }}</b> · 事件标识 {{ warnResult.event_id }} ·
-                渠道 {{ (warnResult.channels || []).join('、') }} · {{ warnResult.data_mode }}
-              </p>
+              <p class="hm-sec-note">反演统计为全湖像元口径，不等于站点实测；用于年代际空间格局研判。</p>
             </template>
-            <p v-else class="hm-empty-hint">当前档位格网不可用，无法读取该格分数。</p>
           </section>
 
-          <!-- 热点排行 -->
-          <section class="hm-sec" aria-label="热点排行">
-            <h3 class="hm-sec-h">热点排行 <span>情景分数前 5</span></h3>
-            <p v-if="!hotspots.length" class="hm-empty-hint">当前档位格网加载后显示。</p>
-            <ol v-else class="hm-hotspots">
-              <li v-for="(cell, i) in hotspots" :key="cell.id">
-                <button
-                  type="button"
-                  class="hm-hotspot-item"
-                  :class="{ active: cell.id === selectedCellId, [`lv-${cell.level}`]: true }"
-                  :data-hotspot-cell="cell.id"
-                  :aria-pressed="String(cell.id === selectedCellId)"
-                  @click="selectedCellId = cell.id"
-                >
-                  <span class="hm-hs-rank">{{ i + 1 }}</span>
-                  <span class="hm-hs-id">{{ cell.id }}</span>
-                  <span class="hm-hs-bar"><i :style="{ width: Math.max(10, cell.value) + '%' }"></i></span>
-                  <strong class="hm-hs-score">{{ cell.value }}</strong>
-                  <span class="hm-hs-level">{{ levelText(cell.level) }}</span>
-                </button>
-              </li>
-            </ol>
-          </section>
-
-          <!-- 情景分区参考 -->
-          <section class="hm-sec" aria-label="情景分区参考">
-            <h3 class="hm-sec-h">情景分区参考 <span>{{ stageShortLabel }} 档位</span></h3>
-            <StatePanel
-              v-if="zoneOverlay"
-              :state="zoneOverlay === 'blocked' ? 'empty' : zoneOverlay"
-              :title="zoneOverlayTitle"
-              :description="zoneOverlayText"
-            >
-              <button v-if="zoneOverlay === 'error'" type="button" class="hm-inline-btn" @click="fetchZoneScores(stageKey, true)">重试</button>
-            </StatePanel>
-            <template v-else>
-              <ul class="hm-zones">
-                <li v-for="row in zoneRows" :key="row.id">
-                  <button
-                    type="button"
-                    class="hm-zone-row"
-                    :class="{ active: row.id === store.selectedPoint }"
-                    :aria-pressed="String(row.id === store.selectedPoint)"
-                    @click="store.selectedPoint = row.id"
-                  >
-                    <span class="hm-zone-code">{{ row.short }}</span>
-                    <span class="hm-zone-name">{{ row.name }}</span>
-                    <strong class="hm-zone-score" :class="`lv-${row.level}`">{{ row.score }}</strong>
-                    <span class="hm-zone-level">{{ levelText(row.level) }}</span>
-                  </button>
-                </li>
-              </ul>
+          <!-- 对比摘要（仅对比模式） -->
+          <section v-if="rsCompare" class="hm-sec" aria-label="年份对比摘要">
+            <h3 class="hm-sec-h">对比摘要 <span>{{ yearA ?? '—' }} ↔ {{ yearB ?? '—' }}</span></h3>
+            <p v-if="yearA === yearB" class="hm-empty-hint" data-role="rs-cmp-same">两个年份相同，无对比。</p>
+            <template v-else-if="yearEntry && compareEntry">
+              <dl class="hm-kv" data-role="rs-cmp">
+                <div><dt>均值 {{ yearA }}</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>均值 {{ yearB }}</dt><dd>{{ compareEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>Δ均值（B−A）</dt><dd>{{ deltaMean }} {{ activeLayer.unit }}</dd></div>
+                <div><dt>p95 {{ yearA }}</dt><dd>{{ yearEntry.stats.p95 }}</dd></div>
+                <div><dt>p95 {{ yearB }}</dt><dd>{{ compareEntry.stats.p95 }}</dd></div>
+                <div><dt>Δp95（B−A）</dt><dd>{{ deltaP95 }} {{ activeLayer.unit }}</dd></div>
+              </dl>
+              <p class="hm-sec-note">同尺度色标下左右分屏目视对比（拖动分割线）；此处仅列统计差，不做差值图。</p>
             </template>
-            <p class="hm-sec-note">分区分数与格网均为模拟研判视图，不代表真实站点影响范围。</p>
           </section>
 
-          <button type="button" class="hm-export-btn" data-role="export-btn" disabled aria-disabled="true" title="导出接口尚未接入">
-            导出情景帧 · 尚未接入
-          </button>
+          <!-- 数据来源 -->
+          <section class="hm-sec" aria-label="数据来源">
+            <h3 class="hm-sec-h">数据来源</h3>
+            <dl class="hm-kv" data-role="rs-source">
+              <div><dt>数据集</dt><dd>{{ rsManifest?.source_dataset || '—' }}</dd></div>
+              <div><dt>产品口径</dt><dd>年度反演 · 30m</dd></div>
+              <div><dt>清单生成</dt><dd>{{ rsManifest?.generated_at || '—' }}</dd></div>
+              <div><dt>使用边界</dt><dd>{{ rsIdentity.boundary }}</dd></div>
+            </dl>
+            <p class="hm-sec-note">{{ rsManifest?.note || '年度卫星遥感反演产品：真实历史观测（非实时、非模拟）。' }}</p>
+          </section>
         </aside>
       </div>
 
-      <!-- ===== 时间推演轴 ===== -->
-      <TimeAxisBar class="hm-dock" :stages="axisStages" variant="axis" :sub-label-map="subLabels" />
-
-      <!-- ===== 底部图表 ===== -->
-      <div class="hm-charts">
-        <section class="hm-panel hm-chart-panel" aria-label="风险格数随档位变化">
-          <h3 class="hm-sec-h">风险格数随档位变化 <span>已加载 {{ trendLoadedCount }}/5 档位</span></h3>
-          <StatePanel
-            v-if="trendState !== 'ok'"
-            :state="trendState"
-            :title="trendState === 'loading' ? '情景档位预加载中…' : '部分档位格网加载失败'"
-            :description="trendState === 'error' ? '趋势仅统计成功加载的情景档位，失败档位不补 0。' : ''"
-          >
-            <button v-if="trendState === 'error'" type="button" class="hm-inline-btn" data-role="trend-retry" @click="retryTrend">重试失败档位</button>
-          </StatePanel>
-          <template v-else>
-            <EChart :option="trendOption" :height="150" />
-          </template>
-          <p class="hm-sec-note">仅统计五个档位各自的 /map/risk-grid 情景格网，不使用固定数组。</p>
-        </section>
-
-        <section class="hm-panel hm-chart-panel" aria-label="A/B 差异与热点位置变化">
-          <h3 class="hm-sec-h">A/B 差异与热点位置变化 <span>场景 {{ stageShort(abA) }} ↔ {{ stageShort(abB) }}</span></h3>
-          <details class="hm-fold" :open="!isMobileViewport">
-            <summary>A/B 差异与热点位置变化</summary>
-            <div class="hm-fold-body">
-              <p v-if="abA === abB" class="hm-ab-same" data-role="ab-same" role="status">两个场景相同，无差异</p>
-              <StatePanel
-                v-else-if="abPanelState !== 'ok'"
-                :state="abPanelState"
-                :title="abPanelState === 'loading' ? '场景格网加载中…' : '场景格网加载失败'"
-                :description="abPanelState === 'error' ? 'A/B 比较必须基于两个成功加载的情景格网。' : ''"
-              >
-                <button v-if="abPanelState === 'error'" type="button" class="hm-inline-btn" @click="retryAb">重试场景格网</button>
-              </StatePanel>
-              <template v-else-if="abStats">
-                <div class="hm-ab-stats">
-                  <span data-ab="up">上升 <b>{{ abStats.up }}</b></span>
-                  <span data-ab="down">下降 <b>{{ abStats.down }}</b></span>
-                  <span data-ab="same">不变 <b>{{ abStats.same }}</b></span>
-                  <span data-ab="max-delta">最大分数差 <b>{{ abStats.maxDelta }}</b></span>
-                  <span data-ab="low-to-mid">低→中 <b>{{ abStats.transitions['low->mid'] }}</b></span>
-                  <span data-ab="mid-to-high">中→高 <b>{{ abStats.transitions['mid->high'] }}</b></span>
-                  <span data-ab="high-to-mid">高→中 <b>{{ abStats.transitions['high->mid'] }}</b></span>
-                  <span data-ab="mid-to-low">中→低 <b>{{ abStats.transitions['mid->low'] }}</b></span>
-                </div>
-                <p class="hm-sec-note">客户端情景场景比较 · 非模型评估结论。仅基于两个情景格网数组做差，不计算面积、岸线或迁移速度。</p>
-              </template>
-              <div class="hm-track">
-                <h4>热点位置变化（情景格网索引）</h4>
-                <table class="hm-track-table">
-                  <thead>
-                    <tr><th>档位</th><th>最高分格网</th><th>最大分数</th><th>高风险格中心</th></tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="row in track" :key="row.key">
-                      <td>{{ row.label }}</td>
-                      <td class="mono">{{ row.top.id }}</td>
-                      <td>{{ row.max }}</td>
-                      <td>{{ row.center ? `R${(row.center.row + 1).toFixed(1)} · C${(row.center.col + 1).toFixed(1)}` : '—' }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p class="hm-sec-note">仅为情景格网行列索引变化，不是真实蓝藻迁移轨迹或扩散速度。</p>
-              </div>
-            </div>
-          </details>
-        </section>
-      </div>
-
       <footer class="hm-foot">
-        <span>图层目录：{{ layersText }} · 情景推演口径（simulation_only）· 非决策用途</span>
+        <span>图层目录：{{ layersText }} · 卫星遥感年度产品（observed）· 非决策用途</span>
       </footer>
     </div>
 
     <!-- ===== 移动端底部操作栏 ===== -->
     <Teleport to="body" :disabled="!isMobileViewport">
       <nav class="hm-mobile-bar" aria-label="移动端操作栏">
-        <RouterLink class="hm-mb-btn" :to="cockpitLink">返回驾驶舱</RouterLink>
+        <RouterLink class="hm-mb-btn" :to="{ path: '/cockpit' }">返回驾驶舱</RouterLink>
         <button ref="drawerTriggerRef" type="button" class="hm-mb-btn" data-role="layers-trigger" @click="openDrawer">图层</button>
-        <button type="button" class="hm-mb-btn" data-role="play-trigger" :aria-label="store.playing ? '暂停' : '播放'" @click="togglePlay">
-          {{ store.playing ? '暂停' : '播放' }}
-        </button>
       </nav>
     </Teleport>
 
@@ -382,15 +232,12 @@
           <div class="hm-drawer-body">
             <HeatmapLayersPanel
               compact
-              v-model:grid-visible="layerGrid"
-              v-model:points-visible="layerPoints"
               v-model:realtime-visible="layerRealtime"
               v-model:snapshot-id="rtSnapshotId"
               :snapshot-list="rtTimeline"
               v-model:diff-enabled="rtDiff"
               v-model:polygon-enabled="rtPolygon"
               :realtime-summary="realtimeSummary"
-              v-model:labels-visible="layerLabels"
               v-model:basemap="basemap"
               :capabilities="capabilities"
               :caps-state="capsState"
@@ -400,77 +247,128 @@
         </div>
       </div>
     </Teleport>
-
-    <HeatmapWarningDialog
-      :open="warnOpen"
-      :stage-label="stageShortLabel"
-      :cell-id="selectedCellId"
-      :score="warnScore"
-      level-text="高风险"
-      :busy="warnBusy"
-      :error="warnError"
-      @cancel="closeWarning"
-      @confirm="confirmWarning"
-    />
   </main>
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { cockpitState, useCockpitStore } from '../stores/cockpit.js'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   getForecastCapabilitiesEnvelope,
-  getForecastsEnvelope,
   getMapLayersEnvelope,
-  getRiskGridEnvelope,
-  getSpatialEntities,
-  postHandleWarningEnvelope
+  getRsManifestEnvelope,
+  rsImageUrl
 } from '../services/api.js'
 import BackLink from '../components/common/BackLink.vue'
 import StatePanel from '../components/common/StatePanel.vue'
-import EChart from '../components/cockpit/EChart.vue'
-import TimeAxisBar from '../components/cockpit/TimeAxisBar.vue'
-import { chlaColor, fetchRealtimeSummary, fetchRealtimeTimeline } from '../services/realtime.js'
-import { palette, tooltipTheme } from '../components/cockpit/echartsTheme.js'
-import { useTheme } from '../composables/useTheme.js'
-import { dataIdentity } from '../data/dataIdentity.js'
-import { RISK_ORDER, RISK_TEXT, positionToCoord } from '../components/stations/stationDisplay.js'
-import RiskGridMap from '../components/heatmap/RiskGridMap.vue'
+import RsMap from '../components/heatmap/RsMap.vue'
 import HeatmapLayersPanel from '../components/heatmap/HeatmapLayersPanel.vue'
-import HeatmapWarningDialog from '../components/heatmap/HeatmapWarningDialog.vue'
-import {
-  STAGE_DAYS,
-  STAGE_KEYS,
-  buildDiffGrid,
-  diffGrids,
-  flattenCells,
-  gridStats,
-  hotspotTrack,
-  sharePct,
-  stageDays,
-  stageShort,
-  topCells
-} from '../components/heatmap/gridCore.js'
+import { chlaColor, fetchRealtimeSummary, fetchRealtimeTimeline } from '../services/realtime.js'
 
-const router = useRouter()
-const route = useRoute()
-useCockpitStore()
-const store = cockpitState()
-
-const { theme } = useTheme()
-
-const stageKey = computed(() => store.stageKey)
-const stageShortLabel = computed(() => stageShort(stageKey.value))
-
-function levelText(level) {
-  return RISK_TEXT[level] || '—'
+const RS_VERSION = 'THQBCA-V2-BIOOPTICS-V1'
+const rsIdentity = {
+  version: RS_VERSION,
+  dataMode: 'observed · 年度反演',
+  boundary: 'satellite_annual_retrieval_not_in_situ'
 }
 
-const cockpitLink = computed(() => ({
-  path: '/cockpit',
-  query: { t: store.stageKey, p: store.selectedPoint }
-}))
+// ---------- 卫星遥感图层（/rs/manifest + 静态 PNG） ----------
+const rsManifest = ref(null)
+const rsState = ref('loading')
+const rsError = ref('')
+const rsLayerId = ref('chla')
+const rsCompare = ref(false)
+const yearA = ref(null)
+const yearB = ref(null)
+const rsOpacity = ref(0.85)
+
+const rsLayers = computed(() => rsManifest.value?.layers || [])
+const activeLayer = computed(() => rsLayers.value.find((l) => l.id === rsLayerId.value) || null)
+const activeLayerName = computed(() => activeLayer.value?.name || '')
+const years = computed(() => (activeLayer.value ? activeLayer.value.years.map((y) => y.year) : []))
+
+const yearEntry = computed(() =>
+  activeLayer.value && yearA.value != null
+    ? activeLayer.value.years.find((y) => y.year === yearA.value) || null
+    : null
+)
+const compareEntry = computed(() =>
+  activeLayer.value && yearB.value != null
+    ? activeLayer.value.years.find((y) => y.year === yearB.value) || null
+    : null
+)
+
+const deltaMean = computed(() => {
+  if (!yearEntry.value || !compareEntry.value) return '—'
+  const d = compareEntry.value.stats.mean - yearEntry.value.stats.mean
+  return `${d > 0 ? '+' : ''}${d.toFixed(2)}`
+})
+const deltaP95 = computed(() => {
+  if (!yearEntry.value || !compareEntry.value) return '—'
+  const d = compareEntry.value.stats.p95 - yearEntry.value.stats.p95
+  return `${d > 0 ? '+' : ''}${d.toFixed(2)}`
+})
+
+const yearIndexA = computed(() => {
+  const at = years.value.indexOf(yearA.value)
+  return at < 0 ? years.value.length - 1 : at
+})
+function onSlideYear(event) {
+  const year = years.value[Number(event.target.value)]
+  if (year != null) yearA.value = year
+}
+
+const imageA = computed(() => {
+  const entry = yearEntry.value
+  return entry ? { url: rsImageUrl(entry.png), bounds: entry.bounds } : null
+})
+const imageB = computed(() => {
+  const entry = compareEntry.value
+  return entry ? { url: rsImageUrl(entry.png), bounds: entry.bounds } : null
+})
+const badgeA = computed(() => (yearA.value != null ? `A · ${yearA.value}` : 'A'))
+const badgeB = computed(() => (yearB.value != null ? `B · ${yearB.value}` : 'B'))
+
+const legendGradient = computed(() => {
+  const stops = activeLayer.value?.legend_stops || []
+  if (!stops.length) return 'none'
+  return `linear-gradient(to right, ${stops.map(([t, c]) => `${c} ${Math.round(t * 100)}%`).join(', ')})`
+})
+
+const rsOverlay = computed(() => (rsState.value === 'loading' ? 'loading' : rsState.value === 'error' ? 'error' : null))
+
+function selectLayer(id) {
+  if (id === rsLayerId.value) return
+  rsLayerId.value = id
+  const layer = rsLayers.value.find((l) => l.id === id)
+  if (layer) {
+    yearA.value = layer.years[layer.years.length - 1].year
+    yearB.value = layer.years[Math.max(0, layer.years.length - 6)].year
+  }
+}
+
+async function fetchRsManifest() {
+  rsState.value = 'loading'
+  rsError.value = ''
+  try {
+    const { data } = await getRsManifestEnvelope()
+    rsManifest.value = data
+    rsState.value = 'ok'
+    const layer = data.layers.find((l) => l.id === rsLayerId.value) || data.layers[0]
+    if (layer) {
+      rsLayerId.value = layer.id
+      if (!layer.years.some((y) => y.year === yearA.value)) {
+        yearA.value = layer.years[layer.years.length - 1].year
+      }
+      if (!layer.years.some((y) => y.year === yearB.value)) {
+        yearB.value = layer.years[Math.max(0, layer.years.length - 6)].year
+      }
+    }
+  } catch (err) {
+    rsManifest.value = null
+    rsState.value = 'error'
+    rsError.value = err && err.message ? err.message : '遥感清单请求失败'
+  }
+}
 
 // ---------- 能力 ----------
 const capabilities = ref(null)
@@ -503,285 +401,8 @@ const layersText = computed(() =>
     : '未获取'
 )
 
-// ---------- 情景分区 ----------
-const entities = ref([])
-const entitiesState = ref('loading')
-async function fetchEntities() {
-  entitiesState.value = 'loading'
-  try {
-    const { data } = await getSpatialEntities()
-    entities.value = Array.isArray(data) ? data : []
-    entitiesState.value = 'ok'
-    resolveSelection()
-    fetchZoneScores(stageKey.value)
-  } catch {
-    entitiesState.value = 'error'
-  }
-}
-
-// 非法 p 回落到风险最高的有效分区；非法 t 由 cockpit store 校验，这里显式回写 URL
-function resolveSelection() {
-  if (!entities.value.length) return
-  if (!entities.value.some((e) => e.id === store.selectedPoint)) {
-    const byRisk = entities.value
-      .slice()
-      .sort((a, b) => (RISK_ORDER[a.risk_hint] ?? 9) - (RISK_ORDER[b.risk_hint] ?? 9))
-    store.selectedPoint = byRisk[0].id
-  }
-  router.replace({ query: { ...route.query, t: store.stageKey, p: store.selectedPoint } }).catch(() => {})
-}
-
-// SPA 内 hash 跳转（如直达 ?p=非法值）不重挂载组件：路由变化时重新校准 p
-watch(() => route.fullPath, () => resolveSelection())
-
-const mapPoints = computed(() => {
-  const scores = zoneScores[stageKey.value].scores
-  return entities.value
-    .map((e) => {
-      const fc = scores[e.id]
-      return {
-        id: e.id,
-        short: e.short,
-        name: e.display_name,
-        level: fc ? fc.risk_level : (e.risk_hint || 'low'),
-        coord: positionToCoord(e.position)
-      }
-    })
-    .filter((p) => p.coord)
-    .map((p) => ({ id: p.id, short: p.short, name: p.name, level: p.level, lat: p.coord.lat, lon: p.coord.lon }))
-})
-
-// 情景分区点位 + 实时观测点位：同一地图、两个图层开关分别控制
-const allMapPoints = computed(() => [
-  ...mapPoints.value,
-  ...(layerRealtime.value ? realtimePoints.value : [])
-])
-
-// ---------- 风险格网（每档位独立缓存 + 令牌防串写） ----------
-function blankGrid() {
-  return { state: 'idle', grid: null, raw: null, error: '' }
-}
-const grids = reactive({
-  t1: blankGrid(),
-  t3: blankGrid(),
-  t7: blankGrid(),
-  t15: blankGrid(),
-  t30: blankGrid()
-})
-const gridTokens = { t1: 0, t3: 0, t7: 0, t15: 0, t30: 0 }
-
-async function fetchGrid(key) {
-  const entry = grids[key]
-  const token = ++gridTokens[key]
-  // 加载/失败期间不保留旧格网：禁止“旧格网 + 新档位标签”的组合展示
-  entry.state = 'loading'
-  entry.grid = null
-  entry.raw = null
-  entry.error = ''
-  try {
-    const { data, meta } = await getRiskGridEnvelope(stageDays(key))
-    if (token !== gridTokens[key]) return
-    entry.grid = Array.isArray(data.grid) ? data.grid : null
-    entry.raw = { ...data, meta }
-    if (entry.grid) {
-      entry.state = 'ok'
-    } else {
-      entry.state = 'error'
-      entry.error = '接口未返回格网数据'
-    }
-  } catch (err) {
-    if (token !== gridTokens[key]) return
-    entry.state = 'error'
-    entry.error = err && err.message ? err.message : '风险格网请求失败'
-  }
-}
-
-function preloadTrend() {
-  STAGE_KEYS.forEach((key) => {
-    if (grids[key].state === 'idle') fetchGrid(key)
-  })
-}
-
-const currentEntry = computed(() => grids[stageKey.value])
-const currentStats = computed(() => gridStats(currentEntry.value.grid))
-
-// ---------- 档位切换 ----------
-watch(stageKey, (key, old) => {
-  if (key === old) return
-  warnResult.value = null
-  if (grids[key].state === 'idle') fetchGrid(key)
-  fetchZoneScores(key)
-})
-
-// ---------- 帧摘要 ----------
-const predVersion = computed(
-  () => (currentEntry.value.raw && currentEntry.value.raw.meta && currentEntry.value.raw.meta.dataset_version) || dataIdentity.predVersionId
-)
-const runId = computed(() => (currentEntry.value.raw && currentEntry.value.raw.prediction_run_id) || dataIdentity.predictionRunId)
-const dataMode = computed(() => (currentEntry.value.raw && currentEntry.value.raw.data_mode) || 'simulated')
-
-const frameOverlay = computed(() => overlayOf(currentEntry.value))
-
-const frameStats = computed(() => {
-  const stats = currentStats.value
-  return {
-    high: stats.high,
-    mid: stats.mid,
-    low: stats.low,
-    highShare: sharePct(stats.high, stats.valid),
-    midShare: sharePct(stats.mid, stats.valid),
-    lowShare: sharePct(stats.low, stats.valid),
-    max: stats.max == null ? '—' : stats.max,
-    avg: stats.avg == null ? '—' : stats.avg.toFixed(1)
-  }
-})
-
-// ---------- 选中格 ----------
-const selectedCellId = ref('')
-const selectedCell = computed(() => {
-  if (!selectedCellId.value || currentEntry.value.state !== 'ok') return null
-  return flattenCells(currentEntry.value.grid).find((c) => c.id === selectedCellId.value) || null
-})
-const cellProvenance = computed(() => {
-  const raw = currentEntry.value.raw || {}
-  return {
-    dataMode: raw.data_mode || '—',
-    runId: raw.prediction_run_id || '—',
-    boundary: raw.claim_boundary || '—'
-  }
-})
-
-function onSelectCell(payload) {
-  selectedCellId.value = payload.id
-}
-
-// ---------- 情景预警 ----------
-const canWarn = computed(() => Boolean(selectedCell.value && selectedCell.value.level === 'high'))
-const warnScore = computed(() => (selectedCell.value ? selectedCell.value.value : ''))
-const warnOpen = ref(false)
-const warnBusy = ref(false)
-const warnResult = ref(null)
-const warnError = ref('')
-let warnReturnFocus = null
-
-function openWarning() {
-  if (!canWarn.value) return
-  warnReturnFocus = document.activeElement
-  warnError.value = ''
-  warnOpen.value = true
-}
-function closeWarning() {
-  warnOpen.value = false
-  if (warnReturnFocus && warnReturnFocus.focus) warnReturnFocus.focus()
-  warnReturnFocus = null
-}
-async function confirmWarning() {
-  warnBusy.value = true
-  warnError.value = ''
-  try {
-    // 情景处理接口：event_id 为页面情景格网编号，后端仅回显 simulated_dispatched，不产生真实预警
-    const { data } = await postHandleWarningEnvelope(selectedCellId.value)
-    warnResult.value = data
-    warnOpen.value = false
-    if (warnReturnFocus && warnReturnFocus.focus) warnReturnFocus.focus()
-    warnReturnFocus = null
-  } catch (err) {
-    warnError.value = err && err.message ? err.message : '调用失败'
-  } finally {
-    warnBusy.value = false
-  }
-}
-watch(selectedCellId, () => {
-  warnResult.value = null
-})
-
-// ---------- 热点排行 ----------
-const hotspots = computed(() => (currentEntry.value.state === 'ok' ? topCells(currentEntry.value.grid, 5) : []))
-
-// ---------- 分区参考 ----------
-function blankZones() {
-  return { state: 'idle', scores: {} }
-}
-const zoneScores = reactive({
-  t1: blankZones(),
-  t3: blankZones(),
-  t7: blankZones(),
-  t15: blankZones(),
-  t30: blankZones()
-})
-const zoneTokens = { t1: 0, t3: 0, t7: 0, t15: 0, t30: 0 }
-
-async function fetchZoneScores(key, force = false) {
-  const entry = zoneScores[key]
-  if (key === 't30') {
-    // 后端规则：horizon_days>15 返回 CAPABILITY_UNAVAILABLE；不发起注定失败的请求，直接呈现阻塞
-    entry.state = 'blocked'
-    entry.scores = {}
-    return
-  }
-  if (!entities.value.length) return
-  if (!force && (entry.state === 'ok' || entry.state === 'loading')) return
-  const token = ++zoneTokens[key]
-  entry.state = 'loading'
-  entry.scores = {}
-  try {
-    const results = await Promise.all(entities.value.map((e) => getForecastsEnvelope(e.id, stageDays(key))))
-    if (token !== zoneTokens[key]) return
-    const map = {}
-    results.forEach(({ data }) => {
-      const fc = Array.isArray(data) ? data[0] : null
-      if (fc && fc.spatial_entity_id) map[fc.spatial_entity_id] = fc
-    })
-    entry.scores = map
-    entry.state = 'ok'
-  } catch {
-    if (token !== zoneTokens[key]) return
-    entry.scores = {}
-    entry.state = 'error'
-  }
-}
-
-const zoneOverlay = computed(() => {
-  if (entitiesState.value === 'loading') return 'loading'
-  if (entitiesState.value === 'error') return 'error'
-  const s = zoneScores[stageKey.value].state
-  if (s === 'loading' || s === 'idle') return 'loading'
-  if (s === 'error') return 'error'
-  if (s === 'blocked') return 'blocked'
-  return null
-})
-const zoneOverlayTitle = computed(() => {
-  if (zoneOverlay.value === 'blocked') return '该档位无分区预测'
-  if (zoneOverlay.value === 'error') return '分区预测加载失败'
-  return '分区预测加载中…'
-})
-const zoneOverlayText = computed(() => {
-  if (entitiesState.value === 'error') return '情景分区接口请求失败。'
-  if (zoneScores[stageKey.value].state === 'blocked') {
-    return '预测接口对该档位返回能力阻塞（CAPABILITY_UNAVAILABLE）：30—90 天预测尚未就绪，不提供分区预测分数。'
-  }
-  return ''
-})
-
-const zoneRows = computed(() => {
-  const scores = zoneScores[stageKey.value].scores
-  return entities.value.map((e) => {
-    const fc = scores[e.id]
-    const score = fc ? fc.risk_score : null
-    return {
-      id: e.id,
-      short: e.short,
-      name: e.display_name,
-      score: score == null ? '—' : score,
-      level: fc ? fc.risk_level : 'low'
-    }
-  })
-})
-
 // ---------- 地图图层状态 ----------
 const mapRef = ref(null)
-const layerGrid = ref(true)
-const layerPoints = ref(true)
 const layerRealtime = ref(true)
 const realtimeSummary = ref(null)
 // 拓展图层（observed 真实数据）：历史快照 / 站点环比变化 / 预警范围凸包
@@ -790,6 +411,17 @@ const rtDiff = ref(false)
 const rtPolygon = ref(false)
 const rtTimeline = ref([])
 const prevSummary = ref(null)
+const basemap = ref('satellite')
+const tileError = ref(false)
+const resetToken = ref(0)
+let realtimeRefreshTimer = null
+
+function onTileError(v) {
+  tileError.value = v
+}
+function retryTiles() {
+  mapRef.value && mapRef.value.retryTiles && mapRef.value.retryTiles()
+}
 
 function fetchSummaryFor(snapshotId) {
   return fetchRealtimeSummary({ snapshotId: snapshotId || undefined })
@@ -875,7 +507,7 @@ const warningHull = computed(() => {
   return convexHull(pts)
 })
 
-// 实时观测点位（observed 轨）：与情景格网同图分轨展示，颜色按 chla 筛查口径
+// 实时观测点位（observed 轨）：与遥感影像同图叠加，颜色按 chla 筛查口径
 const realtimePoints = computed(() =>
   (realtimeSummary.value?.markers || []).map((m) => {
     const delta = chlaDeltaByStation.value[m.id]
@@ -886,199 +518,12 @@ const realtimePoints = computed(() =>
       short: '',
       name: '',
       hideLabel: true,
-      level: 'low',
       color,
-      lat: m.lat,
-      lon: m.lon,
+      coord: { lat: m.lat, lon: m.lon },
       tooltip: `${m.name}（位置待核验）${m.chla != null ? ` · Chl-a ${m.chla} μg/L` : ' · Chl-a 缺测'}${deltaText}`
     }
   })
 )
-const layerLabels = ref(true)
-const basemap = ref('satellite')
-const tileError = ref(false)
-
-function onTileError(v) {
-  tileError.value = v
-}
-function retryTiles() {
-  mapRef.value && mapRef.value.retryTiles && mapRef.value.retryTiles()
-}
-
-// ---------- A/B 场景比较 ----------
-const abA = ref('t3')
-const abB = ref('t15')
-const abMode = ref('stage')
-
-const abSelectOptions = STAGE_KEYS.map((key) => ({ key, label: stageShort(key) }))
-
-function ensureAb(key) {
-  if (grids[key] && grids[key].state === 'idle') fetchGrid(key)
-}
-
-function showAb(mode) {
-  abMode.value = mode
-  if (mode === 'a') ensureAb(abA.value)
-  if (mode === 'b') ensureAb(abB.value)
-  if (mode === 'diff') {
-    ensureAb(abA.value)
-    ensureAb(abB.value)
-  }
-}
-
-const abDiff = computed(() => {
-  if (abA.value === abB.value) return null
-  const a = grids[abA.value]
-  const b = grids[abB.value]
-  if (a.state !== 'ok' || b.state !== 'ok') return null
-  return buildDiffGrid(a.grid, b.grid)
-})
-
-const displayGrid = computed(() => {
-  if (abMode.value === 'a') return grids[abA.value].grid
-  if (abMode.value === 'b') return grids[abB.value].grid
-  if (abMode.value === 'diff') return abDiff.value
-  return currentEntry.value.grid
-})
-
-const abStats = computed(() => {
-  if (abA.value === abB.value) return null
-  const a = grids[abA.value]
-  const b = grids[abB.value]
-  if (a.state !== 'ok' || b.state !== 'ok') return null
-  return diffGrids(a.grid, b.grid)
-})
-
-const abPanelState = computed(() => {
-  if (abA.value === abB.value) return 'ok'
-  const states = [grids[abA.value].state, grids[abB.value].state]
-  if (states.includes('error')) return 'error'
-  if (states.some((s) => s !== 'ok')) return 'loading'
-  return 'ok'
-})
-
-function retryAb() {
-  ;[abA.value, abB.value].forEach((key) => {
-    if (grids[key].state === 'error') fetchGrid(key)
-  })
-}
-
-// ---------- 地图覆盖层（随显示源走，而非固定当前档位） ----------
-function overlayOf(entry) {
-  if (!entry) return null
-  if (entry.state === 'loading' || entry.state === 'idle') return 'loading'
-  if (entry.state === 'error') return 'error'
-  return null
-}
-
-const mapOverlayState = computed(() => {
-  const mode = abMode.value
-  if (mode === 'a') return overlayOf(grids[abA.value])
-  if (mode === 'b') return overlayOf(grids[abB.value])
-  if (mode === 'diff') {
-    if (abA.value === abB.value) return 'same'
-    const states = [grids[abA.value].state, grids[abB.value].state]
-    if (states.includes('error')) return 'error'
-    if (states.some((s) => s !== 'ok')) return 'loading'
-    return abDiff.value ? null : 'error'
-  }
-  return overlayOf(currentEntry.value)
-})
-
-const mapOverlayTitle = computed(() => {
-  if (mapOverlayState.value === 'loading') return '情景风险格网加载中…'
-  if (mapOverlayState.value === 'same') return '两个场景相同，无差异'
-  return '情景风险格网加载失败'
-})
-const mapOverlayDesc = computed(() => {
-  if (mapOverlayState.value === 'loading') return '正在请求 /map/risk-grid 情景接口。'
-  if (mapOverlayState.value === 'same') return '请选择两个不同档位进行情景场景比较。'
-  const entry = abMode.value === 'a' ? grids[abA.value] : abMode.value === 'b' ? grids[abB.value] : currentEntry.value
-  return (entry && entry.error) || '接口请求失败，不展示旧档位格网。'
-})
-
-function retryMapOverlay() {
-  const mode = abMode.value
-  if (mode === 'a') return fetchGrid(abA.value)
-  if (mode === 'b') return fetchGrid(abB.value)
-  if (mode === 'diff') return retryAb()
-  return fetchGrid(stageKey.value)
-}
-
-// ---------- 趋势（五个档位） ----------
-const trendLoadedCount = computed(() => STAGE_KEYS.filter((k) => grids[k].state === 'ok').length)
-const trendState = computed(() => {
-  const states = STAGE_KEYS.map((k) => grids[k].state)
-  if (states.includes('error')) return 'error'
-  if (states.some((s) => s !== 'ok')) return 'loading'
-  return 'ok'
-})
-
-function retryTrend() {
-  STAGE_KEYS.forEach((k) => {
-    if (grids[k].state === 'error') fetchGrid(k)
-  })
-}
-
-const trendOption = computed(() => {
-  void theme.value
-  const p = palette()
-  const rows = STAGE_KEYS
-    .filter((k) => grids[k].state === 'ok')
-    .map((k) => ({ label: stageShort(k), stats: gridStats(grids[k].grid) }))
-  return {
-    grid: { left: 34, right: 10, top: 26, bottom: 22, containLabel: true },
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, ...tooltipTheme() },
-    legend: {
-      data: ['高风险格数', '中风险格数', '低风险格数'],
-      textStyle: { color: p.textSoft, fontSize: 10 },
-      top: 0,
-      right: 4
-    },
-    xAxis: {
-      type: 'category',
-      data: rows.map((r) => r.label),
-      axisLine: { lineStyle: { color: p.lineStrong } },
-      axisLabel: { color: p.textSoft, fontSize: 11 }
-    },
-    yAxis: {
-      type: 'value',
-      axisLine: { show: false },
-      axisLabel: { color: p.muted, fontSize: 10 },
-      splitLine: { lineStyle: { color: p.line } },
-      minInterval: 1
-    },
-    series: [
-      { name: '高风险格数', type: 'bar', stack: 'risk', barWidth: 22, itemStyle: { color: p.alert }, data: rows.map((r) => r.stats.high) },
-      { name: '中风险格数', type: 'bar', stack: 'risk', barWidth: 22, itemStyle: { color: p.watch }, data: rows.map((r) => r.stats.mid) },
-      { name: '低风险格数', type: 'bar', stack: 'risk', barWidth: 22, itemStyle: { color: p.stable }, data: rows.map((r) => r.stats.low) }
-    ]
-  }
-})
-
-// ---------- 热点轨迹 ----------
-const track = computed(() =>
-  hotspotTrack(STAGE_KEYS.map((k) => ({ key: k, state: grids[k].state, grid: grids[k].grid })))
-)
-
-// ---------- 时间轴 ----------
-const axisStages = STAGE_KEYS.map((key) => ({
-  key,
-  label: stageShort(key),
-  short: stageShort(key),
-  days: STAGE_DAYS[key]
-}))
-const subLabels = {
-  t1: '情景推演',
-  t3: '情景推演',
-  t7: '情景推演',
-  t15: '情景推演',
-  t30: '情景推演'
-}
-
-function togglePlay() {
-  store.playing = !store.playing
-}
 
 // ---------- 移动端抽屉 ----------
 const drawerOpen = ref(false)
@@ -1120,8 +565,8 @@ function onDrawerKeydown(e) {
   }
 }
 
-watch([warnOpen, drawerOpen], ([w, d]) => {
-  document.body.style.overflow = w || d ? 'hidden' : ''
+watch([drawerOpen], ([d]) => {
+  document.body.style.overflow = d ? 'hidden' : ''
 })
 
 // ≤960px 时移动端底栏 Teleport 到 body，避开 route-stage 入场动画对 fixed 定位的捕获
@@ -1136,17 +581,22 @@ function onMobileMqChange(e) {
 onMounted(() => {
   fetchCaps()
   fetchLayers()
-  fetchEntities()
-  // 当前档位优先，随后预加载其余档位供趋势与 A/B 使用
-  fetchGrid(stageKey.value).then(() => preloadTrend())
-  // 实时观测图层（observed）：失败不打断情景推演主视图
+  fetchRsManifest()
+  // 实时观测图层（observed）：失败不阻塞遥感主视图
   fetchRealtimeSummary().then((s) => { realtimeSummary.value = s }).catch(() => { realtimeSummary.value = null })
   fetchRealtimeTimeline().then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => { rtTimeline.value = [] })
+  realtimeRefreshTimer = setInterval(() => {
+    fetchRealtimeTimeline({ force: true }).then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => {})
+    if (!rtSnapshotId.value) {
+      fetchRealtimeSummary({ force: true }).then((s) => { realtimeSummary.value = s }).catch(() => {})
+    }
+  }, 60_000)
   mobileMq?.addEventListener('change', onMobileMqChange)
 })
 
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
+  if (realtimeRefreshTimer) clearInterval(realtimeRefreshTimer)
   mobileMq?.removeEventListener('change', onMobileMqChange)
 })
 </script>
@@ -1176,8 +626,6 @@ onBeforeUnmount(() => {
   grid-template-areas:
     'title'
     'hmain'
-    'dock'
-    'charts'
     'foot';
   align-items: start;
   min-width: 0;
@@ -1217,48 +665,28 @@ onBeforeUnmount(() => {
   gap: 6px;
   min-width: 0;
 }
-.hm-modes {
-  display: inline-flex;
-  gap: 4px;
-  padding: 3px;
+.hm-id-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+}
+.hm-chip {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
-  background: var(--surface-panel-soft);
+  padding: 2px 9px;
+  white-space: nowrap;
 }
-.hm-modes button {
-  appearance: none;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  min-height: 40px;
-  padding: 3px 14px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
+.hm-chip--observed {
+  color: var(--data-observed, #5fd6a4);
+  border-color: color-mix(in srgb, var(--data-observed, #5fd6a4) 45%, transparent);
 }
-.hm-modes button small {
-  font-size: 8.5px;
-  font-weight: 500;
+.hm-chip--notice {
   color: var(--text-muted);
-  letter-spacing: 0.03em;
-}
-.hm-modes button:disabled {
-  cursor: not-allowed;
-  opacity: 0.62;
-}
-.hm-modes button.active {
-  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
-  color: var(--text-primary);
-  border-color: color-mix(in srgb, var(--color-primary) 42%, transparent);
-}
-.hm-modes button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
+  border-style: dashed;
 }
 
 /* ---------- 主三栏 ---------- */
@@ -1280,7 +708,7 @@ onBeforeUnmount(() => {
 .hm-left {
   grid-area: hleft;
   padding: 10px 12px;
-  max-height: 420px;
+  max-height: 520px;
   overflow-y: auto;
 }
 .hm-center {
@@ -1293,7 +721,7 @@ onBeforeUnmount(() => {
 .hm-right {
   grid-area: hright;
   padding: 10px 12px;
-  max-height: 420px;
+  max-height: 520px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1338,7 +766,6 @@ onBeforeUnmount(() => {
   font-size: 11.5px;
   color: var(--text-muted);
 }
-.mono { font-family: var(--font-mono); }
 
 /* ---------- 地图 ---------- */
 .hm-map-tools {
@@ -1426,74 +853,58 @@ onBeforeUnmount(() => {
   border-radius: 14px;
   z-index: 500;
 }
-.hm-t30-banner {
-  border: 1px solid color-mix(in srgb, var(--risk-medium, #facc15) 50%, transparent);
-  background: color-mix(in srgb, var(--risk-medium, #facc15) 10%, transparent);
-  color: var(--text-primary);
-  border-radius: 9px;
-  padding: 6px 10px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-.hm-map-note {
-  margin: 0;
-  font-size: 10px;
-  line-height: 1.6;
-  color: var(--text-muted);
-}
 
-/* ---------- 帧摘要 ---------- */
-.hm-frame-rows {
-  display: grid;
-  gap: 4px;
-}
-.hm-frame-row {
-  display: grid;
-  grid-template-columns: 1fr auto 40px;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 0;
-}
-.hm-frame-row span {
+/* ---------- 年份滑轴与色带 ---------- */
+.hm-rs-year {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  padding: 2px 2px 0;
+}
+.hm-rs-year-label {
   font-size: 11.5px;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
-.hm-frame-row i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-}
-.hm-frame-row strong {
+.hm-rs-year-label b {
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 13px;
   color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
 }
-.hm-frame-row small {
-  color: var(--text-muted);
-  font-size: 10px;
-  text-align: right;
+.hm-rs-slider {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--color-primary);
+  height: 22px;
+  cursor: pointer;
+}
+.hm-rs-year-range {
   font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
-.hm-frame-row.is-plain {
+.hm-rs-legend {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
 }
-.lv-high { color: var(--risk-critical, #ef4444); }
-.lv-mid { color: var(--risk-medium, #facc15); }
-.lv-low { color: var(--risk-low, #22c55e); }
-.hm-frame-meta {
-  margin: 4px 0 0;
+.hm-rs-legend-min,
+.hm-rs-legend-max {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-muted);
+  white-space: nowrap;
+}
+.hm-rs-legend-bar {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
 }
 
-/* ---------- 选中格详情 ---------- */
+/* ---------- 键值对 ---------- */
 .hm-kv {
   margin: 0;
   display: grid;
@@ -1516,278 +927,6 @@ onBeforeUnmount(() => {
   font-family: var(--font-mono);
   text-align: right;
   word-break: break-all;
-}
-.hm-warn-btn {
-  appearance: none;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  min-height: 40px;
-  padding: 6px 14px;
-  border: 1px solid color-mix(in srgb, var(--risk-critical, #ef4444) 55%, transparent);
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--risk-critical, #ef4444) 10%, transparent);
-  color: var(--risk-critical, #ef4444);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  justify-self: start;
-}
-.hm-warn-btn small {
-  font-size: 9px;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-.hm-warn-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-.hm-warn-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-.hm-warn-result {
-  margin: 0;
-  font-size: 10.5px;
-  line-height: 1.65;
-  color: var(--text-secondary);
-  border: 1px dashed var(--border-subtle);
-  border-radius: 8px;
-  padding: 6px 8px;
-}
-.hm-warn-result b {
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-}
-
-/* ---------- 热点排行 ---------- */
-.hm-hotspots {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-}
-.hm-hotspot-item {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 18px 52px 1fr 34px auto;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 3px 8px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  background: var(--surface-panel-soft);
-  color: var(--text-secondary);
-  font-size: 11px;
-  cursor: pointer;
-  text-align: left;
-}
-.hm-hotspot-item.active {
-  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-}
-.hm-hotspot-item:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-.hm-hs-rank {
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-}
-.hm-hs-id {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-}
-.hm-hs-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--border-subtle);
-  overflow: hidden;
-}
-.hm-hs-bar i {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-}
-.hm-hotspot-item.lv-high .hm-hs-bar i { background: var(--risk-critical, #ef4444); }
-.hm-hotspot-item.lv-mid .hm-hs-bar i { background: var(--risk-medium, #facc15); }
-.hm-hotspot-item.lv-low .hm-hs-bar i { background: var(--risk-low, #22c55e); }
-.hm-hs-score {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-  text-align: right;
-}
-.hm-hs-level {
-  font-size: 9.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-/* ---------- 分区参考 ---------- */
-.hm-zones {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-}
-.hm-zone-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 44px 1fr 32px auto;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 3px 8px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  background: var(--surface-panel-soft);
-  color: var(--text-secondary);
-  font-size: 11px;
-  cursor: pointer;
-  text-align: left;
-}
-.hm-zone-row.active {
-  border-color: color-mix(in srgb, var(--color-primary) 55%, transparent);
-  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-}
-.hm-zone-row:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-.hm-zone-code {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-}
-.hm-zone-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.hm-zone-score {
-  font-family: var(--font-mono);
-  text-align: right;
-}
-.hm-zone-level {
-  font-size: 9.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-.hm-export-btn {
-  appearance: none;
-  min-height: 40px;
-  border: 1px dashed var(--border-subtle);
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: not-allowed;
-}
-.hm-export-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
-/* ---------- 时间轴 ---------- */
-.hm-dock {
-  grid-area: dock;
-}
-.hm-dock :deep(.play-btn) {
-  min-width: 40px;
-  min-height: 40px;
-}
-.hm-dock :deep(.axis-node) {
-  min-height: 44px;
-}
-
-/* ---------- 底部图表 ---------- */
-.hm-charts {
-  grid-area: charts;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-.hm-chart-panel {
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.hm-ab-same {
-  margin: 0;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border: 1px dashed var(--border-subtle);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-.hm-ab-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.hm-ab-stats span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  background: var(--surface-panel-soft);
-}
-.hm-ab-stats b {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-}
-.hm-track h4 {
-  margin: 0 0 5px;
-  font-size: 11.5px;
-  color: var(--text-secondary);
-}
-.hm-track-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 10.5px;
-}
-.hm-track-table th,
-.hm-track-table td {
-  padding: 3px 6px;
-  border-bottom: 1px solid var(--border-subtle);
-  text-align: left;
-  color: var(--text-secondary);
-}
-.hm-track-table th {
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.hm-track-table td.mono {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
-}
-.hm-fold summary {
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 650;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.hm-fold summary:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-.hm-fold-body {
-  display: grid;
-  gap: 10px;
-  padding-top: 8px;
 }
 
 /* ---------- 页脚 ---------- */
@@ -1888,22 +1027,17 @@ onBeforeUnmount(() => {
     grid-template-areas:
       'title'
       'hcenter'
-      'dock'
       'hright'
-      'charts'
       'foot';
   }
   .hm-main {
     display: contents;
   }
   .hm-center { grid-area: hcenter; }
-  .hm-right { grid-area: hright; }
   .hm-right {
+    grid-area: hright;
     max-height: none;
     overflow: visible;
-  }
-  .hm-charts {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .hm-mobile-bar {
@@ -1913,7 +1047,7 @@ onBeforeUnmount(() => {
     bottom: 0;
     z-index: 1500;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
     background: var(--surface-panel-strong, rgba(10, 20, 34, 0.96));
@@ -1942,18 +1076,7 @@ onBeforeUnmount(() => {
   /* 触摸目标 ≥44×44 */
   .hm-ab-modes button,
   .hm-ab-select select,
-  .hm-inline-btn,
-  .hm-warn-btn,
-  .hm-hotspot-item,
-  .hm-zone-row,
-  .hm-export-btn,
-  .hm-fold summary,
-  .hm-modes button {
-    min-height: 44px;
-  }
-  .hm-dock :deep(.play-btn),
-  .hm-dock :deep(.axis-node) {
-    min-width: 44px;
+  .hm-inline-btn {
     min-height: 44px;
   }
   .hm-map-wrap :deep(.hm-map) {

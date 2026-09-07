@@ -25,10 +25,6 @@
         </dd>
       </div>
     </dl>
-
-    <p v-if="state === 'ok'" class="soc-note">
-      官方接口观测，未经跨源验证（is_ground_truth=false）；缺测如实披露，不补模拟值。
-    </p>
   </section>
 </template>
 
@@ -92,5 +88,4 @@ const observedAtText = computed(() => (props.observedAt ? `观测 ${formatStamp(
 .soc-cell--miss dd span { font-size: 11px; color: var(--text-muted); }
 .soc-miss { color: var(--text-muted); }
 .soc-bad { font-size: 11px; color: var(--risk-critical, #ff6b6b); }
-.soc-note { margin: 8px 0 0; font-size: 10.5px; color: var(--text-muted); line-height: 1.6; }
 </style>

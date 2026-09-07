@@ -77,13 +77,6 @@ def test_invalid_horizon_returns_422(horizon: int) -> None:
         field="horizon_days",
         dataset_version=PRED_VERSION,
     )
-    assert_error_envelope(
-        client.get(f"/api/v1/map/risk-grid?horizon_days={horizon}").json(),
-        status=422,
-        code="INVALID_HORIZON",
-        field="horizon_days",
-        dataset_version=PRED_VERSION,
-    )
 
 
 # ---- 3. T+30 分区预测：能力阻塞而非假数据 ----

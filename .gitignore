@@ -99,3 +99,6 @@ data-cleaning/storage/*
 !data-cleaning/storage/exports/**
 !data-cleaning/storage/manifests/
 !data-cleaning/storage/manifests/**
+
+# 卫星遥感年度 PNG（build_rs_overlays.py 生成产物，脚本可复现，不入库）
+backend/rs_overlays/

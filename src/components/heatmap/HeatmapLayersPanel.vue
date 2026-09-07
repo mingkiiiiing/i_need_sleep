@@ -3,8 +3,6 @@
     <section class="hmlp-sec" aria-label="图层开关">
       <h3 class="hmlp-h">图层</h3>
       <div class="hmlp-toggles" role="group" aria-label="地图图层开关">
-        <button type="button" :aria-pressed="String(gridVisible)" @click="$emit('update:gridVisible', !gridVisible)">情景风险格网</button>
-        <button type="button" :aria-pressed="String(pointsVisible)" @click="$emit('update:pointsVisible', !pointsVisible)">情景分区点位</button>
         <button
           type="button"
           class="hmlp-rt-toggle"
@@ -12,7 +10,6 @@
           :aria-pressed="String(realtimeVisible)"
           @click="$emit('update:realtimeVisible', !realtimeVisible)"
         >实时观测点位（observed）</button>
-        <button type="button" :aria-pressed="String(labelsVisible)" @click="$emit('update:labelsVisible', !labelsVisible)">地图标签</button>
       </div>
       <div class="hmlp-basemap" role="group" aria-label="底图切换">
         <span class="hmlp-sub">底图</span>
@@ -85,18 +82,6 @@
       </details>
     </section>
 
-    <section class="hmlp-sec" aria-label="风险等级图例">
-      <details class="hmlp-legend" :open="!compact">
-        <summary>风险阈值图例<span class="hmlp-legend-hint">0–44 低 · 45–74 中 · 75–100 高</span></summary>
-        <div class="hmlp-legend-body">
-          <div class="hmlp-legend-item"><i class="lg lg-low"></i>低风险 0–44</div>
-          <div class="hmlp-legend-item"><i class="lg lg-mid"></i>中风险 45–74</div>
-          <div class="hmlp-legend-item"><i class="lg lg-high"></i>高风险 75–100</div>
-          <p class="hmlp-legend-note">格网分数为情景风险分数（risk_score），不是叶绿素 a 浓度。</p>
-        </div>
-      </details>
-    </section>
-
     <section class="hmlp-sec" aria-label="实时观测实况（observed）">
       <h3 class="hmlp-h">实时观测实况 <span class="hmlp-legend-hint">observed · 非模拟</span></h3>
       <template v-if="realtimeSummary">
@@ -116,9 +101,8 @@
     <section class="hmlp-sec" aria-label="能力说明">
       <h3 class="hmlp-h">能力说明</h3>
       <ul class="hmlp-caps">
-        <li>历史风险层：<b>未接入</b></li>
+        <li>历史遥感层：<b>已接入（THQBCA-V2 年度反演）</b></li>
         <li>当前实况层：<b>站点观测点位已接入（observed）</b></li>
-        <li>未来风险场：<b>情景推演</b></li>
       </ul>
       <ul v-if="capabilityRows.length" class="hmlp-cap-chips">
         <li v-for="row in capabilityRows" :key="row.label">
@@ -131,7 +115,7 @@
         能力接口请求失败
         <button type="button" class="hmlp-inline-btn" @click="$emit('retry-caps')">重试</button>
       </p>
-      <p class="hmlp-note">情景格网定位仅用于界面联调，不代表真实遥感像元边界。</p>
+      <p class="hmlp-note">遥感色标为全期固定尺度，跨年对比有意义；影像为年度反演产品，不代表实时水质。</p>
     </section>
   </div>
 </template>
@@ -140,9 +124,6 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  gridVisible: { type: Boolean, default: true },
-  pointsVisible: { type: Boolean, default: true },
-  labelsVisible: { type: Boolean, default: true },
   realtimeVisible: { type: Boolean, default: true },
   snapshotId: { type: String, default: '' },
   snapshotList: { type: Array, default: () => [] },
@@ -158,7 +139,7 @@ const props = defineProps({
   compact: { type: Boolean, default: false }
 })
 
-defineEmits(['update:gridVisible', 'update:pointsVisible', 'update:labelsVisible', 'update:realtimeVisible', 'update:snapshotId', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap', 'retry-caps'])
+defineEmits(['update:realtimeVisible', 'update:snapshotId', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap', 'retry-caps'])
 
 const CAP_LABELS = {
   historical_observation: '历史观测',

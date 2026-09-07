@@ -38,11 +38,12 @@
 <script setup>
 // 实时状态条：唯一数据来源 /api/v1/realtime/status（observed 轨）。
 // 抓取失败/延迟必须醒目展示，禁止静默当作实时数据。
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { fetchRealtimeStatus, FRESHNESS_TEXT, formatLag, formatStamp } from '../../services/realtime.js'
 
 const status = ref(null)
 const state = ref('loading')
+let refreshTimer = null
 
 const tone = computed(() => {
   if (state.value === 'error') return 'error'
@@ -62,7 +63,14 @@ async function load(force = false) {
   }
 }
 
-onMounted(() => load())
+onMounted(() => {
+  load()
+  refreshTimer = setInterval(() => load(true), 60_000)
+})
+
+onBeforeUnmount(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+})
 </script>
 
 <style scoped>

@@ -20,14 +20,6 @@
       <div class="stn-col stn-col-mid">
         <section class="stn-block stn-map-block" aria-label="实时站点地图">
           <div class="stn-map-tools">
-            <span class="stn-map-legend">
-              <span><i style="background: var(--risk-low, #5fd6a4)"></i>正常</span>
-              <span><i style="background: var(--risk-medium, #f5b45d)"></i>延迟</span>
-              <span><i style="background: var(--risk-critical, #ff6b6b)"></i>过期/异常</span>
-              <em>μg/L 口径见质量卡 · 点击点位选中</em>
-            </span>
-            <span class="stn-map-flag">仅显示有坐标站点 · 无坐标/坐标可疑站只出现在列表</span>
-            <span class="stn-map-flag stn-map-flag--warn">待核验坐标：注册表元数据，未经官方核验</span>
             <span v-if="tileError" class="stn-map-flag stn-map-flag--warn" role="status">
               地图瓦片加载失败
               <button type="button" class="stn-inline-btn" @click="retryTiles">重试图层</button>
@@ -75,7 +67,7 @@
 // - 站点集合完全由最新成功快照决定，不再使用 demo_zone 情景分区；
 // - 真实站点不再并行请求 6/79 次情景推演；情景推演收进独立标签页惰性加载；
 // - 无可靠坐标（suspicious/missing）的站点只在列表出现，不生成假地图点位。
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LakeMap from '../components/cockpit/LakeMap.vue'
 import StationListPanel from '../components/stations/StationListPanel.vue'
@@ -108,17 +100,18 @@ const locationFilter = ref('all')
 
 let obsToken = 0
 let qualityToken = 0
+let refreshTimer = null
 
 // ---------- 站点目录 ----------
-async function loadStations(force = false) {
-  stationsState.value = 'loading'
+async function loadStations(force = false, silent = false) {
+  if (!silent) stationsState.value = 'loading'
   try {
     stations.value = sortStationsByDataStatus(await fetchRealtimeStations({ force }))
     stationsState.value = 'ok'
     resolveSelection()
     // URL 恢复选中时 watch(selectedId) 不触发，初始必须显式拉取详情
-    fetchObs()
-    fetchQuality()
+    fetchObs(silent)
+    fetchQuality(force, silent)
   } catch {
     stationsState.value = 'error'
   }
@@ -147,12 +140,14 @@ const latestObservedAt = computed(() => {
 })
 
 // ---------- 选中站点观测与质量 ----------
-async function fetchObs() {
+async function fetchObs(silent = false) {
   const token = ++obsToken
   const id = selectedId.value
   if (!id) return
-  obsRows.value = []
-  obsState.value = 'loading'
+  if (!silent) {
+    obsRows.value = []
+    obsState.value = 'loading'
+  }
   try {
     const rows = await fetchStationObservations(id, { window: 'latest' })
     if (token !== obsToken) return
@@ -164,14 +159,16 @@ async function fetchObs() {
   }
 }
 
-async function fetchQuality() {
+async function fetchQuality(force = false, silent = false) {
   const token = ++qualityToken
   const id = selectedId.value
   if (!id) return
-  quality.value = null
-  qualityState.value = 'loading'
+  if (!silent) {
+    quality.value = null
+    qualityState.value = 'loading'
+  }
   try {
-    const data = await fetchStationQuality(id)
+    const data = await fetchStationQuality(id, { force })
     if (token !== qualityToken) return
     quality.value = data
     qualityState.value = 'ok'
@@ -207,6 +204,14 @@ function resetFilters() {
 }
 
 onMounted(() => loadStations())
+
+onMounted(() => {
+  refreshTimer = setInterval(() => loadStations(true, true), 60_000)
+})
+
+onBeforeUnmount(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+})
 </script>
 
 <style scoped>
@@ -304,26 +309,6 @@ onMounted(() => loadStations())
   /* 主视图地图：中栏主体，保证太湖全湖与站点分布一目了然 */
   height: clamp(430px, 58vh, 700px);
 }
-.stn-map-legend {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 4px 12px;
-}
-.stn-map-legend i {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  display: inline-block;
-  margin-right: 4px;
-  vertical-align: -1px;
-}
-.stn-map-legend em { font-style: normal; color: var(--text-muted); font-size: 10px; }
 
 /* ---------- 响应式 ---------- */
 @media (max-width: 1280px) {

@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import threading
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
@@ -272,6 +273,8 @@ class MeeRealtimeObservationProvider:
         self._snapshots: list[dict[str, Any]] = []
         self._status: dict[str, Any] = {}
         self._observations: Any = None  # pandas DataFrame
+        self._catalog_signature: tuple[int, int] | None = None
+        self._load_lock = threading.RLock()
 
     def name(self) -> str:
         return "mee_realtime"
@@ -284,21 +287,51 @@ class MeeRealtimeObservationProvider:
     def _catalog_exists(self) -> bool:
         return (self._catalog_dir / "stations.json").exists() and (self._catalog_dir / "status.json").exists()
 
-    def _ensure_loaded(self) -> None:
-        if self._loaded:
-            return
-        if not self._catalog_exists():
-            raise RealtimeDataUnavailable(
-                f"实时观测目录不存在或为空: {self._catalog_dir}（从未成功抓取；禁止回退模拟数据）"
-            )
-        import pandas as pd
+    def _current_catalog_signature(self) -> tuple[int, int] | None:
+        try:
+            stat = (self._catalog_dir / "status.json").stat()
+        except FileNotFoundError:
+            return None
+        return stat.st_mtime_ns, stat.st_size
 
-        self._stations = json.loads((self._catalog_dir / "stations.json").read_text(encoding="utf-8"))["stations"]
-        self._snapshots = json.loads((self._catalog_dir / "snapshots.json").read_text(encoding="utf-8"))["snapshots"]
-        self._status = json.loads((self._catalog_dir / "status.json").read_text(encoding="utf-8"))
-        obs_path = self._catalog_dir / "observations.parquet"
-        self._observations = pd.read_parquet(obs_path) if obs_path.exists() else pd.DataFrame()
-        self._loaded = True
+    def _ensure_loaded(self) -> None:
+        signature = self._current_catalog_signature()
+        if self._loaded and signature == self._catalog_signature:
+            return
+        with self._load_lock:
+            signature = self._current_catalog_signature()
+            if self._loaded and signature == self._catalog_signature:
+                return
+            if not self._catalog_exists():
+                raise RealtimeDataUnavailable(
+                    f"实时观测目录不存在或为空: {self._catalog_dir}（从未成功抓取；禁止回退模拟数据）"
+                )
+            import pandas as pd
+
+            try:
+                stations = json.loads((self._catalog_dir / "stations.json").read_text(encoding="utf-8"))["stations"]
+                snapshots = json.loads((self._catalog_dir / "snapshots.json").read_text(encoding="utf-8"))["snapshots"]
+                status = json.loads((self._catalog_dir / "status.json").read_text(encoding="utf-8"))
+                obs_path = self._catalog_dir / "observations.parquet"
+                observations = pd.read_parquet(obs_path) if obs_path.exists() else pd.DataFrame()
+                published_latest = status.get("latest_snapshot_id")
+                loaded_latest = snapshots[-1].get("snapshot_id") if snapshots else None
+                if published_latest != loaded_latest:
+                    raise RuntimeError(
+                        f"realtime catalog publication mismatch: status={published_latest}, snapshots={loaded_latest}"
+                    )
+            except Exception:
+                # A previous coherent bundle is safer than exposing a transient
+                # publish/read race.  The next request retries the reload.
+                if self._loaded:
+                    return
+                raise
+            self._stations = stations
+            self._snapshots = snapshots
+            self._status = status
+            self._observations = observations
+            self._catalog_signature = signature
+            self._loaded = True
 
     def _require_loaded(self) -> None:
         self._ensure_loaded()

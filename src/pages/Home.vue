@@ -64,9 +64,6 @@
       </figure>
     </section>
 
-    <!-- ============ 实时数据链路状态（observed 轨，与情景分区明确区分） ============ -->
-    <RealtimeStatusBar class="home-rtbar" />
-
     <!-- ============ 第二屏：四个核心入口 ============ -->
     <section class="entries" aria-labelledby="entries-title">
       <header class="entries-head">
@@ -92,7 +89,6 @@ import { TAIHU_OUTLINE, taihuZonePos } from '../data/taihuOutline.js'
 import { dataIdentity as identity } from '../data/dataIdentity.js'
 import { getSystemCapabilitiesEnvelope, getSpatialEntities } from '../services/api.js'
 import DataModeBadge from '../components/common/DataModeBadge.vue'
-import RealtimeStatusBar from '../components/stations/RealtimeStatusBar.vue'
 
 const router = useRouter()
 
@@ -172,13 +168,13 @@ const entries = [
   },
   {
     to: '/heatmap',
-    title: '风险地图与时空推演',
-    desc: '风险热力场与 1—30 天时空档位推演，30 天仅情景推演。'
+    title: '卫星遥感与时空推演',
+    desc: 'THQBCA-V2 年度叶绿素 a / 漂浮藻类遥感影像，支持跨年对比与实时站点叠加。'
   },
   {
     to: '/history',
-    title: '历史事件与处置复盘',
-    desc: '事件链回放与处置记录复盘，沉淀研判经验。'
+    title: '实时观测历史复盘',
+    desc: 'MEE 实时快照历史回放：按快照查看全站观测状态、达标构成与蓝藻筛查预警。'
   }
 ]
 

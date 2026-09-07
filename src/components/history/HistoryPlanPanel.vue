@@ -60,7 +60,15 @@
 <script setup>
 import { computed } from 'vue'
 import StatePanel from '../common/StatePanel.vue'
-import { PLAN_TEMPLATES, PLAN_CAPABILITY_NOTE } from './historyCore.js'
+
+// 规划中的三套预案模板：仅静态名称与用途说明，无适配分 / 负责人 / 措施状态
+const PLAN_TEMPLATES = Object.freeze([
+  { id: 'intake_protection', name: '取水口保护', note: '面向取水口周边水域的巡查与防护模板' },
+  { id: 'bay_patrol', name: '重点湖湾加密巡查', note: '面向重点湖湾的加密巡查模板' },
+  { id: 'river_mouth_monitor', name: '强降雨后入湖河口加密监测', note: '面向强降雨后入湖河口的加密监测模板' }
+])
+
+const PLAN_CAPABILITY_NOTE = '预案模板待后端接入 · 当前未执行自动匹配 · 无适配分、无负责人、无真实措施状态'
 
 const props = defineProps({
   capabilities: { type: Object, default: null },

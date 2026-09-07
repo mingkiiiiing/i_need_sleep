@@ -39,7 +39,6 @@
           </tr>
         </tbody>
       </table>
-      <p class="stn-trend-note">每行可溯源到具体快照与观测时间；evidence_level={{ rows[0]?.evidence_level || '—' }}，未经跨源验证。</p>
     </div>
 
     <!-- 情景推演：独立标签页，惰性加载情景分区内容，绝不与实时站点合并 -->

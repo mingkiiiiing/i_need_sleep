@@ -22,6 +22,10 @@
     </div>
 
     <div class="tb-right">
+      <div v-if="showRealtimeUpdate" class="tb-update" role="status" aria-label="实时数据更新时间">
+        <span class="tb-update-dot" :class="realtimeUpdate.freshnessStatus === 'normal' ? 'tb-update-dot--ok' : 'tb-update-dot--warn'"></span>
+        更新 {{ formatStamp(realtimeUpdate.latestObservedAt) }}
+      </div>
       <button
         type="button"
         class="tb-btn tb-theme"
@@ -50,8 +54,11 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useTheme } from '../../composables/useTheme.js'
 import { dataIdentity } from '../../data/dataIdentity.js'
+import { realtimeUpdate } from '../../stores/realtimeUpdate.js'
+import { formatStamp } from '../../services/realtime.js'
 
 defineProps({
   open: { type: Boolean, default: false }
@@ -63,7 +70,11 @@ defineExpose({ menuButton })
 
 const { theme, cycleTheme } = useTheme()
 
+const route = useRoute()
 const asOfShort = computed(() => dataIdentity.asOfFull.slice(5))
+const showRealtimeUpdate = computed(
+  () => route.name === 'cockpit' && !!realtimeUpdate.latestObservedAt
+)
 const themeAria = computed(() =>
   theme.value === 'dark'
     ? '切换到浅色主题'
@@ -173,6 +184,15 @@ const themeTitle = computed(() =>
   background: var(--risk-medium);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--risk-medium) 22%, transparent);
 }
+.tb-update-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.tb-update-dot--ok { background: var(--risk-low, #5fd6a4); }
+.tb-update-dot--warn { background: var(--risk-medium, #f5b45d); }
 
 @media (max-width: 960px) {
   .tb-menu { display: grid; }

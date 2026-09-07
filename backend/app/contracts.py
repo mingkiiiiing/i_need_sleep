@@ -22,6 +22,12 @@ OBSERVED_DATA_MODE = "observed"
 REALTIME_VERSION = "MEE-RT-V1"
 REALTIME_CLAIM_BOUNDARY = "official_observation_not_cross_validated"
 
+# ---- 卫星遥感轨（THQBCA-V2 年度反演产品：真实历史观测，非实时、非模拟） ----
+RS_VERSION = "THQBCA-V2-BIOOPTICS-V1"
+RS_DATA_MODE = "observed"
+RS_AS_OF = "2026-09-02T00:00:00+08:00"
+RS_CLAIM_BOUNDARY = "satellite_annual_retrieval_not_in_situ"
+
 # ---- 风险阈值（0—44 低 / 45—74 中 / 75—100 高，与前端 gridCore.js 一致） ----
 RISK_THRESHOLDS = {"low": [0, 44], "mid": [45, 74], "high": [75, 100]}
 GRID_ROWS = 11

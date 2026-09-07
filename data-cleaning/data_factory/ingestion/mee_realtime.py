@@ -12,7 +12,6 @@ import json
 import re
 import ssl
 import time
-import warnings
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -149,6 +148,8 @@ def fetch_snapshot(cfg: dict[str, Any], *, verify: bool) -> tuple[bytes, int, di
             if status != 200:
                 raise RuntimeError(f"http status {status}")
             data = json.loads(payload.decode("utf-8"))
+            if not isinstance(data, dict):
+                raise RuntimeError(f"unexpected JSON payload type: {type(data).__name__}")
             if data.get("result") and data["result"] != 0:
                 return payload, status, headers, attempt - 1
             last_error = RuntimeError(f"api returned no data (result={data.get('result')})")
@@ -196,13 +197,26 @@ def _resolve_observed_time(raw: Any, now_cn: datetime) -> pd.Timestamp:
     text = "" if raw is None else str(raw).strip()
     parsed: datetime | None = None
     has_year = False
-    for fmt in _TIME_FORMATS:
+    for fmt in _TIME_FORMATS[:2]:
         try:
             parsed = datetime.strptime(text, fmt)
             has_year = fmt.startswith("%Y")
             break
         except ValueError:
             continue
+    if parsed is None:
+        short = re.fullmatch(r"(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})", text)
+        if short:
+            try:
+                parsed = datetime(
+                    now_cn.year,
+                    int(short.group(1)),
+                    int(short.group(2)),
+                    int(short.group(3)),
+                    int(short.group(4)),
+                )
+            except ValueError:
+                parsed = None
     if parsed is None:
         return pd.NaT
     if not has_year:
@@ -315,7 +329,6 @@ def run_collect_mee(
     warnings_list: list[str] = []
     if not verify:
         message = "tls_verify=false: 上游证书校验关闭（上游自签证书），已在 manifest 留痕"
-        warnings.warn(message, UserWarning)
         warnings_list.append(message)
 
     now_utc = datetime.now(timezone.utc)
@@ -323,7 +336,7 @@ def run_collect_mee(
     try:
         payload, http_status, headers, retries = fetch_snapshot(cfg, verify=verify)
     except Exception as exc:
-        _write_status(
+        status_path = _write_status(
             out_dir,
             {
                 "source_id": SOURCE_ID,
@@ -334,6 +347,26 @@ def run_collect_mee(
                 "freshness_status": "unknown",
             },
         )
+        # Publish the failed attempt to the read-only catalog too.  Existing raw
+        # snapshots remain the data source; only status changes to failed so the
+        # UI can disclose the outage while retaining the last successful values.
+        try:
+            from data_factory.contracts.constants import MEE_REALTIME_CATALOG_DIR, STATION_REGISTRY_MERGED
+
+            from .mee_realtime_catalog import build_catalog
+
+            failure_registry = catalog_registry_path
+            if failure_registry is None:
+                failure_registry = STATION_REGISTRY_MERGED if STATION_REGISTRY_MERGED.exists() else None
+            build_catalog(
+                raw_root=raw_root or RAW_ROOT,
+                out_dir=catalog_dir or MEE_REALTIME_CATALOG_DIR,
+                registry_path=failure_registry,
+                collection_status_path=status_path,
+            )
+        except Exception:
+            # Preserve the original upstream exception and last coherent catalog.
+            pass
         raise
 
     snapshot = write_raw_snapshot(
