@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
@@ -44,6 +45,9 @@ from .errors import (
     simulation_only,
 )
 from .providers import RealtimeDataUnavailable
+from .station_forecast import StationForecastNotAvailable
+from .alert_center import CenterInvalidOperation, CenterNotFound, alert_center
+from .history_review import history_review
 from .services import alert_engine, service
 
 router = APIRouter(prefix="/api/v1")
@@ -93,6 +97,13 @@ def _observed_call(request: Request, fn, *args, **kwargs) -> dict[str, Any]:
     except RealtimeDataUnavailable as exc:
         raise realtime_data_unavailable(
             "实时观测数据不可用：从未成功抓取；页面必须显式提示不可用",
+            detail=str(exc),
+            dataset_version=REALTIME_VERSION,
+            **track,
+        ) from exc
+    except StationForecastNotAvailable as exc:
+        raise forecast_not_available(
+            "站点级预测不可用（该站在数据窗口内无叶绿素a 序列或模型门槛未通过）",
             detail=str(exc),
             dataset_version=REALTIME_VERSION,
             **track,
@@ -233,7 +244,230 @@ def get_realtime_alerts(
 @router.post("/realtime/alerts/evaluate", response_model=schemas.Envelope[schemas.AlertEvaluation])
 def post_realtime_alerts_evaluate(request: Request):
     """手动触发一次预警巡检（后台线程按 evaluate_interval_s 自动巡检）。"""
-    return _observed_call(request, alert_engine.evaluate)
+    return _observed_call(request, alert_center.evaluate_and_sync)
+
+
+# ---------- 预警与应急预案中心（事件处置层；触发判定仍在 alerts.py 引擎） ----------
+
+
+def _center_call(request: Request, fn) -> dict[str, Any]:
+    """预警中心统一包装：先翻译业务异常（404/422），再走 observed 信封。"""
+    try:
+        data = fn()
+    except CenterNotFound as exc:
+        raise entity_not_found(
+            "预警事件或引用对象不存在",
+            dataset_version=REALTIME_VERSION,
+            detail=str(exc.args[0]) if exc.args else None,
+        ) from exc
+    except CenterInvalidOperation as exc:
+        raise invalid_event_id(
+            str(exc),
+            dataset_version=REALTIME_VERSION,
+        ) from exc
+    return _observed_call(request, lambda: data)
+
+
+class CenterActionRequest(BaseModel):
+    action: str
+    actor: str | None = None
+    assignee: str | None = None
+    reason: str | None = None
+    comment: str | None = None
+
+
+class CenterPushRequest(BaseModel):
+    channels: list[str]
+    groups: list[str]
+    subject: str | None = None
+    body: str | None = None
+    actor: str | None = None
+
+
+class CenterPlanRequest(BaseModel):
+    plan_id: str
+    actor: str | None = None
+
+
+class CenterTaskRequest(BaseModel):
+    status: Literal["todo", "doing", "done"]
+    note: str | None = None
+    actor: str | None = None
+
+
+class CenterRulesRequest(BaseModel):
+    notify: dict[str, bool] | None = None
+    auto_simulate_push: dict[str, Any] | None = None
+    predicted: dict[str, Any] | None = None
+
+
+class CenterReadRequest(BaseModel):
+    ids: list[str] | None = None
+    all: bool = False
+
+
+class ReviewNotesRequest(BaseModel):
+    fields: dict[str, Any]
+    editor: str | None = None
+
+
+@router.get("/realtime/alerts/center", response_model=schemas.Envelope[dict])
+def get_alert_center(
+    request: Request,
+    type: Literal["all", "realtime", "predicted"] = "all",
+    status: Literal["all", "pending", "acknowledged", "processing", "review", "closed", "revoked"] = "all",
+    search: str = "",
+):
+    """预警中心总览：统计卡、事件列表（实时/预测同列分标签）、预案库、规则、站内通知。"""
+    return _observed_call(
+        request,
+        alert_center.overview,
+        event_filter=type,
+        status_filter=status,
+        search=search,
+    )
+
+
+@router.get("/realtime/alerts/center/events/{event_id}", response_model=schemas.Envelope[dict])
+def get_alert_center_event(request: Request, event_id: str):
+    """预警事件详情：证据、处理记录、措施任务、模拟推送回执。"""
+    return _center_call(request, lambda: alert_center.event_detail_or_404(event_id))
+
+
+@router.post("/realtime/alerts/center/events/{event_id}/actions", response_model=schemas.Envelope[dict])
+def post_alert_center_action(request: Request, event_id: str, body: CenterActionRequest):
+    """事件工作流动作：确认/指派/开始处置/提交复核/关闭/重开/撤销（状态机见 alert_center）。"""
+    return _center_call(request, lambda: alert_center.action_or_404(event_id, body.action, body.model_dump()))
+
+
+@router.post("/realtime/alerts/center/events/{event_id}/push", response_model=schemas.Envelope[dict])
+def post_alert_center_push(request: Request, event_id: str, body: CenterPushRequest):
+    """短信/邮件模拟推送：生成模拟回执并留痕，绝不实际发送。"""
+    return _center_call(request, lambda: alert_center.push_or_404(event_id, body.model_dump()))
+
+
+@router.post("/realtime/alerts/center/events/{event_id}/plan", response_model=schemas.Envelope[dict])
+def post_alert_center_plan(request: Request, event_id: str, body: CenterPlanRequest):
+    """采用应急预案：复制该版本措施为事件任务，后续预案库更新不影响已生成任务。"""
+    return _center_call(request, lambda: alert_center.adopt_plan_or_404(event_id, body.plan_id, body.model_dump()))
+
+
+@router.post(
+    "/realtime/alerts/center/events/{event_id}/tasks/{task_id}",
+    response_model=schemas.Envelope[dict],
+)
+def post_alert_center_task(request: Request, event_id: str, task_id: str, body: CenterTaskRequest):
+    """更新措施任务进展。"""
+    return _center_call(request, lambda: alert_center.task_or_404(event_id, task_id, body.model_dump()))
+
+
+@router.get("/realtime/alerts/center/records", response_model=schemas.Envelope[dict])
+def get_alert_center_records(request: Request):
+    """处理记录 / 模拟推送记录 / 操作审计（最近优先）。"""
+    return _observed_call(request, alert_center.records_view)
+
+
+@router.get("/realtime/alerts/center/notifications", response_model=schemas.Envelope[dict])
+def get_alert_center_notifications(request: Request, unread_only: bool = False):
+    """站内通知（铃铛通知中心数据源）：已读状态按用户独立保存。"""
+    return _observed_call(request, lambda: alert_center.notifications_view(unread_only=unread_only))
+
+
+@router.post("/realtime/alerts/center/notifications/read", response_model=schemas.Envelope[dict])
+def post_alert_center_notifications_read(request: Request, body: CenterReadRequest):
+    """标记通知已读：单批 ids 或全部（只影响当前用户）。"""
+    return _observed_call(request, lambda: alert_center.mark_notifications_read(body.ids, all=body.all))
+
+
+@router.post("/realtime/alerts/center/rules", response_model=schemas.Envelope[dict])
+def post_alert_center_rules(request: Request, body: CenterRulesRequest):
+    """更新预警中心可配置项：通知策略、自动模拟推送、预测预留参数（实测阈值口径只读）。"""
+    return _observed_call(request, lambda: alert_center.update_rules(body.model_dump(exclude_none=True)))
+
+
+# ---------- 历史复盘（事件复盘聚合；以 event_id 为主关联键，只读组合已有事实） ----------
+
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _validate_history_dates(start: str, end: str) -> None:
+    for name, value in (("start", start), ("end", end)):
+        if value and not _DATE_RE.match(value):
+            raise invalid_date_range(
+                f"{name} 须为 YYYY-MM-DD 日期",
+                field=name,
+                detail=f"{name}={value!r} 不是合法日期格式",
+                dataset_version=REALTIME_VERSION,
+            )
+    if start and end and start > end:
+        raise invalid_date_range(
+            "开始日期晚于结束日期",
+            field="start",
+            detail=f"start={start} 晚于 end={end}",
+            dataset_version=REALTIME_VERSION,
+        )
+
+
+@router.get("/history/reviews", response_model=schemas.Envelope[dict])
+def get_history_reviews(
+    request: Request,
+    start: str = "",
+    end: str = "",
+    type: Literal["all", "realtime", "predicted"] = "all",
+    level: Literal["all", "light", "moderate"] = "all",
+    status: Literal["all", "pending", "acknowledged", "processing", "review", "closed", "revoked"] = "all",
+    station: str = "",
+    plan_adopted: Literal["all", "yes", "no"] = "all",
+    tasks_done: Literal["all", "yes", "no"] = "all",
+    push_failed: Literal["all", "yes", "no"] = "all",
+):
+    """历史事件复盘列表：全局统计 + 按条件筛选的事件简况（响应/处置耗时、预案/任务/推送计数）。"""
+    _validate_history_dates(start, end)
+    return _observed_call(
+        request,
+        history_review.list_reviews,
+        start=start, end=end, type=type, level=level, status=status, station=station,
+        plan_adopted=plan_adopted, tasks_done=tasks_done, push_failed=push_failed,
+    )
+
+
+@router.get("/history/metrics", response_model=schemas.Envelope[dict])
+def get_history_metrics(request: Request):
+    """历史复盘全局指标：关闭率（分子/分母）、平均响应/处置时长（含样本数）与统计口径。"""
+    return _observed_call(request, history_review.history_metrics)
+
+
+@router.get("/history/prediction-evaluations", response_model=schemas.Envelope[dict])
+def get_history_prediction_evaluations(request: Request):
+    """预测评估：正式预测接入前的诚实空态（可验证样本、指标定义与接入条件）。"""
+    return _observed_call(request, history_review.prediction_evaluations)
+
+
+@router.get("/history/reviews/{event_id}", response_model=schemas.Envelope[dict])
+def get_history_review_detail(request: Request, event_id: str):
+    """事件复盘聚合详情：里程碑时间线、观测证据、预案执行、通知推送、响应指标与复盘意见。"""
+    return _center_call(request, lambda: history_review.review_detail(event_id))
+
+
+@router.get("/history/reviews/{event_id}/timeline", response_model=schemas.Envelope[dict])
+def get_history_review_timeline(request: Request, event_id: str):
+    """事件全过程时间线：按当时内容组织的里程碑节点（颜色语义见 tone 字段）。"""
+    return _center_call(request, lambda: history_review.review_timeline(event_id))
+
+
+@router.get("/history/reviews/{event_id}/evidence", response_model=schemas.Envelope[dict])
+def get_history_review_evidence(request: Request, event_id: str):
+    """事件观测证据：触发前后指标序列（缺测断开不插值）、阈值线与证据节点。"""
+    return _center_call(request, lambda: history_review.review_evidence(event_id))
+
+
+@router.put("/history/reviews/{event_id}/review-notes", response_model=schemas.Envelope[dict])
+def put_history_review_notes(request: Request, event_id: str, body: ReviewNotesRequest):
+    """保存人工复盘意见（与系统证据分离存储）：记录编辑人、保存时间并递增版本。"""
+    return _center_call(
+        request,
+        lambda: history_review.save_review_notes(event_id, body.fields, body.editor),
+    )
 
 
 @router.get(
@@ -309,6 +543,25 @@ def get_quality(request: Request, entity_id: str):
         return _observed_call(request, service.realtime_quality, entity_id)
     _require_entity(entity_id, dataset_version=OBSERVATION_VERSION)
     return _ok(request, service.observation.quality(entity_id), OBSERVATION_VERSION)
+
+
+# ---------- 站点级机理+AI 融合预测（observed 轨，v0.1 试点） ----------
+
+
+@router.get("/realtime/stations/{entity_id}/forecast", response_model=schemas.Envelope[dict])
+def get_realtime_station_forecast(request: Request, entity_id: str):
+    """站点级短期预测（成员C 机理+AI 融合框架 v0.1）。
+
+    仅覆盖数据窗口内有叶绿素a 观测序列的站点；无序列 → 409 FORECAST_NOT_AVAILABLE。
+    模型卡（训练窗口/样本量/交叉验证指标/被阻塞提前期）随响应返回，页面必须披露。
+    """
+    return _observed_call(request, service.realtime_station_forecast, entity_id)
+
+
+@router.get("/realtime/forecast/status", response_model=schemas.Envelope[dict])
+def get_realtime_station_forecast_status(request: Request):
+    """站点级预测引擎状态：覆盖站点数、服务/阻塞提前期与原因（能力披露）。"""
+    return _observed_call(request, service.realtime_station_forecast_status)
 
 
 # ---------- 预测（P03 / P07；T+30 能力阻塞） ----------

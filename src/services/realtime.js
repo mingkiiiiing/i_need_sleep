@@ -78,10 +78,12 @@ export function clearRealtimeCache() {
   qualityCache.clear()
 }
 
-// 蓝藻筛查着色：与后端阈值一致（≥10 轻度 / ≥25 中度；未报数显示中性灰）
+// 蓝藻筛查着色：与后端阈值及 tokens.css 风险色一致（≥25 --risk-critical #ef4444 /
+// ≥10 --risk-medium 口径 / 正常绿；未报数显示中性灰）。JS 侧（canvas/SVG/echarts）读不到
+// CSS 变量，故此处直接写 token 色值；改 tokens.css 风险色时必须同步此处。
 export function chlaColor(chla) {
   if (chla == null) return '#7d93a8'
-  if (chla >= 25) return '#ff6b6b'
+  if (chla >= 25) return '#ef4444'
   if (chla >= 10) return '#f5b45d'
   return '#5fd6a4'
 }
@@ -196,6 +198,25 @@ export function formatStamp(iso) {
   const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
   if (!m) return String(iso)
   return `${m[1]}-${m[2]} ${m[3]} ${m[4]}:${m[5]}`
+}
+
+// 观测历史可回看起点（上游抓取自 2026-09-04 起，窗口取 09-01 保证覆盖最早快照）
+export const OBS_HISTORY_START = '2026-09-01'
+
+// 本地（北京）当天日期，用于 range 查询 end；toISOString 是 UTC，凌晨会差一天
+export function todayLocalDate() {
+  const d = new Date()
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+// 指标数值统一展示精度：4 位有效数字并去掉浮点噪声与多余尾零
+// （10.030000000000001 → '10.03'，0.0001249558 → '0.000125'，27.9754 → '27.98'）
+export function fmtMeasure(v) {
+  if (v == null) return null
+  const n = Number(v)
+  if (!Number.isFinite(n)) return String(v)
+  return String(Number(n.toPrecision(4)))
 }
 
 export function formatLag(h) {

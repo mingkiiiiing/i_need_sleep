@@ -40,10 +40,12 @@ const props = defineProps({
   hull: { type: Array, default: () => [] },
   basemap: { type: String, default: 'satellite' },
   opacity: { type: Number, default: 0.85 },
+  // 当前选中站点（预测推演站点视图高亮）；空串表示全湖视图
+  activeId: { type: String, default: '' },
   resetToken: { type: Number, default: 0 }
 })
 
-const emit = defineEmits(['tile-error'])
+const emit = defineEmits(['tile-error', 'point-click'])
 
 const mapContainerRef = ref(null)
 const divider = ref(50)
@@ -58,7 +60,8 @@ let overlayB = null
 let resizeObserver = null
 
 const LAKE_CENTER = [31.19, 120.15]
-const DEFAULT_ZOOM = 11
+// 默认视野：全湖 + 宜兴/苏州周边一览（对标监测研判参考稿），站点点位初始即可见
+const DEFAULT_ZOOM = 10
 const MIN_ZOOM = 9
 const MAX_ZOOM = 14
 const LAKE_BOUNDS = [
@@ -171,7 +174,7 @@ function rebuildHull() {
   }
   if (Array.isArray(props.hull) && props.hull.length >= 3) {
     hullLayer = L.polygon(props.hull, {
-      color: '#ff6b6b',
+      color: '#ef4444',
       weight: 1.5,
       dashArray: '5 5',
       fill: true,
@@ -184,9 +187,13 @@ function rebuildHull() {
 
 function createMarkerIcon(point) {
   const color = point.color || '#5fd6a4'
+  const active = point.id && point.id === props.activeId
   const root = document.createElement('div')
   root.className = 'rs-dot-marker'
   root.style.setProperty('--mc', color)
+  // 环比变化点放大突出；选中站点进一步放大高亮
+  if (point.emphasized) root.classList.add('rs-dot-marker--emph')
+  if (active) root.classList.add('rs-dot-marker--active')
   const ring = document.createElement('div')
   ring.className = 'rs-dot-ring'
   const dot = document.createElement('div')
@@ -202,10 +209,12 @@ function addMarkers() {
   if (!props.pointsVisible) return
   props.points.forEach((point) => {
     if (!point.coord) return
-    const marker = L.marker([point.coord.lat, point.coord.lon], { icon: createMarkerIcon(point) })
+    const marker = L.marker([point.coord.lat, point.coord.lon], { icon: createMarkerIcon(point), keyboard: false })
     if (point.tooltip) {
       marker.bindTooltip(point.tooltip, { direction: 'top', offset: [0, -12] })
     }
+    // 站点可点击：预测推演中点击切换为站点视图（由父级决定行为）
+    marker.on('click', () => emit('point-click', point.id))
     marker.addTo(map)
     markers.push({ id: point.id, marker })
   })
@@ -272,6 +281,8 @@ watch(() => props.points, addMarkers, { deep: true })
 watch(() => props.pointsVisible, () => {
   addMarkers()
 })
+// 选中站点变化：只重绘点位图标（高亮），不重建地图
+watch(() => props.activeId, addMarkers)
 watch(() => props.hull, rebuildHull, { deep: true })
 watch(() => props.basemap, switchBasemap)
 watch(() => props.resetToken, fitBounds)
@@ -391,5 +402,29 @@ onBeforeUnmount(() => {
   border: 2px solid #ffffff;
   box-shadow: 0 0 10px var(--mc), 0 2px 5px rgba(0, 0, 0, 0.5);
   z-index: 2;
+}
+/* 环比变化点（红升/绿降）：放大一档，与持平/缺测的灰点拉开层次 */
+.rs-dot-marker--emph {
+  transform: scale(1.3);
+}
+.rs-dot-marker--emph .rs-dot-ring {
+  opacity: 0.9;
+}
+/* 选中站点（预测推演站点视图）：放大并加强光圈 */
+.rs-dot-marker--active {
+  transform: scale(1.45);
+}
+.rs-dot-marker--active .rs-dot-ring {
+  opacity: 1;
+  border-width: 3px;
+  animation: rs-active-pulse 1.6s ease-out infinite;
+}
+@keyframes rs-active-pulse {
+  0% { box-shadow: 0 0 6px var(--mc); }
+  50% { box-shadow: 0 0 16px var(--mc); }
+  100% { box-shadow: 0 0 6px var(--mc); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-dot-marker--active .rs-dot-ring { animation: none; }
 }
 </style>

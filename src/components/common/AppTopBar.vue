@@ -58,7 +58,6 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import NotificationBell from './NotificationBell.vue'
 import { useTheme } from '../../composables/useTheme.js'
-import { dataIdentity } from '../../data/dataIdentity.js'
 import { realtimeUpdate } from '../../stores/realtimeUpdate.js'
 import { formatStamp } from '../../services/realtime.js'
 
@@ -73,7 +72,6 @@ defineExpose({ menuButton })
 const { theme, cycleTheme } = useTheme()
 
 const route = useRoute()
-const asOfShort = computed(() => dataIdentity.asOfFull.slice(5))
 const showRealtimeUpdate = computed(
   () => route.name === 'cockpit' && !!realtimeUpdate.latestObservedAt
 )
@@ -165,7 +163,6 @@ const themeTitle = computed(() =>
   flex-shrink: 0;
 }
 
-.tb-service,
 .tb-update {
   display: inline-flex;
   align-items: center;
@@ -178,13 +175,6 @@ const themeTitle = computed(() =>
   letter-spacing: 0.06em;
   color: var(--text-secondary);
   white-space: nowrap;
-}
-.tb-service-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--risk-medium);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--risk-medium) 22%, transparent);
 }
 .tb-update-dot {
   width: 7px;
@@ -204,6 +194,5 @@ const themeTitle = computed(() =>
 @media (max-width: 640px) {
   .topbar { padding: 0 12px; }
   .tb-update { display: none; }
-  .tb-service { padding: 5px 10px; }
 }
 </style>

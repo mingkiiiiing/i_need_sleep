@@ -294,6 +294,10 @@ class MeeRealtimeObservationProvider:
             return None
         return stat.st_mtime_ns, stat.st_size
 
+    def catalog_signature(self) -> tuple[int, int] | None:
+        """公开目录签名（status.json mtime+size），供下游缓存（如预测引擎）对齐重建。"""
+        return self._current_catalog_signature()
+
     def _ensure_loaded(self) -> None:
         signature = self._current_catalog_signature()
         if self._loaded and signature == self._catalog_signature:
@@ -454,6 +458,43 @@ class MeeRealtimeObservationProvider:
 
     # ---- 观测 ----
 
+    def observation_history(self) -> Any:
+        """全量观测帧（跨快照、含缺测行），供离线分析/站点预测引擎训练使用。
+
+        返回原始 DataFrame（不做 NaN 清洗与逐行包装——那是 observations() 的
+        响应模型职责）；目录未加载时抛 RealtimeDataUnavailable。
+        """
+        import pandas as pd
+
+        self._require_loaded()
+        if self._observations is None or self._observations.empty:
+            return pd.DataFrame()
+        return self._observations
+
+    def chla_daily_coverage(self) -> dict[str, int]:
+        """按 UTC 日统计叶绿素a 有效报数（站点预测引擎的数据缺口披露用）。
+
+        覆盖全观测时间范围的每一日：断报日计 0 而非缺席，否则"整日无报数"
+        会被下游的 <5 条/日稀疏日检查漏掉。
+        """
+        import pandas as pd
+
+        self._require_loaded()
+        frame = self._observations
+        if frame is None or frame.empty:
+            return {}
+        chla = frame[(frame["variable_code"] == "chlorophyll_a") & (frame["observation_status"] == "ok")]
+        chla = chla.drop_duplicates(["station_entity_id", "observed_at"])
+        if chla.empty:
+            return {}
+        all_days = pd.to_datetime(frame["observed_at"], utc=True).dt.date
+        days = pd.to_datetime(chla["observed_at"], utc=True).dt.date
+        counts = days.value_counts()
+        return {
+            str(day): int(counts.get(day, 0))
+            for day in pd.date_range(min(all_days), max(all_days)).date
+        }
+
     def observations(
         self,
         entity_id: str,
@@ -592,6 +633,35 @@ class MeeRealtimeObservationProvider:
             "snapshots": items,
         }
 
+    def _trend_baseline(self, idx: int) -> dict[str, Any]:
+        """趋势比较两端的观测时间与实际间隔（小时）；无上一快照时如实给 None。"""
+        from datetime import datetime
+
+        current = self._snapshots[idx] if 0 <= idx < len(self._snapshots) else {}
+        prev = self._snapshots[idx - 1] if idx >= 1 else None
+        current_at = current.get("latest_observed_at")
+        prev_at = (prev or {}).get("latest_observed_at")
+        gap_hours: float | None = None
+
+        def _parse(value: str | None) -> datetime | None:
+            if not value:
+                return None
+            try:
+                parsed = datetime.fromisoformat(str(value))
+            except ValueError:
+                return None
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=None)
+
+        parsed_current, parsed_prev = _parse(current_at), _parse(prev_at)
+        if parsed_current and parsed_prev:
+            gap_hours = round(abs((parsed_current - parsed_prev).total_seconds()) / 3600.0, 2)
+        return {
+            "current_observed_at": current_at,
+            "prev_observed_at": prev_at,
+            "gap_hours": gap_hours,
+            "note": "trends 为所选快照相对其相邻上一成功快照的环比，间隔随抓取节奏波动（约 2—8 小时），非固定日趋势",
+        }
+
     def summary(self, snapshot_id: str | None = None) -> dict[str, Any]:
         """全湖实时汇总（可按快照回放）：全部指标由 observed 数据计算，口径/权重/阈值随响应披露。"""
         import pandas as pd
@@ -619,6 +689,10 @@ class MeeRealtimeObservationProvider:
                 delta_pct = round((value - prev_value) / prev_value * 100.0, 1)
             direction = "flat" if delta_pct is None or abs(delta_pct) < 3.0 else ("up" if delta_pct > 0 else "down")
             trends[code] = {"delta_pct": delta_pct, "direction": direction, "prev_value": prev_value}
+
+        # 趋势基线披露：trends 是"所选快照 vs 其相邻上一成功快照"的环比，快照抓取节奏
+        # 不规律（约 2—8 小时），必须把实际间隔随响应给出，防止被解读成固定日趋势。
+        trend_baseline = self._trend_baseline(idx)
 
         info_by_id = {e["entity_id"]: e for e in self._stations}
 
@@ -741,6 +815,7 @@ class MeeRealtimeObservationProvider:
             "warning_thresholds": {"light": self.CHLA_LIGHT, "moderate": self.CHLA_MODERATE},
             "means": means,
             "trends": trends,
+            "trend_baseline": trend_baseline,
             "health": {
                 "score": score,
                 "grade": grade,

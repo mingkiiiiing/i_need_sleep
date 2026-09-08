@@ -81,7 +81,14 @@
 // 分析面板（图七交互的真实数据版）：时间轴行 + 变量切换 + 站点下拉 + 实测序列大图。
 // 只有实测线，无预测虚线——系统当前没有单站预测模型，不伪造预测区间。
 import { computed, ref, watch } from 'vue'
-import { fetchRealtimeTimeline, fetchRealtimeStations, fetchStationObservations, formatStamp } from '../../services/realtime.js'
+import {
+  fetchRealtimeTimeline,
+  fetchRealtimeStations,
+  fetchStationObservations,
+  formatStamp,
+  OBS_HISTORY_START,
+  todayLocalDate
+} from '../../services/realtime.js'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -146,8 +153,8 @@ async function loadSeries() {
   try {
     rows.value = await fetchStationObservations(stationId.value, {
       window: 'range',
-      start: '2026-09-01',
-      end: new Date().toISOString().slice(0, 10)
+      start: OBS_HISTORY_START,
+      end: todayLocalDate()
     })
     chartState.value = 'ok'
   } catch {
@@ -155,7 +162,13 @@ async function loadSeries() {
   }
 }
 
-watch([stationId, variable], loadSeries)
+// 数据一次拉全（含全部指标），切指标只换过滤列，不重新请求
+watch(stationId, loadSeries)
+
+// 回放：图表只展示到光标所在快照的观测时间，播放/选刻度才有回放语义
+const cursorTime = computed(
+  () => timelineSnaps.value[cursor.value]?.latest_observed_at || ''
+)
 watch(
   () => props.open,
   async (open) => {
@@ -185,6 +198,7 @@ watch(
 const chartPoints = computed(() => {
   const series = rows.value
     .filter((r) => r.variable_code === variable.value && r.observation_status === 'ok' && r.value != null)
+    .filter((r) => !cursorTime.value || String(r.observed_at) <= String(cursorTime.value))
     .sort((a, b) => String(a.observed_at).localeCompare(String(b.observed_at)))
   const pad = { l: 16, r: 16, t: 14, b: 10 }
   const values = series.map((r) => Number(r.value))
@@ -206,7 +220,8 @@ const polyline = computed(() => chartPoints.value.map((p) => `${p.x},${p.y}`).jo
   position: absolute;
   z-index: 960;
   left: 12px;
-  right: 12px;
+  /* 宽度约为画布 2/3，靠左留出右侧站点抽屉/卡片位置 */
+  width: 66%;
   bottom: 12px;
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -312,7 +327,7 @@ const polyline = computed(() => chartPoints.value.map((p) => `${p.x},${p.y}`).jo
 .cap-axis { display: flex; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
 .cap-note { font-size: 12px; color: var(--text-secondary); padding: 10px 0; }
 .cap-note--warn { color: var(--risk-medium, #f5b45d); }
-.cap-note--bad { color: var(--risk-critical, #ff6b6b); display: flex; gap: 10px; align-items: center; }
+.cap-note--bad { color: var(--risk-critical, #ef4444); display: flex; gap: 10px; align-items: center; }
 .cap-btn {
   appearance: none;
   border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
@@ -329,7 +344,7 @@ const polyline = computed(() => chartPoints.value.map((p) => `${p.x},${p.y}`).jo
   .cap-rise-enter-active, .cap-rise-leave-active { transition: none; }
 }
 @media (max-width: 1100px) {
-  .cap { position: relative; inset: auto; max-height: none; }
+  .cap { position: relative; inset: auto; max-height: none; width: auto; }
   .cap-chart svg { height: 180px; }
 }
 </style>

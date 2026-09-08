@@ -48,15 +48,9 @@ export async function requestEnvelope(path, options = {}) {
   return { data: body.data, meta: body.meta || {} }
 }
 
-// ---------- 首页：系统能力 / 数据集摘要（观察类契约，meta 驱动身份展示） ----------
-
-export function getSystemCapabilitiesEnvelope() {
-  return requestEnvelope('/system/capabilities')
-}
-
-export function getDatasetsSummaryEnvelope() {
-  return requestEnvelope('/datasets/summary')
-}
+// ---------- 首页：观察类契约 ----------
+// /system/capabilities 与 /datasets/summary 目前均无前端消费方（能力披露/数据集摘要
+// 仅存在于 API 层，供审计与联调）；需要页面展示时再按 requestEnvelope 形式添加封装。
 
 // ---------- P03 监测站点研判（demo_zone 情景分区） ----------
 
@@ -105,6 +99,17 @@ export function getEntityObservations(entityId) {
 
 export function getEntityQuality(entityId) {
   return requestEnvelope(`/spatial-entities/${encodeURIComponent(entityId)}/quality`)
+}
+
+// 站点级机理+AI 融合预测（observed 轨，v0.1 试点）。
+// 仅覆盖有叶绿素a 序列的站点：无序列时后端返回 409 FORECAST_NOT_AVAILABLE，
+// 调用方（StationForecastCard）须将其渲染为明确的覆盖范围说明而非错误。
+export function getStationForecastEnvelope(entityId) {
+  return requestEnvelope(`/realtime/stations/${encodeURIComponent(entityId)}/forecast`)
+}
+
+export function getStationForecastStatusEnvelope() {
+  return requestEnvelope('/realtime/forecast/status')
 }
 
 export function getForecastsEnvelope(entityId, horizonDays) {

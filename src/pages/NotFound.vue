@@ -3,7 +3,7 @@
     <p class="nf-code">404</p>
     <h1 class="nf-title">页面不存在</h1>
     <p class="nf-note">
-      当前地址没有对应页面。正式功能仅提供：首页、综合驾驶舱、监测站点研判、时空推演、历史复盘。
+      当前地址没有对应页面。正式功能仅提供：首页、综合驾驶舱、监测站点研判、时空推演、历史复盘、实时大屏、预警中心。
     </p>
     <div class="nf-actions">
       <RouterLink v-if="backPath" class="nf-btn nf-btn-solid" :to="backPath">

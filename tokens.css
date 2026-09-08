@@ -347,6 +347,11 @@
   --text-muted: #698199;
 
   --data-simulated: #4d7f8f;               /* 演示预演 · 青灰（浅色加深） */
+
+  /* 主色随主题加深：亮青 #22d3ee 在浅底上作文字色对比度不足（≈2:1） */
+  --color-primary: #0aa99b;
+  --color-primary-ink: #ffffff;
+  --color-primary-soft: rgba(10, 169, 155, 0.12);
 }
 
 /* —— 日式暖阳「Sunrise」—— */
@@ -363,4 +368,9 @@
   --text-muted: #9a8570;
 
   --data-simulated: #6f8d96;               /* 演示预演 · 青灰（暖阳） */
+
+  /* 同浅色主题：主色取暖阳陶红，保证浅暖底上的文字对比度 */
+  --color-primary: #c2571f;
+  --color-primary-ink: #ffffff;
+  --color-primary-soft: rgba(194, 87, 31, 0.12);
 }

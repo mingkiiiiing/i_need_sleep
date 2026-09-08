@@ -227,3 +227,16 @@ def test_realtime_timeline_and_historical_replay():
     missing = client.get("/api/v1/realtime/summary?snapshot=mee_surface_water_realtime_19990101T000000Z")
     assert missing.status_code == 404
     assert missing.json()["errors"][0]["code"] == "ENTITY_NOT_FOUND"
+
+
+def test_realtime_summary_discloses_trend_baseline():
+    """趋势基线披露：环比两端观测时间与实际间隔必须随响应给出（防误读为日趋势）。"""
+    body = client.get("/api/v1/realtime/summary").json()
+    assert body["code"] == 200
+    baseline = body["data"]["trend_baseline"]
+    assert baseline["current_observed_at"]
+    if baseline["prev_observed_at"] is None:
+        assert baseline["gap_hours"] is None
+    else:
+        assert baseline["gap_hours"] > 0
+    assert "非固定日趋势" in baseline["note"]

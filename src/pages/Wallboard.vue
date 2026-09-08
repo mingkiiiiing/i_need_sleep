@@ -19,21 +19,21 @@
       </div>
       <div class="wb-card wb-card--yellow" :class="{ 'wb-card--zero': !alertCounts.light }">
         <span class="wb-num">{{ alertCounts.light }}</span>
-        <span class="wb-label">黄色预警（chla ≥ {{ thresholds.light }}）</span>
+        <span class="wb-label">黄色预警（chla {{ thresholds.light }}–{{ thresholds.moderate }}）</span>
       </div>
       <div class="wb-card">
         <span class="wb-num">{{ summary.missingRate }}</span>
         <span class="wb-label">最新快照缺测率</span>
       </div>
       <div class="wb-card">
-        <span class="wb-num">{{ summary.locVerified }}</span>
-        <span class="wb-label">已核验坐标</span>
+        <span class="wb-num">{{ summary.located }}</span>
+        <span class="wb-label">有坐标站点</span>
       </div>
     </section>
 
     <div class="wb-legend" aria-label="着色图例">
       <span class="wb-legend-item"><i class="wb-swatch wb-swatch--red"></i>红色告警 · 叶绿素a ≥ {{ thresholds.moderate }} μg/L</span>
-      <span class="wb-legend-item"><i class="wb-swatch wb-swatch--yellow"></i>黄色预警 · 叶绿素a ≥ {{ thresholds.light }} μg/L</span>
+      <span class="wb-legend-item"><i class="wb-swatch wb-swatch--yellow"></i>黄色预警 · 叶绿素a {{ thresholds.light }}–{{ thresholds.moderate }} μg/L</span>
       <span class="wb-legend-item"><i class="wb-swatch wb-swatch--green"></i>无预警（左边条 = 数据状态）</span>
       <span class="wb-legend-note">推送状态见右上角 🔔 / <RouterLink to="/alerts" class="wb-legend-link">预警通知页</RouterLink></span>
     </div>
@@ -53,7 +53,7 @@
         <div class="wb-station-meta">
           {{ s.province || '—' }}
           <span v-if="riskOf(s)" class="wb-risk-chip" :class="`wb-risk-chip--${riskOf(s).level}`">
-            {{ riskOf(s).level === 'moderate' ? '红色告警' : '黄色预警' }} · chla {{ riskOf(s).chla.toFixed(1) }}
+            {{ riskOf(s).level === 'moderate' ? '红色告警' : '黄色预警' }}<template v-if="riskOf(s).chla != null"> · chla {{ riskOf(s).chla.toFixed(1) }}</template>
           </span>
         </div>
         <div class="wb-station-foot">
@@ -95,11 +95,11 @@ const summary = computed(() => {
   const total = stations.value.length
   const variableTotalSum = stations.value.reduce((acc, s) => acc + variableTotal(s), 0)
   const missingSum = stations.value.reduce((acc, s) => acc + (s.missing_variable_count || 0), 0)
-  const locVerified = stations.value.filter((s) => s.location?.location_status === 'verified').length
+  const located = stations.value.filter((s) => s.location?.lat != null && s.location?.lon != null).length
   return {
     active: status.value ? status.value.active_station_count : total,
     missingRate: variableTotalSum ? `${((missingSum / variableTotalSum) * 100).toFixed(1)}%` : '—',
-    locVerified
+    located
   }
 })
 
@@ -114,7 +114,7 @@ const alertByStation = computed(() => {
 function riskOf(s) {
   const alert = alertByStation.value.get(s.id)
   if (!alert) return null
-  return { level: alert.level, chla: alert.chla ?? 0 }
+  return { level: alert.level, chla: alert.chla }
 }
 
 function stationClass(s) {
@@ -180,8 +180,8 @@ onBeforeUnmount(() => {
 .wb-num { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--text-primary); }
 .wb-label { font-size: 11px; color: var(--text-muted); }
 .wb-card--red.wb-card--zero .wb-num, .wb-card--yellow.wb-card--zero .wb-num { color: var(--text-secondary); }
-.wb-card--red:not(.wb-card--zero) { border-color: color-mix(in srgb, var(--risk-critical, #ff6b6b) 55%, transparent); }
-.wb-card--red:not(.wb-card--zero) .wb-num { color: var(--risk-critical, #ff6b6b); }
+.wb-card--red:not(.wb-card--zero) { border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 55%, transparent); }
+.wb-card--red:not(.wb-card--zero) .wb-num { color: var(--risk-critical, #ef4444); }
 .wb-card--yellow:not(.wb-card--zero) { border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 55%, transparent); }
 .wb-card--yellow:not(.wb-card--zero) .wb-num { color: var(--risk-medium, #f5b45d); }
 
@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
 .wb-legend-link { color: var(--color-primary); text-decoration: none; }
 .wb-legend-link:hover { text-decoration: underline; }
 .wb-swatch { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
-.wb-swatch--red { background: color-mix(in srgb, var(--risk-critical, #ff6b6b) 30%, transparent); border: 1px solid var(--risk-critical, #ff6b6b); }
+.wb-swatch--red { background: color-mix(in srgb, var(--risk-critical, #ef4444) 30%, transparent); border: 1px solid var(--risk-critical, #ef4444); }
 .wb-swatch--yellow { background: color-mix(in srgb, var(--risk-medium, #f5b45d) 30%, transparent); border: 1px solid var(--risk-medium, #f5b45d); }
 .wb-swatch--green { background: transparent; border: 1px dashed var(--border-subtle); border-left: 3px solid var(--risk-low, #5fd6a4); }
 
@@ -215,38 +215,41 @@ onBeforeUnmount(() => {
 }
 .wb-station--ok { border-left-color: var(--risk-low, #5fd6a4); }
 .wb-station--warn { border-left-color: var(--risk-medium, #f5b45d); }
-.wb-station--bad { border-left-color: var(--risk-critical, #ff6b6b); }
+.wb-station--bad { border-left-color: var(--risk-critical, #ef4444); }
 .wb-station--risk-light {
   border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 60%, transparent);
   background: color-mix(in srgb, var(--risk-medium, #f5b45d) 14%, var(--surface-panel));
 }
 .wb-station--risk-moderate {
-  border-color: color-mix(in srgb, var(--risk-critical, #ff6b6b) 65%, transparent);
-  background: color-mix(in srgb, var(--risk-critical, #ff6b6b) 16%, var(--surface-panel));
+  border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 65%, transparent);
+  background: color-mix(in srgb, var(--risk-critical, #ef4444) 16%, var(--surface-panel));
   animation: wb-risk-pulse 2.4s ease-in-out infinite;
 }
 @keyframes wb-risk-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--risk-critical, #ff6b6b) 22%, transparent); }
-  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--risk-critical, #ff6b6b) 0%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--risk-critical, #ef4444) 22%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--risk-critical, #ef4444) 0%, transparent); }
 }
 .wb-station-head { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
 .wb-station-head strong { font-size: 13px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wb-level { font-family: var(--font-mono); font-size: 11px; color: var(--color-primary); flex: none; }
-.wb-station-meta { font-size: 10.5px; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.wb-station-meta { font-size: 10.5px; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; }
 .wb-risk-chip {
   font-family: var(--font-mono);
   font-size: 10px;
   padding: 1px 7px;
   border-radius: 999px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .wb-risk-chip--light {
   color: var(--risk-medium, #f5b45d);
   border: 1px solid color-mix(in srgb, var(--risk-medium, #f5b45d) 55%, transparent);
 }
 .wb-risk-chip--moderate {
-  color: var(--risk-critical, #ff6b6b);
-  border: 1px solid color-mix(in srgb, var(--risk-critical, #ff6b6b) 60%, transparent);
+  color: var(--risk-critical, #ef4444);
+  border: 1px solid color-mix(in srgb, var(--risk-critical, #ef4444) 60%, transparent);
 }
 .wb-station-foot { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); }
 .wb-miss { color: var(--risk-medium, #f5b45d); }

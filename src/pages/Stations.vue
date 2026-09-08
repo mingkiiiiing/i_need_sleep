@@ -1,7 +1,7 @@
 <template>
   <main class="page-stations">
     <div class="stn-body">
-      <!-- ===== 左栏：站点列表 ===== -->
+      <!-- ===== 左栏：站点列表（纵向铺满，内部滚动） ===== -->
       <div class="stn-col stn-col-left">
         <StationListPanel
           :stations="stations"
@@ -15,7 +15,7 @@
         />
       </div>
 
-      <!-- ===== 中栏：地图 + 趋势 ===== -->
+      <!-- ===== 中栏：地图（无标题横幅） + 时序分析 ===== -->
       <div class="stn-col stn-col-mid">
         <section class="stn-block stn-map-block" aria-label="实时站点地图">
           <div class="stn-map-tools">
@@ -29,7 +29,7 @@
         ref="mapRef"
         :model-value="selectedId"
         :point-list="mapPoints"
-        title="太湖流域 · MEE 国控实时站点"
+        :show-header="false"
         :show-tabs="false"
         :show-legend="false"
         points-visible
@@ -40,38 +40,45 @@
           </div>
         </section>
 
-        <StationTrendPanel :station-id="selectedId" />
+        <StationTrendPanel :station-id="selectedId" :station-name="selectedStation ? selectedStation.source_station_name : ''" />
       </div>
 
-      <!-- ===== 右栏：最新观测 + 数据质量 ===== -->
+      <!-- ===== 右栏：站点档案 / 最新观测 / 活动预警 / 最新预测 ===== -->
       <div class="stn-col stn-col-right">
+        <StationProfileCard :station="selectedStation" :quality="quality" :state="qualityState" />
         <StationObsCard
           :station-name="selectedStation ? selectedStation.source_station_name : ''"
           :observed-at="latestObservedAt"
           :rows="obsRows"
           :state="obsState"
+          :quality="quality"
           @retry="fetchObs"
         />
-        <StationQualityCard :quality="quality" :state="qualityState" @retry="fetchQuality" />
+        <StationAlertsCard :station-id="selectedId" />
+        <StationForecastCard :station-id="selectedId" />
       </div>
 
-      <!-- ===== 底部：指标明细 / 情景推演（独立标签） ===== -->
+      <!-- ===== 底部：折叠式指标明细 / 情景推演 ===== -->
       <StationDetailTabs class="stn-area-tabs" :rows="obsRows" />
     </div>
   </main>
 </template>
 
 <script setup>
-// P03 监测站点研判（observed 轨改造版，大任务 2）：
-// - 站点集合完全由最新成功快照决定，不再使用 demo_zone 情景分区；
-// - 真实站点不再并行请求 6/79 次情景推演；情景推演收进独立标签页惰性加载；
-// - 无可靠坐标（suspicious/missing）的站点只在列表出现，不生成假地图点位。
+// P03 监测站点研判（observed 轨，2026-09-09 布局重构）：
+// - 删除地图上方标题横幅与右侧独立“数据质量”卡：质量信息拆散就近展示
+//   （状态徽标入站点档案、覆盖率入最新观测标题、缺测入指标格、QC/快照入折叠明细）；
+// - 左侧站点列表纵向铺满中栏高度，内部滚动；
+// - 右栏四组：站点档案 / 最新观测（主 5 项 + 展开全部）/ 活动预警 / 最新预测（机理+AI 融合 v0.1 试点，未覆盖站点显示覆盖说明）；
+// - 历史趋势升级为站点时序分析区（单指标 / 对比 / 时间范围）。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LakeMap from '../components/cockpit/LakeMap.vue'
 import StationListPanel from '../components/stations/StationListPanel.vue'
+import StationProfileCard from '../components/stations/StationProfileCard.vue'
 import StationObsCard from '../components/stations/StationObsCard.vue'
-import StationQualityCard from '../components/stations/StationQualityCard.vue'
+import StationAlertsCard from '../components/stations/StationAlertsCard.vue'
+import StationForecastCard from '../components/stations/StationForecastCard.vue'
 import StationTrendPanel from '../components/stations/StationTrendPanel.vue'
 import StationDetailTabs from '../components/stations/StationDetailTabs.vue'
 import {
@@ -116,6 +123,13 @@ async function loadStations(force = false, silent = false) {
 }
 
 function resolveSelection() {
+  // RouterView 无 key：同路由内 query-only 导航不会重建本页，深链接 ?p= 依赖
+  // 此处（加载/定时刷新后）与下方 route watcher 双路同步到选中站点。
+  const wanted = typeof route.query.p === 'string' ? route.query.p : ''
+  if (wanted && wanted !== selectedId.value && stations.value.some((s) => s.id === wanted)) {
+    selectedId.value = wanted
+    return
+  }
   const valid = stations.value.some((s) => s.id === selectedId.value)
   if (!valid && stations.value.length) {
     selectedId.value = stations.value[0].id
@@ -126,6 +140,14 @@ function resolveSelection() {
 }
 
 const selectedId = ref(typeof route.query.p === 'string' ? route.query.p : '')
+
+// 同路由跳转带 ?p= 时同步选中（冷加载由 selectedId 初值覆盖；无效 p 忽略）
+watch(() => route.query.p, (p) => {
+  const id = typeof p === 'string' ? p : ''
+  if (id && id !== selectedId.value && stations.value.some((s) => s.id === id)) {
+    selectedId.value = id
+  }
+})
 
 function selectStation(id) {
   if (id && id !== selectedId.value) selectedId.value = id
@@ -225,7 +247,7 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(280px, 23fr) minmax(0, 52fr) minmax(300px, 25fr);
   grid-template-areas:
     'sleft  smid   sright'
-    'stabs  stabs  stabs';
+    'sleft  stabs  stabs';
   align-items: start;
   min-width: 0;
 }
@@ -236,45 +258,20 @@ onBeforeUnmount(() => {
   gap: 10px;
   min-width: 0;
 }
-.stn-col-left { grid-area: sleft; }
+/* 左列吸附在顶栏下、占满剩余视口高度：列表内部滚动，内容不再撑高整个页面 */
+.stn-col-left {
+  grid-area: sleft;
+  position: sticky;
+  top: 76px;
+  max-height: calc(100vh - 88px);
+  min-height: 320px;
+}
 .stn-col-mid { grid-area: smid; }
 .stn-col-right { grid-area: sright; }
-.stn-rtbar { grid-area: srtbar; }
-.stn-area-tabs { grid-area: stabs; }
+.stn-area-tabs { grid-area: stabs; align-self: start; }
 
-/* ---------- 标题区 ---------- */
-.stn-title {
-  grid-area: stitle;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 6px 18px;
-  padding: 8px 16px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-panel);
-  background: var(--surface-panel);
-}
-.stn-title-left { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
-.stn-back { flex: none; }
-.stn-kicker {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.22em;
-  color: var(--color-primary);
-}
-.stn-title h1 {
-  margin: 2px 0;
-  font-family: var(--font-display);
-  font-size: clamp(19px, 2vw, 26px);
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.15;
-}
-.stn-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
-.stn-title-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-.stn-chips { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.stn-chip--zone { color: var(--text-primary); }
+/* 左列铺满：列表卡片占满整列高度，内部滚动 */
+.stn-col-left > * { flex: 1; min-height: 0; }
 
 /* ---------- 地图 ---------- */
 .stn-map-block {
@@ -284,7 +281,8 @@ onBeforeUnmount(() => {
   gap: 8px;
   min-width: 0;
 }
-.stn-map-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.stn-map-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 0; }
+.stn-map-block:has(.stn-map-tools:empty) { padding-top: 10px; }
 .stn-map-flag {
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -331,8 +329,7 @@ onBeforeUnmount(() => {
   .stn-col { display: contents; }
   .stn-map-block { grid-area: smap; }
   .stn-map-wrap :deep(.leaflet-map-container) { height: 340px; }
-  .stn-title-right { align-items: flex-start; }
-  .stn-chips { justify-content: flex-start; }
+  .stn-col-left > * { flex: none; }
   /* 触摸目标 */
   .stn-filter button,
   .stn-inline-btn,
@@ -343,8 +340,7 @@ onBeforeUnmount(() => {
     height: 44px;
     line-height: 44px;
   }
-}
-</style>
+}</style>
 
 <style>
 /* ===== P03 共享展示类（页面 chunk 内全局，stn- 前缀命名空间） ===== */
@@ -365,7 +361,7 @@ onBeforeUnmount(() => {
 }
 .page-stations .stn-sec-head h2 { margin: 0; font-size: 13px; font-weight: 650; color: var(--text-primary); }
 .page-stations .stn-sec-tag { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); white-space: nowrap; }
-.page-stations .stn-kv { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); gap: 3px 12px; margin: 0; }
+.page-stations .stn-kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; margin: 0; }
 .page-stations .stn-kv dt { font-size: 11.5px; line-height: 1.4; color: var(--text-muted); white-space: nowrap; }
 .page-stations .stn-kv dd { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text-primary); overflow-wrap: anywhere; }
 .page-stations .stn-mono { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; }
@@ -479,7 +475,7 @@ onBeforeUnmount(() => {
 .page-stations .zi-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .page-stations .zi-side { display: grid; gap: 2px; justify-items: end; }
 .page-stations .zi-risk { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-subtle); white-space: nowrap; }
-.page-stations .zi-risk.lv-high { color: var(--risk-critical, #ff6b6b); border-color: color-mix(in srgb, currentColor 45%, transparent); }
+.page-stations .zi-risk.lv-high { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, currentColor 45%, transparent); }
 .page-stations .zi-risk.lv-mid { color: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, currentColor 45%, transparent); }
 .page-stations .zi-risk.lv-low { color: var(--risk-low, #5fd6a4); border-color: color-mix(in srgb, currentColor 45%, transparent); }
 .page-stations .zi-score { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-primary); }
@@ -496,6 +492,11 @@ onBeforeUnmount(() => {
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
+.page-stations .stn-chip--sm {
+  min-height: 26px;
+  font-size: 11px;
+  padding: 2px 9px;
+}
 .page-stations .stn-chip.active {
   color: var(--text-primary);
   border-color: color-mix(in srgb, var(--color-primary) 48%, transparent);
@@ -511,4 +512,11 @@ onBeforeUnmount(() => {
 .page-stations .stn-table th { color: var(--text-muted); font-weight: 600; font-size: 10.5px; letter-spacing: 0.05em; }
 .page-stations .stn-table td { color: var(--text-primary); }
 .page-stations .stn-table tbody tr:hover { background: var(--surface-panel-soft); }
+/* 移动端：左列吸附失效（display:contents），列表给视口上限保持内部滚动 */
+@media (max-width: 960px) {
+  .page-stations .stn-zone-list {
+    flex: none;
+    max-height: 58vh;
+  }
+}
 </style>

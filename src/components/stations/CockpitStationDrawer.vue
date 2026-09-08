@@ -10,7 +10,7 @@
       </div>
 
       <div class="rcd-badges">
-        <span v-if="station?.water_level" class="rcd-badge rcd-badge--level">水质 {{ station.water_level }} 类</span>
+        <span v-if="station?.water_level" class="rcd-badge" :class="levelBadgeClass">水质 {{ station.water_level }} 类</span>
         <span v-else class="rcd-badge">水质 —</span>
         <span class="rcd-badge" :class="algaeBadge.class">{{ algaeBadge.text }}</span>
       </div>
@@ -66,9 +66,12 @@
 import { computed, ref, watch } from 'vue'
 import {
   fetchStationObservations,
+  fmtMeasure,
   formatStamp,
+  OBS_HISTORY_START,
   OBS_STATUS_TEXT,
-  REALTIME_VARIABLES
+  REALTIME_VARIABLES,
+  todayLocalDate
 } from '../../services/realtime.js'
 
 const props = defineProps({
@@ -100,9 +103,10 @@ const metricRows = computed(() =>
       code,
       label,
       unit,
-      text: row && row.value != null && status !== 'missing' ? row.value : '--',
-      flag: status === 'ok' ? '正常' : status === 'qc_rejected' ? '超限' : OBS_STATUS_TEXT[status] || '无数据',
-      tone: status === 'ok' ? 'ok' : status === 'qc_rejected' ? 'high' : 'na'
+      text: row && row.value != null && status !== 'missing' ? fmtMeasure(row.value) : '--',
+      // 与站点页「最新观测」同一措辞：qc_rejected = 质控不合格（非"超限"）
+      flag: status === 'ok' ? '正常' : status === 'qc_rejected' ? '质控不合格' : OBS_STATUS_TEXT[status] || '无数据',
+      tone: status === 'ok' ? 'ok' : status === 'qc_rejected' ? 'bad' : 'na'
     }
   })
 )
@@ -113,6 +117,15 @@ const algaeBadge = computed(() => {
   if (v >= 25) return { text: '蓝藻 中度预警', class: 'rcd-badge--bad' }
   if (v >= 10) return { text: '蓝藻 轻度关注', class: 'rcd-badge--warn' }
   return { text: '蓝藻 正常', class: 'rcd-badge--ok' }
+})
+
+// 上游发布水质类别分档着色：≤III 正常 / IV 关注 / V 及以上预警
+const levelBadgeClass = computed(() => {
+  const n = parseInt(props.station?.water_level, 10)
+  if (!Number.isFinite(n)) return 'rcd-badge--na'
+  if (n <= 3) return 'rcd-badge--ok'
+  if (n === 4) return 'rcd-badge--warn'
+  return 'rcd-badge--bad'
 })
 
 async function loadObs() {
@@ -138,8 +151,8 @@ watch(
     try {
       history.value = await fetchStationObservations(id, {
         window: 'range',
-        start: '2026-09-01',
-        end: new Date().toISOString().slice(0, 10)
+        start: OBS_HISTORY_START,
+        end: todayLocalDate()
       })
     } catch {
       history.value = []
@@ -211,10 +224,10 @@ const miniRange = computed(() => [
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
 }
-.rcd-badge--level { color: var(--risk-low, #5fd6a4); border-color: color-mix(in srgb, var(--risk-low, #5fd6a4) 45%, transparent); }
-.rcd-badge--ok { color: var(--risk-low, #5fd6a4); border-color: color-mix(in srgb, var(--risk-low, #5fd6a4) 45%, transparent); }
-.rcd-badge--warn { color: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 50%, transparent); }
-.rcd-badge--bad { color: var(--risk-critical, #ff6b6b); border-color: color-mix(in srgb, var(--risk-critical, #ff6b6b) 50%, transparent); }
+.rcd-badge--na { color: var(--text-muted); }
+.rcd-badge--ok { color: var(--risk-low, #22c55e); border-color: color-mix(in srgb, var(--risk-low, #22c55e) 45%, transparent); }
+.rcd-badge--warn { color: var(--risk-medium, #facc15); border-color: color-mix(in srgb, var(--risk-medium, #facc15) 50%, transparent); }
+.rcd-badge--bad { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 50%, transparent); }
 .rcd-sec-head {
   display: flex;
   align-items: baseline;
@@ -238,8 +251,8 @@ const miniRange = computed(() => [
 .rcd-v b { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); }
 .rcd-v small { font-size: 10px; color: var(--text-muted); }
 .rcd-flag { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-subtle); white-space: nowrap; }
-.rcd-flag--ok { color: var(--risk-low, #5fd6a4); border-color: color-mix(in srgb, var(--risk-low, #5fd6a4) 45%, transparent); }
-.rcd-flag--high { color: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 50%, transparent); }
+.rcd-flag--ok { color: var(--risk-low, #22c55e); border-color: color-mix(in srgb, var(--risk-low, #22c55e) 45%, transparent); }
+.rcd-flag--bad { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 50%, transparent); }
 .rcd-flag--na { color: var(--text-muted); }
 .rcd-mini svg { width: 100%; height: 74px; display: block; }
 .rcd-mini-line { fill: none; stroke: var(--color-primary); stroke-width: 2; }
@@ -247,7 +260,7 @@ const miniRange = computed(() => [
 .rcd-mini-axis { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); }
 .rcd-note { margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.6; }
 .rcd-loading { font-size: 12px; color: var(--text-secondary); padding: 8px 0; }
-.rcd-loading--bad { color: var(--risk-critical, #ff6b6b); display: flex; gap: 10px; align-items: center; }
+.rcd-loading--bad { color: var(--risk-critical, #ef4444); display: flex; gap: 10px; align-items: center; }
 .rcd-btn {
   appearance: none;
   border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);

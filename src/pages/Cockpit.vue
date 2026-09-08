@@ -3,9 +3,10 @@
     <!-- ===== 全屏地图（observed 轨） ===== -->
     <div class="rc-map" aria-label="太湖流域国控站点实时地图">
       <LakeMap
+        ref="mapRef"
         :model-value="selectedId"
         :point-list="mapPoints"
-        title="太湖流域 · MEE 国控站点实时监测预警"
+        title="太湖流域 国控站点实时监测预警"
         :show-tabs="false"
         :show-legend="false"
         points-visible
@@ -36,8 +37,8 @@
     </div>
 
 
-    <!-- ===== 右侧浮层卡片 ===== -->
-    <aside class="rc-cards" aria-label="全湖实时态势卡片">
+    <!-- ===== 右侧浮层卡片（站点详情抽屉打开时暂时让位，抽屉关闭后自动恢复） ===== -->
+    <aside v-show="!drawerOpen" class="rc-cards" aria-label="全湖实时态势卡片">
       <!-- 湖体健康 -->
       <section class="rc-card" aria-label="湖体健康">
         <div class="rc-card-head">
@@ -50,6 +51,7 @@
               <circle class="rc-gauge-track" cx="60" cy="60" r="52" />
               <circle
                 class="rc-gauge-value"
+                :class="`rc-gauge-value--${summary?.health?.grade}`"
                 cx="60" cy="60" r="52"
                 :stroke-dasharray="`${gaugeDash} ${GAUGE_LEN - gaugeDash}`"
               />
@@ -120,17 +122,26 @@
       </section>
     </aside>
 
-    <!-- ===== 点位图例（chla 筛查口径，替代 LakeMap 情景风险图例） ===== -->
+    <!-- ===== 点位图例（chla 筛查口径，与 realtime.chlaColor 着色一致） ===== -->
     <div class="rc-legend" aria-label="点位颜色图例">
       <span><i class="rc-lg-dot" style="background: #5fd6a4"></i>正常 &lt;10</span>
       <span><i class="rc-lg-dot" style="background: #f5b45d"></i>轻度 10–25</span>
-      <span><i class="rc-lg-dot" style="background: #ff6b6b"></i>中度 ≥25</span>
+      <span><i class="rc-lg-dot" style="background: #ef4444"></i>中度 ≥25</span>
       <span><i class="rc-lg-dot" style="background: #7d93a8"></i>未报数</span>
       <em>μg/L · 点击点位看详情</em>
     </div>
+    <span v-if="tileError" class="rc-map-flag" role="status">
+      地图瓦片加载失败
+      <button type="button" class="rc-btn" @click="retryTiles">重试图层</button>
+    </span>
 
-    <!-- ===== 底部：真实快照回放时间轴 ===== -->
-    <div v-if="timeline && timeline.snapshots.length" class="rc-timeline" aria-label="真实快照回放时间轴">
+    <!-- ===== 底部：真实快照回放时间轴（站点详情抽屉打开时暂时让位，抽屉关闭后自动恢复） ===== -->
+    <div
+      v-if="timeline && timeline.snapshots.length"
+      v-show="!drawerOpen"
+      class="rc-timeline"
+      aria-label="真实快照回放时间轴"
+    >
       <button
         type="button"
         class="rc-tl-play"
@@ -169,7 +180,7 @@
       v-if="drawerOpen && selectedId"
       :station-id="selectedId"
       :station="drawerStation"
-      @close="drawerOpen = false"
+      @close="closeDrawer"
       @open-analysis="openAnalysis"
     />
     <CockpitAnalysisPanel
@@ -193,6 +204,7 @@ import {
   chlaColor,
   fetchRealtimeSummary,
   fetchRealtimeTimeline,
+  fmtMeasure,
   formatLag,
   formatStamp,
   FRESHNESS_TEXT,
@@ -204,6 +216,7 @@ import { setRealtimeUpdate, clearRealtimeUpdate } from '../stores/realtimeUpdate
 const summary = ref(null)
 const state = ref('loading')
 const selectedId = ref('')
+const mapRef = ref(null)
 // 点击点位 → 详情抽屉；“在分析面板中打开” → 底部大图面板
 const drawerOpen = ref(false)
 const analysisOpen = ref(false)
@@ -225,7 +238,9 @@ async function load(force = false) {
       snapshotId: activeSnapshotId.value || undefined
     })
     state.value = 'ok'
-    setRealtimeUpdate(summary.value)
+    // 历史快照回放时不把快照时间冒充实时更新状态
+    if (summary.value.is_latest) setRealtimeUpdate(summary.value)
+    else clearRealtimeUpdate()
   } catch {
     summary.value = null
     state.value = 'error'
@@ -305,6 +320,22 @@ function openAnalysis(stationId) {
   analysisOpen.value = true
 }
 
+// 关闭抽屉同时清空选中：否则再点同一站点时 selectedId 不变，
+// watch 不触发，抽屉无法重新打开
+function closeDrawer() {
+  drawerOpen.value = false
+  selectedId.value = ''
+}
+
+let tileErrorFlag = ref(false)
+const tileError = computed(() => tileErrorFlag.value)
+function onTileError(v) {
+  tileErrorFlag.value = v
+}
+function retryTiles() {
+  mapRef.value?.retryTiles?.()
+}
+
 
 
 watch(selectedId, (id) => {
@@ -376,7 +407,7 @@ const kpiRows = computed(() => {
     label,
     unit,
     dot,
-    value: means[code]?.value ?? '—',
+    value: means[code]?.value != null ? fmtMeasure(means[code].value) : '—',
     chip: trendChip(trends[code])
   }))
 })
@@ -435,9 +466,9 @@ function buildHoverCard(m) {
 const mapPoints = computed(() =>
   (summary.value?.markers || []).map((m) => ({
     id: m.id,
-    short: '',
-    name: '',
-    hideLabel: true,
+    // 与监测站点页一致：点位旁显示站点名标签
+    short: m.name || '',
+    name: m.name || '',
     color: chlaColor(m.chla),
     coord: { lat: m.lat, lon: m.lon },
     tooltipNode: buildHoverCard(m)
@@ -450,11 +481,6 @@ const drawerStation = computed(
 
 function focusStation(w) {
   selectedId.value = w.station_id
-}
-
-let tileErrorFlag = ref(false)
-function onTileError(v) {
-  tileErrorFlag.value = v
 }
 </script>
 
@@ -482,20 +508,15 @@ function onTileError(v) {
   padding: 8px 16px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
-  background: var(--panel-strong, var(--surface-panel));
+  background: var(--surface-panel-raised);
   color: var(--text-primary);
   font-size: 13px;
   white-space: nowrap;
 }
 .rc-chip--top { top: 14px; left: 50%; transform: translateX(-50%); max-width: min(92%, 860px); overflow: hidden; }
 .rc-chip--top b { color: var(--color-primary); }
-.rc-chip-warn { color: var(--text-secondary); }
-.rc-chip-warn--on { color: var(--risk-critical, #ff6b6b); font-weight: 700; }
-.rc-chip--error { border-color: color-mix(in srgb, var(--risk-critical, #ff6b6b) 55%, transparent); color: var(--risk-critical, #ff6b6b); }
-.rc-chip--updated { top: 14px; right: 396px; font-family: var(--font-mono); font-size: 12px; }
-.rc-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
-.rc-dot--ok { background: var(--risk-low, #5fd6a4); }
-.rc-dot--warn { background: var(--risk-medium, #f5b45d); }
+.rc-chip-warn--on { color: var(--risk-critical, #ef4444); font-weight: 700; }
+.rc-chip--error { border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 55%, transparent); color: var(--risk-critical, #ef4444); }
 .rc-btn {
   appearance: none;
   border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
@@ -524,23 +545,25 @@ function onTileError(v) {
 .rc-card {
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
-  background: var(--panel-strong, var(--surface-panel));
+  background: var(--surface-panel-raised);
   padding: 12px 14px;
   flex: none;
 }
 .rc-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .rc-card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); }
 .rc-card-tag { font-size: 10.5px; color: var(--text-muted); }
-.rc-grade { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border-subtle); color: var(--risk-low, #5fd6a4); }
-.rc-grade--fair { color: var(--risk-medium, #f5b45d); }
-.rc-grade--poor { color: var(--risk-critical, #ff6b6b); }
+.rc-grade { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border-subtle); color: var(--risk-low, #22c55e); }
+.rc-grade--fair { color: var(--risk-medium, #facc15); }
+.rc-grade--poor { color: var(--risk-critical, #ef4444); }
 
 .rc-health { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 12px; align-items: center; }
 .rc-gauge { position: relative; width: 108px; height: 108px; }
 .rc-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
 .rc-gauge-track, .rc-gauge-value { fill: none; stroke-width: 10; stroke-linecap: round; }
 .rc-gauge-track { stroke: var(--border-subtle); }
-.rc-gauge-value { stroke: var(--risk-low, #5fd6a4); transition: stroke-dasharray 0.6s ease; }
+.rc-gauge-value { stroke: var(--risk-low, #22c55e); transition: stroke-dasharray 0.6s ease; }
+.rc-gauge-value--fair { stroke: var(--risk-medium, #facc15); }
+.rc-gauge-value--poor { stroke: var(--risk-critical, #ef4444); }
 .rc-gauge-center { position: absolute; inset: 0; display: grid; place-items: center; }
 .rc-gauge-center strong { font-family: var(--font-mono); font-size: 26px; color: var(--text-primary); }
 .rc-bars { display: grid; gap: 7px; min-width: 0; }
@@ -554,13 +577,13 @@ function onTileError(v) {
 .rc-stat { display: grid; gap: 1px; justify-items: center; min-width: 0; }
 .rc-stat strong { font-family: var(--font-mono); font-size: 15px; color: var(--text-primary); }
 .rc-stat span { font-size: 9.5px; color: var(--text-muted); white-space: nowrap; }
-.rc-stat--bad strong { color: var(--risk-critical, #ff6b6b); }
+.rc-stat--bad strong { color: var(--risk-critical, #ef4444); }
 
 .rc-badge {
   min-width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: var(--risk-critical, #ff6b6b);
+  background: var(--risk-critical, #ef4444);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -589,8 +612,8 @@ function onTileError(v) {
 .rc-warn-name strong { font-size: 13px; }
 .rc-warn-name small { font-size: 10.5px; color: var(--text-muted); }
 .rc-band { font-size: 10.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border-subtle); flex: none; }
-.rc-band--light { color: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 50%, transparent); }
-.rc-band--moderate { color: var(--risk-critical, #ff6b6b); border-color: color-mix(in srgb, var(--risk-critical, #ff6b6b) 50%, transparent); }
+.rc-band--light { color: var(--risk-medium, #facc15); border-color: color-mix(in srgb, var(--risk-medium, #facc15) 50%, transparent); }
+.rc-band--moderate { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 50%, transparent); }
 
 .rc-kpi-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
 .rc-kpi-list li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto 64px; align-items: center; gap: 8px; }
@@ -599,8 +622,8 @@ function onTileError(v) {
 .rc-kpi-unit { font-size: 10px; color: var(--text-muted); }
 .rc-kpi-value { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); justify-self: end; }
 .rc-kpi-trend { font-family: var(--font-mono); font-size: 11px; justify-self: end; white-space: nowrap; }
-.rc-trend--up { color: var(--risk-critical, #ff6b6b); }
-.rc-trend--down { color: var(--risk-low, #5fd6a4); }
+.rc-trend--up { color: var(--risk-critical, #ef4444); }
+.rc-trend--down { color: var(--risk-low, #22c55e); }
 .rc-trend--flat { color: var(--text-muted); }
 .rc-kpi-note { margin: 8px 0 0; font-size: 10px; color: var(--text-muted); line-height: 1.6; }
 
@@ -618,12 +641,30 @@ function onTileError(v) {
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
-  background: var(--panel-strong, var(--surface-panel));
+  background: var(--surface-panel-raised);
   font-size: 11px;
   color: var(--text-secondary);
 }
 .rc-legend em { font-style: normal; color: var(--text-muted); font-size: 10px; }
 .rc-lg-dot { width: 9px; height: 9px; border-radius: 999px; display: inline-block; margin-right: 4px; vertical-align: -1px; }
+
+/* 瓦片加载失败提示：避开左上角缩放控件，置于图例上方 */
+.rc-map-flag {
+  position: absolute;
+  z-index: 900;
+  left: 14px;
+  top: 122px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--risk-medium, #facc15) 55%, transparent);
+  background: var(--surface-panel-raised);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--risk-medium, #facc15);
+}
 
 /* 底部真实快照回放时间轴 */
 .rc-timeline {
@@ -639,7 +680,7 @@ function onTileError(v) {
   padding: 8px 14px;
   border-radius: 14px;
   border: 1px solid var(--border-subtle);
-  background: var(--panel-strong, var(--surface-panel));
+  background: var(--surface-panel-raised);
 }
 .rc-tl-play {
   appearance: none;
@@ -691,8 +732,8 @@ function onTileError(v) {
   border-radius: 999px;
   background: var(--border-subtle);
 }
-.rc-tl-tick.latest::after { background: var(--risk-low, #5fd6a4); }
-.rc-tl-tick.has-warn::after { background: var(--risk-critical, #ff6b6b); }
+.rc-tl-tick.latest::after { background: var(--risk-low, #22c55e); }
+.rc-tl-tick.has-warn::after { background: var(--risk-critical, #ef4444); }
 .rc-tl-tick.active::after {
   background: var(--color-primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent);
@@ -704,10 +745,10 @@ function onTileError(v) {
   flex: none;
   font-family: var(--font-mono);
   font-size: 10.5px;
-  color: var(--risk-low, #5fd6a4);
+  color: var(--risk-low, #22c55e);
   white-space: nowrap;
 }
-.rc-tl-state--replay { color: var(--risk-medium, #f5b45d); }
+.rc-tl-state--replay { color: var(--risk-medium, #facc15); }
 
 @media (max-width: 1100px) {
   .page-rc { height: auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 10px; }
@@ -731,7 +772,7 @@ function onTileError(v) {
 .leaflet-tooltip.rc-tip-host::before { display: none; }
 .rc-hover-card {
   width: 248px;
-  background: var(--panel-strong, #fff);
+  background: var(--surface-panel-raised, #fff);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
   padding: 10px 12px;
@@ -742,8 +783,8 @@ function onTileError(v) {
 .rhc-head strong { font-size: 14px; }
 .rhc-level {
   font-size: 10.5px;
-  color: var(--risk-low, #5fd6a4);
-  border: 1px solid color-mix(in srgb, var(--risk-low, #5fd6a4) 45%, transparent);
+  color: var(--risk-low, #22c55e);
+  border: 1px solid color-mix(in srgb, var(--risk-low, #22c55e) 45%, transparent);
   padding: 1px 8px;
   border-radius: 999px;
   white-space: nowrap;

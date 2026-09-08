@@ -1,0 +1,1903 @@
+{
+  "source_id": "mee_surface_water_realtime",
+  "generated_at_utc": "2026-09-08T02:55:50.546943+00:00",
+  "station_count": 79,
+  "stations": [
+    {
+      "entity_id": "mee-0145cdb7",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "临江",
+      "normalized_station_name": "临江",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "临江"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-077b367a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "池家浜水文站",
+      "normalized_station_name": "池家浜水文站",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "池家浜水文站"
+      ],
+      "location": {
+        "lon": 120.6916,
+        "lat": 30.7577,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-0e770fb5",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "朱厍港口",
+      "normalized_station_name": "朱厍港口",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "朱厍港口"
+      ],
+      "location": {
+        "lon": 119.804,
+        "lat": 31.682,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-1c5c6f47",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "横潦泾",
+      "normalized_station_name": "横潦泾",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "横潦泾"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-1d96cbf3",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "落蓬湾",
+      "normalized_station_name": "落蓬湾",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "落蓬湾"
+      ],
+      "location": {
+        "lon": 119.2233,
+        "lat": 31.3463,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-1eeede89",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "斜塘口",
+      "normalized_station_name": "斜塘口",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "斜塘口"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-1fb5ae3c",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "太浦河桥",
+      "normalized_station_name": "太浦河桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "太浦河桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-200076ad",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "312国道桥",
+      "normalized_station_name": "312国道桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "312国道桥"
+      ],
+      "location": {
+        "lon": 118.501,
+        "lat": 32.1731,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-2ae2a213",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "九号桥",
+      "normalized_station_name": "九号桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "九号桥"
+      ],
+      "location": {
+        "lon": 120.0542,
+        "lat": 31.4487,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-2ee5f9df",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "钱桥",
+      "normalized_station_name": "钱桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "钱桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-2f8fdf3a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "城西大桥",
+      "normalized_station_name": "城西大桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "城西大桥"
+      ],
+      "location": {
+        "lon": 120.4361,
+        "lat": 30.4414,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-314c928a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "三甲港",
+      "normalized_station_name": "三甲港",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "三甲港"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-32bb00e0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "大浦港桥",
+      "normalized_station_name": "大浦港桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "大浦港桥"
+      ],
+      "location": {
+        "lon": 119.5044,
+        "lat": 31.6361,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-3690676e",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "奉口",
+      "normalized_station_name": "奉口",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "奉口"
+      ],
+      "location": {
+        "lon": 120.0706,
+        "lat": 30.4425,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-36e4cf04",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "百渎港桥",
+      "normalized_station_name": "百渎港桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "百渎港桥"
+      ],
+      "location": {
+        "lon": 120.108,
+        "lat": 31.5047,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-374d21b8",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "卫八路桥",
+      "normalized_station_name": "卫八路桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "卫八路桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-3cf85ef9",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "乌镇北",
+      "normalized_station_name": "乌镇北",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "乌镇北"
+      ],
+      "location": {
+        "lon": 120.4938,
+        "lat": 30.7415,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-3debb9c3",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "青阳汇",
+      "normalized_station_name": "青阳汇",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "青阳汇"
+      ],
+      "location": {
+        "lon": 121.1021,
+        "lat": 30.8144,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-3ec2562a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "航管站",
+      "normalized_station_name": "航管站",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "航管站"
+      ],
+      "location": {
+        "lon": 118.7636,
+        "lat": 32.0614,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-44eb23a0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "五里湖心",
+      "normalized_station_name": "五里湖心",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "五里湖心"
+      ],
+      "location": {
+        "lon": 119.4203,
+        "lat": 32.1876,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-483f6dda",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "急水港桥",
+      "normalized_station_name": "急水港桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "急水港桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-4ad1e758",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "闵行西界",
+      "normalized_station_name": "闵行西界",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "闵行西界"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-4ad8f5ae",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "吕城",
+      "normalized_station_name": "吕城",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "吕城"
+      ],
+      "location": {
+        "lon": 119.7423,
+        "lat": 31.8951,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-4cf554ca",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "荆湾",
+      "normalized_station_name": "荆湾",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "荆湾"
+      ],
+      "location": {
+        "lon": 119.7809,
+        "lat": 30.8256,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-4ef1f64f",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "乌龟山南",
+      "normalized_station_name": "乌龟山南",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "乌龟山南"
+      ],
+      "location": {
+        "lon": 120.0802,
+        "lat": 31.4937,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-4f8d20ef",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "新港口",
+      "normalized_station_name": "新港口",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "新港口"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-5141d5a2",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "浏河闸",
+      "normalized_station_name": "浏河闸",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "浏河闸"
+      ],
+      "location": {
+        "lon": 121.2792,
+        "lat": 31.4909,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-53520e11",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "汪家埠",
+      "normalized_station_name": "汪家埠",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "汪家埠"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-53d9fdc0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "金潼桥",
+      "normalized_station_name": "金潼桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "金潼桥"
+      ],
+      "location": {
+        "lon": 120.0311,
+        "lat": 30.9928,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-55a7fc03",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "江边闸",
+      "normalized_station_name": "江边闸",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "江边闸"
+      ],
+      "location": {
+        "lon": 119.2299,
+        "lat": 32.2089,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-5e631c12",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "小新村",
+      "normalized_station_name": "小新村",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "小新村"
+      ],
+      "location": {
+        "lon": 121.1218,
+        "lat": 30.7943,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-62925380",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "二团",
+      "normalized_station_name": "二团",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "二团"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-6451dafd",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "辛丰镇",
+      "normalized_station_name": "辛丰镇",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "辛丰镇"
+      ],
+      "location": {
+        "lon": 119.5728,
+        "lat": 32.1234,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-676b2c36",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "小梅口",
+      "normalized_station_name": "小梅口",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "小梅口"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-67cfd093",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "大港桥",
+      "normalized_station_name": "大港桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "大港桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-6b2512fd",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "合溪",
+      "normalized_station_name": "合溪",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "合溪"
+      ],
+      "location": {
+        "lon": 119.95,
+        "lat": 31.05,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "existing"
+      }
+    },
+    {
+      "entity_id": "mee-6d044da8",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "王江泾",
+      "normalized_station_name": "王江泾",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "王江泾"
+      ],
+      "location": {
+        "lon": 120.7124,
+        "lat": 30.8704,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-6df61dd3",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "五杭运河大桥",
+      "normalized_station_name": "五杭运河大桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "五杭运河大桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-74019e39",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "朱枫公路桥",
+      "normalized_station_name": "朱枫公路桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "朱枫公路桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-75f3e937",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "新港桥",
+      "normalized_station_name": "新港桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "新港桥"
+      ],
+      "location": {
+        "lon": 119.9168,
+        "lat": 31.0428,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-7731e7b4",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "汤溇",
+      "normalized_station_name": "汤溇",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "汤溇"
+      ],
+      "location": {
+        "lon": 120.3425,
+        "lat": 30.9353,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-7b4d5a90",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "瓜泾口西",
+      "normalized_station_name": "瓜泾口西",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "瓜泾口西"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-7d5e1520",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "钓邾大桥",
+      "normalized_station_name": "钓邾大桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "钓邾大桥"
+      ],
+      "location": {
+        "lon": 118.9053,
+        "lat": 31.2462,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-82bb9d63",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "殷村港桥",
+      "normalized_station_name": "殷村港桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "殷村港桥"
+      ],
+      "location": {
+        "lon": 119.8381,
+        "lat": 31.5033,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-8f1fca51",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "蠡桥",
+      "normalized_station_name": "蠡桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "蠡桥"
+      ],
+      "location": {
+        "lon": 120.3405,
+        "lat": 31.4966,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-913a7d5b",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "蕴川路桥",
+      "normalized_station_name": "蕴川路桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "蕴川路桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-9319f513",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "明星路桥",
+      "normalized_station_name": "明星路桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T09:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "明星路桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-93797451",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "锡东水厂",
+      "normalized_station_name": "锡东水厂",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "锡东水厂"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-9e491169",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "千灯浦口",
+      "normalized_station_name": "千灯浦口",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "千灯浦口"
+      ],
+      "location": {
+        "lon": 118.6272,
+        "lat": 32.0598,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-a1562c29",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "林家闸",
+      "normalized_station_name": "林家闸",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "林家闸"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-a773a1d5",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "殷桥",
+      "normalized_station_name": "殷桥",
+      "province": "安徽省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "殷桥"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-a7c254c3",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "淀峰",
+      "normalized_station_name": "淀峰",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "淀峰"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-b19e7df3",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "黄渡",
+      "normalized_station_name": "黄渡",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "黄渡"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-b704700a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "胥湖心",
+      "normalized_station_name": "胥湖心",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 1,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "胥湖心"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-b80df03e",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "拖山",
+      "normalized_station_name": "拖山",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "拖山"
+      ],
+      "location": {
+        "lon": 120.2156,
+        "lat": 31.3422,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "existing"
+      }
+    },
+    {
+      "entity_id": "mee-b9a72d93",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "南台头闸一号桥",
+      "normalized_station_name": "南台头闸一号桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "南台头闸一号桥"
+      ],
+      "location": {
+        "lon": 120.1107,
+        "lat": 31.4157,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-c4ef89e7",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "新塘",
+      "normalized_station_name": "新塘",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "新塘"
+      ],
+      "location": {
+        "lon": 120.21,
+        "lat": 30.93,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "existing"
+      }
+    },
+    {
+      "entity_id": "mee-c61eed69",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "南浔",
+      "normalized_station_name": "南浔",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "南浔"
+      ],
+      "location": {
+        "lon": 120.4182,
+        "lat": 30.8508,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-c7127335",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "潘家坝",
+      "normalized_station_name": "潘家坝",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "潘家坝"
+      ],
+      "location": {
+        "lon": 119.5769,
+        "lat": 31.3937,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-c73a25c1",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "盐官排涝枢纽",
+      "normalized_station_name": "盐官排涝枢纽",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "盐官排涝枢纽"
+      ],
+      "location": {
+        "lon": 120.7887,
+        "lat": 30.4351,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-c80e3f4c",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "大钱",
+      "normalized_station_name": "大钱",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "大钱"
+      ],
+      "location": {
+        "lon": 120.0542,
+        "lat": 31.4487,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-cbc0fa7d",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "长济桥",
+      "normalized_station_name": "长济桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "长济桥"
+      ],
+      "location": {
+        "lon": 120.2041,
+        "lat": 31.9078,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-d4e7ea16",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "红旗塘大坝",
+      "normalized_station_name": "红旗塘大坝",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "红旗塘大坝"
+      ],
+      "location": {
+        "lon": 120.8738,
+        "lat": 30.0194,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-d5959dc0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "五牧",
+      "normalized_station_name": "五牧",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "五牧"
+      ],
+      "location": {
+        "lon": 120.1541,
+        "lat": 31.6778,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-d67d1072",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "黄埝桥",
+      "normalized_station_name": "黄埝桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "黄埝桥"
+      ],
+      "location": {
+        "lon": 119.6078,
+        "lat": 31.8328,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-d6a538a8",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "越溪桥",
+      "normalized_station_name": "越溪桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "越溪桥"
+      ],
+      "location": {
+        "lon": 120.9734,
+        "lat": 31.3885,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-dab0c8b0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "铁路桥",
+      "normalized_station_name": "铁路桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "铁路桥"
+      ],
+      "location": {
+        "lon": 119.9678,
+        "lat": 30.7135,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-db47644f",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "姚巷桥",
+      "normalized_station_name": "姚巷桥",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "姚巷桥"
+      ],
+      "location": {
+        "lon": 120.1215,
+        "lat": 31.5007,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-de8a2844",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "吴淞口",
+      "normalized_station_name": "吴淞口",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "吴淞口"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-ea8e4009",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "枫南大桥",
+      "normalized_station_name": "枫南大桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 5,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "枫南大桥"
+      ],
+      "location": {
+        "lon": 120.9958,
+        "lat": 30.8812,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-f0a58f9d",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "漕廊公路桥",
+      "normalized_station_name": "漕廊公路桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "漕廊公路桥"
+      ],
+      "location": {
+        "lon": 121.2827,
+        "lat": 30.7873,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-f0c9278a",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "赵屯",
+      "normalized_station_name": "赵屯",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "赵屯"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-f2452a7b",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "上塘河排涝闸",
+      "normalized_station_name": "上塘河排涝闸",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "上塘河排涝闸"
+      ],
+      "location": {
+        "lon": 120.1375,
+        "lat": 31.2258,
+        "location_status": "suspicious",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "fallback"
+      }
+    },
+    {
+      "entity_id": "mee-f2483ba9",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "湘家荡",
+      "normalized_station_name": "湘家荡",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "湘家荡"
+      ],
+      "location": {
+        "lon": 120.6044,
+        "lat": 30.0302,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-f65676d9",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "浙江路桥",
+      "normalized_station_name": "浙江路桥",
+      "province": "上海市",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "浙江路桥"
+      ],
+      "location": {
+        "lon": null,
+        "lat": null,
+        "location_status": "missing",
+        "registry_source": "mee_gjz_realtime",
+        "coord_source": "pending"
+      }
+    },
+    {
+      "entity_id": "mee-f739cd2d",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "长山闸一号桥",
+      "normalized_station_name": "长山闸一号桥",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 4,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "长山闸一号桥"
+      ],
+      "location": {
+        "lon": 121.093,
+        "lat": 30.6148,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-f98e7cf6",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "塘浦",
+      "normalized_station_name": "塘浦",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 2,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "塘浦"
+      ],
+      "location": {
+        "lon": 120.7734,
+        "lat": 31.2963,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-f9c52aa8",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "望亭上游",
+      "normalized_station_name": "望亭上游",
+      "province": "江苏省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "望亭上游"
+      ],
+      "location": {
+        "lon": 120.446,
+        "lat": 31.4193,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    },
+    {
+      "entity_id": "mee-fda42af0",
+      "source_id": "mee_surface_water_realtime",
+      "source_station_name": "杨家浦",
+      "normalized_station_name": "杨家浦",
+      "province": "浙江省",
+      "basin": "太湖流域",
+      "first_seen_at": "2026-09-04T09:16:46Z",
+      "last_seen_at": "2026-09-08T02:24:34Z",
+      "latest_observed_at": "2026-09-08T10:00:00+08:00",
+      "latest_snapshot_id": "mee_surface_water_realtime_20260908T022434Z",
+      "latest_water_quality_level": 3,
+      "active_in_latest_snapshot": true,
+      "aliases": [
+        "杨家浦"
+      ],
+      "location": {
+        "lon": 120.0156,
+        "lat": 31.0175,
+        "location_status": "metadata_only",
+        "registry_source": "taihugurad_stations_json",
+        "coord_source": "amap_geocode"
+      }
+    }
+  ]
+}

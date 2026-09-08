@@ -5,7 +5,7 @@ import { reactive } from 'vue'
 
 export const realtimeUpdate = reactive({
   latestObservedAt: '', // ISO 字符串，如 '2026-09-07T14:00:00+08:00'
-  freshnessStatus: ''   // 'normal' | 'stale' | 'historical' | ''
+  freshnessStatus: ''   // 与后端 summary.freshness_status 同口径：'normal' | 'delayed' | 'severely_overdue' | 'unavailable' | 'historical' | ''
 })
 
 export function setRealtimeUpdate(summary) {

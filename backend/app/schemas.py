@@ -242,6 +242,8 @@ class RealtimeSummary(BaseModel):
     warning_thresholds: dict[str, float]
     means: dict[str, dict[str, Any]]
     trends: dict[str, dict[str, Any]]
+    # 趋势基线披露：环比两端观测时间与实际间隔（小时），防止把不规则快照间隔当成日趋势
+    trend_baseline: dict[str, Any]
     health: dict[str, Any]
     markers: list[RealtimeStationMarker]
 

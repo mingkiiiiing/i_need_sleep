@@ -1,0 +1,153 @@
+{
+  "version": "alert-center-v1",
+  "updated_at": "2026-09-08T19:31:38.110615+00:00",
+  "notifications": [
+    {
+      "id": "ntf-ffbc43540859",
+      "at": "2026-09-08T19:31:38.110386+00:00",
+      "type": "recovery",
+      "event_id": "evt-709dc3d7a92b",
+      "event_no": "AL20260908-278F",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：锡东水厂",
+      "lines": [
+        "锡东水厂 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-479b2704d9e7",
+      "at": "2026-09-08T19:31:38.105665+00:00",
+      "type": "new_event",
+      "event_id": "evt-82e1a073db82",
+      "event_no": "AL20260908-F324",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "新实时预警：拖山",
+      "lines": [
+        "拖山 · 叶绿素a达到黄色预警阈值",
+        "实测 10.03 μg/L · 观测 2026-09-09 03:00"
+      ]
+    },
+    {
+      "id": "ntf-b84d448f0c05",
+      "at": "2026-09-08T18:27:36.620284+00:00",
+      "type": "escalation",
+      "event_id": "evt-709dc3d7a92b",
+      "event_no": "AL20260908-278F",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "风险升级：锡东水厂",
+      "lines": [
+        "锡东水厂 · 叶绿素a达到黄色预警阈值 已升级为 黄色预警"
+      ]
+    },
+    {
+      "id": "ntf-307a6116d67a",
+      "at": "2026-09-08T18:04:09.342752+00:00",
+      "type": "process",
+      "event_id": "evt-9ff68fc5cc72",
+      "event_no": "AL20260908-AE7C",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "处理动态：急水港桥预警已指派",
+      "lines": [
+        "指派给 监测组"
+      ]
+    },
+    {
+      "id": "ntf-855da12c70cb",
+      "at": "2026-09-08T17:57:25.584829+00:00",
+      "type": "recovery",
+      "event_id": "evt-709dc3d7a92b",
+      "event_no": "AL20260908-278F",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：锡东水厂",
+      "lines": [
+        "锡东水厂 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-f83d4fbb9b63",
+      "at": "2026-09-08T17:25:02.870758+00:00",
+      "type": "push_failure",
+      "event_id": "evt-8ca4a1b503f5",
+      "event_no": "AL20260908-CADB",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "模拟推送失败：拖山",
+      "lines": [
+        "邮件模拟未完成：未配置接收地址，请补充后重试。"
+      ]
+    },
+    {
+      "id": "ntf-f4f4bd6c2b74",
+      "at": "2026-09-08T17:25:02.865577+00:00",
+      "type": "push_failure",
+      "event_id": "evt-8ca4a1b503f5",
+      "event_no": "AL20260908-CADB",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "模拟推送失败：拖山",
+      "lines": [
+        "短信模拟未完成：未配置接收地址，请补充后重试。"
+      ]
+    },
+    {
+      "id": "ntf-7100c09ca53d",
+      "at": "2026-09-08T17:24:33.864595+00:00",
+      "type": "process",
+      "event_id": "evt-8ca4a1b503f5",
+      "event_no": "AL20260908-CADB",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "处理动态：拖山预警已指派",
+      "lines": [
+        "指派给 监测组"
+      ]
+    },
+    {
+      "id": "ntf-1a461e089793",
+      "at": "2026-09-08T17:22:50.133615+00:00",
+      "type": "new_event",
+      "event_id": "evt-b7f22913ed95",
+      "event_no": "AL20260908-E242",
+      "event_level": "moderate",
+      "event_type": "realtime",
+      "title": "新实时预警：新港口",
+      "lines": [
+        "新港口 · 叶绿素a达到红色告警阈值",
+        "实测 77.9 μg/L · 观测 2026-09-08 00:00"
+      ]
+    },
+    {
+      "id": "ntf-f6a0eb262061",
+      "at": "2026-09-08T17:22:50.127915+00:00",
+      "type": "new_event",
+      "event_id": "evt-709dc3d7a92b",
+      "event_no": "AL20260908-278F",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "新实时预警：锡东水厂",
+      "lines": [
+        "锡东水厂 · 叶绿素a达到黄色预警阈值",
+        "实测 16.03 μg/L · 观测 2026-09-08 00:00"
+      ]
+    },
+    {
+      "id": "ntf-2a869b06cd59",
+      "at": "2026-09-08T17:22:50.122976+00:00",
+      "type": "new_event",
+      "event_id": "evt-8ca4a1b503f5",
+      "event_no": "AL20260908-CADB",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "新实时预警：拖山",
+      "lines": [
+        "拖山 · 叶绿素a达到黄色预警阈值",
+        "实测 10.11 μg/L · 观测 2026-09-08 23:00"
+      ]
+    }
+  ]
+}

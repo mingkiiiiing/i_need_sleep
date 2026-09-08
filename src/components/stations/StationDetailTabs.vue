@@ -1,19 +1,33 @@
 <template>
   <section class="stn-block sdt" aria-label="站点数据明细与情景推演">
-    <div class="sdt-tabs" role="tablist" aria-label="底部数据视图切换">
-      <button
-        v-for="tab in TABS"
-        :key="tab.key"
-        type="button"
-        role="tab"
-        class="stn-tab"
-        :class="{ active: activeTab === tab.key }"
-        :aria-selected="String(activeTab === tab.key)"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}<small v-if="tab.tag"> {{ tab.tag }}</small>
-      </button>
-    </div>
+    <!-- 默认折叠：明细大表不长期占据页面宽度 -->
+    <button
+      type="button"
+      class="sdt-toggle"
+      :aria-expanded="String(open)"
+      data-role="detail-toggle"
+      @click="open = !open"
+    >
+      <span>{{ open ? '收起明细' : '查看全部指标明细' }}</span>
+      <small>QC · 快照 · 情景推演</small>
+      <i class="sdt-caret" :class="{ 'sdt-caret--open': open }" aria-hidden="true"></i>
+    </button>
+
+    <div v-if="open" class="sdt-content">
+      <div class="sdt-tabs" role="tablist" aria-label="底部数据视图切换">
+        <button
+          v-for="tab in TABS"
+          :key="tab.key"
+          type="button"
+          role="tab"
+          class="stn-tab"
+          :class="{ active: activeTab === tab.key }"
+          :aria-selected="String(activeTab === tab.key)"
+          @click="activeTab = tab.key"
+        >
+          {{ tab.label }}<small v-if="tab.tag"> {{ tab.tag }}</small>
+        </button>
+      </div>
 
     <!-- 指标明细：11 项状态一行不缺，可溯源 -->
     <div v-if="activeTab === 'detail'" class="stn-table-wrap" role="tabpanel" aria-label="指标明细">
@@ -26,7 +40,7 @@
         <tbody>
           <tr v-for="row in rows" :key="row.variable_code">
             <td>{{ variableLabel(row.variable_code) }}</td>
-            <td class="stn-mono">{{ row.observation_status === 'ok' || row.observation_status === 'qc_rejected' ? row.value : '—' }}</td>
+            <td class="stn-mono">{{ row.observation_status === 'ok' || row.observation_status === 'qc_rejected' ? fmtMeasure(row.value) : '—' }}</td>
             <td>{{ row.unit || '—' }}</td>
             <td>
               <span class="sdt-status" :class="`sdt-status--${row.observation_status}`">
@@ -66,15 +80,16 @@
         </li>
       </ul>
     </div>
+    </div>
   </section>
 </template>
 
 <script setup>
-// 底部双标签：指标明细（observed，全量 11 项状态）与情景推演（simulated 轨，惰性加载）。
-// 情景推演内容独立分区展示，系统不在真实站点视图自动触发任何预测请求。
+// 底部折叠抽屉：指标明细（observed，全量 11 项状态）与情景推演（simulated 轨，惰性加载）。
+// 默认收起，展开后才出现双标签；情景推演内容独立分区展示，不在真实站点视图自动触发预测请求。
 import { computed, ref, watch } from 'vue'
 import { getForecastsEnvelope, getSpatialEntities } from '../../services/api.js'
-import { OBS_STATUS_TEXT, formatStamp, variableLabel } from '../../services/realtime.js'
+import { OBS_STATUS_TEXT, fmtMeasure, formatStamp, variableLabel } from '../../services/realtime.js'
 
 const props = defineProps({
   rows: { type: Array, default: () => [] }
@@ -85,6 +100,7 @@ const TABS = [
   { key: 'sim', label: '情景推演', tag: '情景数据' }
 ]
 
+const open = ref(false)
 const activeTab = ref('detail')
 const simState = ref('idle')
 const simRows = ref([])
@@ -119,6 +135,47 @@ watch(activeTab, (key) => {
 </script>
 
 <style scoped>
+.sdt-toggle {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+  text-align: left;
+}
+.sdt-toggle small {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.sdt-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.sdt-caret {
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+.sdt-caret--open {
+  transform: rotate(225deg);
+}
+.sdt-content {
+  margin-top: 8px;
+}
 .sdt-tabs {
   display: inline-flex;
   gap: 4px;
@@ -152,7 +209,7 @@ watch(activeTab, (key) => {
 .sdt-status { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-subtle); white-space: nowrap; }
 .sdt-status--ok { color: var(--risk-low, #5fd6a4); }
 .sdt-status--missing, .sdt-status--parse_failed { color: var(--text-muted); }
-.sdt-status--qc_rejected { color: var(--risk-critical, #ff6b6b); }
+.sdt-status--qc_rejected { color: var(--risk-critical, #ef4444); }
 .sdt-snap { color: var(--text-muted); }
 .sdt-sim-banner {
   margin: 0 0 8px;

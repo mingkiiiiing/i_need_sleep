@@ -27,10 +27,22 @@ from .providers import (
     create_realtime_observation_provider,
 )
 from .alerts import AlertEngine
+from .station_forecast import MODEL_VERSION as _STATION_FC_VERSION
+from .station_forecast import StationForecastEngine
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
 _STAGE_DAYS = (1, 3, 7, 15, 30)
 _RISK_DEMO_TEXT = {"high": "红色演示", "mid": "橙色演示", "low": "绿色演示"}
+
+# 站点级预测引擎单例：目录签名变化由引擎内部对齐重建（与实时 Provider 同一热加载语义）
+_station_forecast_engine_instance: StationForecastEngine | None = None
+
+
+def station_forecast_engine(provider: MeeRealtimeObservationProvider) -> StationForecastEngine:
+    global _station_forecast_engine_instance
+    if _station_forecast_engine_instance is None:
+        _station_forecast_engine_instance = StationForecastEngine(provider)
+    return _station_forecast_engine_instance
 
 
 class BackendService:
@@ -105,6 +117,23 @@ class BackendService:
             raise KeyError(entity_id)
         return quality
 
+    # ---- 站点级机理+AI 融合预测（observed 轨唯一算法产出，v0.1 试点） ----
+
+    def realtime_station_forecast(self, entity_id: str) -> dict[str, Any]:
+        if self.realtime is None:
+            raise RealtimeDataUnavailable("实时观测轨未配置")
+        if self.realtime.station(entity_id) is None:
+            raise KeyError(entity_id)
+        return station_forecast_engine(self.realtime).forecast(entity_id)
+
+    def realtime_station_forecast_status(self) -> dict[str, Any]:
+        if self.realtime is None:
+            return {"status": "not_configured", "model_version": _STATION_FC_VERSION}
+        try:
+            return station_forecast_engine(self.realtime).status()
+        except Exception:  # noqa: BLE001 — 能力披露不得因数据层异常而失败
+            return {"status": "unavailable", "model_version": _STATION_FC_VERSION, "reason": "实时观测数据不可用"}
+
     # ---- Provider 身份（启动日志与能力披露共用） ----
     def provider_status(self) -> dict[str, str]:
         return {
@@ -129,6 +158,8 @@ class BackendService:
                 # 历史观测数据集存在但业务 Provider 未接入：不得表述为“真实监测已上线”
                 "historical_observation": "dataset_available_backend_pending",
                 "short_term_forecast_1_3d": "dataset_ready_model_pending",
+                # 站点级机理+AI 融合预测（observed 轨，v0.1 试点；仅覆盖有叶绿素a 序列的站点）
+                "station_level_forecast_1_3d": self.realtime_station_forecast_status()["status"],
                 "medium_term_forecast_7_15d": "dataset_ready_model_pending",
                 "long_term_forecast_30_90d": "blocked_auth",
                 "satellite_chlorophyll": "experimental_not_operational",

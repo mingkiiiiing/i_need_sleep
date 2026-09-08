@@ -1,0 +1,16 @@
+{
+  "package_name": "A23-small-runtime-data-v1",
+  "package_version": "1.0",
+  "purpose": "competition_demo_and_interface_integration",
+  "realtime_catalog": {
+    "dataset_version": "MEE-RT-V1",
+    "path_contract": "TAIHU_REALTIME_CATALOG_DIR",
+    "required_files": ["stations.json", "snapshots.json", "observations.parquet", "status.json"],
+    "publication_rule": "status.json is written last"
+  },
+  "simulated_samples": {
+    "dataset_versions": ["DEMO-OBS-V1", "DEMO-PRED-V1"],
+    "claim_boundary": "simulation_only"
+  },
+  "not_included": ["credentials", "production_tokens", "external_service_accounts"]
+}

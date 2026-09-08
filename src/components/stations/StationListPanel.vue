@@ -5,7 +5,7 @@
       <span class="stn-sec-legend" role="img" aria-label="数据状态图例：正常、延迟、过期/异常">
         <span><i style="background: var(--risk-low, #5fd6a4)"></i>正常</span>
         <span><i style="background: var(--risk-medium, #f5b45d)"></i>延迟</span>
-        <span><i style="background: var(--risk-critical, #ff6b6b)"></i>过期/异常</span>
+        <span><i style="background: var(--risk-critical, #ef4444)"></i>过期/异常</span>
       </span>
     </div>
 
@@ -172,6 +172,7 @@ const rows = computed(() => {
 }
 .slp-search input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
 .slp .stn-filter { margin-bottom: 6px; }
+/* 列表铺满所在列（与地图+趋势等高），内部滚动 */
 .stn-zone-list {
   list-style: none;
   margin: 0;
@@ -179,7 +180,9 @@ const rows = computed(() => {
   display: grid;
   gap: 6px;
   overflow-y: auto;
-  max-height: min(52vh, 560px);
+  flex: 1;
+  min-height: 120px;
+  align-content: start;
   padding-right: 2px;
 }
 </style>

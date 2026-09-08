@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 try:  # Supports `python -m uvicorn backend.main:app` from the repository root.
     from .app import errors as err
+    from .app.alert_center import alert_center
     from .app.alerts import ALERT_CONFIG_PATH
     from .app.api import router
     from .app.contracts import (
@@ -38,6 +39,7 @@ try:  # Supports `python -m uvicorn backend.main:app` from the repository root.
     from .app.services import alert_engine, service
 except ImportError:  # pragma: no cover - supports `python -m uvicorn main:app` in backend/.
     from app import errors as err
+    from app.alert_center import alert_center
     from app.alerts import ALERT_CONFIG_PATH
     from app.api import router
     from app.contracts import (
@@ -87,11 +89,17 @@ async def lifespan(_: FastAPI):
         service.prediction.name(),
     )
     # 预警后台巡检：随服务常驻，按 alerts-config.json 的 evaluate_interval_s 周期评估
-    # 最新快照并自动推送（通道未配置时只评估记录、投递记 skipped）。首次延迟一个周期，
-    # 避免与应用启动抢实时目录；手动巡检走 POST /realtime/alerts/evaluate。
+    # 最新快照并自动推送（通道未配置时只评估记录、投递记 skipped）。首轮评估在启动后
+    # 先同步一次预警中心（历史告警导入事件），随后延迟一个周期，避免与应用启动抢实时目录；
+    # 手动巡检走 POST /realtime/alerts/evaluate。
+    try:
+        alert_center.bootstrap()
+        alert_center.sync_from_engine()
+    except Exception as exc:  # noqa: BLE001 — 中心同步失败不阻断应用启动
+        logger.warning("预警中心启动同步失败（下轮巡检重试）: %s", exc)
     alert_stop = threading.Event()
     alert_thread = threading.Thread(
-        target=alert_engine.run_forever,
+        target=alert_center.run_forever,
         args=(alert_stop,),
         name="alert-evaluator",
         daemon=True,
@@ -103,6 +111,15 @@ async def lifespan(_: FastAPI):
         alert_engine.enabled,
         ALERT_CONFIG_PATH if ALERT_CONFIG_PATH.exists() else "未创建（未启用推送）",
     )
+    # 站点级预测引擎预热：首次构建需数秒（全量样本训练+交叉验证），后台完成后
+    # 首个请求直接命中缓存；失败不阻断启动，首次请求时按懒构建语义重试。
+    def _warm_station_forecast() -> None:
+        try:
+            status = service.realtime_station_forecast_status()
+            logger.info("站点级预测引擎预热完成: status=%s", status.get("status"))
+        except Exception as exc:  # noqa: BLE001 — 预热失败留痕，不阻断应用启动
+            logger.warning("站点级预测引擎预热失败（首次请求时重试）: %s", exc)
+    threading.Thread(target=_warm_station_forecast, name="station-fc-warmup", daemon=True).start()
     try:
         yield
     finally:

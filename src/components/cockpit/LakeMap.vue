@@ -1,6 +1,6 @@
 <template>
   <section class="panel map-panel">
-    <header class="panel-head">
+    <header v-if="showHeader" class="panel-head">
       <div>
         <h2>{{ title }}</h2>
       </div>
@@ -46,6 +46,8 @@ const props = defineProps({
   title: { type: String, default: '监测点位全景' },
   activeTab: { type: String, default: 'stations' },
   showTabs: { type: Boolean, default: true },
+  // 隐藏整条头部（P03 站点页主视图地图无标题，删除占位横幅）
+  showHeader: { type: Boolean, default: true },
   // P01 图层开关：站点标注 / 风险面。默认开启，不影响既有页面行为
   pointsVisible: { type: Boolean, default: true },
   heatVisible: { type: Boolean, default: true },
@@ -67,12 +69,13 @@ let topoLayer = null
 let labelsLayer = null
 let heatLayer = null
 let resizeObserver = null
+let hasFittedOnce = false
 const activeLayer = ref('satellite')
 
 // 太湖流域中心（点位几何中心，默认视野对准点位+水域）
 const LAKE_CENTER = [31.19, 120.15]
-// 默认缩放 11（太湖大小刚好），最小可缩到 9 级看更广的全景
-const DEFAULT_ZOOM = 11
+// 默认缩放 10（全湖+环湖站点一屏尽收，图四口径），最小可缩到 9 级看更广的全景
+const DEFAULT_ZOOM = 10
 const MIN_ZOOM = 9
 const MAX_ZOOM = 14
 // 地图边界（拖拽/瓦片加载的硬边界）
@@ -241,6 +244,7 @@ async function initMap() {
   rebuildHeatLayer()
 
   fitBounds()
+  if (props.pointList.some(p => p && p.coord)) hasFittedOnce = true
 
   setTimeout(() => map && map.invalidateSize(), 200)
 
@@ -369,9 +373,24 @@ function rebuildHeatLayer() {
   }, 0)
 }
 
-// 回到默认视野（11 级，太湖全景）
+// 回到默认视野：优先按已定位站点自适应（全湖尽收），无点位时回退湖心+默认缩放
 function fitBounds() {
   if (!map) return
+  const pts = props.pointList.filter(p => p && p.coord)
+  if (pts.length >= 2) {
+    const lats = pts.map(p => p.coord.lat)
+    const lons = pts.map(p => p.coord.lon)
+    const bounds = L.latLngBounds(
+      [Math.min(...lats), Math.min(...lons)],
+      [Math.max(...lats), Math.max(...lons)]
+    )
+    map.fitBounds(bounds, { padding: [60, 60], maxZoom: DEFAULT_ZOOM })
+    return
+  }
+  if (pts.length === 1) {
+    map.setView([pts[0].coord.lat, pts[0].coord.lon], DEFAULT_ZOOM)
+    return
+  }
   map.setView(LAKE_CENTER, DEFAULT_ZOOM)
 }
 
@@ -400,7 +419,11 @@ watch(() => props.pointList, () => {
   if (map) {
     addMarkers()
     rebuildHeatLayer()
-    fitBounds()
+    // 仅在点位首次到达时自适应视野；之后的定时刷新不重置用户的平移/缩放
+    if (!hasFittedOnce && props.pointList.some(p => p && p.coord)) {
+      hasFittedOnce = true
+      fitBounds()
+    }
   }
 }, { deep: true })
 

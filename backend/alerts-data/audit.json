@@ -1,0 +1,142 @@
+{
+  "version": "alert-center-v1",
+  "updated_at": "2026-09-08T18:04:23.940544+00:00",
+  "audit": [
+    {
+      "at": "2026-09-08T18:04:23.897397+00:00",
+      "actor": "值班员",
+      "action": "revoke",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "1",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T18:04:18.945568+00:00",
+      "actor": "值班员",
+      "action": "reopen",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "bu1",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T18:04:12.301960+00:00",
+      "actor": "值班员",
+      "action": "close",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "复核通过，事件关闭",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T18:04:10.507152+00:00",
+      "actor": "值班员",
+      "action": "submit_review",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "处置完成，提交复核",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T18:04:09.352540+00:00",
+      "actor": "值班员",
+      "action": "assign",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "指派给 监测组",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T18:04:04.426885+00:00",
+      "actor": "值班员",
+      "action": "reopen",
+      "target": "AL20260908-AE7C（急水港桥）",
+      "detail": "nihao1\n",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:49:18.957631+00:00",
+      "actor": "值班员",
+      "action": "adopt_plan",
+      "target": "AL20260908-E242",
+      "detail": "蓝藻轻度关注应急响应预案",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:46:21.981487+00:00",
+      "actor": "值班员",
+      "action": "simulate_push",
+      "target": "AL20260908-E242",
+      "detail": "1 条模拟推送",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:46:20.096566+00:00",
+      "actor": "值班员",
+      "action": "start",
+      "target": "AL20260908-E242（新港口）",
+      "detail": "开始处置（按预案/措施执行）",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:46:18.868616+00:00",
+      "actor": "值班员",
+      "action": "confirm",
+      "target": "AL20260908-E242（新港口）",
+      "detail": "已核实预警信息",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:25:39.796585+00:00",
+      "actor": "值班员",
+      "action": "close",
+      "target": "AL20260908-CADB（拖山）",
+      "detail": "复核通过，事件关闭",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:25:38.550738+00:00",
+      "actor": "值班员",
+      "action": "submit_review",
+      "target": "AL20260908-CADB（拖山）",
+      "detail": "处置完成，提交复核",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:25:02.877123+00:00",
+      "actor": "值班员",
+      "action": "simulate_push",
+      "target": "AL20260908-CADB",
+      "detail": "2 条模拟推送",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:24:48.860760+00:00",
+      "actor": "值班员",
+      "action": "adopt_plan",
+      "target": "AL20260908-CADB",
+      "detail": "蓝藻轻度关注应急响应预案",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:24:35.089887+00:00",
+      "actor": "值班员",
+      "action": "start",
+      "target": "AL20260908-CADB（拖山）",
+      "detail": "开始处置（按预案/措施执行）",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:24:33.870477+00:00",
+      "actor": "值班员",
+      "action": "assign",
+      "target": "AL20260908-CADB（拖山）",
+      "detail": "指派给 监测组",
+      "result": "成功"
+    },
+    {
+      "at": "2026-09-08T17:24:20.092633+00:00",
+      "actor": "值班员",
+      "action": "confirm",
+      "target": "AL20260908-CADB（拖山）",
+      "detail": "已核实预警信息",
+      "result": "成功"
+    }
+  ]
+}

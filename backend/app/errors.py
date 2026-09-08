@@ -91,8 +91,8 @@ def entity_not_found(message: str, *, dataset_version: str, detail: str | None =
     return ApiError(status_code=404, code=ENTITY_NOT_FOUND, message=message, dataset_version=dataset_version, detail=detail, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)
 
 
-def forecast_not_available(message: str, *, detail: str | None = None, dataset_version: str = "") -> ApiError:
-    return ApiError(status_code=409, code=FORECAST_NOT_AVAILABLE, message=message, detail=detail, dataset_version=dataset_version)
+def forecast_not_available(message: str, *, detail: str | None = None, dataset_version: str = "", data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
+    return ApiError(status_code=409, code=FORECAST_NOT_AVAILABLE, message=message, detail=detail, dataset_version=dataset_version, data_mode=data_mode, claim_boundary=claim_boundary, as_of=as_of)
 
 
 def capability_unavailable(message: str, *, detail: str | None = None, dataset_version: str = "", data_mode: str | None = None, claim_boundary: str | None = None, as_of: str | None = None) -> ApiError:
