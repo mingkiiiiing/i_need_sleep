@@ -1,0 +1,30 @@
+{
+  "_说明": "蓝藻预警推送配置。复制为 alerts-config.json（与本文件同目录，backend/）后生效；enabled=false 或未创建配置时照常评估与展示，但所有投递记 skipped，不发送任何真实短信/邮件。channels.sms.url 指向你的短信网关中转服务（POST {phones:[], message:\"\")}，2xx 视为发送成功；channels.email 为标准 SMTP。收件人按站点 entity_id 配置（alerts 页/接口可查），未单独配置的站点用 default_*。",
+  "enabled": false,
+  "evaluate_interval_s": 300,
+  "channels": {
+    "email": {
+      "host": "smtp.example.com",
+      "port": 465,
+      "use_ssl": true,
+      "username": "alert@example.com",
+      "password": "SMTP授权码",
+      "from": "alert@example.com",
+      "timeout_s": 20
+    },
+    "sms": {
+      "url": "https://sms-gateway.example.com/send",
+      "headers": { "Authorization": "Bearer <token>" },
+      "template": "{message}",
+      "timeout_s": 20,
+      "extra_payload": { "sign": "签名", "channel_id": "通道ID" }
+    }
+  },
+  "recipients": {
+    "default_emails": ["duty@example.com"],
+    "default_phones": ["13800000000"],
+    "stations": {
+      "mee-xxxxxxxx": { "emails": ["station-x@example.com"], "phones": ["13900000000"] }
+    }
+  }
+}

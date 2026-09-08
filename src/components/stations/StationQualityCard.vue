@@ -20,8 +20,10 @@
         <dd class="stn-mono">{{ quality.coverage_ratio != null ? `${(quality.coverage_ratio * 100).toFixed(1)}%` : '—' }}（{{ quality.variable_coverage?.ok ?? 0 }}/{{ quality.variable_coverage?.total ?? 11 }}）</dd>
         <dt>观测滞后</dt>
         <dd class="stn-mono">{{ formatLag(quality.observed_lag_h) }}</dd>
-        <dt>位置状态</dt>
-        <dd :class="{ 'sqc-warn': quality.location_status !== 'verified' }">{{ locationText }}</dd>
+        <template v-if="quality.location_status !== 'metadata_only'">
+          <dt>位置状态</dt>
+          <dd :class="{ 'sqc-warn': quality.location_status !== 'verified' }">{{ locationText }}</dd>
+        </template>
         <dt>快照累计</dt>
         <dd class="stn-mono">{{ quality.snapshot_count }} 次</dd>
       </dl>

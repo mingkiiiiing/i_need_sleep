@@ -13,7 +13,6 @@
         <span v-if="station?.water_level" class="rcd-badge rcd-badge--level">水质 {{ station.water_level }} 类</span>
         <span v-else class="rcd-badge">水质 —</span>
         <span class="rcd-badge" :class="algaeBadge.class">{{ algaeBadge.text }}</span>
-        <span class="rcd-badge rcd-badge--loc">坐标待核验</span>
       </div>
 
       <div class="rcd-sec-head">

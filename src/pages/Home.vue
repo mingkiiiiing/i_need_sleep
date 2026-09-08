@@ -1,6 +1,6 @@
 <template>
   <main class="shell home">
-    <!-- ============ 首屏：左 5 列信息 / 右 7 列太湖缩略态势 ============ -->
+    <!-- ============ 首屏：左 5 列信息 / 右 7 列太湖实时态势（粒子流场 + 真实站点） ============ -->
     <section class="hero" aria-labelledby="home-title">
       <div class="hero-copy">
         <h1 id="home-title" class="title">
@@ -20,40 +20,53 @@
       <figure class="lake-panel">
         <figcaption class="lake-head">
           <div class="lake-head-copy">
-            <strong>{{ identity.lakeName }} · 情景分区态势</strong>
-            <span>{{ apiObsVersion }} · 非真实站点 · 点击分区进入站点研判</span>
+            <strong>{{ identity.lakeName }}流域 · 实时站点态势</strong>
+            <span>{{ heroSub }}</span>
           </div>
-          <DataModeBadge mode="simulated" :label="identity.dataMode" />
+          <DataModeBadge mode="observed" label="实时观测" />
         </figcaption>
 
-        <div class="lake-canvas" role="group" aria-label="太湖情景分区缩略态势图，六个分区可点击下钻">
-          <svg class="lake-svg" viewBox="0 0 520 400" preserveAspectRatio="none" aria-hidden="true">
-            <!-- 真实太湖轮廓（OSM relation 1126533，见 data/taihuOutline.js），evenodd 渲染岛屿镂空 -->
+        <div class="lake-canvas" role="group" aria-label="太湖湖体粒子基因动效：粒子流动并动态连线成网络，预警站点高亮可点击">
+          <!-- 真实太湖轮廓（OSM relation 1126533，见 data/taihuOutline.js），evenodd 渲染岛屿镂空。
+               viewBox 以负值外扩至全流域范围（-PAD.l, -PAD.t），路径坐标原样使用，
+               与粒子画布、站点投影共用同一坐标系 -->
+          <svg class="lake-svg" :viewBox="`-${PAD.l} -${PAD.t} ${VB_W} ${VB_H}`" preserveAspectRatio="none" aria-hidden="true">
             <path class="lake-body" fill-rule="evenodd" :d="TAIHU_OUTLINE.path" />
           </svg>
 
+          <!-- 水体粒子基因流场：纯装饰动效，对读屏隐藏 -->
+          <canvas ref="flowEl" class="flow-canvas" aria-hidden="true"></canvas>
+
           <button
-            v-for="z in zones"
-            :key="z.id"
+            v-for="s in warnDots"
+            :key="s.id"
             type="button"
-            class="zone"
-            :class="`zone--${z.riskClass}`"
-            :style="{ left: z.pos.left, top: z.pos.top }"
-            :aria-label="`情景分区 ${z.code} ${z.name}，${z.risk}，点击进入站点研判`"
-            @click="goZone(z.id)"
+            class="stn"
+            :class="`stn--${s.band}`"
+            :style="{ left: s.left, top: s.top }"
+            :aria-label="`预警站点 ${s.name}，${s.tip}，点击进入站点研判`"
+            @click="goStation(s.id)"
           >
-            <span class="zone-dot" aria-hidden="true"></span>
-            <span class="zone-tip">
-              <strong>{{ z.code }} {{ z.name }}</strong>
-              <em>{{ z.risk }} · 点击下钻</em>
+            <span class="stn-dot" aria-hidden="true"></span>
+            <span class="stn-tip">
+              <strong>{{ s.name }}</strong>
+              <em>{{ s.tip }}</em>
             </span>
           </button>
         </div>
 
-        <div class="lake-foot" aria-label="分区风险统计">
-          <span class="lg lg--high"><i aria-hidden="true"></i>红色预警 × {{ zoneRiskCounts.high }}</span>
-          <span class="lg lg--mid"><i aria-hidden="true"></i>橙色关注 × {{ zoneRiskCounts.mid }}</span>
-          <span class="lg lg--low"><i aria-hidden="true"></i>绿色稳定 × {{ zoneRiskCounts.low }}</span>
+        <div class="lake-foot" aria-label="实时蓝藻筛查统计">
+          <template v-if="rtState === 'ok'">
+            <span class="lg lg--low">正常 × {{ stationStats.normal }}</span>
+            <span class="lg lg--mid">轻度 × {{ stationStats.light }}</span>
+            <span class="lg lg--high">中度 × {{ stationStats.moderate }}</span>
+            <span class="lg lg--none">未报数 × {{ stationStats.none }}</span>
+          </template>
+          <span v-else-if="rtState === 'loading'" class="lg lg--none">正在加载实时站点…</span>
+          <span v-else class="lg lg--none">
+            实时站点加载失败
+            <button type="button" class="rt-retry" @click="loadSummary(true)">重试</button>
+          </span>
           <a
             class="lg-attr"
             href="https://www.openstreetmap.org/copyright"
@@ -82,74 +95,356 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { pointData, regionSummary } from '../data/points.js'
-import { TAIHU_OUTLINE, taihuZonePos } from '../data/taihuOutline.js'
+import { TAIHU_OUTLINE } from '../data/taihuOutline.js'
 import { dataIdentity as identity } from '../data/dataIdentity.js'
-import { getSystemCapabilitiesEnvelope, getSpatialEntities } from '../services/api.js'
+import { fetchRealtimeSummary } from '../services/realtime.js'
 import DataModeBadge from '../components/common/DataModeBadge.vue'
 
 const router = useRouter()
 
-// ---------- 后端契约接入：数据集摘要 meta 与情景分区（观察类） ----------
-// meta 优先驱动身份展示，事实源 dataIdentity 仅作请求失败/首帧前的明确 fallback。
-const sysMeta = ref(null) // 最近一次成功响应的 meta（六键）
-const entities = ref([])
+// ---------- 实时观测轨：全湖站点态势（与驾驶舱共用 realtime 服务与 60s 缓存） ----------
+const summary = ref(null)
+const rtState = ref('loading')
+let refreshTimer = null
 
-async function loadCapabilities() {
+async function loadSummary(force = false) {
+  if (force) rtState.value = 'loading'
   try {
-    const [capsRes, zoneRes] = await Promise.all([
-      getSystemCapabilitiesEnvelope(),
-      getSpatialEntities('demo_zone')
-    ])
-    entities.value = Array.isArray(zoneRes.data) ? zoneRes.data : []
-    // 统一以能力接口的 meta 为首页身份口径（观察类响应 meta 一致）
-    sysMeta.value = capsRes.meta && Object.keys(capsRes.meta).length ? capsRes.meta : null
+    summary.value = await fetchRealtimeSummary({ force })
+    rtState.value = 'ok'
   } catch {
-    // 静默失败：分区回退静态常量，身份字段回退 dataIdentity
+    // 首页为着陆页：失败保持装饰性粒子动效，仅站点层降级并给出重试
+    rtState.value = 'error'
   }
 }
-onMounted(loadCapabilities)
 
-// ---------- meta 优先的身份展示（fallback = 事实源） ----------
-const apiObsVersion = computed(() => sysMeta.value?.dataset_version || identity.datasetVersionId)
+onMounted(() => {
+  loadSummary()
+  refreshTimer = setInterval(() => loadSummary(true), 60_000)
+})
+onBeforeUnmount(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+})
 
-// 分区编号为界面展示用简称，稳定对象 ID 仍以接口/points.js 为准
-const CODES = {
-  northwest_hotspot: 'NW-01',
-  central_lake: 'CN-02',
-  river_inlet: 'RI-03',
-  southeast_station: 'SE-04',
-  water_intake: 'WI-05',
-  south_channel: 'SC-06'
+const rtVersion = computed(() => summary.value?.dataset_version || 'MEE-RT-V1')
+
+// 站点在缩略图上的投影：taihuOutline.js 的路径 bbox（viewBox 坐标）对应真实地理 bbox
+// （来源 OSM relation 1126533，equirectangular，见 data/taihuOutline.js 头注）。
+// 视野扩为全流域，使全部可定位站点（summary.markers）都能落在画布内。
+const PATH_BBOX = { x0: 26.0, y0: 26.0, w: 359.8, h: 348.0 }
+const GEO = { lon0: 119.876, dlon: 0.727, lat1: 31.549, dlat: 0.621 }
+const VB_PER_LON = PATH_BBOX.w / GEO.dlon // ≈494.9 viewBox单位/度
+const VB_PER_LAT = PATH_BBOX.h / GEO.dlat // ≈560.4 viewBox单位/度
+
+function projectStation(lon, lat) {
+  const x = PATH_BBOX.x0 + ((lon - GEO.lon0) / GEO.dlon) * PATH_BBOX.w
+  const y = PATH_BBOX.y0 + ((GEO.lat1 - lat) / GEO.dlat) * PATH_BBOX.h
+  return { x, y }
 }
 
-// 湖面分区：接口分区优先（位置/风险/名称来自后端），失败或为空时回退静态常量
-const apiZones = computed(() => entities.value.map((e) => ({
-  id: e.id,
-  code: e.short || CODES[e.id] || '',
-  name: e.display_name || '',
-  riskClass: e.risk_hint || 'low',
-  risk: { high: '红色预警', mid: '橙色关注', low: '绿色稳定' }[e.risk_hint] || '绿色稳定',
-  pos: { top: e.position?.top || '50%', left: e.position?.left || '50%' }
-})))
-const staticZones = Object.values(pointData).map((p) => ({
-  ...p,
-  code: CODES[p.id] || '',
-  // 真实轮廓上的展示定位优先；pointPositions 供站点页等业务使用，不做改动
-  pos: taihuZonePos[p.id] || { top: '50%', left: '50%' }
-}))
-const zones = computed(() => (apiZones.value.length ? apiZones.value : staticZones))
+// 湖体主视野：画布四周仅留少量呼吸边距，让太湖成为绝对主体
+const PAD = { l: 64, r: 64, t: 64, b: 64 }
+const VB_W = 520 + PAD.l + PAD.r
+const VB_H = 400 + PAD.t + PAD.b
 
-// 分区风险统计：接口 risk_hint 优先，回退静态 regionSummary
-const zoneRiskCounts = computed(() => {
-  if (!apiZones.value.length) return regionSummary.riskCounts
-  const counts = { high: 0, mid: 0, low: 0 }
-  for (const z of apiZones.value) counts[z.riskClass] = (counts[z.riskClass] || 0) + 1
+// chla 筛查口径与驾驶舱一致（<10 正常 / 10–25 轻度 / ≥25 中度 / 未报数）
+function bandOf(chla) {
+  if (chla == null) return 'none'
+  if (chla >= 25) return 'moderate'
+  if (chla >= 10) return 'light'
+  return 'normal'
+}
+const BAND_TEXT = { normal: '正常', light: '轻度关注', moderate: '中度预警', none: '未报数' }
+
+// 站点统计口径：对全部 79 站按 chla 筛查分档——预警数以 summary.warnings 为准
+// （含未入库坐标的预警站），正常数来自有坐标 marker，其余计为未报数
+const stationStats = computed(() => {
+  const s = summary.value
+  const counts = { normal: 0, light: 0, moderate: 0, none: 0 }
+  if (!s) return counts
+  for (const m of s.markers || []) {
+    if (m.lat == null || m.lon == null) continue
+    const band = bandOf(m.chla)
+    if (band !== 'none') counts[band] += 1
+  }
+  for (const w of s.warnings || []) {
+    counts[w.band === 'moderate' ? 'moderate' : 'light'] += 1
+  }
+  counts.none = Math.max(0, (s.station_total ?? 0) - counts.normal - counts.light - counts.moderate)
   return counts
 })
 
+// 湖面上只保留蓝藻筛查预警站（通常 0–3 个），避免满屏圆点喧宾夺主
+const warnDots = computed(() => {
+  const out = []
+  for (const m of summary.value?.markers || []) {
+    if (m.lat == null || m.lon == null) continue
+    const band = bandOf(m.chla)
+    if (band !== 'light' && band !== 'moderate') continue
+    const { x, y } = projectStation(m.lon, m.lat)
+    out.push({
+      id: m.id,
+      name: m.name || m.id,
+      band,
+      tip: `Chl-a ${m.chla} μg/L · ${BAND_TEXT[band]}`,
+      left: `${(((x + PAD.l) / VB_W) * 100).toFixed(2)}%`,
+      top: `${(((y + PAD.t) / VB_H) * 100).toFixed(2)}%`
+    })
+  }
+  return out
+})
+
+function goStation(id) {
+  router.push({ path: '/stations', query: { p: id } })
+}
+
+// 首屏副标题：如实披露“已定位/总数”口径（79 站中 31 站注册无坐标、8 站坐标可疑未入库 markers）
+const heroSub = computed(() => {
+  if (rtState.value === 'ok') {
+    const total = summary.value?.station_total
+    const mapped = (summary.value?.markers || []).filter((m) => m.lat != null && m.lon != null).length
+    const warns = stationStats.value.light + stationStats.value.moderate
+    return `${rtVersion.value} · 国控站点已定位 ${mapped}/${total ?? '—'} · 蓝藻筛查预警 ${warns} 站`
+  }
+  if (rtState.value === 'loading') return `${rtVersion.value} · 正在加载实时站点…`
+  return `${rtVersion.value} · 实时站点加载失败 · 可在图例区重试`
+})
+
+// ---------- 湖体粒子流场（Canvas 2D，物理在 520×400 viewBox 空间进行） ----------
+const flowEl = ref(null)
+const N_PARTICLES = 110
+const TRAIL_MS = 1100
+const SPEED = 40 // viewBox 单位/秒
+const LINK_DIST = 66 // 粒子“基因连线”的判定距离（viewBox 单位）
+const LINK_MAX_PER_PARTICLE = 4 // 每个粒子最多连线数，防止连成毛球
+const particles = []
+let rafId = 0
+let intervalId = 0
+let watchdogId = 0
+let lastDrawAt = 0
+let resizeObserver = null
+let ctx = null
+let lakePath = null
+let lastFrame = 0
+let running = false
+
+// 主题色只读一次（主题切换后下次进入页面生效，装饰动效可接受）
+function themePrimary() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim()
+  return v || '#39c5bb'
+}
+
+function resizeCanvas() {
+  const el = flowEl.value
+  if (!el || !ctx) return
+  const dpr = window.devicePixelRatio || 1
+  const w = el.clientWidth
+  const h = el.clientHeight
+  if (!w || !h) return
+  el.width = Math.round(w * dpr)
+  el.height = Math.round(h * dpr)
+}
+
+// viewBox(520×400) → 画布（外扩 PAD 后拉伸铺满），与 SVG 同一坐标系
+function applyViewTransform() {
+  const el = flowEl.value
+  const dpr = window.devicePixelRatio || 1
+  const sx = (el.clientWidth * dpr) / VB_W
+  const sy = (el.clientHeight * dpr) / VB_H
+  ctx.setTransform(sx, 0, 0, sy, PAD.l * sx, PAD.t * sy)
+}
+
+function insideLake(x, y) {
+  ctx.save()
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+  // evenodd 与 SVG fill-rule 一致，保证岛屿镂空处不生成粒子
+  const ok = ctx.isPointInPath(lakePath, x, y, 'evenodd')
+  ctx.restore()
+  return ok
+}
+
+function respawn(p, warm = 0) {
+  let x = 260, y = 200
+  for (let i = 0; i < 80; i++) {
+    x = Math.random() * 520
+    y = Math.random() * 400
+    if (insideLake(x, y)) break
+  }
+  p.x = x
+  p.y = y
+  p.trail = [[x, y, performance.now()]]
+  // 寿命短于贯穿全湖所需时间：重生点近似均匀，避免粒子被主流“搬运”到下风口造成密度不均
+  p.life = 3 + Math.random() * 4
+  // 预热：静态帧（reduced-motion）下让轨迹先长出来
+  for (let i = 0; i < warm; i++) stepParticle(p, 1 / 30)
+}
+
+// 时间缓变的流向场：以平缓的东向主流为主，叠加长波摆动，粒子拉出丝滑的“湖流”
+function flowAngle(x, y, t) {
+  return (
+    -0.12 +
+    Math.sin(y * 0.011 + t * 0.28) * 0.5 +
+    Math.sin(x * 0.007 - t * 0.2 + y * 0.005) * 0.34
+  )
+}
+
+function stepParticle(p, dt) {
+  const t = performance.now() / 1000
+  const ang = flowAngle(p.x, p.y, t)
+  p.x += Math.cos(ang) * SPEED * dt
+  p.y += Math.sin(ang) * SPEED * dt
+  p.life -= dt
+  const now = performance.now()
+  p.trail.push([p.x, p.y, now])
+  while (p.trail.length && (now - p.trail[0][2] > TRAIL_MS || p.trail.length > 70)) {
+    p.trail.shift()
+  }
+  if (p.life <= 0 || !insideLake(p.x, p.y)) respawn(p)
+}
+
+function drawParticles(color) {
+  applyViewTransform()
+  ctx.clearRect(-PAD.l, -PAD.t, VB_W, VB_H)
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+
+  // ---- 基因连线：邻近粒子按当前头部位置两两相连，透明度随距离衰减，
+  //      每个粒子最多 LINK_MAX_PER_PARTICLE 条，保持“基因链”般的疏朗网络 ----
+  const heads = particles.map((p) => (p.trail.length ? p.trail[p.trail.length - 1] : null))
+  const linkSegs = [[], [], [], []] // 按距离由近到远分 4 档，近线更亮
+  const linkCount = new Array(particles.length).fill(0)
+  for (let i = 0; i < heads.length; i++) {
+    if (!heads[i] || linkCount[i] >= LINK_MAX_PER_PARTICLE) continue
+    for (let j = i + 1; j < heads.length; j++) {
+      if (!heads[j] || linkCount[j] >= LINK_MAX_PER_PARTICLE) continue
+      const dx = heads[i][0] - heads[j][0]
+      const dy = heads[i][1] - heads[j][1]
+      if (dx > LINK_DIST || dx < -LINK_DIST || dy > LINK_DIST || dy < -LINK_DIST) continue
+      const d = Math.sqrt(dx * dx + dy * dy)
+      if (d > LINK_DIST) continue
+      linkSegs[Math.min(3, Math.floor((d / LINK_DIST) * 4))].push(heads[i], heads[j])
+      linkCount[i]++
+      linkCount[j]++
+      if (linkCount[i] >= LINK_MAX_PER_PARTICLE) break
+    }
+  }
+  const LINK_ALPHAS = [0.5, 0.32, 0.17, 0.08]
+  ctx.strokeStyle = color
+  ctx.lineWidth = 1.15
+  for (let b = 0; b < 4; b++) {
+    if (!linkSegs[b].length) continue
+    ctx.globalAlpha = LINK_ALPHAS[b]
+    ctx.beginPath()
+    for (let k = 0; k < linkSegs[b].length; k += 2) {
+      ctx.moveTo(linkSegs[b][k][0], linkSegs[b][k][1])
+      ctx.lineTo(linkSegs[b][k + 1][0], linkSegs[b][k + 1][1])
+    }
+    ctx.stroke()
+  }
+  ctx.globalAlpha = 1
+
+  // ---- 轨迹：按新旧分三档透明度批量描边，避免逐段 stroke 的开销 ----
+  const buckets = [
+    { from: 0, to: 1 / 3, alpha: 0.1, width: 1.2 },
+    { from: 1 / 3, to: 2 / 3, alpha: 0.22, width: 1.5 },
+    { from: 2 / 3, to: 1, alpha: 0.45, width: 1.85 }
+  ]
+  for (const b of buckets) {
+    ctx.strokeStyle = color
+    ctx.globalAlpha = b.alpha
+    ctx.lineWidth = b.width
+    ctx.beginPath()
+    for (const p of particles) {
+      const n = p.trail.length
+      if (n < 2) continue
+      const start = Math.max(1, Math.floor(n * b.from))
+      const end = Math.max(start + 1, Math.ceil(n * b.to))
+      ctx.moveTo(p.trail[start - 1][0], p.trail[start - 1][1])
+      for (let i = start; i < Math.min(end, n); i++) {
+        ctx.lineTo(p.trail[i][0], p.trail[i][1])
+      }
+    }
+    ctx.stroke()
+  }
+  // 粒子头部亮点
+  ctx.globalAlpha = 0.75
+  ctx.fillStyle = color
+  for (const p of particles) {
+    const n = p.trail.length
+    if (!n) continue
+    ctx.beginPath()
+    ctx.arc(p.trail[n - 1][0], p.trail[n - 1][1], 1.5, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.globalAlpha = 1
+}
+
+function frame(now) {
+  if (!running) return
+  const dt = Math.min((now - lastFrame) / 1000 || 0, 0.05)
+  lastFrame = now
+  if (document.hidden) return
+  for (const p of particles) stepParticle(p, dt)
+  drawParticles(themePrimary())
+  lastDrawAt = performance.now()
+}
+
+function tick(now) {
+  if (!running) return
+  // rAF 正常流动时，停掉定时器退化路径，避免双倍速率
+  if (intervalId) {
+    clearInterval(intervalId)
+    intervalId = 0
+  }
+  frame(now)
+  rafId = requestAnimationFrame(tick)
+}
+
+function startFlow() {
+  const el = flowEl.value
+  if (!el) return
+  ctx = el.getContext('2d')
+  lakePath = new Path2D(TAIHU_OUTLINE.path)
+  resizeCanvas()
+  resizeObserver = new ResizeObserver(resizeCanvas)
+  resizeObserver.observe(el)
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const warmSteps = reduced ? 260 : 40 // 首帧先长出短轨迹，避免空白起步
+  for (let i = 0; i < N_PARTICLES; i++) {
+    const p = { x: 0, y: 0, life: 0, trail: [] }
+    respawn(p, warmSteps)
+    particles.push(p)
+  }
+  drawParticles(themePrimary())
+  if (reduced) return // 静态帧即可，不启动动画
+  running = true
+  lastFrame = performance.now()
+  lastDrawAt = performance.now()
+  rafId = requestAnimationFrame(tick)
+  // 某些嵌入式 WebView 的 rAF 只在首帧派发甚至完全不派发：周期检查，
+  // 超过 1.5s 没有实际绘制就切换为定时器驱动；rAF 恢复后 tick() 会收回定时器
+  watchdogId = setInterval(() => {
+    if (running && !intervalId && performance.now() - lastDrawAt > 1500) {
+      intervalId = setInterval(() => frame(performance.now()), 33)
+    }
+  }, 1000)
+}
+
+function stopFlow() {
+  running = false
+  if (rafId) cancelAnimationFrame(rafId)
+  if (intervalId) clearInterval(intervalId)
+  if (watchdogId) clearInterval(watchdogId)
+  if (resizeObserver) resizeObserver.disconnect()
+}
+
+onMounted(startFlow)
+onBeforeUnmount(stopFlow)
+
+// ---------- 核心入口 ----------
 const entries = [
   {
     to: '/cockpit',
@@ -177,10 +472,6 @@ const entries = [
     desc: 'MEE 实时快照历史回放：按快照查看全站观测状态、达标构成与蓝藻筛查预警。'
   }
 ]
-
-function goZone(id) {
-  router.push({ path: '/stations', query: { p: id } })
-}
 </script>
 
 <style scoped>
@@ -264,7 +555,7 @@ function goZone(id) {
 .btn-arrow { transition: transform 0.15s ease; }
 .btn-primary:hover .btn-arrow { transform: translateX(3px); }
 
-/* ============ 太湖缩略态势 ============ */
+/* ============ 太湖实时态势 ============ */
 .lake-panel {
   grid-column: span 7;
   display: flex;
@@ -304,51 +595,55 @@ function goZone(id) {
   position: relative;
   flex: 1;
   min-height: 400px;
+  overflow: hidden;
   background-image:
     linear-gradient(color-mix(in srgb, var(--border-subtle) 55%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--border-subtle) 55%, transparent) 1px, transparent 1px);
   background-size: 44px 44px;
 }
-.lake-svg {
+.lake-svg,
+.flow-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
+.flow-canvas { pointer-events: none; }
 .lake-body {
   fill: color-mix(in srgb, var(--color-primary) 15%, var(--surface-page));
   stroke: var(--border-strong);
   stroke-width: 1.4;
 }
 
-/* 分区按钮：44×44 触控目标，风险色 + 文字双表达 */
-.zone {
+/* 站点按钮：风险色圆点 + 悬停文字，同驾驶舱 chla 筛查口径 */
+.stn {
   position: absolute;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
   transform: translate(-50%, -50%);
 }
-.zone--high { --rc: var(--risk-critical); }
-.zone--mid { --rc: var(--risk-high); }
-.zone--low { --rc: var(--risk-low); }
-.zone-dot {
-  width: 12px;
-  height: 12px;
+.stn--normal { --rc: #5fd6a4; }
+.stn--light { --rc: #f5b45d; }
+.stn--moderate { --rc: #ff6b6b; }
+.stn--none { --rc: #7d93a8; }
+.stn-dot {
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--rc);
   border: 2px solid var(--surface-page);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 28%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rc) 30%, transparent);
   transition: transform 0.15s ease;
 }
-.zone:hover .zone-dot,
-.zone:focus-visible .zone-dot { transform: scale(1.25); }
-.zone-tip {
+.stn:hover .stn-dot,
+.stn:focus-visible .stn-dot { transform: scale(1.3); }
+.stn-tip {
   position: absolute;
   bottom: calc(100% + 2px);
   left: 50%;
@@ -360,26 +655,25 @@ function goZone(id) {
   border-radius: var(--radius-item);
   background: var(--surface-panel-raised);
   box-shadow: var(--shadow-sm);
-  white-space: normal;
-  /* 触靠右/左边缘的分区提示不越出画布（390px 小屏亦不产生横向溢出） */
-  max-width: min(46vw, 200px);
+  white-space: nowrap;
+  max-width: min(46vw, 220px);
   overflow-wrap: anywhere;
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(2px);
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.zone:hover .zone-tip,
-.zone:focus-visible .zone-tip {
+.stn:hover .stn-tip,
+.stn:focus-visible .stn-tip {
   opacity: 1;
   transform: translateX(-50%);
 }
-.zone-tip strong {
+.stn-tip strong {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--text-primary);
 }
-.zone-tip em {
+.stn-tip em {
   font-style: normal;
   font-size: 11px;
   color: var(--rc);
@@ -406,9 +700,21 @@ function goZone(id) {
   border-radius: 50%;
   background: currentColor;
 }
-.lg--high { color: var(--risk-critical); }
-.lg--mid { color: var(--risk-high); }
-.lg--low { color: var(--risk-low); }
+.lg--low, .lg--normal { color: #5fd6a4; }
+.lg--mid, .lg--light { color: #f5b45d; }
+.lg--high, .lg--moderate { color: #ff6b6b; }
+.lg--none { color: #7d93a8; }
+.rt-retry {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--text-primary);
+  border-radius: 999px;
+  min-height: 24px;
+  padding: 1px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
 .lg-attr {
   margin-left: auto;
   font-size: 11px;
@@ -508,9 +814,6 @@ function goZone(id) {
   .actions .btn { width: 100%; }
 }
 @media (hover: none) {
-  .zone-tip {
-    opacity: 1;
-    transform: translateX(-50%);
-  }
+  .stn .stn-tip { display: none; }
 }
 </style>

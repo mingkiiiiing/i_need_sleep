@@ -8,7 +8,6 @@
           :selected-id="selectedId"
           :state="stationsState"
           v-model:search="search"
-          v-model:filter="statusFilter"
           v-model:location-filter="locationFilter"
           @select="selectStation"
           @retry="loadStations(true)"
@@ -95,7 +94,6 @@ const quality = ref(null)
 const qualityState = ref('loading')
 
 const search = ref('')
-const statusFilter = ref('all')
 const locationFilter = ref('all')
 
 let obsToken = 0
@@ -199,7 +197,6 @@ function retryTiles() {
 
 function resetFilters() {
   search.value = ''
-  statusFilter.value = 'all'
   locationFilter.value = 'all'
 }
 

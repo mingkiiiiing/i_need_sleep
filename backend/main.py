@@ -6,6 +6,7 @@ Provider 配置在导入期校验：OBSERVATION_PROVIDER / PREDICTION_PROVIDER
 from __future__ import annotations
 
 import logging
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 try:  # Supports `python -m uvicorn backend.main:app` from the repository root.
     from .app import errors as err
+    from .app.alerts import ALERT_CONFIG_PATH
     from .app.api import router
     from .app.contracts import (
         AS_OF,
@@ -33,9 +35,10 @@ try:  # Supports `python -m uvicorn backend.main:app` from the repository root.
         create_observation_provider,
         create_prediction_provider,
     )
-    from .app.services import service
+    from .app.services import alert_engine, service
 except ImportError:  # pragma: no cover - supports `python -m uvicorn main:app` in backend/.
     from app import errors as err
+    from app.alerts import ALERT_CONFIG_PATH
     from app.api import router
     from app.contracts import (
         AS_OF,
@@ -50,7 +53,7 @@ except ImportError:  # pragma: no cover - supports `python -m uvicorn main:app` 
         create_observation_provider,
         create_prediction_provider,
     )
-    from app.services import service
+    from app.services import alert_engine, service
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -83,7 +86,28 @@ async def lifespan(_: FastAPI):
         PREDICTION_PROVIDER_ENV,
         service.prediction.name(),
     )
-    yield
+    # 预警后台巡检：随服务常驻，按 alerts-config.json 的 evaluate_interval_s 周期评估
+    # 最新快照并自动推送（通道未配置时只评估记录、投递记 skipped）。首次延迟一个周期，
+    # 避免与应用启动抢实时目录；手动巡检走 POST /realtime/alerts/evaluate。
+    alert_stop = threading.Event()
+    alert_thread = threading.Thread(
+        target=alert_engine.run_forever,
+        args=(alert_stop,),
+        name="alert-evaluator",
+        daemon=True,
+    )
+    alert_thread.start()
+    logger.info(
+        "预警巡检线程已启动: interval=%ss enabled=%s config=%s",
+        alert_engine.interval_s,
+        alert_engine.enabled,
+        ALERT_CONFIG_PATH if ALERT_CONFIG_PATH.exists() else "未创建（未启用推送）",
+    )
+    try:
+        yield
+    finally:
+        alert_stop.set()
+        alert_thread.join(timeout=5)
 
 
 app.router.lifespan_context = lifespan

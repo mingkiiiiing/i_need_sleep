@@ -778,8 +778,6 @@ class MeeRealtimeObservationProvider:
             limitations.append("最新快照缺测指标过半（上游叶绿素a/藻密度覆盖普遍偏低），缺测如实披露，不得补模拟值")
         if view["location"]["location_status"] in ("suspicious", "missing"):
             limitations.append("站点坐标不可信（shared/missing），不得生成地图点位")
-        elif view["location"]["location_status"] == "metadata_only":
-            limitations.append("站点坐标来自注册表元数据，未经官方核验（位置待核验）")
         limitations.append("官方接口观测未经跨源验证：is_ground_truth=false，不得用作模型真值")
         return {
             "station_entity_id": entity_id,

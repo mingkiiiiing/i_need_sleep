@@ -44,7 +44,7 @@ from .errors import (
     simulation_only,
 )
 from .providers import RealtimeDataUnavailable
-from .services import service
+from .services import alert_engine, service
 
 router = APIRouter(prefix="/api/v1")
 
@@ -206,6 +206,34 @@ def get_realtime_summary(request: Request, snapshot: str | None = None):
 def get_realtime_timeline(request: Request):
     """快照时间轴：每个成功快照的聚合状态，驱动驾驶舱回放条。"""
     return _observed_call(request, service.realtime_timeline)
+
+
+@router.get("/realtime/alerts/overview", response_model=schemas.Envelope[schemas.AlertOverview])
+def get_realtime_alerts_overview(request: Request):
+    """预警总览（右上角通知组件数据源）：当前生效告警、通道配置状态、最近事件与投递回执。"""
+    return _observed_call(request, alert_engine.overview)
+
+
+@router.get("/realtime/alerts", response_model=schemas.Envelope[list[schemas.AlertEvent]])
+def get_realtime_alerts(
+    request: Request,
+    status: Literal["active", "resolved", "all"] = "all",
+    level: Literal["light", "moderate"] | None = None,
+    limit: int = Query(default=200, ge=1, le=1000),
+):
+    """告警事件历史（/alerts 预警通知页数据源），含每通道投递状态与网关回执。"""
+    data = alert_engine.store.list_alerts()
+    if status != "all":
+        data = [a for a in data if a.get("status") == status]
+    if level:
+        data = [a for a in data if a.get("level") == level]
+    return _observed_call(request, lambda: data[:limit])
+
+
+@router.post("/realtime/alerts/evaluate", response_model=schemas.Envelope[schemas.AlertEvaluation])
+def post_realtime_alerts_evaluate(request: Request):
+    """手动触发一次预警巡检（后台线程按 evaluate_interval_s 自动巡检）。"""
+    return _observed_call(request, alert_engine.evaluate)
 
 
 @router.get(

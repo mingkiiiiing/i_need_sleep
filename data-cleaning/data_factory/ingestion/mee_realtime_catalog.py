@@ -3,6 +3,9 @@
 以不可变原始快照为唯一事实来源重建（storage/silver/mee_realtime/）：
 - station 目录：entity_id = mee-<sha256_8>(source_id|province|basin|normalized_name)，
   别名表处理括号/空格/上游改名；站点从最新快照消失只标 active=false，不删历史。
+- 部分响应门控：上游声明 records 条而 tbody 明显不足（< PARTIAL_SNAPSHOT_MIN_RATIO）时
+  视为截断页（实测 2026-09-08：声明 82、正常回 79 行，异常页只回 22/31 行且整省缺失），
+  不作为"最新成功快照"，目录钉在最近一次完整快照上，排除项在 status.json 留痕。
 - 观测层：每站每快照固定 11 个指标状态行，缺测显式落行（不省略），
   is_ground_truth 恒 False（未经跨源验证的官方观测）。
 - location_status：verified/metadata_only/suspicious/missing；无验证坐标不生成地图点位，
@@ -32,6 +35,9 @@ VERIFICATION_STATE = "not_cross_validated"
 # 展示新鲜度分带（小时）：≤6 正常，≤12 延迟，>12 严重过期；无成功快照 → unavailable
 FRESHNESS_NORMAL_H = 6.0
 FRESHNESS_DELAYED_H = 12.0
+# 部分响应（截断页）门限：tbody 解析行数 / 上游声明 records 低于该比例即判截断。
+# 完整页实测 79/82≈0.96（3 条为上游声明但不出行的站点），异常页 22/82、31/82，分界充分。
+PARTIAL_SNAPSHOT_MIN_RATIO = 0.8
 
 _PAREN_RE = re.compile(r"[（(][^（）()]*[）)]\s*$")
 _WS_RE = re.compile(r"[\s\u3000]+")
@@ -97,6 +103,7 @@ def iter_snapshots(raw_root: Path) -> list[dict[str, Any]]:
                 "snapshot_file": str(path),
                 "retrieved_at_utc": _snapshot_retrieved_at(path),
                 "declared_record_count": payload.get("records"),
+                "records": parse_tbody(payload),
                 "payload": payload,
             }
         )
@@ -199,6 +206,18 @@ def _variable_rows(record: dict[str, Any], *, snapshot_id: str, retrieved_at: st
     return str(record.get("station_name") or ""), rows
 
 
+def is_partial_snapshot(snap: dict[str, Any]) -> bool:
+    """截断页判定：上游声明 records 而解析行数明显不足（< PARTIAL_SNAPSHOT_MIN_RATIO）。
+
+    上游无声明字段（防御分支）时只要解析出行即视为完整——此时无从对账，不得臆断。
+    """
+    declared = snap.get("declared_record_count")
+    parsed = len(snap["records"])
+    if not declared:
+        return parsed == 0
+    return parsed < PARTIAL_SNAPSHOT_MIN_RATIO * float(declared)
+
+
 def build_catalog(
     *,
     raw_root: Path,
@@ -211,13 +230,32 @@ def build_catalog(
     snapshots = iter_snapshots(raw_root)
     locations = load_station_locations(registry_path)
 
+    # 部分响应不进入目录（站点注册表与观测层都不吃截断页的样本），
+    # raw 快照仍保留以备追责；排除项在 manifest 与 status.json 留痕。
+    excluded_partial: list[dict[str, Any]] = []
+    valid_snapshots: list[dict[str, Any]] = []
+    for snap in snapshots:
+        if is_partial_snapshot(snap):
+            excluded_partial.append(
+                {
+                    "snapshot_id": snap["snapshot_id"],
+                    "retrieved_at_utc": snap["retrieved_at_utc"],
+                    "declared_record_count": snap.get("declared_record_count"),
+                    "parsed_station_count": len(snap["records"]),
+                    "reason": "partial_response_below_ratio",
+                }
+            )
+            continue
+        valid_snapshots.append(snap)
+    snapshots = valid_snapshots
+
     entities: dict[str, dict[str, Any]] = {}
     obs_rows: list[dict[str, Any]] = []
     seen_variants: dict[str, set[str]] = {}
     snapshot_summaries: list[dict[str, Any]] = []
 
     for snap in snapshots:
-        records = parse_tbody(snap["payload"])
+        records = snap["records"]
         station_keys: set[str] = set()
         latest_observed: str | None = None
         snapshot_station_stats: list[dict[str, Any]] = []
@@ -323,7 +361,7 @@ def build_catalog(
     )
     _atomic_write_parquet(observations, out_dir / "observations.parquet")
 
-    status = _build_status(snapshots, snapshot_summaries, entities, observations, collection_status_path)
+    status = _build_status(snapshots, snapshot_summaries, entities, observations, collection_status_path, excluded_partial)
     # status.json is the publication marker and must be replaced last.  Readers
     # reload only after this file changes, so they never observe a half-written bundle.
     _atomic_write_text(out_dir / "status.json", json.dumps(status, ensure_ascii=False, indent=2))
@@ -335,6 +373,8 @@ def build_catalog(
         "station_count": len(stations_list),
         "observation_rows": int(len(observations)),
         "active_station_count": sum(1 for e in stations_list if e["active_in_latest_snapshot"]),
+        "excluded_snapshot_count": len(excluded_partial),
+        "excluded_snapshots": excluded_partial,
         "location_status_counts": _location_status_counts(stations_list),
         "output": str(out_dir),
         **{k: status[k] for k in ("freshness_status", "as_of", "latest_observed_at")},
@@ -380,6 +420,7 @@ def _build_status(
     entities: dict[str, Any],
     observations: pd.DataFrame,
     collection_status_path: Path | None,
+    excluded_partial: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     collection: dict[str, Any] = {}
     if collection_status_path and Path(collection_status_path).exists():
@@ -422,6 +463,8 @@ def _build_status(
         "observed_lag_h": round(lag_h, 2) if lag_h is not None else None,
         "freshness_status": freshness_band(lag_h) if latest_observed else "unavailable",
         "observation_rows": int(len(observations)),
+        "excluded_partial_snapshot_count": len(excluded_partial or []),
+        "excluded_partial_snapshots": excluded_partial or [],
     }
 
 

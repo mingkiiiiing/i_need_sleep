@@ -101,7 +101,6 @@ export function healthGradeText(grade) {
 
 export const LOCATION_STATUS_TEXT = {
   verified: '已核验',
-  metadata_only: '位置待核验',
   suspicious: '坐标可疑',
   missing: '无坐标'
 }
@@ -170,7 +169,7 @@ export function sortStationsByDataStatus(stations) {
   })
 }
 
-// 地图规则：verified 实点；metadata_only 可显示但必须带“位置待核验”；
+// 地图规则：verified 实点；metadata_only 可显示（不附加任何核验标记）；
 // suspicious/missing 只出现在列表，绝不生成地图点位（无坐标不造假点）。
 export function stationMapPoints(stations, { includeMetadataOnly = true } = {}) {
   return stations
@@ -182,11 +181,10 @@ export function stationMapPoints(stations, { includeMetadataOnly = true } = {}) 
     })
     .map((s) => {
       const dataStatus = stationDataStatus(s)
-      const unverifiable = s.location.location_status === 'metadata_only'
       return {
         id: s.id,
         short: s.source_station_name,
-        name: unverifiable ? `${s.source_station_name}（位置待核验）` : s.source_station_name,
+        name: s.source_station_name,
         riskClass: dataStatus === 'abnormal' ? 'high' : dataStatus === 'severely_overdue' ? 'high' : dataStatus === 'delayed' ? 'mid' : 'low',
         coord: { lat: s.location.lat, lon: s.location.lon }
       }

@@ -122,14 +122,13 @@
               <h4>蓝藻筛查预警站点<span class="his-sec-hint">chla ≥{{ summary.warning_thresholds?.light ?? 10 }} 轻度 / ≥{{ summary.warning_thresholds?.moderate ?? 25 }} 中度</span></h4>
               <table v-if="(summary.warnings || []).length" class="his-table">
                 <thead>
-                  <tr><th>站点</th><th>叶绿素 a（μg/L）</th><th>筛查档位</th><th>坐标状态</th></tr>
+                  <tr><th>站点</th><th>叶绿素 a（μg/L）</th><th>筛查档位</th></tr>
                 </thead>
                 <tbody>
                   <tr v-for="w in summary.warnings" :key="w.station_id" data-role="warning-row">
                     <td>{{ w.station_name }}</td>
                     <td class="his-mono">{{ w.chla != null ? w.chla : '—' }}</td>
                     <td>{{ bandText(w.band) }}</td>
-                    <td class="his-miss">{{ locationText(w.location_status) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -142,7 +141,7 @@
                 <table class="his-table">
                   <thead>
                     <tr>
-                      <th>站点</th><th>省份</th><th>水质类别</th><th>叶绿素 a</th><th>溶解氧</th><th>总磷</th><th>总氮</th><th>坐标状态</th>
+                      <th>站点</th><th>省份</th><th>水质类别</th><th>叶绿素 a</th><th>溶解氧</th><th>总磷</th><th>总氮</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -154,7 +153,6 @@
                       <td :class="{ 'his-miss': m.metrics?.dissolved_oxygen == null }" class="his-mono">{{ m.metrics?.dissolved_oxygen ?? '缺测' }}</td>
                       <td :class="{ 'his-miss': m.metrics?.total_phosphorus == null }" class="his-mono">{{ m.metrics?.total_phosphorus ?? '缺测' }}</td>
                       <td :class="{ 'his-miss': m.metrics?.total_nitrogen == null }" class="his-mono">{{ m.metrics?.total_nitrogen ?? '缺测' }}</td>
-                      <td class="his-miss">{{ locationText(m.location_status) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -258,7 +256,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getForecastCapabilitiesEnvelope, getRealtimeTimelineEnvelope } from '../services/api.js'
-import { fetchRealtimeSummary, formatStamp, formatLag, LOCATION_STATUS_TEXT } from '../services/realtime.js'
+import { fetchRealtimeSummary, formatStamp, formatLag } from '../services/realtime.js'
 import BackLink from '../components/common/BackLink.vue'
 import StatePanel from '../components/common/StatePanel.vue'
 import HistoryPlanPanel from '../components/history/HistoryPlanPanel.vue'
@@ -486,10 +484,6 @@ function classText(cls) {
 
 function bandText(band) {
   return { light: '轻度筛查', moderate: '中度筛查' }[band] || band || '—'
-}
-
-function locationText(status) {
-  return LOCATION_STATUS_TEXT[status] || status || '—'
 }
 
 const freshnessText = computed(() =>

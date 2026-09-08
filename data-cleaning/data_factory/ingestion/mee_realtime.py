@@ -383,6 +383,18 @@ def run_collect_mee(
 
     body = json.loads(payload.decode("utf-8"))
     records = parse_tbody(body)
+    # 部分响应检测：上游声明 records 条而 tbody 明显不足即为截断页（正常 79/82≈0.96，
+    # 异常页实测只回 22/31 行且整省缺失）。raw 快照照常留档，告警留痕；
+    # 目录层按 PARTIAL_SNAPSHOT_MIN_RATIO 门控不把它当"最新成功快照"。
+    declared_count = body.get("records")
+    from .mee_realtime_catalog import PARTIAL_SNAPSHOT_MIN_RATIO
+
+    partial_snapshot = bool(declared_count) and len(records) < PARTIAL_SNAPSHOT_MIN_RATIO * float(declared_count)
+    if partial_snapshot:
+        warnings_list.append(
+            f"partial_snapshot: 上游声明 {declared_count} 条仅返回 {len(records)} 行（< {PARTIAL_SNAPSHOT_MIN_RATIO:.0%}），"
+            "目录将钉在最近一次完整快照；观测照常留档"
+        )
     observations = normalize(records, retrieved_at=now_utc, snapshot_file=str(snapshot))
 
     parquet_path = out_dir / "mee_observations.parquet"
@@ -407,6 +419,8 @@ def run_collect_mee(
         "http_status": http_status,
         "retries": retries,
         "station_count": len(records),
+        "declared_record_count": declared_count,
+        "partial_snapshot": partial_snapshot,
         "rows_total": int(len(observations)),
         "freshness_max_lag_h": max_lag_h,
         **freshness,
@@ -441,6 +455,7 @@ def run_collect_mee(
         "command": "collect-realtime",
         "source_id": SOURCE_ID,
         "station_count": len(records),
+        "partial_snapshot": partial_snapshot,
         "rows_read": len(records),
         "rows_written": int(len(observations)),
         "qc_pass_rows": qc_pass,

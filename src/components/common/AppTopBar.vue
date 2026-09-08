@@ -26,6 +26,7 @@
         <span class="tb-update-dot" :class="realtimeUpdate.freshnessStatus === 'normal' ? 'tb-update-dot--ok' : 'tb-update-dot--warn'"></span>
         更新 {{ formatStamp(realtimeUpdate.latestObservedAt) }}
       </div>
+      <NotificationBell />
       <button
         type="button"
         class="tb-btn tb-theme"
@@ -55,6 +56,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import NotificationBell from './NotificationBell.vue'
 import { useTheme } from '../../composables/useTheme.js'
 import { dataIdentity } from '../../data/dataIdentity.js'
 import { realtimeUpdate } from '../../stores/realtimeUpdate.js'

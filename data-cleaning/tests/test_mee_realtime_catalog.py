@@ -15,6 +15,7 @@ from data_factory.ingestion.mee_realtime_catalog import (
     SOURCE_ID,
     build_catalog,
     freshness_band,
+    is_partial_snapshot,
     load_station_locations,
     normalize_station_name,
     station_entity_id,
@@ -86,16 +87,16 @@ class TestBuildCatalog:
         raw_root = tmp_path / "raw"
         early = datetime(2026, 9, 4, 14, 0, tzinfo=timezone.utc)
         late = datetime(2026, 9, 6, 11, 0, tzinfo=timezone.utc)
-        # 早期快照：两站；拖山带括号别名；chla 有值
+        # 早期快照：两站；拖山带括号别名；chla 有值（records 声明与行数自洽）
         _write_snapshot(raw_root, "20260904T140000Z", _snapshot_body([
             _station_row("江苏省", "拖山（无锡）", "09-04 20:00", chla="原始值：0.002"),
             _station_row("江苏省", "五里湖心", "09-04 20:00", tn="原始值：999.0"),
-        ], records=90))
+        ], records=2))
         # 最新快照：五里湖心消失（active=false），新站入列，拖山 chla 缺测
         _write_snapshot(raw_root, "20260906T110000Z", _snapshot_body([
             _station_row("江苏省", "拖山", "09-06 19:00"),
             _station_row("上海市", "淀峰", "09-06 19:00"),
-        ], records=82))
+        ], records=2))
         registry_path = None
         if extra_registry is not None:
             registry_path = tmp_path / "registry.json"
@@ -168,7 +169,7 @@ class TestBuildCatalog:
         status = json.loads((tmp_path / "catalog" / "status.json").read_text(encoding="utf-8"))
         assert status["source"] == SOURCE_ID
         assert status["latest_station_count"] == 2
-        assert status["declared_record_count"] == 82
+        assert status["declared_record_count"] == 2
         assert status["collection_status"] == "unavailable"  # 无采集状态文件
         assert status["last_error_code"] is None
 
@@ -179,3 +180,74 @@ class TestBuildCatalog:
         assert freshness_band(12.0) == "delayed"
         assert freshness_band(12.1) == "severely_overdue"
         assert freshness_band(None) == "unavailable"
+
+
+class TestPartialSnapshotGate:
+    """截断页门控：上游声明 records 而tbody 明显不足 → 不作最新成功快照（2026-09-08 事故回归）。"""
+
+    def test_is_partial_snapshot_bounds(self):
+        def snap(records: int, rows: int) -> dict:
+            return {
+                "declared_record_count": records,
+                "records": [_station_row("江苏省", f"站{i}", "09-07 23:00") for i in range(rows)],
+            }
+
+        assert not is_partial_snapshot(snap(82, 79)), "完整页 79/82≈0.96 必须放行"
+        assert is_partial_snapshot(snap(82, 22)), "截断页 22/82≈0.27 必须拦截"
+        assert is_partial_snapshot(snap(82, 31)), "截断页 31/82≈0.38 必须拦截"
+        assert is_partial_snapshot(snap(82, 0))
+        assert not is_partial_snapshot({"declared_record_count": None, "records": [_station_row("江苏省", "甲", "09-07 23:00")]}), \
+            "无声明字段时无从对账，不得臆断"
+        assert is_partial_snapshot({"declared_record_count": None, "records": []})
+
+    def test_truncated_latest_snapshot_pins_catalog_to_last_complete(self, tmp_path):
+        raw_root = tmp_path / "raw"
+        # T1 完整快照：拖山 + 五里湖心
+        _write_snapshot(raw_root, "20260907T150000Z", _snapshot_body([
+            _station_row("江苏省", "拖山", "09-07 23:00"),
+            _station_row("江苏省", "五里湖心", "09-07 23:00"),
+        ], records=2))
+        # T2 截断快照（声明 82 只回 1 行）：只有淀峰和截断页独有站
+        _write_snapshot(raw_root, "20260907T160000Z", _snapshot_body([
+            _station_row("上海市", "淀峰", "09-08 00:00"),
+            _station_row("上海市", "截断页独有站", "09-08 00:00"),
+        ], records=82))
+        manifest = build_catalog(raw_root=raw_root, out_dir=tmp_path / "catalog")
+        catalog = json.loads((tmp_path / "catalog" / "stations.json").read_text(encoding="utf-8"))
+        names = {s["source_station_name"] for s in catalog["stations"]}
+        # 截断页整体不入目录：独有站不进注册表，淀峰不出现
+        assert "截断页独有站" not in names
+        assert "淀峰" not in names
+        assert catalog["station_count"] == 2
+        # 目录钉在 T1：拖山/五里湖心都 active
+        by_name = {s["source_station_name"]: s for s in catalog["stations"]}
+        assert by_name["拖山"]["active_in_latest_snapshot"] is True
+        assert by_name["五里湖心"]["active_in_latest_snapshot"] is True
+        assert manifest["snapshot_count"] == 1
+        assert manifest["excluded_snapshot_count"] == 1
+        assert manifest["excluded_snapshots"][0]["reason"] == "partial_response_below_ratio"
+        assert manifest["excluded_snapshots"][0]["parsed_station_count"] == 2
+        # status.json 留痕
+        status = json.loads((tmp_path / "catalog" / "status.json").read_text(encoding="utf-8"))
+        assert status["excluded_partial_snapshot_count"] == 1
+        assert status["latest_snapshot_id"].endswith("20260907T150000Z")
+
+    def test_recovery_when_upstream_returns_complete_again(self, tmp_path):
+        """上游恢复完整后，新快照重新成为最新成功快照（门控不得永久钉死）。"""
+        raw_root = tmp_path / "raw"
+        _write_snapshot(raw_root, "20260907T150000Z", _snapshot_body([
+            _station_row("江苏省", "拖山", "09-07 23:00"),
+        ], records=1))
+        _write_snapshot(raw_root, "20260907T160000Z", _snapshot_body([
+            _station_row("上海市", "淀峰", "09-08 00:00"),
+        ], records=82))  # 截断页
+        _write_snapshot(raw_root, "20260907T170000Z", _snapshot_body([
+            _station_row("江苏省", "拖山", "09-08 01:00"),
+            _station_row("上海市", "淀峰", "09-08 01:00"),
+        ], records=2))  # 上游恢复
+        manifest = build_catalog(raw_root=raw_root, out_dir=tmp_path / "catalog")
+        assert manifest["excluded_snapshot_count"] == 1
+        assert manifest["snapshot_count"] == 2
+        catalog = json.loads((tmp_path / "catalog" / "stations.json").read_text(encoding="utf-8"))
+        dianfeng = next(s for s in catalog["stations"] if s["source_station_name"] == "淀峰")
+        assert dianfeng["active_in_latest_snapshot"] is True

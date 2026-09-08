@@ -20,20 +20,7 @@
       <button v-if="search" type="button" class="stn-search-clear" aria-label="清空搜索" @click="$emit('update:search', '')">×</button>
     </div>
 
-    <div class="stn-filter" role="group" aria-label="数据状态筛选">
-      <button
-        v-for="opt in STATUS_FILTERS"
-        :key="opt.key"
-        type="button"
-        :class="{ active: filter === opt.key }"
-        :aria-pressed="String(filter === opt.key)"
-        @click="$emit('update:filter', opt.key)"
-      >
-        {{ opt.label }}<small v-if="opt.key !== 'all'"> {{ statusCounts[opt.key] || 0 }}</small>
-      </button>
-    </div>
-
-    <div class="stn-filter" role="group" aria-label="位置状态筛选">
+    <div class="stn-filter" role="group" aria-label="省份筛选">
       <button
         v-for="opt in LOCATION_FILTERS"
         :key="opt.key"
@@ -71,7 +58,7 @@
         >
           <span class="zi-rank">{{ s.waterLevelText }}</span>
           <span class="zi-main">
-            <span class="zi-code">{{ s.province || '—' }} · {{ s.location.locationStatusText }}</span>
+            <span class="zi-code">{{ s.province || '—' }}</span>
             <span class="zi-name">{{ s.source_station_name }}</span>
           </span>
           <span class="zi-side">
@@ -89,7 +76,6 @@
 // 不使用任何情景风险分数。位置状态筛选暴露坐标可信度（missing/suspicious 站不画地图点）。
 import { computed } from 'vue'
 import {
-  LOCATION_STATUS_TEXT,
   STATION_STATUS_ORDER,
   STATION_STATUS_TEXT,
   stationDataStatus
@@ -100,42 +86,25 @@ const props = defineProps({
   selectedId: { type: String, default: '' },
   state: { type: String, default: 'loading' },
   search: { type: String, default: '' },
-  filter: { type: String, default: 'all' },
   locationFilter: { type: String, default: 'all' }
 })
 
-defineEmits(['select', 'retry', 'reset-filters', 'update:search', 'update:filter', 'update:locationFilter'])
-
-const STATUS_FILTERS = [
-  { key: 'all', label: '全部' },
-  { key: 'abnormal', label: '数据异常' },
-  { key: 'severely_overdue', label: '严重过期' },
-  { key: 'delayed', label: '延迟' },
-  { key: 'normal', label: '正常' }
-]
+defineEmits(['select', 'retry', 'reset-filters', 'update:search', 'update:locationFilter'])
 
 const LOCATION_FILTERS = [
   { key: 'all', label: '全部位置' },
-  { key: 'verified', label: '已核验' },
-  { key: 'metadata_only', label: '待核验' },
-  { key: 'suspicious', label: '坐标可疑' },
-  { key: 'missing', label: '无坐标' }
+  { key: 'jiangsu', label: '江苏省' },
+  { key: 'zhejiang', label: '浙江省' },
+  { key: 'other', label: '其他省份' }
 ]
 
-const statusCounts = computed(() => {
-  const counts = {}
-  props.stations.forEach((s) => {
-    const key = stationDataStatus(s)
-    counts[key] = (counts[key] || 0) + 1
-  })
-  return counts
-})
-
 const locationCounts = computed(() => {
-  const counts = {}
+  const counts = { jiangsu: 0, zhejiang: 0, other: 0 }
   props.stations.forEach((s) => {
-    const key = (s.location && s.location.location_status) || 'missing'
-    counts[key] = (counts[key] || 0) + 1
+    const p = (s.province || '').trim()
+    if (p === '江苏省') counts.jiangsu++
+    else if (p === '浙江省') counts.zhejiang++
+    else if (p) counts.other++
   })
   return counts
 })
@@ -144,9 +113,12 @@ const rows = computed(() => {
   const kw = props.search.trim().toLowerCase()
   return props.stations
     .filter((s) => {
-      if (props.filter !== 'all' && stationDataStatus(s) !== props.filter) return false
-      const loc = (s.location && s.location.location_status) || 'missing'
-      if (props.locationFilter !== 'all' && loc !== props.locationFilter) return false
+      if (props.locationFilter !== 'all') {
+        const p = (s.province || '').trim()
+        if (props.locationFilter === 'jiangsu' && p !== '江苏省') return false
+        if (props.locationFilter === 'zhejiang' && p !== '浙江省') return false
+        if (props.locationFilter === 'other' && (p === '江苏省' || p === '浙江省' || !p)) return false
+      }
       if (kw) {
         const haystack = `${s.source_station_name} ${s.province || ''}`.toLowerCase()
         if (!haystack.includes(kw)) return false
@@ -157,7 +129,6 @@ const rows = computed(() => {
       ...s,
       dataStatusText: STATION_STATUS_TEXT[stationDataStatus(s)] || '—',
       dataStatusTone: stationDataStatus(s) === 'normal' ? 'low' : stationDataStatus(s) === 'delayed' ? 'mid' : 'high',
-      locationStatusText: LOCATION_STATUS_TEXT[(s.location && s.location.location_status)] || '无坐标',
       variableTotal: s.available_variable_count + s.missing_variable_count + s.qc_rejected_variable_count,
       waterLevelText: s.latest_water_quality_level ? `类${s.latest_water_quality_level}` : '—'
     }))

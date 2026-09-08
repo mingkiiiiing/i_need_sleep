@@ -26,6 +26,7 @@ from .providers import (
     create_prediction_provider,
     create_realtime_observation_provider,
 )
+from .alerts import AlertEngine
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
 _STAGE_DAYS = (1, 3, 7, 15, 30)
@@ -370,3 +371,14 @@ service = BackendService(
     create_prediction_provider(_observation_provider),
     create_realtime_observation_provider(),
 )
+
+
+def _alert_snapshot_fetch() -> dict[str, Any]:
+    return service.realtime_summary(None)
+
+
+def _alert_stations_fetch() -> list[dict[str, Any]]:
+    return service.realtime.stations(active="latest")
+
+
+alert_engine = AlertEngine(_alert_snapshot_fetch, _alert_stations_fetch)

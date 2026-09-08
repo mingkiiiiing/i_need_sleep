@@ -131,6 +131,12 @@ const items = [
     to: '/wallboard',
     label: '实时大屏',
     icon: '<rect x="3" y="4" width="14" height="9.5" rx="1"/><path d="M7 16.5h6"/><path d="M10 13.5v3"/>'
+  },
+  {
+    num: '06',
+    to: '/alerts',
+    label: '预警通知',
+    icon: '<path d="M15 8.6a5 5 0 0 0-10 0c0 5.8-2.5 7.4-2.5 7.4h15S15 14.4 15 8.6"/><path d="M11.3 18.9a1.7 1.7 0 0 1-2.6 0"/><path d="M10 3.6V2"/>'
   }
 ]
 </script>

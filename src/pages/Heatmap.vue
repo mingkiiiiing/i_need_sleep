@@ -9,20 +9,13 @@
             <h1>卫星遥感与时空推演</h1>
           </div>
         </div>
-        <div class="hm-title-right">
-          <div class="hm-id-chips" aria-label="数据身份">
-            <span class="hm-chip">{{ rsIdentity.version }}</span>
-            <span class="hm-chip hm-chip--observed">{{ rsIdentity.dataMode }}</span>
-            <span class="hm-chip hm-chip--notice">{{ rsIdentity.boundary }}</span>
-          </div>
-        </div>
       </header>
 
-      <!-- 数据口径披露：年度遥感反演产品（真实历史观测），非实时插值 -->
+      <!-- 数据口径披露 -->
       <p class="hm-data-note" role="note">
-        本页展示 THQBCA-V2 年度卫星遥感反演产品（叶绿素 a / 漂浮藻类覆盖率，真实历史观测、非实时）。
-        MEE 实时站点的逐时观测见
-        <RouterLink to="/stations">监测站点研判</RouterLink>；实时观测点位与遥感图层同图叠加（observed 轨）。
+        主视图「实测与预测推演」：MEE 实时快照逐日回放（实测数据），未来 1-3 天 / 7-15 天 / 30-90 天为实测驱动的规则研判（正式算法接入前占位，非数值模型预报）。
+        「卫星遥感年度对比」为 THQBCA-V2 年度反演产品（真实历史观测、非实时）。逐站明细见
+        <RouterLink to="/stations">监测站点研判</RouterLink>。
       </p>
 
       <!-- ===== 主三栏 ===== -->
@@ -31,61 +24,75 @@
         <aside class="hm-panel hm-left" aria-label="图层与图例">
           <HeatmapLayersPanel
             v-model:realtime-visible="layerRealtime"
-            v-model:snapshot-id="rtSnapshotId"
-            :snapshot-list="rtTimeline"
             v-model:diff-enabled="rtDiff"
             v-model:polygon-enabled="rtPolygon"
             :realtime-summary="realtimeSummary"
             v-model:basemap="basemap"
-            :capabilities="capabilities"
-            :caps-state="capsState"
-            @retry-caps="fetchCaps"
           />
         </aside>
 
         <!-- 中央：卫星遥感地图 -->
         <section class="hm-panel hm-center" aria-label="太湖卫星遥感地图">
           <div class="hm-map-tools">
-            <div class="hm-ab-modes" role="group" aria-label="遥感图层切换">
+            <div class="hm-ab-modes" role="group" aria-label="页面模式切换">
               <button
-                v-for="layer in rsLayers"
-                :key="layer.id"
                 type="button"
-                :aria-pressed="String(rsLayerId === layer.id)"
-                :class="{ active: rsLayerId === layer.id }"
-                @click="selectLayer(layer.id)"
-              >{{ layer.name }}</button>
+                :aria-pressed="String(pageMode === 'timeline')"
+                :class="{ active: pageMode === 'timeline' }"
+                data-role="mode-timeline"
+                @click="switchMode('timeline')"
+              >实测与预测推演</button>
+              <button
+                type="button"
+                :aria-pressed="String(pageMode === 'rs')"
+                :class="{ active: pageMode === 'rs' }"
+                data-role="mode-rs"
+                @click="switchMode('rs')"
+              >卫星遥感年度对比</button>
             </div>
-            <label class="hm-ab-select">
-              <span>年份 A</span>
-              <select v-model.number="yearA" data-role="rs-year-a" aria-label="影像 A 年份">
-                <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
-              </select>
-            </label>
-            <template v-if="rsCompare">
+            <template v-if="pageMode === 'rs'">
+              <div class="hm-ab-modes" role="group" aria-label="遥感图层切换">
+                <button
+                  v-for="layer in rsLayers"
+                  :key="layer.id"
+                  type="button"
+                  :aria-pressed="String(rsLayerId === layer.id)"
+                  :class="{ active: rsLayerId === layer.id }"
+                  @click="selectLayer(layer.id)"
+                >{{ layer.name }}</button>
+              </div>
               <label class="hm-ab-select">
-                <span>年份 B</span>
-                <select v-model.number="yearB" data-role="rs-year-b" aria-label="影像 B 年份">
+                <span>年份 A</span>
+                <select v-model.number="yearA" data-role="rs-year-a" aria-label="影像 A 年份">
                   <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
                 </select>
               </label>
+              <template v-if="rsCompare">
+                <label class="hm-ab-select">
+                  <span>年份 B</span>
+                  <select v-model.number="yearB" data-role="rs-year-b" aria-label="影像 B 年份">
+                    <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+                  </select>
+                </label>
+              </template>
+              <div class="hm-ab-modes" role="group" aria-label="对比模式">
+                <button
+                  type="button"
+                  :aria-pressed="String(!rsCompare)"
+                  :class="{ active: !rsCompare }"
+                  @click="rsCompare = false"
+                >单年</button>
+                <button
+                  type="button"
+                  :aria-pressed="String(rsCompare)"
+                  :class="{ active: rsCompare }"
+                  data-role="rs-compare-toggle"
+                  @click="rsCompare = true"
+                >对比模式</button>
+              </div>
+              <span class="hm-map-flag">年度反演 · 非实时 · 色标全期固定</span>
             </template>
-            <div class="hm-ab-modes" role="group" aria-label="对比模式">
-              <button
-                type="button"
-                :aria-pressed="String(!rsCompare)"
-                :class="{ active: !rsCompare }"
-                @click="rsCompare = false"
-              >单年</button>
-              <button
-                type="button"
-                :aria-pressed="String(rsCompare)"
-                :class="{ active: rsCompare }"
-                data-role="rs-compare-toggle"
-                @click="rsCompare = true"
-              >对比模式</button>
-            </div>
-            <span class="hm-map-flag">年度反演 · 非实时 · 色标全期固定</span>
+            <span v-else class="hm-map-flag">MEE 实测快照 · 未来档位为规则研判</span>
             <span v-if="tileError" class="hm-map-flag hm-map-flag--warn" role="status">
               地图瓦片加载失败
               <button type="button" class="hm-inline-btn" @click="retryTiles">重试图层</button>
@@ -95,11 +102,11 @@
           <div class="hm-map-wrap">
             <RsMap
               ref="mapRef"
-              :image-a="imageA"
-              :image-b="imageB"
-              :compare="rsCompare"
-              :badge-a="badgeA"
-              :badge-b="badgeB"
+              :image-a="pageMode === 'rs' ? imageA : null"
+              :image-b="pageMode === 'rs' ? imageB : null"
+              :compare="pageMode === 'rs' && rsCompare"
+              :badge-a="pageMode === 'rs' ? badgeA : ''"
+              :badge-b="pageMode === 'rs' ? badgeB : ''"
               :points="realtimePoints"
               :points-visible="layerRealtime"
               :hull="warningHull"
@@ -108,7 +115,7 @@
               :reset-token="resetToken"
               @tile-error="onTileError"
             />
-            <div v-if="rsOverlay" class="hm-map-overlay" data-role="rs-state" :data-state="rsOverlay">
+            <div v-if="pageMode === 'rs' && rsOverlay" class="hm-map-overlay" data-role="rs-state" :data-state="rsOverlay">
               <StatePanel
                 :state="rsOverlay"
                 :title="rsOverlay === 'loading' ? '遥感图层加载中…' : '遥感图层加载失败'"
@@ -121,8 +128,8 @@
             </div>
           </div>
 
-          <!-- 年份滑轴 -->
-          <div v-if="years.length" class="hm-rs-year">
+          <!-- 年份滑轴（仅遥感模式） -->
+          <div v-if="pageMode === 'rs' && years.length" class="hm-rs-year">
             <span class="hm-rs-year-label">{{ activeLayerName }} · <b>{{ yearA ?? '—' }}</b></span>
             <input
               v-if="years.length > 1"
@@ -139,65 +146,120 @@
             <span class="hm-rs-year-range">{{ years[0] }}—{{ years[years.length - 1] }}</span>
           </div>
 
-          <!-- 色带图例（全期固定尺度） -->
-          <div v-if="activeLayer" class="hm-rs-legend" aria-label="色带图例">
+          <!-- 时序推演控制条（推演主视图） -->
+          <ForecastTimeline
+            v-if="pageMode === 'timeline' && timelineStops.length"
+            v-model="selectedStopId"
+            :stops="timelineStops"
+            :playing="ftlPlaying"
+            data-role="forecast-timeline"
+            @toggle-play="togglePlay"
+            @refresh="refreshRealtime"
+          />
+
+          <!-- 色带图例（全期固定尺度，仅遥感模式） -->
+          <div v-if="pageMode === 'rs' && activeLayer" class="hm-rs-legend" aria-label="色带图例">
             <span class="hm-rs-legend-min">{{ activeLayer.vmin }} {{ activeLayer.unit }}</span>
             <span class="hm-rs-legend-bar" :style="{ background: legendGradient }"></span>
             <span class="hm-rs-legend-max">≥ {{ activeLayer.vmax }} {{ activeLayer.unit }}</span>
           </div>
         </section>
 
-        <!-- 右栏：年度统计与数据来源 -->
-        <aside class="hm-panel hm-right" aria-label="年度统计与数据来源">
-          <!-- 年度统计 -->
-          <section class="hm-sec" aria-label="年度统计">
-            <h3 class="hm-sec-h">年度统计 <span>{{ activeLayerName }} · {{ yearA ?? '—' }}</span></h3>
-            <StatePanel
-              v-if="rsOverlay"
-              :state="rsOverlay"
-              :title="rsOverlay === 'loading' ? '遥感清单加载中…' : '遥感清单加载失败'"
-              :description="rsOverlay === 'error' ? '年度统计依赖 /rs/manifest 清单。' : ''"
-            />
-            <template v-else-if="yearEntry">
-              <dl class="hm-kv" data-role="rs-stats">
-                <div><dt>均值</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>p95</dt><dd>{{ yearEntry.stats.p95 }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>最大</dt><dd>{{ yearEntry.stats.max }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>最小</dt><dd>{{ yearEntry.stats.min }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>有效像元</dt><dd>{{ yearEntry.stats.valid_pct }}%</dd></div>
-              </dl>
-              <p class="hm-sec-note">反演统计为全湖像元口径，不等于站点实测；用于年代际空间格局研判。</p>
-            </template>
-          </section>
+        <!-- 右栏：推演信息（随模式切换） -->
+        <aside class="hm-panel hm-right" aria-label="推演信息">
+          <!-- 遥感模式：年度统计 -->
+          <template v-if="pageMode === 'rs'">
+            <section class="hm-sec" aria-label="年度统计">
+              <h3 class="hm-sec-h">年度统计 <span>{{ activeLayerName }} · {{ yearA ?? '—' }}</span></h3>
+              <StatePanel
+                v-if="rsOverlay"
+                :state="rsOverlay"
+                :title="rsOverlay === 'loading' ? '遥感清单加载中…' : '遥感清单加载失败'"
+                :description="rsOverlay === 'error' ? '年度统计依赖 /rs/manifest 清单。' : ''"
+              />
+              <template v-else-if="yearEntry">
+                <dl class="hm-kv" data-role="rs-stats">
+                  <div><dt>均值</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>p95</dt><dd>{{ yearEntry.stats.p95 }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>最大</dt><dd>{{ yearEntry.stats.max }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>最小</dt><dd>{{ yearEntry.stats.min }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>有效像元</dt><dd>{{ yearEntry.stats.valid_pct }}%</dd></div>
+                </dl>
+                <p class="hm-sec-note">反演统计为全湖像元口径，不等于站点实测；用于年代际空间格局研判。</p>
+              </template>
+            </section>
 
-          <!-- 对比摘要（仅对比模式） -->
-          <section v-if="rsCompare" class="hm-sec" aria-label="年份对比摘要">
-            <h3 class="hm-sec-h">对比摘要 <span>{{ yearA ?? '—' }} ↔ {{ yearB ?? '—' }}</span></h3>
-            <p v-if="yearA === yearB" class="hm-empty-hint" data-role="rs-cmp-same">两个年份相同，无对比。</p>
-            <template v-else-if="yearEntry && compareEntry">
-              <dl class="hm-kv" data-role="rs-cmp">
-                <div><dt>均值 {{ yearA }}</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>均值 {{ yearB }}</dt><dd>{{ compareEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>Δ均值（B−A）</dt><dd>{{ deltaMean }} {{ activeLayer.unit }}</dd></div>
-                <div><dt>p95 {{ yearA }}</dt><dd>{{ yearEntry.stats.p95 }}</dd></div>
-                <div><dt>p95 {{ yearB }}</dt><dd>{{ compareEntry.stats.p95 }}</dd></div>
-                <div><dt>Δp95（B−A）</dt><dd>{{ deltaP95 }} {{ activeLayer.unit }}</dd></div>
-              </dl>
-              <p class="hm-sec-note">同尺度色标下左右分屏目视对比（拖动分割线）；此处仅列统计差，不做差值图。</p>
-            </template>
-          </section>
+            <!-- 对比摘要（仅对比模式） -->
+            <section v-if="rsCompare" class="hm-sec" aria-label="年份对比摘要">
+              <h3 class="hm-sec-h">对比摘要 <span>{{ yearA ?? '—' }} ↔ {{ yearB ?? '—' }}</span></h3>
+              <p v-if="yearA === yearB" class="hm-empty-hint" data-role="rs-cmp-same">两个年份相同，无对比。</p>
+              <template v-else-if="yearEntry && compareEntry">
+                <dl class="hm-kv" data-role="rs-cmp">
+                  <div><dt>均值 {{ yearA }}</dt><dd>{{ yearEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>均值 {{ yearB }}</dt><dd>{{ compareEntry.stats.mean }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>Δ均值（B−A）</dt><dd>{{ deltaMean }} {{ activeLayer.unit }}</dd></div>
+                  <div><dt>p95 {{ yearA }}</dt><dd>{{ yearEntry.stats.p95 }}</dd></div>
+                  <div><dt>p95 {{ yearB }}</dt><dd>{{ compareEntry.stats.p95 }}</dd></div>
+                  <div><dt>Δp95（B−A）</dt><dd>{{ deltaP95 }} {{ activeLayer.unit }}</dd></div>
+                </dl>
+                <p class="hm-sec-note">同尺度色标下左右分屏目视对比（拖动分割线）；此处仅列统计差，不做差值图。</p>
+              </template>
+            </section>
+          </template>
 
-          <!-- 数据来源 -->
-          <section class="hm-sec" aria-label="数据来源">
-            <h3 class="hm-sec-h">数据来源</h3>
-            <dl class="hm-kv" data-role="rs-source">
-              <div><dt>数据集</dt><dd>{{ rsManifest?.source_dataset || '—' }}</dd></div>
-              <div><dt>产品口径</dt><dd>年度反演 · 30m</dd></div>
-              <div><dt>清单生成</dt><dd>{{ rsManifest?.generated_at || '—' }}</dd></div>
-              <div><dt>使用边界</dt><dd>{{ rsIdentity.boundary }}</dd></div>
-            </dl>
-            <p class="hm-sec-note">{{ rsManifest?.note || '年度卫星遥感反演产品：真实历史观测（非实时、非模拟）。' }}</p>
-          </section>
+          <!-- 推演模式：选中停靠点内容 -->
+          <template v-else>
+            <!-- 未来档位：水华风险研判（observed 规则研判，正式算法待接入后替换 riskAssessment.js） -->
+            <section v-if="selectedStopIsFuture" class="hm-sec" aria-label="水华风险研判" data-role="risk-panel">
+              <h3 class="hm-sec-h">水华风险研判 <span>{{ selectedStop?.title }} · 规则研判</span></h3>
+              <template v-if="riskAssessment">
+                <div class="hm-risk-level" :class="`hm-risk-level--${riskAssessment.code}`" data-role="risk-level">
+                  <b>{{ riskAssessment.text }}</b>
+                  <span>研判分 {{ riskAssessment.score }}/100</span>
+                </div>
+                <ul class="hm-risk-reasons" data-role="risk-reasons">
+                  <li v-for="(r, i) in riskAssessment.reasons" :key="i">{{ r }}</li>
+                </ul>
+                <p class="hm-sec-note">{{ riskAssessment.caliber }}</p>
+              </template>
+              <StatePanel
+                v-else
+                state="error"
+                title="观测数据不可用"
+                description="研判仅由 MEE 实时观测推导，数据加载失败时不产出结论。"
+              >
+                <button type="button" class="hm-inline-btn" data-role="risk-retry" @click="retryRealtimeSummary">重试</button>
+              </StatePanel>
+            </section>
+
+            <!-- 实测停靠点：快照摘要 -->
+            <section v-else class="hm-sec" aria-label="实测快照摘要" data-role="observed-panel">
+              <h3 class="hm-sec-h">实测快照 <span>{{ selectedStop?.tick }} · MEE 观测</span></h3>
+              <template v-if="realtimeSummary">
+                <dl class="hm-kv" data-role="observed-stats">
+                  <div><dt>快照观测时间</dt><dd>{{ (realtimeSummary.latest_observed_at || '').slice(5, 16).replace('T', ' ') }}</dd></div>
+                  <div><dt>活跃站点</dt><dd>{{ realtimeSummary.active_station_count ?? realtimeSummary.station_total }}</dd></div>
+                  <div><dt>水质达标率（≤III 类）</dt><dd>{{ classRateText }}</dd></div>
+                  <div><dt>叶绿素 a 均值</dt><dd>{{ chlaMeanText }}</dd></div>
+                  <div><dt>蓝藻筛查预警</dt><dd>{{ (realtimeSummary.warnings || []).length }} 站</dd></div>
+                </dl>
+                <p class="hm-sec-note">地图点位即该快照实测；向右拖动时间轴查看未来档位研判。</p>
+              </template>
+              <StatePanel
+                v-else
+                state="error"
+                title="观测数据不可用"
+                description="实测摘要来自 MEE 实时快照，数据加载失败时不回退模拟。"
+              >
+                <button type="button" class="hm-inline-btn" data-role="risk-retry" @click="retryRealtimeSummary">重试</button>
+              </StatePanel>
+            </section>
+
+            <p class="hm-sec-note">
+              未来 1-3 天 / 7-15 天 / 30-90 天由 MEE 实测驱动的透明规则研判（riskAssessment.js）推导，正式算法接入后整体替换；
+              非数值模型预报，非监管判定。
+            </p>
+          </template>
         </aside>
       </div>
 
@@ -233,15 +295,10 @@
             <HeatmapLayersPanel
               compact
               v-model:realtime-visible="layerRealtime"
-              v-model:snapshot-id="rtSnapshotId"
-              :snapshot-list="rtTimeline"
               v-model:diff-enabled="rtDiff"
               v-model:polygon-enabled="rtPolygon"
               :realtime-summary="realtimeSummary"
               v-model:basemap="basemap"
-              :capabilities="capabilities"
-              :caps-state="capsState"
-              @retry-caps="fetchCaps"
             />
           </div>
         </div>
@@ -253,7 +310,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
-  getForecastCapabilitiesEnvelope,
   getMapLayersEnvelope,
   getRsManifestEnvelope,
   rsImageUrl
@@ -262,14 +318,9 @@ import BackLink from '../components/common/BackLink.vue'
 import StatePanel from '../components/common/StatePanel.vue'
 import RsMap from '../components/heatmap/RsMap.vue'
 import HeatmapLayersPanel from '../components/heatmap/HeatmapLayersPanel.vue'
+import ForecastTimeline from '../components/heatmap/ForecastTimeline.vue'
 import { chlaColor, fetchRealtimeSummary, fetchRealtimeTimeline } from '../services/realtime.js'
-
-const RS_VERSION = 'THQBCA-V2-BIOOPTICS-V1'
-const rsIdentity = {
-  version: RS_VERSION,
-  dataMode: 'observed · 年度反演',
-  boundary: 'satellite_annual_retrieval_not_in_situ'
-}
+import { assessShortTerm, assessMidTerm, assessLongTerm } from '../components/heatmap/riskAssessment.js'
 
 // ---------- 卫星遥感图层（/rs/manifest + 静态 PNG） ----------
 const rsManifest = ref(null)
@@ -370,21 +421,6 @@ async function fetchRsManifest() {
   }
 }
 
-// ---------- 能力 ----------
-const capabilities = ref(null)
-const capsState = ref('loading')
-async function fetchCaps() {
-  capsState.value = 'loading'
-  try {
-    const { data } = await getForecastCapabilitiesEnvelope()
-    capabilities.value = data && typeof data === 'object' ? data : {}
-    capsState.value = 'ok'
-  } catch {
-    capabilities.value = null
-    capsState.value = 'error'
-  }
-}
-
 // ---------- 图层目录（追溯展示，不参与渲染决策） ----------
 const layersCatalog = ref(null)
 async function fetchLayers() {
@@ -426,6 +462,159 @@ function retryTiles() {
 function fetchSummaryFor(snapshotId) {
   return fetchRealtimeSummary({ snapshotId: snapshotId || undefined })
 }
+
+function retryRealtimeSummary() {
+  fetchSummaryFor(rtSnapshotId.value)
+    .then((s) => { realtimeSummary.value = s })
+    .catch(() => { realtimeSummary.value = null })
+}
+
+function refreshRealtime() {
+  fetchRealtimeTimeline({ force: true }).then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => {})
+  fetchSummaryFor(rtSnapshotId.value)
+    .then((s) => { realtimeSummary.value = s })
+    .catch(() => { realtimeSummary.value = null })
+}
+
+// ---------- 页面模式：时序推演（主视图） / 卫星遥感年度对比（次级功能） ----------
+const pageMode = ref('timeline')
+function switchMode(mode) {
+  if (pageMode.value === mode) return
+  stopPlay()
+  pageMode.value = mode
+}
+
+// ---------- 时序推演时间轴 ----------
+// 实测段：/realtime/timeline 快照按日去重（每日取最后一帧）→ 今日；
+// 未来段：三档研判（1-3/7-15/30-90 天）等距排布——是规则研判不是逐日数值预报，
+// 所以轨道为离散停靠点而非连续日期刻度。正式算法交付后，未来段可换成模型输出逐日帧。
+const HORIZONS = [
+  { id: 'short', kind: 'short', pos: 63, tick: '短临', title: '未来 1-3 天 · 短临', from: 1, to: 3 },
+  { id: 'mid', kind: 'mid', pos: 80, tick: '趋势', title: '未来 7-15 天 · 趋势', from: 7, to: 15 },
+  { id: 'long', kind: 'long', pos: 96, tick: '长期', title: '未来 30-90 天 · 长期', from: 30, to: 90 }
+]
+const TODAY_POS = 46
+
+function pad2(n) {
+  return String(n).padStart(2, '0')
+}
+function fmtMD(date) {
+  return `${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
+}
+function shiftDate(baseStr, days) {
+  return new Date(Number(baseStr.slice(0, 4)), Number(baseStr.slice(5, 7)) - 1, Number(baseStr.slice(8, 10)) + days)
+}
+
+const timelineStops = computed(() => {
+  const snaps = rtTimeline.value || []
+  const byDate = new Map()
+  snaps.forEach((s) => {
+    const d = String(s.latest_observed_at || '').slice(0, 10)
+    if (!d) return
+    const prev = byDate.get(d)
+    if (!prev || String(s.latest_observed_at) > String(prev.latest_observed_at)) byDate.set(d, s)
+  })
+  const dates = [...byDate.keys()].sort()
+  const stops = []
+  dates.forEach((d, i) => {
+    const isLast = i === dates.length - 1
+    const snap = byDate.get(d)
+    const nowDate = new Date()
+    const isToday = d === `${nowDate.getFullYear()}-${pad2(nowDate.getMonth() + 1)}-${pad2(nowDate.getDate())}`
+    stops.push({
+      id: `d-${d}`,
+      kind: isLast ? 'today' : 'observed',
+      pos: dates.length === 1 ? TODAY_POS : 3 + (i / (dates.length - 1)) * (TODAY_POS - 3),
+      tick: isLast && isToday ? `${d.slice(5)} · 今日` : d.slice(5),
+      title: isLast ? `${d.slice(5)} · ${isToday ? '今日' : '最新'}` : d.slice(5),
+      sub: '实测数据',
+      snapshotId: snap.snapshot_id
+    })
+  })
+  const anchor = dates[dates.length - 1]
+  if (anchor) {
+    HORIZONS.forEach((h) => {
+      stops.push({
+        id: h.id,
+        kind: h.kind,
+        pos: h.pos,
+        tick: h.tick,
+        title: h.title,
+        sub: `规则研判 ${fmtMD(shiftDate(anchor, h.from))}~${fmtMD(shiftDate(anchor, h.to))}`
+      })
+    })
+  }
+  return stops
+})
+
+const selectedStopId = ref('')
+const selectedStop = computed(() => timelineStops.value.find((s) => s.id === selectedStopId.value) || null)
+const selectedStopIsFuture = computed(() => ['short', 'mid', 'long'].includes(selectedStop.value?.kind))
+
+watch(timelineStops, (stops) => {
+  if (stops.length && !stops.some((s) => s.id === selectedStopId.value)) {
+    const lastObserved = [...stops].reverse().find((s) => s.kind === 'today' || s.kind === 'observed')
+    selectedStopId.value = (lastObserved || stops[0]).id
+  }
+}, { immediate: true })
+
+// 选中停靠点 → 驱动观测快照（地图点位/右栏摘要随之更新）
+watch(selectedStopId, (id) => {
+  const stop = timelineStops.value.find((s) => s.id === id)
+  if (!stop) return
+  const target = selectedStopIsFuture.value ? '' : (stop.snapshotId || '')
+  if (rtSnapshotId.value !== target) rtSnapshotId.value = target
+})
+
+// 播放：沿停靠点推进，到末端自动停
+const ftlPlaying = ref(false)
+let ftlTimer = null
+function togglePlay() {
+  if (ftlPlaying.value) {
+    stopPlay()
+    return
+  }
+  if (timelineStops.value.length < 2) return
+  ftlPlaying.value = true
+  ftlTimer = setInterval(() => {
+    const stops = timelineStops.value
+    const at = stops.findIndex((s) => s.id === selectedStopId.value)
+    if (at < 0 || at >= stops.length - 1) {
+      stopPlay()
+      return
+    }
+    selectedStopId.value = stops[at + 1].id
+  }, 1800)
+}
+function stopPlay() {
+  ftlPlaying.value = false
+  if (ftlTimer) {
+    clearInterval(ftlTimer)
+    ftlTimer = null
+  }
+}
+
+// ---------- 水华风险研判（临时规则，见 riskAssessment.js）——由时间轴选中档位驱动 ----------
+const riskAssessment = computed(() => {
+  if (!realtimeSummary.value) return null
+  const kind = selectedStop.value?.kind
+  if (kind === 'mid') return assessMidTerm(realtimeSummary.value)
+  if (kind === 'long') return assessLongTerm(realtimeSummary.value, rsManifest.value)
+  return assessShortTerm(realtimeSummary.value)
+})
+
+// 实测快照摘要数值
+const classRateText = computed(() => {
+  const rate = realtimeSummary.value?.class_iii_rate
+  return rate != null ? `${Math.round(rate * 100)}%` : '—'
+})
+const chlaMeanText = computed(() => {
+  const v = realtimeSummary.value?.means?.chlorophyll_a?.value
+  if (v != null) return `${v} μg/L`
+  const sid = realtimeSummary.value?.selected_snapshot_id
+  const snap = (rtTimeline.value || []).find((s) => s.snapshot_id === sid)
+  return snap && snap.chla_mean != null ? `${snap.chla_mean} μg/L` : '—'
+})
 
 // 选中快照 → 展示该快照点位；环比开启时并联前一快照
 watch(rtSnapshotId, async (id, old) => {
@@ -520,7 +709,7 @@ const realtimePoints = computed(() =>
       hideLabel: true,
       color,
       coord: { lat: m.lat, lon: m.lon },
-      tooltip: `${m.name}（位置待核验）${m.chla != null ? ` · Chl-a ${m.chla} μg/L` : ' · Chl-a 缺测'}${deltaText}`
+      tooltip: `${m.name}${m.chla != null ? ` · Chl-a ${m.chla} μg/L` : ' · Chl-a 缺测'}${deltaText}`
     }
   })
 )
@@ -579,23 +768,18 @@ function onMobileMqChange(e) {
 }
 
 onMounted(() => {
-  fetchCaps()
   fetchLayers()
   fetchRsManifest()
   // 实时观测图层（observed）：失败不阻塞遥感主视图
   fetchRealtimeSummary().then((s) => { realtimeSummary.value = s }).catch(() => { realtimeSummary.value = null })
   fetchRealtimeTimeline().then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => { rtTimeline.value = [] })
-  realtimeRefreshTimer = setInterval(() => {
-    fetchRealtimeTimeline({ force: true }).then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => {})
-    if (!rtSnapshotId.value) {
-      fetchRealtimeSummary({ force: true }).then((s) => { realtimeSummary.value = s }).catch(() => {})
-    }
-  }, 60_000)
+  realtimeRefreshTimer = setInterval(refreshRealtime, 60_000)
   mobileMq?.addEventListener('change', onMobileMqChange)
 })
 
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
+  stopPlay()
   if (realtimeRefreshTimer) clearInterval(realtimeRefreshTimer)
   mobileMq?.removeEventListener('change', onMobileMqChange)
 })
@@ -927,6 +1111,60 @@ onBeforeUnmount(() => {
   font-family: var(--font-mono);
   text-align: right;
   word-break: break-all;
+}
+
+/* ---------- 水华风险研判 ---------- */
+.hm-risk-level {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+}
+.hm-risk-level b {
+  font-size: 14px;
+}
+.hm-risk-level span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+.hm-risk-level--high {
+  border-color: color-mix(in srgb, #ff6b6b 55%, transparent);
+  background: color-mix(in srgb, #ff6b6b 10%, transparent);
+}
+.hm-risk-level--high b { color: #ff6b6b; }
+.hm-risk-level--mid {
+  border-color: color-mix(in srgb, #f5b45d 55%, transparent);
+  background: color-mix(in srgb, #f5b45d 10%, transparent);
+}
+.hm-risk-level--mid b { color: #f5b45d; }
+.hm-risk-level--low {
+  border-color: color-mix(in srgb, #5fd6a4 55%, transparent);
+  background: color-mix(in srgb, #5fd6a4 10%, transparent);
+}
+.hm-risk-level--low b { color: #5fd6a4; }
+.hm-risk-reasons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.hm-risk-reasons li {
+  position: relative;
+  padding-left: 12px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.hm-risk-reasons li::before {
+  content: '·';
+  position: absolute;
+  left: 2px;
+  color: var(--text-muted);
 }
 
 /* ---------- 页脚 ---------- */

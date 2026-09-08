@@ -29,20 +29,6 @@
     <section class="hmlp-sec" aria-label="拓展图层（observed 真实数据）">
       <h3 class="hmlp-h">拓展图层 <span class="hmlp-legend-hint">observed 真实数据</span></h3>
       <div class="hmlp-extend">
-        <label class="hmlp-ext-row">
-          <span class="hmlp-ext-name">历史快照点位</span>
-          <select
-            class="hmlp-ext-select"
-            :value="snapshotId || ''"
-            aria-label="选择快照时间"
-            @change="$emit('update:snapshotId', $event.target.value || '')"
-          >
-            <option value="">最新快照</option>
-            <option v-for="snap in snapshotList" :key="snap.snapshot_id" :value="snap.snapshot_id">
-              {{ (snap.latest_observed_at || '').slice(5, 16).replace('T', ' ') }}
-            </option>
-          </select>
-        </label>
         <button
           type="button"
           class="hmlp-ext-toggle"
@@ -76,7 +62,7 @@
           <div class="hmlp-legend-item"><i class="lg" style="background:#ff6b6b"></i>中度 ≥25</div>
           <div class="hmlp-legend-item"><i class="lg" style="background:#7d93a8"></i>未报数</div>
           <p class="hmlp-legend-note">
-            站点来自 MEE 国控实时快照（官方观测未经跨源验证）；坐标待核验；阈值为筛查口径非监管判定。
+            站点来自 MEE 国控实时快照（官方观测未经跨源验证）；阈值为筛查口径非监管判定。
           </p>
         </div>
       </details>
@@ -104,59 +90,23 @@
         <li>历史遥感层：<b>已接入（THQBCA-V2 年度反演）</b></li>
         <li>当前实况层：<b>站点观测点位已接入（observed）</b></li>
       </ul>
-      <ul v-if="capabilityRows.length" class="hmlp-cap-chips">
-        <li v-for="row in capabilityRows" :key="row.label">
-          <span>{{ row.label }}</span>
-          <code>{{ row.status }}</code>
-        </li>
-      </ul>
-      <p v-else-if="capsState === 'loading'" class="hmlp-caps-loading">能力接口加载中…</p>
-      <p v-else-if="capsState === 'error'" class="hmlp-caps-error">
-        能力接口请求失败
-        <button type="button" class="hmlp-inline-btn" @click="$emit('retry-caps')">重试</button>
-      </p>
-      <p class="hmlp-note">遥感色标为全期固定尺度，跨年对比有意义；影像为年度反演产品，不代表实时水质。</p>
     </section>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
+defineProps({
   realtimeVisible: { type: Boolean, default: true },
-  snapshotId: { type: String, default: '' },
-  snapshotList: { type: Array, default: () => [] },
   diffEnabled: { type: Boolean, default: false },
   polygonEnabled: { type: Boolean, default: false },
   // 实时观测汇总（/realtime/summary）：驱动实况统计卡
   realtimeSummary: { type: Object, default: null },
   basemap: { type: String, default: 'satellite' },
-  // /forecast-capabilities 返回的 capabilities 映射
-  capabilities: { type: Object, default: null },
-  capsState: { type: String, default: 'loading' },
   // 移动端抽屉形态：图例默认折叠
   compact: { type: Boolean, default: false }
 })
 
-defineEmits(['update:realtimeVisible', 'update:snapshotId', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap', 'retry-caps'])
-
-const CAP_LABELS = {
-  historical_observation: '历史观测',
-  short_term_forecast_1_3d: '短临预测 1–3 天',
-  medium_term_forecast_7_15d: '中期预测 7–15 天',
-  long_term_forecast_30_90d: '长期预测 30–90 天',
-  satellite_chlorophyll: '卫星叶绿素',
-  real_time_warning_dispatch: '实时预警发布',
-  demo_warning_dispatch: '情景预警发送'
-}
-
-const capabilityRows = computed(() => {
-  if (!props.capabilities) return []
-  return Object.entries(props.capabilities)
-    .filter(([key]) => CAP_LABELS[key])
-    .map(([key, status]) => ({ label: CAP_LABELS[key], status }))
-})
+defineEmits(['update:realtimeVisible', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap'])
 </script>
 
 <style scoped>
@@ -216,40 +166,6 @@ const capabilityRows = computed(() => {
 .hmlp-basemap button:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
-}
-
-.hmlp-disabled {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 6px;
-}
-.hmlp-disabled button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  border: 1px dashed var(--border-subtle);
-  border-radius: 9px;
-  background: transparent;
-  padding: 7px 10px;
-  cursor: not-allowed;
-  text-align: left;
-}
-.hmlp-dl-name {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-.hmlp-dl-reason {
-  font-size: 10.5px;
-  font-family: var(--font-mono);
-  color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  padding: 1px 7px;
-  white-space: nowrap;
 }
 
 .hmlp-legend {
@@ -322,66 +238,10 @@ const capabilityRows = computed(() => {
   color: var(--text-primary);
   font-weight: 650;
 }
-.hmlp-cap-chips {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-}
-.hmlp-cap-chips li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.hmlp-cap-chips code {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  color: var(--data-simulated, #7cb8c9);
-  border: 1px solid color-mix(in srgb, var(--data-simulated, #7cb8c9) 40%, transparent);
-  border-radius: 999px;
-  padding: 1px 7px;
-  word-break: break-all;
-  text-align: right;
-}
-.hmlp-caps-loading,
-.hmlp-caps-error {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-.hmlp-caps-error {
-  color: var(--risk-medium, #facc15);
-}
-.hmlp-inline-btn {
-  appearance: none;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  background: var(--surface-panel-soft);
-  color: var(--text-primary);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  margin-left: 6px;
-  cursor: pointer;
-}
-.hmlp-note {
-  margin: 8px 0 0;
-  font-size: 10.5px;
-  line-height: 1.65;
-  color: var(--text-muted);
-}
 
 @media (max-width: 759px) {
   .hmlp-toggles button,
-  .hmlp-basemap button,
-  .hmlp-inline-btn {
-    min-height: 44px;
-  }
-  .hmlp-disabled button {
+  .hmlp-basemap button {
     min-height: 44px;
   }
   .hmlp-legend summary {
@@ -389,18 +249,6 @@ const capabilityRows = computed(() => {
   }
 }
 .hmlp-extend { display: grid; gap: 6px; }
-.hmlp-ext-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
-.hmlp-ext-name { font-size: 12px; color: var(--text-secondary); }
-.hmlp-ext-select {
-  min-height: 32px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  background: var(--surface-panel-soft);
-  color: var(--text-primary);
-  font-size: 12px;
-  padding: 2px 8px;
-  width: 100%;
-}
 .hmlp-ext-toggle {
   appearance: none;
   display: flex;

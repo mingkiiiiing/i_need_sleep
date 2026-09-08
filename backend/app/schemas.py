@@ -276,6 +276,60 @@ class RealtimeStatus(BaseModel):
     note: str | None = None
 
 
+# ---- 预警通知（蓝藻筛查同口径 10/25 μg/L；投递回执如实披露） ----
+
+class AlertDelivery(BaseModel):
+    channel: str
+    status: Literal["sent", "failed", "skipped"]
+    at: str
+    detail: str
+    recipients: list[str]
+    receipt: str | None = None
+
+
+class AlertEvent(BaseModel):
+    id: str
+    station_id: str
+    station_name: str
+    province: str | None
+    level: Literal["light", "moderate"]
+    chla: float | None
+    snapshot_id: str | None
+    observed_at: str | None
+    kind: Literal["trigger", "escalation"]
+    status: Literal["active", "resolved"]
+    triggered_at: str
+    resolved_at: str | None = None
+    resolve_reason: str | None = None
+    deliveries: list[AlertDelivery]
+
+
+class AlertOverview(BaseModel):
+    version: str
+    enabled: bool
+    channels: dict[str, dict[str, bool]]
+    active_counts: dict[str, int]
+    active_total: int
+    active_alerts: list[AlertEvent]
+    recent_alerts: list[AlertEvent]
+    last_evaluated_at: str | None
+    last_error: str | None
+    thresholds: dict[str, float]
+    threshold_note: str
+
+
+class AlertEvaluation(BaseModel):
+    evaluated_at: str
+    enabled: bool
+    snapshot_id: str | None
+    stations_scanned: int
+    warnings_seen: int
+    triggered: list[str]
+    escalated: list[str]
+    resolved: list[dict[str, Any]]
+    deliveries: list[AlertDelivery]
+
+
 # ---- 预测 ----
 class ForecastUncertainty(BaseModel):
     lower: int

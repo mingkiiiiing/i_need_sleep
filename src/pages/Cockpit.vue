@@ -609,7 +609,8 @@ function onTileError(v) {
   position: absolute;
   z-index: 900;
   left: 14px;
-  top: 96px;
+  /* 需避开 Leaflet 左上角缩放控件（header 37px + 控件高约 61px + 边距，底约 144px） */
+  top: 158px;
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
