@@ -1,7 +1,46 @@
 {
   "version": "alert-center-v1",
-  "updated_at": "2026-09-08T20:21:12.066567+00:00",
+  "updated_at": "2026-09-09T07:59:00.548101+00:00",
   "events": [
+    {
+      "id": "evt-baa0ff13a869",
+      "no": "AL20260909-F116",
+      "type": "realtime",
+      "level": "light",
+      "title": "急水港桥 · 叶绿素a达到黄色预警阈值",
+      "station_id": "mee-483f6dda",
+      "station_name": "急水港桥",
+      "province": "上海市",
+      "status": "pending",
+      "assignee": null,
+      "evidence": {
+        "indicator": "叶绿素a",
+        "indicator_code": "chlorophyll_a",
+        "unit": "μg/L",
+        "value": 13.2,
+        "threshold": 10.0,
+        "observed_at": "2026-09-09T15:00:00+08:00",
+        "triggered_at": "2026-09-09T07:59:00.525182+00:00",
+        "snapshot_id": "mee_surface_water_realtime_20260909T075439Z",
+        "state": "valid",
+        "continuous": 1,
+        "rule_name": "蓝藻筛查 · 黄色预警（叶绿素a ≥ 10 μg/L）"
+      },
+      "rule_name": "蓝藻筛查 · 黄色预警",
+      "engine_alert_id": "alr-2026-09-09T07:59:00.525182+00:00-483f6dda-l",
+      "engine_alert_ids": [
+        "alr-2026-09-09T07:59:00.525182+00:00-483f6dda-l"
+      ],
+      "plan": null,
+      "records": [],
+      "pushes": [],
+      "notified": {},
+      "created_at": "2026-09-09T07:59:00.525182+00:00",
+      "updated_at": "2026-09-09T07:59:00.538468+00:00",
+      "closed_at": null,
+      "acknowledged_at": null,
+      "recovered_at": null
+    },
     {
       "id": "evt-82e1a073db82",
       "no": "AL20260908-F324",
@@ -11,7 +50,7 @@
       "station_id": "mee-b80df03e",
       "station_name": "拖山",
       "province": "江苏省",
-      "status": "pending",
+      "status": "review",
       "assignee": null,
       "evidence": {
         "indicator": "叶绿素a",
@@ -22,7 +61,7 @@
         "observed_at": "2026-09-09T03:00:00+08:00",
         "triggered_at": "2026-09-08T19:31:38.089982+00:00",
         "snapshot_id": "mee_surface_water_realtime_20260908T192435Z",
-        "state": "valid",
+        "state": "recovered",
         "continuous": 1,
         "rule_name": "蓝藻筛查 · 黄色预警（叶绿素a ≥ 10 μg/L）"
       },
@@ -32,14 +71,27 @@
         "alr-2026-09-08T19:31:38.089982+00:00-b80df03e-l"
       ],
       "plan": null,
-      "records": [],
+      "records": [
+        {
+          "at": "2026-09-08T20:56:20.198519+00:00",
+          "actor": "系统",
+          "action": "recovered",
+          "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-08T20:56:20.198526+00:00",
+          "actor": "系统",
+          "action": "to_review",
+          "detail": "证据已恢复，请复核后关闭"
+        }
+      ],
       "pushes": [],
       "notified": {},
       "created_at": "2026-09-08T19:31:38.089982+00:00",
-      "updated_at": "2026-09-08T19:31:38.104878+00:00",
+      "updated_at": "2026-09-09T07:59:00.547825+00:00",
       "closed_at": null,
       "acknowledged_at": null,
-      "recovered_at": null
+      "recovered_at": "2026-09-08T20:56:20.198498+00:00"
     },
     {
       "id": "evt-8ca4a1b503f5",
@@ -391,13 +443,15 @@
         "observed_at": "2026-09-08T00:00:00+08:00",
         "triggered_at": "2026-09-07T16:58:00.289490+00:00",
         "snapshot_id": "mee_surface_water_realtime_20260907T155434Z",
-        "state": "recovered",
+        "state": "valid",
         "continuous": 1,
         "rule_name": "蓝藻筛查 · 黄色预警（叶绿素a ≥ 10 μg/L）"
       },
       "rule_name": "蓝藻筛查 · 黄色预警",
-      "engine_alert_id": "alr-2026-09-08T18:27:36.597084+00:00-93797451-l",
+      "engine_alert_id": "alr-2026-09-09T02:57:47.206961+00:00-93797451-l",
       "engine_alert_ids": [
+        "alr-2026-09-08T20:56:20.170639+00:00-93797451-l",
+        "alr-2026-09-09T02:57:47.206961+00:00-93797451-l",
         "alr-2026-09-07T16:58:00.289490+00:00-93797451-l",
         "alr-2026-09-08T18:27:36.597084+00:00-93797451-l"
       ],
@@ -432,15 +486,33 @@
           "actor": "系统",
           "action": "recovered",
           "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-08T20:56:20.191055+00:00",
+          "actor": "系统",
+          "action": "escalate",
+          "detail": "风险等级由 黄色预警 升级为 黄色预警"
+        },
+        {
+          "at": "2026-09-08T23:26:56.966320+00:00",
+          "actor": "系统",
+          "action": "recovered",
+          "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-09T02:57:47.218558+00:00",
+          "actor": "系统",
+          "action": "escalate",
+          "detail": "风险等级由 黄色预警 升级为 黄色预警"
         }
       ],
       "pushes": [],
       "notified": {},
       "created_at": "2026-09-07T16:58:00.289490+00:00",
-      "updated_at": "2026-09-08T20:21:12.066329+00:00",
+      "updated_at": "2026-09-09T02:52:46.122802+00:00",
       "closed_at": null,
       "acknowledged_at": null,
-      "recovered_at": "2026-09-08T19:31:38.109534+00:00"
+      "recovered_at": "2026-09-08T23:26:56.966313+00:00"
     },
     {
       "id": "evt-b7f22913ed95",
