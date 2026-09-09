@@ -1,0 +1,167 @@
+{
+  "generated_at": "2026-09-09T12:25:16.797266+00:00",
+  "method": "leave_one_month_out_affine_ground_pair_calibration",
+  "holdout_definition": "按航次月留出（2020-12 / 2022-12 / 2023-10），其余月拟合",
+  "pair_dataset_ref": "backend/model_runtime_v0_3/pair_dataset/pairs.parquet",
+  "sensors": {
+    "modis_lwq300_10daily": {
+      "pair_count": 82,
+      "holdout_metrics": {
+        "r2": 0.05613126057487028,
+        "rmse": 4.577146285984781,
+        "mae": 3.343829878048781,
+        "n": 82
+      },
+      "season_grouped_metrics": {
+        "r2": -0.2156847060893674,
+        "rmse": 5.194568384404136,
+        "mae": 4.019792621951219,
+        "n": 82
+      },
+      "full_fit_coefficients": {
+        "slope": -0.16203140183701634,
+        "intercept": 6.015209555637305
+      },
+      "degenerate_folds": 0,
+      "folds": [
+        {
+          "holdout_month": "2020-12",
+          "mode": "affine",
+          "slope": -0.17149878988495496,
+          "intercept": 6.454159107056162,
+          "calib_n": 62
+        },
+        {
+          "holdout_month": "2022-12",
+          "mode": "affine",
+          "slope": -0.3956730932051558,
+          "intercept": 8.205221413141274,
+          "calib_n": 56
+        },
+        {
+          "holdout_month": "2023-10",
+          "mode": "affine",
+          "slope": -0.1072785173638137,
+          "intercept": 4.458709155505547,
+          "calib_n": 46
+        }
+      ]
+    },
+    "s2_30m_mci": {
+      "pair_count": 63,
+      "holdout_metrics": {
+        "r2": -1.2117941319102021,
+        "rmse": 7.582706731046898,
+        "mae": 6.1298788529876616,
+        "n": 63
+      },
+      "season_grouped_metrics": {
+        "r2": -0.4459109495738449,
+        "rmse": 6.130878112691894,
+        "mae": 4.5605391330731635,
+        "n": 63
+      },
+      "full_fit_coefficients": {
+        "slope": 658.0755735878422,
+        "intercept": -4.353407765836944
+      },
+      "degenerate_folds": 0,
+      "folds": [
+        {
+          "holdout_month": "2022-12",
+          "mode": "affine",
+          "slope": -773.7482715740196,
+          "intercept": 15.525936255468862,
+          "calib_n": 37
+        },
+        {
+          "holdout_month": "2023-10",
+          "mode": "affine",
+          "slope": -100.25320337307645,
+          "intercept": 2.0377812202610284,
+          "calib_n": 27
+        },
+        {
+          "holdout_month": "2026-08",
+          "mode": "affine",
+          "slope": 916.0975199820106,
+          "intercept": -7.212247883741533,
+          "calib_n": 62
+        }
+      ]
+    },
+    "s2_30m_ndci": {
+      "pair_count": 63,
+      "holdout_metrics": {
+        "r2": -1.4684101728452044,
+        "rmse": 8.010517482090778,
+        "mae": 6.537031176826803,
+        "n": 63
+      },
+      "season_grouped_metrics": {
+        "r2": -0.4459109495738449,
+        "rmse": 6.130878112691894,
+        "mae": 4.5605391330731635,
+        "n": 63
+      },
+      "full_fit_coefficients": {
+        "slope": 73.94302655277524,
+        "intercept": 2.542350726124252
+      },
+      "degenerate_folds": 0,
+      "folds": [
+        {
+          "holdout_month": "2022-12",
+          "mode": "affine",
+          "slope": -104.04519877569564,
+          "intercept": 8.043298874806084,
+          "calib_n": 37
+        },
+        {
+          "holdout_month": "2023-10",
+          "mode": "affine",
+          "slope": -12.002648781226103,
+          "intercept": 0.9544137461896895,
+          "calib_n": 27
+        },
+        {
+          "holdout_month": "2026-08",
+          "mode": "affine",
+          "slope": 94.1054389381538,
+          "intercept": 2.4656009753399784,
+          "calib_n": 62
+        }
+      ]
+    }
+  },
+  "s2_group_choice": {
+    "chosen": "s2_30m_mci",
+    "rule": "S2 各候选组按留出 R² 择优（并列取 RMSE 低者）；第二轮加入季节分组（DJF/MAM/JJA/SON）分层校准版本，两者取留出 R² 较高者并披露口径",
+    "season_grouped_metrics": {
+      "s2_30m_mci": {
+        "r2": -0.4459109495738449,
+        "rmse": 6.130878112691894,
+        "mae": 4.5605391330731635,
+        "n": 63
+      },
+      "s2_30m_ndci": {
+        "r2": -0.4459109495738449,
+        "rmse": 6.130878112691894,
+        "mae": 4.5605391330731635,
+        "n": 63
+      }
+    },
+    "seasonal_chosen": "s2_30m_mci",
+    "unavailable": {
+      "s2_20m_ndci": "no_pairs_in_release_20m_bands_null_at_field_stations"
+    }
+  },
+  "modis_holdout_metrics": {
+    "r2": 0.05613126057487028,
+    "rmse": 4.577146285984781,
+    "mae": 3.343829878048781,
+    "n": 82
+  },
+  "honesty_note": "配对样本来自 3 个航次月，留出折自由度有限，R²/RMSE 如实给出（可为负）；该结果仅证明'经地面配对的统计校准流程与独立留出验证已建立'，月度产品单月合成值导致的组内零方差折以均值预测回退并逐折披露。",
+  "scatter_ref": "backend/model_runtime_v0_3/evaluation/calibration_scatter.csv"
+}

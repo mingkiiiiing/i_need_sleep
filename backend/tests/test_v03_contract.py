@@ -62,11 +62,28 @@ def test_supervised_base_split_frozen_matches_month_bounds():
 
 
 def test_proxy_labels_never_claim_ground_truth():
-    for spec in TASK_SPECS_REAL:
-        if spec.label_provenance == "proxy_derived":
-            assert spec.label_provenance != "ground_truth"
     provenance = {(spec.task_id, spec.variant): spec.label_provenance for spec in TASK_SPECS_REAL}
     assert provenance[("T1", "bloom")] == "proxy_derived"
     assert provenance[("T6", "probability")] == "proxy_derived"
     assert provenance[("T5", "chla")] == "ground_truth"
+    # 第二轮：T4 直接以 wq_phyto_biomass 作目标（ground_truth）；T2/T3 代理目标
+    assert provenance[("T4", "biomass")] == "ground_truth"
+    assert provenance[("T3", "density")] == "proxy_derived"
+    assert provenance[("T2", "coverage")] == "proxy_derived"
     assert BLOOM_THRESHOLD_UG_L == 20.0
+
+
+def test_task_level_feature_exclusions_prevent_same_month_leakage():
+    from backend.model_runtime_v0_3.code.modeling_real.contracts_real import (  # noqa: I001
+        FCB_BLOOM_PROB_THRESHOLD,
+        FCB_PROB_SCALE_FACTOR,
+        feature_columns_for_task,
+    )
+    # 目标同源特征必须从当月特征中剔除（滞后/滚动列保留）
+    assert "wq_phyto_biomass" not in feature_columns_for_task("biomass")
+    assert "wq_phyto_biomass" not in feature_columns_for_task("density")
+    assert "rs_clms_lwq_300m_10daily_fcb_prob" not in feature_columns_for_task("coverage")
+    assert "wq_phyto_biomass" in feature_columns_for_task("chla")
+    assert len(feature_columns_for_task("chla")) == 78
+    assert FCB_BLOOM_PROB_THRESHOLD == 0.5
+    assert FCB_PROB_SCALE_FACTOR == 10000.0

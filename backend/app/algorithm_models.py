@@ -785,8 +785,8 @@ class AlgorithmModelServiceV3:
             "package_dir": str(self.package_dir),
         }
 
-    def _bundle(self, task_id: str, variant: str, month_offset: int) -> Any:
-        key = (task_id, variant, month_offset)
+    def _bundle(self, task_id: str, variant: str, month_offset: int, horizon_days: int) -> Any:
+        key = (task_id, variant, month_offset, horizon_days)
         cached = self._bundles.get(key)
         if cached is not None:
             return cached
@@ -795,7 +795,7 @@ class AlgorithmModelServiceV3:
             if cached is not None:
                 return cached
             _, load_bundle, _, _, _, _ = self._runtime_imports()
-            path = self.model_dir / f"{task_id}-{variant}-{month_offset}m-s{MODEL_SEED_V3}.joblib"
+            path = self.model_dir / f"{task_id}-{variant}-{month_offset}m-s{MODEL_SEED_V3}-{horizon_days}d.joblib"
             if not path.is_file():
                 return None
             bundle = load_bundle(path)
@@ -892,7 +892,7 @@ class AlgorithmModelServiceV3:
         results: dict[str, Any] = {}
         all_feature_columns: set[str] = set()
         for output_key, task_id, variant, label in TASKS:
-            bundle = self._bundle(task_id, variant, month_offset)
+            bundle = self._bundle(task_id, variant, month_offset, horizon_days)
             entry = availability.get((task_id, variant), {})
             if bundle is None:
                 result = {
@@ -938,7 +938,7 @@ class AlgorithmModelServiceV3:
                     "area": "km²", "coverage": "ratio", "density": "cells/L",
                     "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
                 }.get(output_key),
-                "model_file": f"{bundle.run_id}.joblib",
+                "model_file": f"{bundle.run_id}-{bundle.horizon_days}d.joblib",
                 "selected_family": bundle.selected_family,
                 "granularity_tier": bundle.granularity_tier,
                 "label_provenance": entry.get("label_provenance"),

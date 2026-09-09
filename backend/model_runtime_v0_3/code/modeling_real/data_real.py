@@ -164,7 +164,8 @@ def save_bundle(bundle: ModelBundleV3, out_dir: str | Path) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     if not bundle.created_at:
         bundle.created_at = datetime.now(timezone.utc).isoformat()
-    path = out / f"{bundle.run_id}.joblib"
+    # 同一 run_id 可对应多个 horizon（run_id 含 month_offset 而非 horizon），文件名必须带时效防覆盖
+    path = out / f"{bundle.run_id}-{bundle.horizon_days}d.joblib"
     joblib.dump(bundle, path)
     return path
 
