@@ -8,6 +8,13 @@
           <div class="hm-title-text">
             <h1>卫星遥感与时空推演</h1>
           </div>
+          <button
+            type="button"
+            class="hm-raster-toggle"
+            data-role="raster-toggle"
+            :aria-pressed="String(rasterOpen)"
+            @click="rasterOpen = !rasterOpen"
+          >{{ rasterOpen ? '收起月度栅格场' : 'V0.3 月度栅格场' }}</button>
         </div>
       </header>
 
@@ -25,6 +32,8 @@
             v-model:realtime-visible="layerRealtime"
             v-model:diff-enabled="rtDiff"
             v-model:polygon-enabled="rtPolygon"
+            v-model:field-enabled="modelFieldEnabled"
+            v-model:boundary-enabled="modelBoundaryEnabled"
             v-model:basemap="basemap"
             :stations="stationOptions"
             :station-id="selectedStationId"
@@ -93,6 +102,10 @@
               :badge-b="pageMode === 'rs' ? badgeB : ''"
               :points="realtimePoints"
               :points-visible="layerRealtime"
+              :field-points="modelSpatialPoints"
+              :field-visible="pageMode === 'forecast' && modelFieldEnabled"
+              :field-boundary="modelSpatialBoundary"
+              :boundary-visible="pageMode === 'forecast' && modelBoundaryEnabled"
               :hull="warningHull"
               :basemap="basemap"
               :opacity="rsOpacity"
@@ -111,6 +124,10 @@
                   重试
                 </button>
               </StatePanel>
+            </div>
+            <!-- V0.3 月度栅格场浮动面板（P0-4 证据：连续栅格 + 20 μg/L 边界） -->
+            <div v-if="rasterOpen" class="hm-raster-panel" data-role="raster-panel">
+              <RasterLayer :horizon-days="3" closable @close="rasterOpen = false" />
             </div>
           </div>
 
@@ -171,8 +188,12 @@
             :diff-summary="diffSummary"
             :diff-base-time="diffBaseTimeText"
             :summary-loading="summaryState === 'loading'"
+            :model-forecast="modelForecast"
+            :model-state="modelState"
+            :model-error="modelError"
             @back-to-lake="clearStation"
             @retry="retryRealtimeSummary"
+            @retry-model="retryModelForecast"
           />
 
           <!-- 实测回放：快照摘要 -->
@@ -323,12 +344,17 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
+  getAlgorithmModelStatusEnvelope,
+  getAlgorithmPredictionsEnvelope,
+  getAlgorithmSpatialFieldEnvelope,
+  getAlgorithmV3PredictionsEnvelope,
   getRsManifestEnvelope,
   rsImageUrl
 } from '../services/api.js'
 import BackLink from '../components/common/BackLink.vue'
 import StatePanel from '../components/common/StatePanel.vue'
 import RsMap from '../components/heatmap/RsMap.vue'
+import RasterLayer from '../components/heatmap/RasterLayer.vue'
 import ForecastControlPanel from '../components/heatmap/ForecastControlPanel.vue'
 import ForecastResultPanel from '../components/heatmap/ForecastResultPanel.vue'
 import ForecastTimeline from '../components/heatmap/ForecastTimeline.vue'
@@ -445,6 +471,8 @@ const realtimeSummary = ref(null)
 const rtSnapshotId = ref('')
 const rtDiff = ref(false)
 const rtPolygon = ref(false)
+const modelFieldEnabled = ref(true)
+const modelBoundaryEnabled = ref(false)
 const rtTimeline = ref([])
 const prevSummary = ref(null)
 const basemap = ref('satellite')
@@ -512,13 +540,14 @@ function refreshRealtime() {
       summaryAttempt = 0
     })
     .catch(() => {})
+  loadModelForecast()
 }
 
 // ---------- 页面模式：实测回放 / 预测推演（主视图） / 遥感年度对比 ----------
 // URL 恢复：mode / scale / metric / station / stop
 const VALID_MODES = ['replay', 'forecast', 'rs']
 const VALID_SCALES = ['short', 'mid', 'long']
-const VALID_METRICS = ['risk', 'chla']
+const VALID_METRICS = ['risk', 'chla', 'area', 'biomass']
 
 const pageMode = ref('forecast')
 const scale = ref('short')
@@ -599,8 +628,8 @@ watch(selectedStationId, async (id) => {
 // 预测段：短临/趋势/中长期三个尺度档下的具体时刻（T+1…T+90），
 // 相邻时刻共享该档位的规则研判结论（透明规则，非逐日数值预报）。
 const SCALES = [
-  { id: 'short', label: '短临', hint: '1-3 天', from: 1, to: 3, days: [1, 2, 3], pos: { 1: 47, 2: 52, 3: 57 } },
-  { id: 'mid', label: '趋势', hint: '7-15 天', from: 7, to: 15, days: [7, 10, 15], pos: { 7: 63.5, 10: 68.5, 15: 73.5 } },
+  { id: 'short', label: '短临', hint: '1-3 天', from: 1, to: 3, days: [1, 3], pos: { 1: 48, 3: 57 } },
+  { id: 'mid', label: '趋势', hint: '7-15 天', from: 7, to: 15, days: [7, 15], pos: { 7: 64, 15: 74 } },
   { id: 'long', label: '中长期', hint: '30-90 天', from: 30, to: 90, days: [30, 60, 90], pos: { 30: 80, 60: 87, 90: 94 } }
 ]
 const TODAY_POS = 42
@@ -666,7 +695,7 @@ const timelineStops = computed(() => {
         // 刻度只标 +n；完整 “T+n · 尺度 · 预测日期” 见右侧状态与结果面板
         tick: `+${n}`,
         title: `未来 T+${n} · ${sc.label}`,
-        sub: `预测 ${fmtMD(date)} · 规则研判 ${fmtMD(shiftDate(anchor, sc.from))}~${fmtMD(shiftDate(anchor, sc.to))}`
+        sub: `预测 ${fmtMD(date)} · 算法交付包 V0.2 · ${sc.label}`
       })
     })
   })
@@ -680,6 +709,64 @@ const timelineScales = computed(() =>
 const selectedStopId = ref('')
 const selectedStop = computed(() => timelineStops.value.find((s) => s.id === selectedStopId.value) || null)
 const selectedStopIsFuture = computed(() => ['short', 'mid', 'long'].includes(selectedStop.value?.kind))
+const selectedHorizon = computed(() => {
+  const match = String(selectedStopId.value || '').match(/^t(1|3|7|15|30|60|90)$/)
+  return match ? Number(match[1]) : 1
+})
+
+// ---------- 算法交付包 V0.2：MEE 实测字段 + 冻结预处理器插补 ----------
+const modelForecast = ref(null)
+const modelStatus = ref(null)
+const modelState = ref('loading')
+const modelError = ref('')
+const spatialField = ref(null)
+const spatialState = ref('loading')
+let modelRequestToken = 0
+let spatialRequestToken = 0
+
+async function loadModelForecast() {
+  if (pageMode.value !== 'forecast') return
+  const token = ++modelRequestToken
+  modelState.value = 'loading'
+  modelError.value = ''
+  try {
+    const { data } = await getAlgorithmPredictionsEnvelope(selectedHorizon.value, selectedStationId.value || 'lake', metric.value)
+    if (token !== modelRequestToken) return
+    modelForecast.value = data
+    modelState.value = 'ok'
+  } catch (err) {
+    if (token !== modelRequestToken) return
+    modelForecast.value = null
+    modelState.value = 'error'
+    modelError.value = err?.message || '算法模型请求失败'
+  }
+}
+
+function retryModelForecast() {
+  loadModelForecast()
+  loadSpatialField()
+}
+
+async function loadSpatialField() {
+  if (pageMode.value !== 'forecast') return
+  const token = ++spatialRequestToken
+  spatialState.value = 'loading'
+  try {
+    const { data } = await getAlgorithmSpatialFieldEnvelope(selectedHorizon.value, metric.value)
+    if (token !== spatialRequestToken) return
+    spatialField.value = data
+    spatialState.value = 'ok'
+  } catch {
+    if (token !== spatialRequestToken) return
+    spatialField.value = null
+    spatialState.value = 'error'
+  }
+}
+
+watch([pageMode, selectedStopId, selectedStationId, metric], () => {
+  loadModelForecast()
+  loadSpatialField()
+})
 
 function firstStopOfScale(scaleId) {
   return timelineStops.value.find((s) => s.scale === scaleId) || null
@@ -811,10 +898,10 @@ const lakeInputs = computed(() => {
 
 // 模型与运行信息（左侧控制面板底部）
 const modelInfo = computed(() => ({
-  runStatus: '规则研判模式 · 正式模型未接入',
-  modelVersion: 'rule-assessment v1（透明规则）',
-  issuedAt: realtimeSummary.value?.latest_observed_at ? formatStamp(realtimeSummary.value.latest_observed_at) : '—',
-  dataTime: realtimeSummary.value?.latest_observed_at ? formatStamp(realtimeSummary.value.latest_observed_at) : '—'
+  runStatus: modelState.value === 'ok' ? '63 模型已接入 · 情景推演' : '模型状态检查中',
+  modelVersion: modelStatus.value?.status === 'ready' ? '算法交付包 V0.2（63 模型）' : '算法交付包 V0.2',
+  issuedAt: modelForecast.value?.issued_at ? formatStamp(modelForecast.value.issued_at) : '—',
+  dataTime: modelForecast.value?.scope?.observed_at ? formatStamp(modelForecast.value.scope.observed_at) : '—'
 }))
 
 // 实测快照摘要数值
@@ -932,6 +1019,23 @@ const warningHull = computed(() => {
   return convexHull(pts)
 })
 
+const MODEL_METRIC_LABELS = { risk: '风险概率', chla: '叶绿素 a', area: '水华面积', biomass: '蓝藻生物量' }
+const modelSpatialPoints = computed(() => {
+  if (spatialState.value !== 'ok' || !spatialField.value) return []
+  const unit = spatialField.value.unit || ''
+  return (spatialField.value.points || []).map((point) => ({
+    ...point,
+    tooltip: `${point.name} · T+${spatialField.value.horizon_days} ${MODEL_METRIC_LABELS[metric.value] || metric.value} ${metric.value === 'risk' ? `${(Number(point.value) * 100).toFixed(1)}%` : `${Number(point.value).toLocaleString('zh-CN', { maximumFractionDigits: 3 })} ${unit}`}`
+  }))
+})
+const modelSpatialBoundary = computed(() => {
+  if (!modelBoundaryEnabled.value) return []
+  const high = modelSpatialPoints.value
+    .filter((point) => Number(point.normalized) >= 0.65)
+    .map((point) => [Number(point.lon), Number(point.lat)])
+  return convexHull(high)
+})
+
 // 实时观测点位（observed 轨）：与遥感影像同图叠加，颜色按 chla 筛查口径；
 // 环比开启时，有升降变化的点放大突出（红升/绿降）。
 // 汇总未就绪时用站点目录真实坐标画灰色兜底点（不造数值），数据到达后自动替换。
@@ -1023,6 +1127,7 @@ onMounted(() => {
   fetchRsManifest()
   // 实时观测图层（observed）：失败自动重试，不阻塞主视图
   loadSummary(rtSnapshotId.value || '')
+  getAlgorithmModelStatusEnvelope().then(({ data }) => { modelStatus.value = data }).catch(() => { modelStatus.value = null })
   fetchRealtimeTimeline().then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => { rtTimeline.value = [] })
   fetchRealtimeStations().then((list) => { stationCatalog.value = list }).catch(() => { stationCatalog.value = [] })
   realtimeRefreshTimer = setInterval(refreshRealtime, 60_000)
@@ -1265,6 +1370,39 @@ onBeforeUnmount(() => {
   background: color-mix(in srgb, var(--surface-panel, rgba(9, 28, 48, 0.88)) 72%, transparent);
   border-radius: 14px;
   z-index: 500;
+}
+
+/* V0.3 月度栅格场：标题切换按钮 + 地图上方浮动面板 */
+.hm-raster-toggle {
+  margin-left: 12px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.hm-raster-toggle:hover { color: var(--text-primary); }
+.hm-raster-toggle[aria-pressed='true'] {
+  background: var(--color-primary);
+  color: var(--color-primary-ink);
+  border-color: transparent;
+}
+.hm-raster-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 600;
+  width: min(520px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface-panel, rgba(9, 28, 48, 0.94));
+  box-shadow: 0 18px 60px rgba(2, 8, 18, 0.55);
 }
 
 /* ---------- 年份滑轴与色带 ---------- */

@@ -16,6 +16,8 @@ const Heatmap = () => import('./pages/Heatmap.vue')
 const History = () => import('./pages/History.vue')
 const Wallboard = () => import('./pages/Wallboard.vue')
 const Alerts = () => import('./pages/Alerts.vue')
+const ComplianceBoard = () => import('./pages/ComplianceBoard.vue')
+const GateReport = () => import('./pages/GateReport.vue')
 const NotFound = () => import('./pages/NotFound.vue')
 
 const routes = [
@@ -26,6 +28,8 @@ const routes = [
   { path: '/history', name: 'history', component: History, meta: { title: '实时观测历史复盘' } },
   { path: '/wallboard', name: 'wallboard', component: Wallboard, meta: { title: '实时大屏' } },
   { path: '/alerts', name: 'alerts', component: Alerts, meta: { title: '预警与应急预案中心' } },
+  { path: '/compliance', name: 'compliance', component: ComplianceBoard, meta: { title: 'V0.3 达标看板' } },
+  { path: '/gate-report', name: 'gate-report', component: GateReport, meta: { title: 'V0.3 门禁明细' } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound, meta: { title: '页面未找到' } }
 ]
 

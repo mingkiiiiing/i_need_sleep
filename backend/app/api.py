@@ -34,6 +34,7 @@ from .contracts import (
     observed_envelope,
 )
 from .errors import (
+    ApiError,
     capability_unavailable,
     entity_not_found,
     forecast_not_available,
@@ -49,6 +50,14 @@ from .station_forecast import StationForecastNotAvailable
 from .alert_center import CenterInvalidOperation, CenterNotFound, alert_center
 from .history_review import history_review
 from .services import alert_engine, service
+from .algorithm_models import (
+    AlgorithmModelUnavailable,
+    CLAIM_BOUNDARY as ALGORITHM_CLAIM_BOUNDARY,
+    DATA_VERSION as ALGORITHM_DATA_VERSION,
+    CLAIM_BOUNDARY_V3 as ALGORITHM_CLAIM_BOUNDARY_V3,
+    DATA_VERSION_V3 as ALGORITHM_DATA_VERSION_V3,
+    SUPPORTED_HORIZONS as ALGORITHM_HORIZONS,
+)
 
 router = APIRouter(prefix="/api/v1")
 
@@ -565,6 +574,283 @@ def get_realtime_station_forecast_status(request: Request):
 
 
 # ---------- 预测（P03 / P07；T+30 能力阻塞） ----------
+
+
+@router.get("/model/status", response_model=schemas.Envelope[dict])
+def get_algorithm_model_status(request: Request):
+    """63 模型交付包运行状态与声明边界。"""
+    data = service.algorithm_model_status()
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY,
+    )
+
+
+@router.get("/model/predictions", response_model=schemas.Envelope[dict])
+def get_algorithm_predictions(
+    request: Request,
+    horizon_days: int = Query(3),
+    entity_id: str = "lake",
+    focus_metric: Literal["risk", "chla", "area", "biomass", "density"] = "risk",
+):
+    """交付包 V0.2 全任务预测；支持全湖 MEE 汇总或单个 MEE 站点输入。"""
+    if horizon_days not in ALGORITHM_HORIZONS:
+        raise invalid_horizon(
+            "算法模型仅支持 1、3、7、15、30、60、90 天",
+            detail=f"horizon_days={horizon_days} 不在 {list(ALGORITHM_HORIZONS)} 中",
+            dataset_version=ALGORITHM_DATA_VERSION,
+        )
+    try:
+        data = service.algorithm_predictions(horizon_days, entity_id, focus_metric)
+    except KeyError as exc:
+        raise entity_not_found(
+            "实时站点不存在",
+            dataset_version=ALGORITHM_DATA_VERSION,
+            detail=f"entity_id={exc.args[0]!r} 不在 MEE 实时站点目录中",
+        ) from exc
+    except AlgorithmModelUnavailable as exc:
+        raise capability_unavailable(
+            "算法模型运行包当前不可用",
+            detail=str(exc),
+            dataset_version=ALGORITHM_DATA_VERSION,
+        ) from exc
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=data["prediction_run_id"],
+        data_mode="hybrid",
+        as_of=data.get("issued_at") or _observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY,
+    )
+
+
+@router.get("/model/acceptance", response_model=schemas.Envelope[dict])
+def get_algorithm_acceptance(request: Request):
+    """冻结测试口径下的 10% 提升门禁；失败状态必须原样返回。"""
+    data = service.algorithm_acceptance()
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=None,
+        data_mode="simulated",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY,
+    )
+
+
+@router.get("/model/spatial-field", response_model=schemas.Envelope[dict])
+def get_algorithm_spatial_field(
+    request: Request,
+    horizon_days: int = Query(3),
+    metric: Literal["risk", "chla", "area", "biomass"] = "risk",
+    layer: Literal["model", "raster"] = "model",
+):
+    """太湖范围内空间场：layer=model（legacy 站点样点）或 layer=raster（V0.3 连续栅格）。"""
+    if horizon_days not in ALGORITHM_HORIZONS:
+        raise invalid_horizon(
+            "算法空间推演仅支持 1、3、7、15、30、60、90 天",
+            detail=f"horizon_days={horizon_days} 不在 {list(ALGORITHM_HORIZONS)} 中",
+            dataset_version=ALGORITHM_DATA_VERSION,
+        )
+    if layer == "raster":
+        data = _v3_algorithm_call(
+            lambda: service.algorithm_spatial_field_v3(horizon_days, metric, "raster")
+        )
+    else:
+        data = service.algorithm_spatial_field(horizon_days, metric)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=data["prediction_run_id"],
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY,
+    )
+
+
+def _v3_algorithm_call(fn) -> dict[str, Any]:
+    """V0.3 包统一异常翻译：包缺失 → 409，非法输入 → 422，站点不存在 → 404。"""
+    try:
+        return fn()
+    except AlgorithmModelUnavailable as exc:
+        raise capability_unavailable(
+            "V0.3 算法运行包当前不可用",
+            detail=str(exc),
+            dataset_version=ALGORITHM_DATA_VERSION_V3,
+        ) from exc
+    except KeyError as exc:
+        raise entity_not_found(
+            "实时站点不存在",
+            dataset_version=ALGORITHM_DATA_VERSION_V3,
+            detail=f"entity_id={exc.args[0]!r} 不在 MEE 实时站点目录中",
+        ) from exc
+    except ValueError as exc:
+        raise ApiError(
+            status_code=422,
+            code="REQUEST_VALIDATION_FAILED",
+            message="请求参数不在 V0.3 支持范围内",
+            detail=str(exc),
+            dataset_version=ALGORITHM_DATA_VERSION_V3,
+        ) from exc
+
+
+@router.get("/model/v3/status", response_model=schemas.Envelope[dict])
+def get_algorithm_model_status_v3(request: Request):
+    """V0.3 真实数据包状态：78 字段契约、月度标签粒度披露与 legacy 对照。"""
+    data = _v3_algorithm_call(service.algorithm_model_status_v3)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/predictions", response_model=schemas.Envelope[dict])
+def get_algorithm_predictions_v3(
+    request: Request,
+    horizon_days: int = Query(3),
+    entity_id: str = "lake",
+    focus_metric: Literal["risk", "chla", "area", "biomass", "density"] = "risk",
+):
+    """V0.3 全任务预测：月度标签粒度 + conformal P05/P95 区间；30/60/90 天携带“情景推演”锁定标记。"""
+    data = _v3_algorithm_call(
+        lambda: service.algorithm_predictions_v3(horizon_days, entity_id, focus_metric)
+    )
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data["prediction_run_id"],
+        data_mode="hybrid",
+        as_of=data.get("issued_at") or _observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/acceptance", response_model=schemas.Envelope[dict])
+def get_algorithm_acceptance_v3(request: Request):
+    """V0.3 10% 门禁汇总（唯一来源 gate_table.json，实时生成；N.A. 如实披露）。"""
+    data = _v3_algorithm_call(service.algorithm_acceptance_v3)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/acceptance/detail", response_model=schemas.Envelope[dict])
+def get_algorithm_acceptance_detail(request: Request):
+    """V0.3 10% 门禁逐行明细：任务 × 变体 × 时效，含 n_test、指标与 NA 原因。"""
+    data = _v3_algorithm_call(service.algorithm_acceptance_detail)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/calibration/coverage", response_model=schemas.Envelope[dict])
+def get_algorithm_calibration_coverage(request: Request):
+    """V0.3 conformal 区间覆盖率元数据（目标 90%，冻结测试集经验覆盖率如实披露）。"""
+    data = _v3_algorithm_call(service.algorithm_calibration_coverage)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/rs/retrieval/validation", response_model=schemas.Envelope[dict])
+def get_rs_retrieval_validation(request: Request):
+    """V0.3 遥感反演地面配对校准的留出验证证据（R²/RMSE 可为负，如实披露）。"""
+    data = _v3_algorithm_call(service.retrieval_validation)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="derived",
+        as_of=_observed_as_of(),
+        claim_boundary="retrieval_calibration_development_evidence_only",
+    )
+
+
+@router.get("/acceptance/overview", response_model=schemas.Envelope[dict])
+def get_acceptance_overview(request: Request):
+    """V0.3 达标看板聚合：P0-1..P0-6 六项达标状态与证据链接。"""
+    data = _v3_algorithm_call(service.acceptance_overview)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/retrieval/status", response_model=schemas.Envelope[dict])
+def get_remote_retrieval_status(request: Request):
+    """藻类参数反演与校准链的当前真实能力。"""
+    data = service.remote_retrieval_status()
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=None,
+        data_mode="derived",
+        as_of=_observed_as_of(),
+        claim_boundary="experimental_remote_retrieval_only",
+    )
+
+
+@router.post("/model/retrieval/calibrate", response_model=schemas.Envelope[dict])
+def calibrate_remote_retrieval(request: Request, payload: dict[str, Any]):
+    """用同期地面配对拟合仿射校准并应用到待校准反演值。"""
+    try:
+        data = service.calibrate_remote_retrieval(payload)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ApiError(
+            status_code=422,
+            code="REQUEST_VALIDATION_FAILED",
+            message="遥感反演校准输入无效",
+            detail=str(exc),
+            dataset_version=ALGORITHM_DATA_VERSION,
+        ) from exc
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION,
+        prediction_run_id=None,
+        data_mode="derived",
+        as_of=_observed_as_of(),
+        claim_boundary="pair_calibration_development_only",
+    )
 
 
 @router.get("/forecast-capabilities", response_model=schemas.Envelope[dict[str, str]])

@@ -137,6 +137,18 @@ const items = [
     to: '/alerts',
     label: '预警中心',
     icon: '<path d="M15 8.6a5 5 0 0 0-10 0c0 5.8-2.5 7.4-2.5 7.4h15S15 14.4 15 8.6"/><path d="M11.3 18.9a1.7 1.7 0 0 1-2.6 0"/><path d="M10 3.6V2"/>'
+  },
+  {
+    num: '07',
+    to: '/compliance',
+    label: '达标看板',
+    icon: '<path d="m4 11.2 4 4L16.4 7"/><path d="M4 4.6h12"/>'
+  },
+  {
+    num: '08',
+    to: '/gate-report',
+    label: '门禁明细',
+    icon: '<rect x="3.6" y="4" width="12.8" height="12.8" rx="1.4"/><path d="M7 8h6M7 11h6M7 14h3.6"/>'
   }
 ]
 </script>

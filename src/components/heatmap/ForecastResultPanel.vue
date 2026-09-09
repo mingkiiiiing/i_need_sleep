@@ -52,17 +52,51 @@
       </div>
       <p v-if="stop && stop.sub" class="frp-stop-sub">{{ stop.sub }}</p>
 
-      <!-- 站点视图 -->
+      <StatePanel
+        v-if="modelState === 'loading'"
+        state="loading"
+        title="正在运行 63 模型交付包…"
+        description="读取 MEE 最新快照并执行当前时效的 9 个任务模型。"
+      />
+      <StatePanel
+        v-else-if="modelState === 'error' || !modelForecast"
+        state="error"
+        title="算法模型暂不可用"
+        :description="modelError || '模型运行包或实时输入不可用。'"
+      >
+        <button type="button" class="frp-inline-btn" data-role="model-retry" @click="$emit('retry-model')">重试模型</button>
+      </StatePanel>
+      <template v-else>
+        <span class="frp-metric-tag" data-role="metric-tag">当前指标：{{ metricLabel }}</span>
+        <div class="frp-risk frp-risk--focus" data-role="model-primary-result">
+          <b>{{ primaryPrediction }}</b>
+          <span>算法交付包 V0.2 · T+{{ modelForecast.horizon_days }} · 情景推演</span>
+        </div>
+        <p class="frp-note frp-warn">{{ modelForecast.quality_gate.reason }}</p>
+
+        <h4 class="frp-sub-h">本次模型输出 <span>9 任务同一时效</span></h4>
+        <dl class="frp-kv" data-role="model-results">
+          <div><dt>风险等级 / 概率</dt><dd>{{ riskLevelText }} / {{ resultValue('probability', 1, true) }}</dd></div>
+          <div><dt>叶绿素 a</dt><dd>{{ resultValue('chla', 3) }}</dd></div>
+          <div><dt>水华面积</dt><dd>{{ resultValue('area', 4) }}</dd></div>
+          <div><dt>水华覆盖率</dt><dd>{{ resultValue('coverage', 2, true) }}</dd></div>
+          <div><dt>蓝藻密度</dt><dd>{{ resultValue('density', 0) }}</dd></div>
+          <div><dt>蓝藻生物量</dt><dd>{{ resultValue('biomass', 4) }}</dd></div>
+        </dl>
+
+        <h4 class="frp-sub-h">输入衔接与追踪</h4>
+        <dl class="frp-kv" data-role="model-provenance">
+          <div><dt>MEE 实测输入字段</dt><dd>{{ modelForecast.input_provenance.observed_feature_count }} 个</dd></div>
+          <div><dt>冻结预处理器插补</dt><dd>{{ modelForecast.input_provenance.imputed_feature_count }} 个</dd></div>
+          <div><dt>快照</dt><dd>{{ modelForecast.scope.snapshot_id }}</dd></div>
+          <div><dt>运行 ID</dt><dd>{{ modelForecast.prediction_run_id }}</dd></div>
+          <div><dt>当前选中模型</dt><dd>{{ focusedResult?.selected_model || '—' }}</dd></div>
+          <div><dt>融合提升 ≥10%</dt><dd :class="{ 'frp-warn': modelForecast.acceptance?.status !== 'PASS' }">{{ modelForecast.acceptance?.status || '—' }}（{{ modelForecast.acceptance?.pass ?? 0 }}/{{ modelForecast.acceptance?.comparison_rows ?? 0 }}）</dd></div>
+        </dl>
+        <p class="frp-note">{{ modelForecast.input_provenance.note }}</p>
+      </template>
+
       <template v-if="scope === 'station'">
-        <div class="frp-blocked" data-role="station-forecast-blocked">
-          <b>站点级数值预测未接入</b>
-          <span>该站点当前无法生成模型预测；正式模型接入前不提供模拟值。</span>
-        </div>
-        <h4 class="frp-sub-h">所在区域（全湖）规则研判 <span>非站点预测</span></h4>
-        <div v-if="assessment" class="frp-risk" :class="`frp-risk--${assessment.code}`" data-role="risk-level">
-          <b>{{ assessment.text }}</b>
-          <span>研判分 {{ assessment.score }}/100 · 规则研判</span>
-        </div>
         <h4 class="frp-sub-h">站点最新关键观测 <span>{{ stationObservedAt }}</span></h4>
         <dl v-if="stationKeyRows.length" class="frp-kv" data-role="station-obs">
           <div v-for="row in stationKeyRows" :key="row.label">
@@ -70,56 +104,13 @@
             <dd :class="{ 'frp-miss': row.miss }">{{ row.text }}</dd>
           </div>
         </dl>
-        <p v-else class="frp-empty">站点观测加载中或暂无数据。</p>
       </template>
-
-      <!-- 全湖视图 -->
       <template v-else>
-        <span class="frp-metric-tag" data-role="metric-tag">当前指标：{{ metric === 'chla' ? '叶绿素 a 浓度' : '风险等级' }}</span>
-        <!-- 叶绿素重点：现状块前置 -->
-        <template v-if="metric === 'chla'">
-          <h4 class="frp-sub-h">叶绿素 a 研判重点</h4>
-          <div class="frp-risk frp-risk--focus" data-role="chla-focus">
-            <b>{{ inputs.chlaText }}<i v-if="inputs.chlaTrend" class="frp-trend"> {{ inputs.chlaTrend }}</i></b>
-            <span>现状均值 · 全湖</span>
-          </div>
-          <p class="frp-note">叶绿素 a 未来浓度数值预测未接入；以下风险研判由现状与趋势规则推导。</p>
-        </template>
-        <div v-if="assessment" class="frp-risk" :class="[`frp-risk--${assessment.code}`, { 'frp-risk--secondary': metric === 'chla' }]" data-role="risk-level">
-          <b>{{ assessment.text }}</b>
-          <span>研判分 {{ assessment.score }}/100 · 规则研判</span>
-        </div>
-        <StatePanel
-          v-if="!assessment && summaryLoading"
-          state="loading"
-          title="正在获取 MEE 实时观测…"
-          description="观测数值就绪后自动生成研判。"
-        />
-        <StatePanel
-          v-else-if="!assessment"
-          state="error"
-          title="观测数据暂不可用"
-          description="已自动重试多次仍失败；研判仅由 MEE 实时观测推导，不回退模拟。"
-        >
-          <button type="button" class="frp-inline-btn" data-role="risk-retry" @click="$emit('retry')">重试</button>
-        </StatePanel>
-
-        <h4 class="frp-sub-h">指标研判明细</h4>
-        <dl class="frp-kv" data-role="metric-rows">
-          <div>
-            <dt>叶绿素 a 现状</dt>
-            <dd>{{ inputs.chlaText }}<i v-if="inputs.chlaTrend" class="frp-trend">{{ inputs.chlaTrend }}</i></dd>
-          </div>
+        <h4 class="frp-sub-h">MEE 最新实测参考</h4>
+        <dl class="frp-kv" data-role="observed-inputs">
+          <div><dt>叶绿素 a 现状</dt><dd>{{ inputs.chlaText }}<i v-if="inputs.chlaTrend" class="frp-trend">{{ inputs.chlaTrend }}</i></dd></div>
           <div><dt>水温</dt><dd>{{ inputs.tempText }}</dd></div>
           <div><dt>总磷 / 总氮</dt><dd>{{ inputs.nutrientText }}</dd></div>
-          <div class="frp-row--blocked">
-            <dt>水华面积</dt>
-            <dd class="frp-blocked-chip">数值模型待接入</dd>
-          </div>
-          <div class="frp-row--blocked">
-            <dt>蓝藻生物量</dt>
-            <dd class="frp-blocked-chip">数值模型待接入</dd>
-          </div>
         </dl>
       </template>
 
@@ -131,70 +122,83 @@
     <!-- ===== 驱动因素 ===== -->
     <div v-else-if="activeTab === 'drivers'" class="frp-body" role="tabpanel" aria-label="驱动因素" data-role="result-drivers">
       <div class="frp-method">
-        <b>当前口径：规则贡献度排序</b>
-        <span>{{ scope === 'station' ? '站点最新实测逐项计分（透明阈值）' : '全湖规则研判的因子得分贡献' }}；非 SHAP / 注意力 / 敏感性等模型解释。</span>
+        <b>当前口径：局部单因素敏感性</b>
+        <span>{{ modelExplanation?.note || '当前模型解释未返回。' }}</span>
       </div>
 
-      <template v-if="activeFactors.length">
-        <h4 class="frp-sub-h">推高风险的因子（按贡献排序）</h4>
+      <template v-if="modelFactors.length">
+        <h4 class="frp-sub-h">关键驱动因子（按绝对响应贡献排序）</h4>
         <ul class="frp-bars" data-role="driver-bars">
-          <li v-for="f in activeFactors" :key="f.name + f.label">
+          <li v-for="f in modelFactors" :key="f.feature">
             <span class="frp-bar-label">{{ f.label }}</span>
             <span class="frp-bar-track">
-              <i class="frp-bar-warm" :style="{ width: barWidth(f.contribution) }"></i>
+              <i class="frp-bar-warm" :style="{ width: barWidth(f.contribution_percent) }"></i>
             </span>
-            <span class="frp-bar-value">{{ f.value }}<small>+{{ f.contribution }}</small></span>
+            <span class="frp-bar-value">{{ Number(f.baseline).toLocaleString('zh-CN', { maximumFractionDigits: 3 }) }}<small>{{ f.direction === 'increase' ? '↑' : f.direction === 'decrease' ? '↓' : '→' }} {{ f.contribution_percent }}%</small></span>
           </li>
         </ul>
-        <p class="frp-note">条长 = 该因子对研判分的贡献点数（满分 100）；右侧为原始输入值。</p>
+        <p class="frp-note">条长 = 因子 ±10% 扰动引起的绝对模型响应占比；右侧为基线值和响应方向。</p>
       </template>
       <p v-else class="frp-empty" data-role="drivers-empty">
-        {{ scope === 'station' ? '站点观测不足，暂无可排序的驱动因子。' : '观测数据不足，暂无可排序的驱动因子。' }}
+        当前任务没有可量化的连续敏感性结果。
       </p>
 
-      <template v-if="activeNeutral.length">
-        <h4 class="frp-sub-h">抑制 / 中性 / 缺测</h4>
+      <template v-if="unavailableFactors.length">
+        <h4 class="frp-sub-h">当前冻结特征契约缺口</h4>
         <ul class="frp-neutral" data-role="driver-neutral">
-          <li v-for="(n, i) in activeNeutral" :key="i">
-            <b>{{ n.label }} {{ n.value }}</b>
-            <span>{{ n.note }}</span>
+          <li v-for="n in unavailableFactors" :key="n.feature">
+            <b>{{ n.label }}</b>
+            <span>{{ n.action }}</span>
           </li>
         </ul>
       </template>
-
-      <div class="frp-blocked" data-role="model-explain-blocked">
-        <b>模型解释能力未接入</b>
-        <span>以下方法将在正式模型接入后提供，当前不以规则分数冒充：</span>
-        <ul>
-          <li><b>SHAP 值</b>——树模型的逐因子贡献（局部 + 全局重要性）</li>
-          <li><b>注意力权重</b>——深度时序模型的“模型关注度”（不等同因果贡献）</li>
-          <li><b>敏感性分析</b>——单因素变化 ±10% 时预测结果的响应</li>
-        </ul>
-      </div>
     </div>
 
     <!-- ===== 不确定性 ===== -->
     <div v-else class="frp-body" role="tabpanel" aria-label="不确定性" data-role="result-uncertainty">
-      <div class="frp-blocked" data-role="uncertainty-blocked">
-        <b>模型未提供不确定性量化</b>
-        <span>规则研判为确定性档位结论，不产生置信区间或概率分布；系统不会以固定带宽伪造区间。</span>
+      <div v-if="modelUncertainty" class="frp-method" data-role="uncertainty-result">
+        <b>输入扰动情景分布 · {{ modelUncertainty.sample_count }} 次</b>
+        <span>{{ modelUncertainty.note }}</span>
       </div>
-      <h4 class="frp-sub-h">正式模型接入后将提供</h4>
-      <ul class="frp-plan" data-role="uncertainty-plan">
-        <li>叶绿素 a / 蓝藻生物量：预测中位数 + 80% / 95% 置信区间</li>
-        <li>水华面积：预测面积区间（如 28—41 km²）</li>
-        <li>风险等级：低 / 中 / 高的概率分布</li>
-        <li>区间宽度随预测期 T+1 → T+90 自然增大</li>
-        <li>地图低可信区域以纹理 / 虚线边界标注</li>
-      </ul>
+      <dl v-if="modelUncertainty?.p50 != null" class="frp-kv" data-role="uncertainty-quantiles">
+        <div><dt>P05</dt><dd>{{ uncertaintyValue(modelUncertainty.p05) }}</dd></div>
+        <div><dt>P50（中位数）</dt><dd>{{ uncertaintyValue(modelUncertainty.p50) }}</dd></div>
+        <div><dt>P95</dt><dd>{{ uncertaintyValue(modelUncertainty.p95) }}</dd></div>
+        <div><dt>标准差</dt><dd>{{ uncertaintyValue(modelUncertainty.std) }}</dd></div>
+      </dl>
+      <p v-else class="frp-empty">当前任务未返回连续量分位数。</p>
+      <!-- V0.3 split-conformal 区间：真实测试残差校准（与 V0.2 输入扰动情景分布严格区分） -->
+      <template v-if="v3Uncertainty">
+        <div class="frp-method" data-role="v3-conformal-result">
+          <b>V0.3 conformal 校准区间（split-conformal 残差分位）</b>
+          <span>
+            校准样本 {{ v3Uncertainty.coverage?.calibration_n ?? '—' }} · 目标覆盖率 90%
+            <template v-if="v3Uncertainty.coverage?.empirical_coverage_test != null">
+              · 冻结测试集经验覆盖率 {{ (Number(v3Uncertainty.coverage.empirical_coverage_test) * 100).toFixed(1) }}%（n={{ v3Uncertainty.coverage.test_n }}）
+            </template>
+            <template v-else>· 冻结测试集样本不足，经验覆盖率未核算</template>
+          </span>
+        </div>
+        <dl class="frp-kv" data-role="v3-conformal-quantiles">
+          <div><dt>P05</dt><dd>{{ conformalValue(v3Uncertainty.p05) }}</dd></div>
+          <div><dt>点预测</dt><dd>{{ conformalPoint }}</dd></div>
+          <div><dt>P95</dt><dd>{{ conformalValue(v3Uncertainty.p95) }}</dd></div>
+        </dl>
+        <p class="frp-note">
+          该区间由训练/验证残差分位数校准，经冻结测试集（≥2024-01）经验核算；与上方输入扰动情景分布口径不同，不得混用。
+        </p>
+      </template>
+      <div class="frp-blocked">
+        <b>统计置信区间仍未达成</b>
+        <span>当前结果量化的是输入变化下的模型响应；交付包没有真实测试残差区间校准器，因此页面不会把 P05—P95 情景范围写成置信区间。</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 // 时空推演右侧预测结果面板：结果总览 / 驱动因素 / 不确定性 三标签。
-// 能力边界：站点级数值预测、SHAP/注意力/敏感性解释、不确定性量化均未接入，
-// 一律显式“未接入/待提供”，不用规则分数或固定带宽冒充模型输出。
+// 63 bundle 数值预测、局部敏感性和输入扰动情景分布已接入。
 import { computed, ref, watch } from 'vue'
 import StatePanel from '../common/StatePanel.vue'
 
@@ -219,10 +223,15 @@ const props = defineProps({
   diffSummary: { type: Object, default: () => ({ up: 0, down: 0, flat: 0, top: [] }) },
   diffBaseTime: { type: String, default: '上一快照' },
   // MEE 实时观测汇总加载中：研判未生成时显示加载态而非错误态
-  summaryLoading: { type: Boolean, default: false }
+  summaryLoading: { type: Boolean, default: false },
+  modelForecast: { type: Object, default: null },
+  modelState: { type: String, default: 'loading' },
+  modelError: { type: String, default: '' },
+  // V0.3 真实数据包同时效预测（月度标签粒度 + conformal 区间）；null 时隐藏 V0.3 板块
+  v3Forecast: { type: Object, default: null }
 })
 
-defineEmits(['back-to-lake', 'retry'])
+defineEmits(['back-to-lake', 'retry', 'retry-model'])
 
 const TABS = [
   { key: 'overview', label: '结果总览' },
@@ -231,25 +240,70 @@ const TABS = [
 ]
 const activeTab = ref('overview')
 
+const METRIC_LABELS = { risk: '风险等级', chla: '叶绿素 a', area: '水华面积', biomass: '蓝藻生物量' }
+const metricLabel = computed(() => METRIC_LABELS[props.metric] || props.metric)
+// V0.3 口径：情景推演锁定（30/60/90 天）与 conformal 区间
+const v3Scenario = computed(() => {
+  const v3 = props.v3Forecast
+  if (!v3) return false
+  return Boolean(v3.results?.probability?.compliance?.locked) || Number(v3.horizon_days) >= 30
+})
+const v3Uncertainty = computed(() => {
+  const u = props.v3Forecast?.results?.probability?.uncertainty
+  return u && u.is_calibrated_confidence_interval ? u : null
+})
+const conformalPoint = computed(() => {
+  const raw = props.v3Forecast?.results?.probability?.value
+  const num = Number(raw)
+  return Number.isFinite(num) ? num.toLocaleString('zh-CN', { maximumFractionDigits: 3 }) : '—'
+})
+function conformalValue(value) {
+  const num = Number(value)
+  if (!Number.isFinite(num)) return '—'
+  return num.toLocaleString('zh-CN', { maximumFractionDigits: 3 })
+}
+const riskLevelText = computed(() => {
+  const value = props.modelForecast?.results?.risk_level?.value
+  return ({ none: '无', low: '低', medium: '中', high: '高' })[value] || value || '—'
+})
+function resultValue(key, digits = 2, percent = false) {
+  const item = props.modelForecast?.results?.[key]
+  const raw = item?.value
+  if (raw == null || Number.isNaN(Number(raw))) return '—'
+  const numeric = Number(raw) * (percent ? 100 : 1)
+  const unit = percent ? '%' : (item.unit || '')
+  return `${numeric.toLocaleString('zh-CN', { maximumFractionDigits: digits })}${unit ? ` ${unit}` : ''}`
+}
+const primaryPrediction = computed(() => {
+  if (props.metric === 'risk') return `${riskLevelText.value} · ${resultValue('probability', 1, true)}`
+  const digits = props.metric === 'area' || props.metric === 'biomass' ? 4 : 3
+  return resultValue(props.metric, digits)
+})
+
 // 切换对象时回到总览，避免停留在旧上下文的标签
 watch(() => [props.scope, props.stationName], () => {
   activeTab.value = 'overview'
 })
 
-const activeFactors = computed(() => {
-  const source = props.scope === 'station' ? props.stationAssessment : props.assessment
-  const factors = (source && source.factors) || []
-  return factors.slice().sort((a, b) => b.contribution - a.contribution).slice(0, 6)
+const focusedResult = computed(() => {
+  const key = props.modelForecast?.analysis_focus?.result_key
+  return key ? props.modelForecast?.results?.[key] : null
 })
-const activeNeutral = computed(() => {
-  const source = props.scope === 'station' ? props.stationAssessment : props.assessment
-  return (source && source.neutral) || []
-})
+const modelExplanation = computed(() => focusedResult.value?.explainability || null)
+const modelFactors = computed(() => (modelExplanation.value?.factors || []).slice(0, 8))
+const unavailableFactors = computed(() => modelExplanation.value?.unavailable_factors || [])
+const modelUncertainty = computed(() => focusedResult.value?.uncertainty || null)
 const maxContribution = computed(() =>
-  activeFactors.value.reduce((m, f) => Math.max(m, f.contribution), 0) || 1
+  modelFactors.value.reduce((m, f) => Math.max(m, f.contribution_percent), 0) || 1
 )
 function barWidth(v) {
   return `${Math.max(4, Math.round((v / maxContribution.value) * 100))}%`
+}
+function uncertaintyValue(value) {
+  if (value == null) return '—'
+  const unit = props.metric === 'risk' ? '%' : (focusedResult.value?.unit || '')
+  const numeric = Number(value) * (props.metric === 'risk' ? 100 : 1)
+  return `${numeric.toLocaleString('zh-CN', { maximumFractionDigits: 4 })}${unit ? ` ${unit}` : ''}`
 }
 
 const STATION_KEY_VARS = [
@@ -564,6 +618,24 @@ const stationObservedAt = computed(() => {
   margin: 0;
   font-size: 11.5px;
   color: var(--text-muted);
+}
+
+.frp-scenario {
+  display: grid;
+  gap: 3px;
+  border: 1px solid color-mix(in srgb, #38bdf8 45%, transparent);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, #38bdf8 8%, transparent);
+}
+.frp-scenario > b {
+  font-size: 12px;
+  color: #38bdf8;
+}
+.frp-scenario > span {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
 
 .frp-blocked {

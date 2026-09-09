@@ -29,6 +29,7 @@ from .providers import (
 from .alerts import AlertEngine
 from .station_forecast import MODEL_VERSION as _STATION_FC_VERSION
 from .station_forecast import StationForecastEngine
+from .algorithm_models import AlgorithmModelService, AlgorithmModelServiceV3
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
 _STAGE_DAYS = (1, 3, 7, 15, 30)
@@ -56,6 +57,14 @@ class BackendService:
         self.prediction = prediction
         # 双轨：simulated 演示轨 + observed 实时轨；两轨数据永不混合
         self.realtime = realtime
+        # V0.2 交付包保留为 legacy（保留页面端点继续消费，行为不回退）；
+        # V0.3 真实数据包为默认算法服务，走 v3 端点，legacy 空间场作其回退链。
+        self.algorithm = AlgorithmModelService(realtime) if realtime is not None else None
+        self.algorithm_v3 = (
+            AlgorithmModelServiceV3(realtime, legacy_service=self.algorithm)
+            if realtime is not None
+            else None
+        )
 
     # ---- 实时观测轨（observed） ----
 
@@ -134,6 +143,67 @@ class BackendService:
         except Exception:  # noqa: BLE001 — 能力披露不得因数据层异常而失败
             return {"status": "unavailable", "model_version": _STATION_FC_VERSION, "reason": "实时观测数据不可用"}
 
+    def algorithm_model_status(self) -> dict[str, Any]:
+        if self.algorithm is None:
+            return {"status": "not_configured", "model_count": 0}
+        return self.algorithm.status()
+
+    def algorithm_predictions(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
+        if self.algorithm is None:
+            raise RealtimeDataUnavailable("算法模型运行服务未配置")
+        return self.algorithm.predict_suite(horizon_days, entity_id, focus_metric)
+
+    def algorithm_acceptance(self) -> dict[str, Any]:
+        if self.algorithm is None:
+            raise RealtimeDataUnavailable("算法模型运行服务未配置")
+        return self.algorithm.acceptance()
+
+    def remote_retrieval_status(self) -> dict[str, Any]:
+        if self.algorithm is None:
+            raise RealtimeDataUnavailable("算法模型运行服务未配置")
+        return self.algorithm.retrieval_status()
+
+    def calibrate_remote_retrieval(self, payload: dict[str, Any]) -> dict[str, Any]:
+        if self.algorithm is None:
+            raise RealtimeDataUnavailable("算法模型运行服务未配置")
+        return self.algorithm.calibrate_retrieval(payload)
+
+    def algorithm_spatial_field(self, horizon_days: int, metric: str = "risk") -> dict[str, Any]:
+        if self.algorithm is None:
+            raise RealtimeDataUnavailable("算法模型运行服务未配置")
+        return self.algorithm.spatial_field(horizon_days, metric)
+
+    # ---- V0.3 真实数据包（月度标签粒度 + conformal + 动态门禁） ----
+
+    def _require_algorithm_v3(self) -> AlgorithmModelServiceV3:
+        if self.algorithm_v3 is None:
+            raise RealtimeDataUnavailable("V0.3 算法模型运行服务未配置")
+        return self.algorithm_v3
+
+    def algorithm_model_status_v3(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().status()
+
+    def algorithm_predictions_v3(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
+        return self._require_algorithm_v3().predict_suite(horizon_days, entity_id, focus_metric)
+
+    def algorithm_acceptance_v3(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().acceptance()
+
+    def algorithm_acceptance_detail(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().acceptance_detail()
+
+    def algorithm_calibration_coverage(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().calibration_coverage()
+
+    def algorithm_spatial_field_v3(self, horizon_days: int, metric: str = "chla", layer: str = "raster") -> dict[str, Any]:
+        return self._require_algorithm_v3().spatial_field(horizon_days, metric, layer)
+
+    def retrieval_validation(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().retrieval_validation()
+
+    def acceptance_overview(self) -> dict[str, Any]:
+        return self._require_algorithm_v3().acceptance_overview()
+
     # ---- Provider 身份（启动日志与能力披露共用） ----
     def provider_status(self) -> dict[str, str]:
         return {
@@ -162,6 +232,9 @@ class BackendService:
                 "station_level_forecast_1_3d": self.realtime_station_forecast_status()["status"],
                 "medium_term_forecast_7_15d": "dataset_ready_model_pending",
                 "long_term_forecast_30_90d": "blocked_auth",
+                # 交付包 V0.2 已接入独立 /model/predictions 运行链；其合成训练边界
+                # 不改变原“正式预测”能力状态。
+                "algorithm_bundle_1_90d": "model_connected_scenario_only",
                 "satellite_chlorophyll": "experimental_not_operational",
                 "real_time_warning_dispatch": "not_enabled",
                 "demo_warning_dispatch": "available",

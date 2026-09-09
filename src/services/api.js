@@ -142,6 +142,76 @@ export function getForecastCapabilitiesEnvelope() {
   return requestEnvelope('/forecast-capabilities')
 }
 
+export function getAlgorithmModelStatusEnvelope() {
+  return requestEnvelope('/model/status')
+}
+
+export function getAlgorithmPredictionsEnvelope(horizonDays, entityId = 'lake', focusMetric = 'risk') {
+  const query = new URLSearchParams({
+    horizon_days: String(horizonDays),
+    entity_id: entityId || 'lake',
+    focus_metric: focusMetric || 'risk'
+  })
+  return requestEnvelope(`/model/predictions?${query.toString()}`)
+}
+
+export function getAlgorithmSpatialFieldEnvelope(horizonDays, metric = 'risk') {
+  const query = new URLSearchParams({ horizon_days: String(horizonDays), metric })
+  return requestEnvelope(`/model/spatial-field?${query.toString()}`)
+}
+
+export function getAlgorithmAcceptanceEnvelope() {
+  return requestEnvelope('/model/acceptance')
+}
+
+// ---------- V0.3 真实数据包（月度标签粒度 + conformal 区间 + 动态门禁） ----------
+
+export function getAlgorithmV3StatusEnvelope() {
+  return requestEnvelope('/model/v3/status')
+}
+
+export function getAlgorithmV3PredictionsEnvelope(horizonDays, entityId = 'lake', focusMetric = 'risk') {
+  const query = new URLSearchParams({
+    horizon_days: String(horizonDays),
+    entity_id: entityId || 'lake',
+    focus_metric: focusMetric || 'risk'
+  })
+  return requestEnvelope(`/model/v3/predictions?${query.toString()}`)
+}
+
+export function getAlgorithmV3AcceptanceEnvelope() {
+  return requestEnvelope('/model/v3/acceptance')
+}
+
+export function getAlgorithmAcceptanceDetailEnvelope() {
+  return requestEnvelope('/model/acceptance/detail')
+}
+
+export function getCalibrationCoverageEnvelope() {
+  return requestEnvelope('/model/calibration/coverage')
+}
+
+export function getRasterFieldEnvelope(horizonDays = 3, metric = 'chla') {
+  const query = new URLSearchParams({ horizon_days: String(horizonDays), metric, layer: 'raster' })
+  return requestEnvelope(`/model/spatial-field?${query.toString()}`)
+}
+
+export function getRetrievalValidationEnvelope() {
+  return requestEnvelope('/rs/retrieval/validation')
+}
+
+export function getAcceptanceOverviewEnvelope() {
+  return requestEnvelope('/acceptance/overview')
+}
+
+export function getRemoteRetrievalStatusEnvelope() {
+  return requestEnvelope('/model/retrieval/status')
+}
+
+export function calibrateRemoteRetrievalEnvelope(payload) {
+  return requestEnvelope('/model/retrieval/calibrate', { method: 'POST', body: JSON.stringify(payload) })
+}
+
 // ---------- P01 驾驶舱（cockpit 视图接口，旧 request 结构） ----------
 
 export function getTimeStages() {
