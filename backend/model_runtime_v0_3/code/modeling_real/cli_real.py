@@ -159,6 +159,10 @@ def cmd_manifest() -> dict:
         json.loads(availability_path.read_text(encoding="utf-8")) if availability_path.is_file() else {"entries": []}
     )
     features = pd.read_parquet(out_dir / "supervised" / "features_base.parquet")
+    from modeling_real.target_builder import load_modis_bloom_months
+
+    modis_audit = load_modis_bloom_months()
+    modis_audit["positive_months"] = sorted(modis_audit["positive_months"])
     manifest = {
         "version": "0.3",
         "package_generation": PACKAGE_GENERATION,
@@ -181,9 +185,15 @@ def cmd_manifest() -> dict:
             name: (">=50" if name == "severe" else f"{low}-{high}")
             for name, (low, high) in RISK_BANDS_UG_L.items()
         },
-        "label_provenance_rule": "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5）一律 provenance=proxy_derived，不得标 ground_truth；仅 T4-biomass（wq_phyto_biomass）与 T5-chla（地面 chla）为 ground_truth",
+        "label_provenance_rule": "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L）一律 provenance=proxy_derived，不得标 ground_truth；仅 T4-biomass（wq_phyto_biomass）与 T5-chla（地面 chla）为 ground_truth",
         "proxy_label_rules": {
-            "T1-T6_bloom": "月度水华代理：chla 月均≥20μg/L 或 CLMS bloom_label=1 或 CLMS FCB 湖面月均概率≥0.5；有任一来源即定义为 0/1（fcb 阈值口径：CLMS LWQ 300m 10-day FCB 概率按月聚合均值，frame 列为 0-1 概率的 1e4 缩放已归一）",
+            "modis_audit": {
+                "positive_months": modis_audit["positive_months"],
+                "covered_months": modis_audit["covered_months"],
+                "degraded_months": modis_audit["degraded_months"],
+            },
+            "T1-T6_bloom": "月度水华代理：chla 月均≥20μg/L 或 CLMS bloom_label=1 或 CLMS FCB 湖面月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L（仅 TAIHU_WHOLE 行）；有任一来源即定义为 0/1（fcb 阈值口径：CLMS LWQ 300m 10-day FCB 概率按月聚合均值，frame 列为 0-1 概率的 1e4 缩放已归一）",
+            "T1-T6_bloom_modis": "MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取，不含 CLMS 行）按月行均值聚合为湖面月均值；valid 行优先，无 valid 月回退 review 行均值并降权披露（review=有效像元 <5% 或聚合天数 <3，值非无效仅覆盖度降级）；≥20μg/L 计阳性",
             "T2-coverage": "湖面蓝藻覆盖概率代理 = CLMS FCB 概率月度均值（0-1）；来源 CLMS LWQ 300m 10-day 产品，仅覆盖 2024-09..2026-08（test 期）；provenance=proxy_derived",
             "T3-density": "蓝藻密度秩代理 = phyto_biomass 月度均值在全量站点-月的分位秩（0-1，无量纲）；未做细胞体积换算，如实披露；provenance=proxy_derived",
             "T4-biomass": "浮游植物生物量（mg/L）直接作目标；wq_phyto_biomass 576 行 ground_truth，2005-02..2020-11（全在 train 期）；训练剔除当月 wq_phyto_biomass 特征防同月泄漏",

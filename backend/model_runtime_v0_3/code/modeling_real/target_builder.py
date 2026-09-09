@@ -1,10 +1,13 @@
 """站点-月度监督表构造：真实标签透视、月份平移、水华代理与可用性矩阵。
 
-标签来源（主理人裁定 2/3）：
+标签来源（主理人裁定 2/3 + 第三轮裁定）：
 - water_quality.parquet 长表（6777 行 ground_truth）透视出 wq 标签（chla 单位 μg/L）；
 - labels.parquet 的 26 条 CLMS bloom_label 代理标签（is_ground_truth=False）；
-- T1/T6 水华代理 = 站点月 chla ≥ 20 μg/L 或 CLMS bloom_label=1，provenance=proxy_derived，
-  任何代理标签一律不标 ground_truth。
+- T1/T6 水华代理 = 站点月 chla ≥ 20 μg/L 或 CLMS bloom_label=1 或 CLMS FCB 月均概率 ≥0.5
+  或 MODIS-Aqua chla_retrieval 当月湖面均值 ≥20 μg/L（仅 TAIHU_WHOLE 行），
+  provenance=proxy_derived，任何代理标签一律不标 ground_truth。
+MODIS quality 规则（第三轮）：valid 优先；该月无 valid 行时方可用 review 行并降权披露
+（review = 有效像元占比 <5% 或聚合天数 <3，值非无效，仅覆盖度降级）。
 划分（主理人裁定 3，冻结）：按发布月 train≤2021 / validation 2022-2023 / test≥2024。
 """
 from __future__ import annotations
@@ -191,6 +194,47 @@ def load_field_chla_samples(tables_dir: Path | None = None) -> pd.DataFrame:
     return out.dropna(subset=["label_chla_ug_l"])
 
 
+def load_modis_bloom_months(tables_dir: Path | None = None) -> dict[str, object]:
+    """MODIS-Aqua chla_retrieval 当月湖面均值 ≥20 μg/L 的阳性月集合（第三轮裁定）。
+
+    聚合规则（清洗包 quality 语义 + 主理人授权）：
+    - 仅取 source_id=modis_aqua_chla*（TAIHU_BBOX 湖面提取，不含 CLMS 行）；
+    - 同月多行（逐日场景 + 月度聚合）按行均值聚合为湖面月均值；
+    - valid 优先：该月存在 valid 行时仅用 valid 行均值；否则回退 review 行均值
+      并计入 degraded_months（降权披露；review = 有效像元 <5% 或聚合天数 <3）。
+    返回 {"positive_months": set[str], "covered_months": int, "degraded_months": int}。
+    """
+    tables = Path(tables_dir) if tables_dir else clean_tables_dir()
+    rs = pd.read_parquet(tables / "remote_sensing.parquet")
+    modis = rs[
+        rs["variable_code"].astype(str).str.contains("chla_retrieval", na=False)
+        & rs["source_id"].astype(str).str.contains("modis", na=False)
+    ].copy()
+    modis["month"] = pd.to_datetime(modis["observed_at"]).dt.strftime("%Y-%m")
+    modis["value"] = pd.to_numeric(modis["value"], errors="coerce")
+    positive: set[str] = set()
+    covered = 0
+    degraded = 0
+    for month, group in modis.groupby("month"):
+        valid = group.loc[group["quality_status"] == "valid", "value"].dropna()
+        if len(valid):
+            mean = float(valid.mean())
+        else:
+            review = group.loc[group["quality_status"] == "review", "value"].dropna()
+            if not len(review):
+                continue
+            mean = float(review.mean())
+            degraded += 1
+        covered += 1
+        if mean >= BLOOM_THRESHOLD_UG_L:
+            positive.add(month)
+    return {
+        "positive_months": positive,
+        "covered_months": covered,
+        "degraded_months": degraded,
+    }
+
+
 def build_supervised_base(tables_dir: Path | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """返回 (特征+标签监督底表, 月度标签宽表)。底表每行 = model_dataset 一条样本记录。"""
     tables = Path(tables_dir) if tables_dir else clean_tables_dir()
@@ -251,16 +295,26 @@ def build_supervised_base(tables_dir: Path | None = None) -> tuple[pd.DataFrame,
         station_month[["station_id", "month", "label_density_rank_proxy", "label_coverage_fcb_prob"]],
         on=["station_id", "month"], how="left", sort=False,
     )
-    # 扩展水华代理定义（裁定 4）：CLMS FCB 月均概率 ≥0.5 计阳性；有 fcb 值即有标签（阴性为 0）。
+    # 扩展水华代理定义（裁定 4 + 第三轮）：CLMS FCB 月均概率 ≥0.5 或 MODIS 湖面月均 chla ≥20
+    # 计阳性；MODIS 湖面均值是全湖口径，仅映射到 TAIHU_WHOLE 行（最保守）。
+    modis_bloom = load_modis_bloom_months(tables)
+    modis_positive_months = modis_bloom["positive_months"]
+    is_whole = features["station_id"] == "TAIHU_WHOLE"
+    in_modis_positive = features["month"].isin(modis_positive_months)
+    features["label_bloom_modis"] = np.where(
+        is_whole & in_modis_positive, 1.0, np.nan
+    )
     has_label = (
         features["label_chla_ug_l"].notna()
         | features["label_bloom_clms"].notna()
         | features["label_coverage_fcb_prob"].notna()
+        | features["label_bloom_modis"].notna()
     )
     positive = (
         (features["label_bloom_proxy"] == 1.0)
         | (features["label_bloom_clms"] == 1.0)
         | (features["label_coverage_fcb_prob"] >= FCB_BLOOM_PROB_THRESHOLD)
+        | (features["label_bloom_modis"] == 1.0)
     )
     features["label_bloom_any"] = np.where(
         has_label,
@@ -388,6 +442,9 @@ def split_manifest_fragment(base: pd.DataFrame) -> dict:
         "note": (
             "wq 常规站样本仅 2005-02..2020-11（季度，含 phyto_biomass 576 行全在 train 期）；"
             "chla 地面样本为 2020-12/2022-12/2023-10 野外航次 + 2026-08 S1；"
-            "CLMS（bloom_label / fcb_prob）覆盖 2020-12/2022-12/2023-10 + 2024-09..2026-08，全在 validation/test 期"
+            "CLMS（bloom_label / fcb_prob）覆盖 2020-12/2022-12/2023-10 + 2024-09..2026-08，全在 validation/test 期；"
+            "MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取）valid 优先聚合，"
+            "无 valid 月回退 review（降权披露：有效像元 <5% 或聚合天数 <3），"
+            "湖面月均 ≥20μg/L 计阳性，仅映射 TAIHU_WHOLE 行"
         ),
     }

@@ -690,7 +690,7 @@ def train_run_real(
         r[np.isfinite(r)] for r in (oof_residuals, val_residuals) if len(r)
     ])
     intervals = None
-    if spec.problem_type in {"regression", "probability"} and len(pooled):
+    if spec.problem_type in {"regression", "probability", "binary"} and len(pooled):
         intervals = ResidualIntervals(
             residual_p05=float(np.quantile(pooled, 0.05)),
             residual_p95=float(np.quantile(pooled, 0.95)),
