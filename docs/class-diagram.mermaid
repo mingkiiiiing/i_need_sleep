@@ -1,0 +1,131 @@
+%% V0.3 增量类图（新增/改造部分；与 modeling_v1 复用关系以 <<uses>> 标注）
+classDiagram
+    direction TB
+
+    class FeatureContractV2 {
+        <<dataclass, frozen>>
+        +version: str = "v2.0"
+        +n_features: int = 78
+        +sha256: str
+        +WATER_QUALITY: tuple~str~
+        +METEOROLOGY: tuple~str~
+        +HYDROLOGY: tuple~str~
+        +REMOTE_SENSING: tuple~str~
+        +STATIC: tuple~str~
+        +MECHANISM: tuple~str~
+        +LAG_STATE_COLUMNS: tuple~str~
+        +validate_no_forbidden_columns(cols) None
+    }
+
+    class HorizonMap {
+        <<dataclass, frozen>>
+        +month_map: dict~int,int~
+        +granularity_tier: dict~int,str~
+        +scenario_horizons: tuple~int~ = (30,60,90)
+        +month_offset(h) int
+        +tier(h) str
+    }
+
+    class TargetBuilder {
+        +build_supervised_tables(parquet_path) dict~str,DataFrame~
+        -shift_by_station(df, k) DataFrame
+        -bloom_proxy(chla) Series  % chla>=20, provenance=proxy_derived
+        -risk_band(chla) Series
+        -coverage_proxy(fcb_prob) Series|None
+        +availability_matrix() list~dict~
+    }
+
+    class StationMonthSource {
+        <<BatchSource 协议>>
+        +base: DataFrame
+        +iter_batches(split, columns) Iterator~DataFrame~
+        +schema_columns: list~str~
+        +last_collection_audit: dict
+    }
+
+    class RealTrainer {
+        +train_run_real(run_spec, source, out_dir) dict
+        -fit_conformal(fold_residuals) PredictionIntervals
+        -expanding_time_folds() list~WindowSpec~
+        +save_bundle(bundle, out_dir) None
+    }
+
+    class ModelBundleV3 {
+        +model: Any  % RF/XGB/融合, 复用 modeling_v1
+        +preprocessor: LearnedPreprocessor
+        +feature_columns: tuple~str~
+        +target: str
+        +month_offset: int
+        +granularity_tier: str
+        +intervals: PredictionIntervals
+        +decision_threshold: float|None
+    }
+
+    class GateEvaluator {
+        +build_gate_table(runs_dir) dict
+        -compare(fusion, best_single, n_test) dict  % PASS/FAIL/NA+na_reason
+        -honesty_note() str
+    }
+
+    class PredictionIntervals {
+        <<复用 modeling_v1.uncertainty>>
+        +residual_quantiles: tuple~float,float,float,float~
+        +predict_frame(frame, prediction) DataFrame  % P05/P95
+    }
+
+    class AlgorithmModelServiceV3 {
+        <<改造 algorithm_models.py>>
+        -package_dir_v3: Path
+        -package_dir_legacy: Path
+        +status() dict  % package_generation, availability_matrix
+        +predict_suite(h, entity, focus) dict  % conformal 区间 + provenance 五分类 + compliance
+        +acceptance() dict  % 读 gate_table.json, 无硬编码
+        +acceptance_detail() dict
+        +calibration_coverage() dict
+        +spatial_field(h, metric, layer) dict  % raster|station
+        -_observed_inputs_v2(entity) tuple
+        -_fallback_legacy(h) dict
+    }
+
+    class RasterFieldService {
+        <<新增 rs_raster.py>>
+        -manifest_path: Path
+        +get_raster_layer(month, metric) dict
+        +get_boundary_geojson(layer_id) dict
+        +calibration_status(layer) dict  % calibrated | annual_base_only
+    }
+
+    class PairDatasetBuilder {
+        <<scripts/rs>>
+        +build(field_samples, s2_monthly, modis_daily) DataFrame
+        -match_s2_same_month() list  % 容差规则
+        -match_modis_within_3d() list
+        -nearest_in_lake_station() dict
+    }
+
+    class RetrievalCalibrator {
+        <<scripts/rs>>
+        +fit_affine(pairs_train) dict  % slope/intercept
+        +validate_holdout(pairs_holdout) dict  % R2/RMSE/MAE/n
+        +choose_s2_group(metrics_a, metrics_b) str
+    }
+
+    class RasterFieldBuilder {
+        <<scripts/rs>>
+        +build_monthly_field(year_png, station_month, calib) None  % PNG->像元->站点残差修正
+        -colorbar_invert(png) ndarray
+        -threshold_polygonize(chla_grid, threshold=20) GeoJSON
+    }
+
+    FeatureContractV2 --> TargetBuilder : 校验特征列
+    TargetBuilder --> StationMonthSource : 监督表供给
+    StationMonthSource --> RealTrainer : train/val/test 帧
+    RealTrainer --> ModelBundleV3 : 产出
+    RealTrainer --> PredictionIntervals : <<uses>> conformal
+    GateEvaluator --> ModelBundleV3 : 读 test_metrics_by_family
+    AlgorithmModelServiceV3 --> ModelBundleV3 : 加载推理
+    AlgorithmModelServiceV3 --> GateEvaluator : acceptance 唯一来源
+    AlgorithmModelServiceV3 --> RasterFieldService : 空间场委托
+    RasterFieldService --> RasterFieldBuilder : 消费生成物
+    PairDatasetBuilder --> RetrievalCalibrator : pairs.parquet
+    RetrievalCalibrator --> RasterFieldBuilder : 校准系数

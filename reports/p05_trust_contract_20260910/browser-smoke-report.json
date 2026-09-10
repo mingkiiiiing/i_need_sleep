@@ -1,0 +1,259 @@
+{
+  "passed": 50,
+  "total": 50,
+  "failures": [],
+  "results": [
+    {
+      "name": "T1 深链(全湖/risk/short) 披露条渲染",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&stop=t1 resp=constant inter=true trace={\"分析范围\":\"全湖\",\"实体\":\"lake\",\"指标 / 时效\":\"风险概率 · T+1\",\"实测输入指纹\":\"3299d251c09d9056\",\"模型输入矩阵指纹\":\"9e00b75454436a2b\",\"模型 ID\":\"T6-probability-0m-s20260907\",\"预测运行 ID\":\"ALG-V0.3-mee_surface_water_realtime_20260910T125434Z-lake-1d\",\"指纹口径\":\"dual_fingerprint_v1\"}"
+    },
+    {
+      "name": "T1 实测输入指纹与接口一致",
+      "ok": true,
+      "detail": "页面=3299d251c09d9056 接口=3299d251c09d9056"
+    },
+    {
+      "name": "T1 模型输入矩阵指纹与接口一致",
+      "ok": true,
+      "detail": "页面=9e00b75454436a2b 接口=9e00b75454436a2b"
+    },
+    {
+      "name": "T1 双指纹口径已标注",
+      "ok": true,
+      "detail": "指纹口径=dual_fingerprint_v1"
+    },
+    {
+      "name": "T1 时间轴构建后 hash 自动补 stop",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&stop=t1"
+    },
+    {
+      "name": "T1 页面不含\"站内极差\"字样",
+      "ok": true,
+      "detail": "当前模型对全湖与站点差异无有效响应 本结果不可用于站点区分。在 80 个实体上， 风险概率 于 T+1 的预测值完全一致（取值 0.0909）， 说明该指标所选模型未使用实体间存在差异的输入特征。 取值来源 V0.3 真实数据模型 模型族 simple_baseline 实测不同取值数 1 / 80 实体间极差 0.0"
+    },
+    {
+      "name": "T2 深链站点 A：URL 带 station",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&station=mee-0145cdb7&stop=t1"
+    },
+    {
+      "name": "T2 深链站点 A：指纹属于 A（未串站）",
+      "ok": true,
+      "detail": "页面=23ac0b6a67e30265 A=23ac0b6a67e30265"
+    },
+    {
+      "name": "T2 深链站点 A：实体回显为 A",
+      "ok": true,
+      "detail": "实体=mee-0145cdb7 · 临江"
+    },
+    {
+      "name": "T2 深链站点 A：分析范围为\"站点\"",
+      "ok": true,
+      "detail": "分析范围=站点"
+    },
+    {
+      "name": "T3 快速切换后落在最后目标 A",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&station=mee-0145cdb7&stop=t1"
+    },
+    {
+      "name": "T3 快速切换后指纹属于 A（不串站）",
+      "ok": true,
+      "detail": "页面=23ac0b6a67e30265 A=23ac0b6a67e30265"
+    },
+    {
+      "name": "T3 快速切换后实体回显为 A",
+      "ok": true,
+      "detail": "实体=mee-0145cdb7 · 临江"
+    },
+    {
+      "name": "T3b 切到 C 后指纹属于 C",
+      "ok": true,
+      "detail": "页面=103995c06bd21831 C=103995c06bd21831"
+    },
+    {
+      "name": "T4 换指标后 hash metric=chla",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=chla&station=mee-0e770fb5&stop=t1"
+    },
+    {
+      "name": "T4 换指标后指纹换成 chla 的模型输入矩阵指纹",
+      "ok": true,
+      "detail": "页面=ba921c121052f5cf 期望=ba921c121052f5cf"
+    },
+    {
+      "name": "T4 test_n=1 时区间卡 decision_usable=false",
+      "ok": true,
+      "detail": "data-decision-usable=false（后端 test_n=1）"
+    },
+    {
+      "name": "T4 test_n=1 时不出现\"预测区间可用\"",
+      "ok": true,
+      "detail": "标题=区间结构自洽，但校准证据不足，不作决策依据"
+    },
+    {
+      "name": "T4 test_n=1 时校准状态不表述为\"已由冻结测试集核算\"",
+      "ok": true,
+      "detail": "② 校准状态=冻结测试集样本过少，经验覆盖率不具统计意义 测试样本=1"
+    },
+    {
+      "name": "T4 区间语义标为\"预测区间\"",
+      "ok": true,
+      "detail": "{\"① 区间结构\":\"自洽\",\"区间语义\":\"预测区间\",\"② 校准状态\":\"冻结测试集样本过少，经验覆盖率不具统计意义\",\"校准样本\":\"31\",\"测试样本\":\"1\",\"经验覆盖率\":\"0.0%\",\"③ 决策可用\":\"否\",\"点预测\":\"3.0651\",\"下界 p05\":\"1.1254\",\"上界 p95\":\"5.1146\",\"宽度退化\":\"否\"}"
+    },
+    {
+      "name": "T5 长期时效来源为合成回退",
+      "ok": true,
+      "detail": "origin=legacy_v0_2_synthetic_fallback 时效=风险概率 · T+30"
+    },
+    {
+      "name": "T5 合成回退披露状态为 synthetic",
+      "ok": true,
+      "detail": "data-comparison-state=synthetic 文本=合成情景结果：数值不同，但不可用于真实站点比较 本结果来自 合成情景回退（该任务/时效在 V0.3 真实标签下不可训练）。 在 80 个实体上确实出现 59 个不同取值（实体间极差 0.0129），但这只说明合成情景设定不同， 不能说明真实"
+    },
+    {
+      "name": "T5 合成回退明示\"不可用于站点间比较\"",
+      "ok": true,
+      "detail": "合成情景结果：数值不同，但不可用于真实站点比较 本结果来自 合成情景回退（该任务/时效在 V0.3 真实标签下不可训练）。 在 80 个实体上确实出现 59 个不同取值（实体间极差 0.0129），但这只说明合成情景设定不同， 不能说明真实太湖存在对应差异。不可作为真实站点预测，也不可用于站点间比较。 取值来源 合成情景回退（V0.2 合成数据模型） 模型族 — 实测不同取值数 59 / 80 实"
+    },
+    {
+      "name": "T5 合成回退绝不出现正面\"可用于站点间比较\"",
+      "ok": true,
+      "detail": "合成情景结果：数值不同，但不可用于真实站点比较 本结果来自 合成情景回退（该任务/时效在 V0.3 真实标签下不可训练）。 在 80 个实体上确实出现 59 个不同取值（实体间极差 0.0129），但这只说明合成情景设定不同， 不能说明真实太湖存在对应差异。不可作为真实站点预测，也不可用于站点间比较。 取值来源 合成情景回退（V0.2 合成数据模型） 模型族 — 实测不同取值数 59 / 80 实"
+    },
+    {
+      "name": "T5 合成回退文案使用\"实体间极差\"",
+      "ok": true,
+      "detail": "合成情景结果：数值不同，但不可用于真实站点比较 本结果来自 合成情景回退（该任务/时效在 V0.3 真实标签下不可训练）。 在 80 个实体上确实出现 59 个不同取值（实体间极差 0.0129），但这只说明合成情景设定不同， 不能说明真实太湖存在对应差异。不可作为真实站点预测，也不可用于站点间比较。 取值来源 合成情景回退（V0.2 合成数据模型） 模型族 — 实测不同取值数 59 / 80 实"
+    },
+    {
+      "name": "T6 点\"全湖\"后 URL 不再带 station",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&stop=t1"
+    },
+    {
+      "name": "T6 回到全湖后指纹为全湖口径",
+      "ok": true,
+      "detail": "页面=3299d251c09d9056 全湖=3299d251c09d9056"
+    },
+    {
+      "name": "T6b 下拉选站后 URL 写入 station",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&station=mee-077b367a&stop=t1"
+    },
+    {
+      "name": "T6b 下拉选站后指纹属于 B",
+      "ok": true,
+      "detail": "页面=c628084f7e87177f B=c628084f7e87177f"
+    },
+    {
+      "name": "T6b 下拉选站后实体回显为 B",
+      "ok": true,
+      "detail": "实体=mee-077b367a · 池家浜水文站"
+    },
+    {
+      "name": "T7 前进前：B 已生效",
+      "ok": true,
+      "detail": "页面=c628084f7e87177f B=c628084f7e87177f"
+    },
+    {
+      "name": "T7 后退：hash 回到 A",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&station=mee-0145cdb7&stop=t1"
+    },
+    {
+      "name": "T7 后退：视图指纹回到 A（URL 驱动页面态）",
+      "ok": true,
+      "detail": "页面=23ac0b6a67e30265 A=23ac0b6a67e30265"
+    },
+    {
+      "name": "T7 后退：实体回显为 A",
+      "ok": true,
+      "detail": "实体=mee-0145cdb7 · 临江"
+    },
+    {
+      "name": "T7 前进：hash 回到 B",
+      "ok": true,
+      "detail": "hash=#/heatmap?mode=forecast&scale=short&metric=risk&station=mee-077b367a&stop=t1"
+    },
+    {
+      "name": "T7 前进：视图指纹回到 B",
+      "ok": true,
+      "detail": "页面=c628084f7e87177f B=c628084f7e87177f"
+    },
+    {
+      "name": "T8a 不确定性标签页已挂载",
+      "ok": true,
+      "detail": "{\"tabPresent\":true,\"blocked\":false,\"blockedText\":\"\",\"statusKey\":\"invalid\",\"statusText\":\"区间无效\",\"hasScale\":false,\"ringNote\":\"97.5% 经验覆盖率 区间结构不自洽，覆盖率不适用\",\"text\":\"预测范围 P05 — 点预测 — P95 区间无效 区间宽度退化为 0（校准残差分"
+    },
+    {
+      "name": "T8a 后端有区间时不得显示\"未提供预测区间\"",
+      "ok": true,
+      "detail": "blocked=false 文本="
+    },
+    {
+      "name": "T8a 结构不自洽时状态键为 invalid",
+      "ok": true,
+      "detail": "data-status=invalid shortTitle=区间无效（后端 structural_valid=false）"
+    },
+    {
+      "name": "T8a 结构不自洽时绝不显示\"区间可用\"",
+      "ok": true,
+      "detail": "shortTitle=区间无效"
+    },
+    {
+      "name": "T8a 结构不自洽时不绘制区间刻度尺",
+      "ok": true,
+      "detail": "interval-scale 存在=false（后端 structural_valid=false）"
+    },
+    {
+      "name": "T8a 状态理由已落页面文字",
+      "ok": true,
+      "detail": "预测范围 P05 — 点预测 — P95 区间无效 区间宽度退化为 0（校准残差分位数恒为常数并被物理边界裁剪），该区间不具信息量 97.5% 经验覆盖率 区间结构不自洽，覆盖率不适用 各任务不确定性 水华 结构不自洽 面积 无 覆盖 无 密度 校准证据不足 生物量 校准证据不足 叶绿素 校准证据不足 风险等级 无 风险概率 结构不自洽 空间 无 可用 校准证据不足 结构不自洽 退化/过宽 无"
+    },
+    {
+      "name": "T8a 结构不自洽时覆盖率环不给\"达标\"口径",
+      "ok": true,
+      "detail": "覆盖率环文本=97.5% 经验覆盖率 区间结构不自洽，覆盖率不适用"
+    },
+    {
+      "name": "T8a 结构不自洽时不出现正面\"预测区间可用\"",
+      "ok": true,
+      "detail": "预测范围 P05 — 点预测 — P95 区间无效 区间宽度退化为 0（校准残差分位数恒为常数并被物理边界裁剪），该区间不具信息量 97.5% 经验覆盖率 区间结构不自洽，覆盖率不适用 各任务不确定性 水华 结构不自洽 面积 无 覆盖 无 密度 校准证据不足 生物量 校准证据不足 叶绿素 校准证据不足 风险等级 无 风险概率 结构不自洽 空间 无 可用 校准证据不足 结构不自洽 退化/过宽 无"
+    },
+    {
+      "name": "T8b test_n=1 时状态键为 insufficient",
+      "ok": true,
+      "detail": "data-status=insufficient shortTitle=校准证据不足（后端 calibration_status=insufficient_test_evidence test_n=1）"
+    },
+    {
+      "name": "T8b test_n=1 时绝不显示\"区间可用\"",
+      "ok": true,
+      "detail": "shortTitle=校准证据不足"
+    },
+    {
+      "name": "T8b test_n=1 时覆盖率环不给\"达标\"口径",
+      "ok": true,
+      "detail": "覆盖率环文本=0% 经验覆盖率 校准证据不足，仅登记"
+    },
+    {
+      "name": "T8c 页面不把本次区间写成\"置信区间\"",
+      "ok": true,
+      "detail": "预测范围 P05 — 点预测 — P95 校准证据不足 冻结测试集样本过少，覆盖率不具统计意义，不构成校准证据。（test_n=1） 3.065 P05 P95 实测 偏低情景 1.125 当前预测 3.065 偏高情景 5.115 0% 经验覆盖率 校准证据不足，仅登记 各任务不确定性 水华 结构不自洽 面积 无 覆盖 无 密度 校准证据不足 生物量 校准证据不足 叶绿素 校准证据不足 风险等级"
+    },
+    {
+      "name": "T9 控制台零错误",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "name": "T9 控制台零警告",
+      "ok": true,
+      "detail": "[]"
+    }
+  ],
+  "consoleErrors": [],
+  "consoleWarnings": []
+}

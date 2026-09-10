@@ -1,0 +1,67 @@
+%% V0.3 主线一：真实模型族训练 + 10% 门禁生成（离线）
+sequenceDiagram
+    participant CLI as cli_real.py
+    participant TB as target_builder
+    participant DS as StationMonthSource(data_real)
+    participant TR as training_real
+    participant FU as fusion/models(复用 modeling_v1)
+    participant UC as uncertainty(复用)
+    participant GT as gate.py
+    participant MF as manifest.json
+
+    CLI->>TB: build_supervised_tables(parquet, horizon_month_map)
+    TB->>TB: 站点内月份平移 t+k、bloom 代理(chla>=20)、风险分级带
+    TB-->>CLI: 各 (task,horizon) 监督表 + availability_matrix
+    loop 每个 run_id（断点续跑跳过已完成）
+        CLI->>TR: train_run_real(run_spec, source)
+        TR->>DS: collect_split("train"/"validation")  % 冻结 882/23
+        DS-->>TR: 特征帧 + actual
+        TR->>FU: candidate_factories(RF/XGB/三类融合)
+        FU-->>TR: 各候选 validation 预测
+        TR->>TR: _select_best(验证主指标)
+        TR->>UC: fit_prediction_intervals(折外残差, conformal P05/P95)
+        UC-->>TR: PredictionIntervals(含校准残差)
+        TR->>DS: collect_split("test")  % n=9 冻结
+        TR->>FU: 各候选 test 预测 + test_metrics_by_family
+        TR->>TR: interval_diagnostics(test)  % 经验覆盖率 + n 披露
+        TR->>TR: save_bundle(joblib: model+preprocessor+calibrator)
+    end
+    CLI->>GT: build_gate_table(runs_dir)
+    GT->>GT: 逐 (时效×输出类别): fusion vs max(RF,XGB) → uplift → PASS/FAIL/NA(附 na_reason)
+    GT-->>CLI: evaluation/gate_table.json（动态比较数，无硬编码）
+    CLI->>MF: 汇总写 manifest.json（契约v2 sha256、粒度三档、scenario_horizons、覆盖率元数据）
+
+%% V0.3 主线二：推理 + 统计区间 + 连续栅格场（在线）
+sequenceDiagram
+    participant FE as 前端(Heatmap/ForecastResultPanel)
+    participant API as api.py
+    participant SVC as AlgorithmModelService(v0.3)
+    participant PKG as bundle(joblib)
+    participant RS as rs_raster.py
+    participant MAN as raster_manifest.json
+
+    FE->>API: GET /model/predictions?horizon_days=30&focus_metric=chla
+    API->>SVC: predict_suite(30, entity, "chla")
+    SVC->>SVC: _observed_inputs_v2(MEE 实时5字段 + 最近月上下文)
+    loop 9 任务
+        SVC->>PKG: load_bundle + predict_batch(raw_frame)
+        PKG-->>SVC: point prediction
+        alt 回归类任务
+            SVC->>PKG: calibrator.predict_frame(point)  % conformal P05/P95
+            PKG-->>SVC: p05/p95 + coverage{n_cal, n_test, empirical}
+        end
+    end
+    SVC-->>API: results + input_provenance(五分类) + compliance(30/60/90 情景推演, locked)
+    API-->>FE: Envelope{code,data,message}
+    FE->>API: GET /model/spatial-field?horizon_days=30&metric=chla&layer=raster
+    API->>SVC: spatial_field(30, "chla", "raster")
+    SVC->>RS: get_raster_layer(month, metric)
+    RS->>MAN: 读年度产品基底 + 月度校准系数 + 边界 GeoJSON 路径
+    MAN-->>RS: layer{png,bounds,vmax,calibration{r2,rmse,pairs},boundary{threshold:20}}
+    RS-->>SVC: 栅格场 + 边界 + calibration status(或 annual_base_only 未校准)
+    SVC-->>API: spatial_method="calibrated_annual_product_plus_station_residual"
+    API-->>FE: Envelope → RasterLayer 叠加 + 旧站点样点图层(对照) + 校准指标角标
+    FE->>API: GET /model/acceptance/detail
+    API->>SVC: acceptance_detail()
+    SVC->>SVC: 读 evaluation/gate_table.json（唯一来源）
+    API-->>FE: rows[{n_test, uplift, PASS/FAIL/NA}] + honesty_note

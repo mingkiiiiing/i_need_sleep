@@ -1,7 +1,6 @@
 # A23 前后端联调说明
 
-> 双轨口径（2026-09-06 起）：`simulated` 演示轨用于页面联调和答辩情景展示；`observed` 实时轨承载 MEE 国控站点
-> 官方观测（未经跨源验证，is_ground_truth=false），两轨数据永不混合。实时站点页为 `/stations`，大屏为 `/wallboard`。
+> 算法链路口径（2026-09-10 更新）：主链路为 **V0.3 真实数据包**（`/api/v1/model/v3/*`，20 bundle = 12 冻结划分 + 8 补训 CV 协议，含 conformal 区间与动态质量门）；legacy **V0.2 合成包**（63 bundle，`synthetic_development_only`）保留作对照与回退。三轨数据口径：`simulated` 旧演示轨、`observed` MEE 实时观测轨、`hybrid` 算法推演轨。**统一指标口径见 `企业提交材料/算法组提交材料_V0.1/12_命题条款对照与统一指标口径_V0.1.md`。**
 
 ## 启动
 
@@ -17,13 +16,13 @@ backend\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --
 npm run dev
 ```
 
-Vite 会将 `/api` 代理到 `http://127.0.0.1:8000`。默认前端请求 `/api/v1`；后端异常会由调用层显示错误，绝不会自动切换为本地 mock。
+Vite 会将 `/api` 代理到 `http://127.0.0.1:8000`（端口被占用时：后端换端口启动，前端以 `BACKEND_ORIGIN=http://127.0.0.1:8001 npm run dev` 覆盖代理目标）。默认前端请求 `/api/v1`；后端异常会由调用层显示错误，绝不会自动切换为本地 mock。
 
 ## 数据源说明
 
 前端只连接后端：所有请求统一走 `/api/v1`，不存在 mock 数据源或数据源切换开关（历史 mock 配置与 mock 服务文件已于第九任务清理删除）。后端异常时页面进入各自的错误态并提供重试，绝不静默切换数据。
 
-全部数据仍为 `SIMULATED` 演示数据；没有真实模型、模型精度或 SHAP 输出。
+MEE 观测为 `observed`；时空推演页主链路为 V0.3 真实数据模型（月度标签粒度 + conformal 区间 + 逐任务来源标注），缺失任务逐项回退 legacy 合成对照并如实标注；30/60/90 天为情景推演口径。真实口径 10% 门禁当前 FAIL 如实；尚无逐次 SHAP。
 
 ## P0 核心接口
 
@@ -62,6 +61,12 @@ Vite 会将 `/api` 代理到 `http://127.0.0.1:8000`。默认前端请求 `/api/
 | `GET /spatial-entities?mode=observed&active=latest` | **实时站点列表**（observed）：MEE 国控站全量摘要，支持 province / location_status 筛选 |
 | `GET /spatial-entities/{mee-*}/observations?window=latest\|range` | **站点观测**（observed）：每站固定 11 项指标状态，缺测显式（missing_reason=upstream_missing） |
 | `GET /spatial-entities/{mee-*}/quality` | **站点质量**（observed）：覆盖率、滞后、缺测清单、坐标可信度、适用性 |
+| `GET /model/status` | **legacy 运行状态**（hybrid）：V0.2 合成包 63 模型完整性、依赖、时效与声明边界（当前主链路为 `/model/v3/status`，20 模型） |
+| `GET /model/predictions?horizon_days=...&entity_id=...` | **算法情景推演**：1/3/7/15/30/60/90 天，覆盖 9 个任务；输入来源和插补字段逐项披露 |
+| `GET /model/spatial-field?horizon_days=...&metric=...` | 太湖附近已核验站点条件化的模型空间样点；不是连续卫星像元反演 |
+| `GET /model/acceptance` | 冻结测试口径的融合相对最强单一 AI 提升 10% 门禁；当前如实返回 FAIL |
+| `GET /model/retrieval/status` | 叶绿素 a、藻密度、水华面积反演/校准能力状态和证据边界 |
+| `POST /model/retrieval/calibrate` | 用至少 3 组 retrieved/reference 同期配对拟合仿射地面校准，并保持 derived 来源标记 |
 
 `/cockpit/time-stages` 中的 T+30 为模拟预演，明确不代表 30—90 天正式预测能力。
 
@@ -75,6 +80,10 @@ Vite 会将 `/api` 代理到 `http://127.0.0.1:8000`。默认前端请求 `/api/
 | 409 | `CAPABILITY_UNAVAILABLE` | 30—90 天预测未就绪 |
 | 409 | `DATA_MODE_UNAVAILABLE` | 真实历史数据尚未接入业务 API |
 | 422 | `REQUEST_VALIDATION_FAILED` | 参数或请求体不符合契约 |
+
+## 算法输入衔接
+
+模型训练特征多于 MEE 实时接口现有字段。当前适配层只写入语义一致的水温、总磷、总氮、溶解氧和 pH；日历特征由观测时间计算；其他气象、遥感、机理和空间字段保留缺失并由 bundle 内冻结预处理器插补。MEE 叶绿素 a 不会被误填到 `remote_chlorophyll_a`。
 
 ## 后续数据接入
 

@@ -18,6 +18,20 @@
         </div>
       </header>
 
+      <!-- 上一成功版本横幅：新预测未就绪时如实披露，绝不清空页面 -->
+      <div
+        v-if="usingPreviousVersion"
+        class="hm-prev-banner"
+        data-role="previous-version-banner"
+        role="status"
+      >
+        <b>{{ predictionSnapshot.status.state === 'failed' ? '新预测生成失败' : '正在生成新预测' }}</b>
+        <span>
+          实测数据或模型版本已更新；当前页面继续展示上一成功预测版本（{{ predictionSnapshot.generatedAt ? `生成于 ${formatStamp(predictionSnapshot.generatedAt)}` : '时间未知' }}）。
+          {{ predictionSnapshot.status.last_error ? `失败原因：${predictionSnapshot.status.last_error}` : '生成完成后自动切换。' }}
+        </span>
+      </div>
+
       <!-- ===== 主三栏 ===== -->
       <div class="hm-main">
         <!-- 左栏：预测控制 -->
@@ -38,6 +52,7 @@
             :stations="stationOptions"
             :station-id="selectedStationId"
             :info="modelInfo"
+            :spatial-summary="spatialLayerSummary"
             @station-select="selectStation"
           />
         </aside>
@@ -127,7 +142,12 @@
             </div>
             <!-- V0.3 月度栅格场浮动面板（P0-4 证据：连续栅格 + 20 μg/L 边界） -->
             <div v-if="rasterOpen" class="hm-raster-panel" data-role="raster-panel">
-              <RasterLayer :horizon-days="3" closable @close="rasterOpen = false" />
+              <RasterLayer
+                :horizon-days="selectedHorizon"
+                :run-id="modelForecast?.prediction_run_id || ''"
+                closable
+                @close="rasterOpen = false"
+              />
             </div>
           </div>
 
@@ -173,6 +193,15 @@
 
         <!-- 右栏：预测结果 / 实测摘要 / 年度统计 -->
         <aside class="hm-panel hm-right" aria-label="推演结果">
+        <!-- 站点预测能力小标签：业务页只保留一行诚实状态 -->
+        <div
+          v-if="pageMode === 'forecast' && modelState === 'ok'"
+          class="hm-status-tag"
+          data-role="prediction-status-tag"
+        >
+          <span :data-state="predictionStatusKind">{{ predictionStatusText }}</span>
+        </div>
+
           <!-- 预测推演：三标签结果面板 -->
           <ForecastResultPanel
             v-if="pageMode === 'forecast'"
@@ -186,11 +215,16 @@
             :inputs="lakeInputs"
             :diff-enabled="rtDiff"
             :diff-summary="diffSummary"
+            :diff-rows="stationDiffRows"
             :diff-base-time="diffBaseTimeText"
             :summary-loading="summaryState === 'loading'"
             :model-forecast="modelForecast"
             :model-state="modelState"
             :model-error="modelError"
+            :v3-forecast="modelSource === 'v3' ? modelForecast : null"
+            :horizon-forecasts="horizonForecasts"
+            :aggregate="modelForecast?.station_aggregate || null"
+            :horizon-days="selectedHorizon"
             @back-to-lake="clearStation"
             @retry="retryRealtimeSummary"
             @retry-model="retryModelForecast"
@@ -346,8 +380,9 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   getAlgorithmModelStatusEnvelope,
   getAlgorithmPredictionsEnvelope,
-  getAlgorithmSpatialFieldEnvelope,
+  getPredictionStationFieldEnvelope,
   getAlgorithmV3PredictionsEnvelope,
+  getAlgorithmV3StatusEnvelope,
   getRsManifestEnvelope,
   rsImageUrl
 } from '../services/api.js'
@@ -359,6 +394,7 @@ import ForecastControlPanel from '../components/heatmap/ForecastControlPanel.vue
 import ForecastResultPanel from '../components/heatmap/ForecastResultPanel.vue'
 import ForecastTimeline from '../components/heatmap/ForecastTimeline.vue'
 import { chlaColor, fetchRealtimeStations, fetchRealtimeSummary, fetchRealtimeTimeline, fetchStationObservations, fmtMeasure, formatStamp, stationMapPoints } from '../services/realtime.js'
+import { currentHorizonData, entityDiagnostic, loadPredictionSnapshot, predictionSnapshot, refreshPredictionStatus } from '../stores/predictionSnapshot.js'
 import { assessShortTerm, assessMidTerm, assessLongTerm, assessStationFactors } from '../components/heatmap/riskAssessment.js'
 
 const route = useRoute()
@@ -540,7 +576,16 @@ function refreshRealtime() {
       summaryAttempt = 0
     })
     .catch(() => {})
-  loadModelForecast()
+  // 预测结果不再随实时刷新重跑：只比对轻量状态接口里的快照 ID，
+  // 实测数据或模型版本真的变了才静默替换（见 predictionSnapshot store）。
+  refreshPredictionStatus()
+    .then((replaced) => {
+      if (replaced) {
+        applySnapshotHorizon()
+        loadHorizonEvidence()
+      }
+    })
+    .catch(() => {})
 }
 
 // ---------- 页面模式：实测回放 / 预测推演（主视图） / 遥感年度对比 ----------
@@ -563,18 +608,62 @@ function setScope(v) {
   if (v !== 'station') selectedStationId.value = ''
 }
 
-function restoreFromQuery() {
-  const q = route.query
-  if (VALID_MODES.includes(q.mode)) pageMode.value = q.mode
-  if (VALID_SCALES.includes(q.scale)) scale.value = q.scale
-  if (VALID_METRICS.includes(q.metric)) metric.value = q.metric
-  if (typeof q.station === 'string' && q.station) {
-    selectedStationId.value = q.station
-    scopeChoice.value = 'station'
+// ---------- URL 状态同步（刷新 / 深链 / 前进后退 / 手工改 hash 都生效） ----------
+// 两个方向：
+//   URL → 页面态：applyQuery() 在任何 hash 变化（含浏览器前进后退、手工编辑地址栏、
+//                 站外深链）时把查询参数写回页面态；
+//   页面态 → URL：选择变化时写回查询参数。仅「选择身份」(mode/scale/metric/station)
+//                 变化才 push（这样前进后退可以在站点之间走），只换停靠点时 replace
+//                 （避免时间轴播放把历史记录刷爆）。
+// routeSyncGuard 用于阻断回环：URL → 态 的同步过程中不得再触发 态 → URL 的回写。
+const SELECTION_KEYS = ['mode', 'scale', 'metric', 'station']
+let routeSyncGuard = false
+
+function selectionSignature(q) {
+  return SELECTION_KEYS.map((key) => `${key}=${(q && q[key]) ?? ''}`).join('&')
+}
+
+function querySignature(q) {
+  return [...SELECTION_KEYS, 'stop'].map((key) => `${key}=${(q && q[key]) ?? ''}`).join('&')
+}
+
+function applyQuery(q) {
+  routeSyncGuard = true
+  try {
+    if (VALID_MODES.includes(q.mode)) pageMode.value = q.mode
+    if (VALID_SCALES.includes(q.scale)) scale.value = q.scale
+    if (VALID_METRICS.includes(q.metric)) metric.value = q.metric
+    if (typeof q.station === 'string' && q.station) {
+      selectedStationId.value = q.station
+      scopeChoice.value = 'station'
+    } else if (selectedStationId.value) {
+      // 深链/后退到不含 station 的地址：必须回到全湖，否则 URL 与视图不一致
+      selectedStationId.value = ''
+      scopeChoice.value = 'lake'
+    }
+    if (typeof q.stop === 'string' && q.stop) {
+      // 停靠点尚未构建时先挂起，由 timelineStops watcher 落地
+      if (timelineStops.value.some((s) => s.id === q.stop)) selectedStopId.value = q.stop
+      else pendingStopId.value = q.stop
+    } else {
+      pendingStopId.value = ''
+    }
+  } finally {
+    nextTick(() => {
+      routeSyncGuard = false
+    })
   }
-  if (typeof q.stop === 'string') pendingStopId.value = q.stop
 }
 const pendingStopId = ref('')
+
+watch(
+  () => route.fullPath,
+  () => {
+    if (routeSyncGuard) return
+    if (querySignature(route.query) === querySignature(currentQuery())) return
+    applyQuery(route.query)
+  }
+)
 
 // 模式切换（左侧面板 v-model）：停止回放；当前停靠点在新模式不存在时
 // 由 timelineStops watcher 兜底重选
@@ -630,7 +719,7 @@ watch(selectedStationId, async (id) => {
 const SCALES = [
   { id: 'short', label: '短临', hint: '1-3 天', from: 1, to: 3, days: [1, 3], pos: { 1: 48, 3: 57 } },
   { id: 'mid', label: '趋势', hint: '7-15 天', from: 7, to: 15, days: [7, 15], pos: { 7: 64, 15: 74 } },
-  { id: 'long', label: '中长期', hint: '30-90 天', from: 30, to: 90, days: [30, 60, 90], pos: { 30: 80, 60: 87, 90: 94 } }
+  { id: 'long', label: '情景推演', hint: '30-90 天 · 未验证', from: 30, to: 90, days: [30, 60, 90], pos: { 30: 80, 60: 87, 90: 94 } }
 ]
 const TODAY_POS = 42
 
@@ -695,7 +784,7 @@ const timelineStops = computed(() => {
         // 刻度只标 +n；完整 “T+n · 尺度 · 预测日期” 见右侧状态与结果面板
         tick: `+${n}`,
         title: `未来 T+${n} · ${sc.label}`,
-        sub: `预测 ${fmtMD(date)} · 算法交付包 V0.2 · ${sc.label}`
+        sub: `预测 ${fmtMD(date)} · ${sc.label}`
       })
     })
   })
@@ -714,31 +803,66 @@ const selectedHorizon = computed(() => {
   return match ? Number(match[1]) : 1
 })
 
-// ---------- 算法交付包 V0.2：MEE 实测字段 + 冻结预处理器插补 ----------
+// ---------- 算法模型链路：V0.3 真实数据包为主，V0.2 合成包 legacy 回退 ----------
 const modelForecast = ref(null)
 const modelStatus = ref(null)
+const modelStatusV3 = ref(null)
+// v3 = 真实数据包主链路；v0_2_legacy_fallback = V0.3 不可用时的对照回退
+const modelSource = ref('v3')
 const modelState = ref('loading')
 const modelError = ref('')
 const spatialField = ref(null)
 const spatialState = ref('loading')
+const rasterOpen = ref(false)
+const horizonForecasts = ref([])
 let modelRequestToken = 0
 let spatialRequestToken = 0
+let horizonRequestToken = 0
+let horizonEvidenceKey = ''
+
+// 预测结果来自全局仓库：一次读取快照覆盖全部时效，切换时效只在内存中切换。
+// 只有实测数据/模型版本变化（prediction_snapshot_id 改变）才由后端重新推理。
+function applySnapshotHorizon() {
+  const data = currentHorizonData(selectedHorizon.value)
+  if (data) {
+    modelForecast.value = data
+    modelSource.value = 'v3'
+    modelState.value = 'ok'
+    modelError.value = ''
+  } else {
+    modelForecast.value = null
+    modelState.value = 'error'
+    modelError.value = '预测快照未覆盖当前时效'
+  }
+}
 
 async function loadModelForecast() {
   if (pageMode.value !== 'forecast') return
   const token = ++modelRequestToken
-  modelState.value = 'loading'
+  const entityId = selectedStationId.value || 'lake'
+  // 已有结果时切换指标不闪回 loading，避免整页重新等待。
+  if (modelState.value !== 'ok') modelState.value = 'loading'
   modelError.value = ''
   try {
-    const { data } = await getAlgorithmPredictionsEnvelope(selectedHorizon.value, selectedStationId.value || 'lake', metric.value)
+    await loadPredictionSnapshot(entityId, metric.value)
     if (token !== modelRequestToken) return
-    modelForecast.value = data
-    modelState.value = 'ok'
-  } catch (err) {
+    applySnapshotHorizon()
+    loadHorizonEvidence()
+  } catch {
+    // 快照不可用 → legacy V0.2 对照回退（结果面板按 value_origin/来源标签如实区分）
     if (token !== modelRequestToken) return
-    modelForecast.value = null
-    modelState.value = 'error'
-    modelError.value = err?.message || '算法模型请求失败'
+    try {
+      const { data } = await getAlgorithmPredictionsEnvelope(selectedHorizon.value, entityId, metric.value)
+      if (token !== modelRequestToken) return
+      modelForecast.value = data
+      modelSource.value = 'v0_2_legacy_fallback'
+      modelState.value = 'ok'
+    } catch (err) {
+      if (token !== modelRequestToken) return
+      modelForecast.value = null
+      modelState.value = 'error'
+      modelError.value = err?.message || '算法模型请求失败'
+    }
   }
 }
 
@@ -750,9 +874,17 @@ function retryModelForecast() {
 async function loadSpatialField() {
   if (pageMode.value !== 'forecast') return
   const token = ++spatialRequestToken
+  // 水华面积是全湖遥感反演口径，不存在站点空间场；不发请求也不报错。
+  if (metric.value === 'area') {
+    spatialField.value = null
+    spatialState.value = 'ok'
+    return
+  }
   spatialState.value = 'loading'
   try {
-    const { data } = await getAlgorithmSpatialFieldEnvelope(selectedHorizon.value, metric.value)
+    // 站点场直接来自预测快照：与右侧结果面板同一 prediction_snapshot_id，
+    // 覆盖分母统一为快照站点层总数（79），缺坐标站逐站给出排除原因。
+    const { data } = await getPredictionStationFieldEnvelope(selectedHorizon.value, metric.value)
     if (token !== spatialRequestToken) return
     spatialField.value = data
     spatialState.value = 'ok'
@@ -763,8 +895,28 @@ async function loadSpatialField() {
   }
 }
 
-watch([pageMode, selectedStopId, selectedStationId, metric], () => {
-  loadModelForecast()
+// 七个时效的结果本来就装在同一份预测快照里：直接按序取用，
+// 既不逐个请求接口（原实现串行请求 7 次、合计约 28s），也不产生任何模型运行。
+function loadHorizonEvidence() {
+  if (pageMode.value !== 'forecast') return
+  const entityId = selectedStationId.value || 'lake'
+  horizonEvidenceKey = `${entityId}|${metric.value}`
+  horizonForecasts.value = predictionSnapshot.horizonList
+    .map((horizon) => predictionSnapshot.horizons[String(horizon)])
+    .filter(Boolean)
+}
+
+// 站点/指标/模式变化才需要重新读取快照（服务端命中预生成结果，不运行模型）。
+watch([pageMode, selectedStationId, metric], async () => {
+  // 先取预测主响应，再以其 prediction_run_id 请求空间场，保证两端共享同一次运行 ID
+  await loadModelForecast()
+  loadSpatialField()
+})
+
+// 时效切换：七个时效的结果已在同一份快照内，纯内存切换，不产生请求。
+watch(selectedHorizon, () => {
+  if (pageMode.value !== 'forecast') return
+  applySnapshotHorizon()
   loadSpatialField()
 })
 
@@ -821,7 +973,7 @@ watch([selectedStopId, pageMode], () => {
 }, { immediate: true })
 
 // ---------- URL 状态同步（刷新后恢复分析位置） ----------
-watch([pageMode, scale, metric, selectedStationId, selectedStopId], () => {
+function currentQuery() {
   const query = {
     mode: pageMode.value,
     scale: scale.value,
@@ -829,7 +981,17 @@ watch([pageMode, scale, metric, selectedStationId, selectedStopId], () => {
   }
   if (selectedStationId.value) query.station = selectedStationId.value
   if (selectedStopId.value && pageMode.value !== 'rs') query.stop = selectedStopId.value
-  router.replace({ query }).catch(() => {})
+  return query
+}
+
+watch([pageMode, scale, metric, selectedStationId, selectedStopId], () => {
+  if (routeSyncGuard) return
+  const query = currentQuery()
+  if (querySignature(query) === querySignature(route.query)) return
+  // 选择身份变化 → push（前进后退可回到上一个站点/指标）；仅换停靠点 → replace
+  const selectionChanged = selectionSignature(query) !== selectionSignature(route.query)
+  const navigate = selectionChanged ? router.push : router.replace
+  navigate.call(router, { query }).catch(() => {})
 })
 
 // 播放：沿停靠点推进，到末端自动停
@@ -890,6 +1052,7 @@ const lakeInputs = computed(() => {
     : trend?.direction === 'down' ? `↓ ${trend.delta_pct}%` : ''
   return {
     chlaText: chla != null ? `${fmtMeasure(chla)} μg/L` : '—',
+    chlaValue: chla != null ? Number(chla) : null,
     chlaTrend: trendText,
     tempText: temp != null ? `${fmtMeasure(temp)} ℃` : '—',
     nutrientText: tp != null ? `${fmtMeasure(tp)} / ${tn != null ? fmtMeasure(tn) : '—'} mg/L` : '—'
@@ -897,12 +1060,46 @@ const lakeInputs = computed(() => {
 })
 
 // 模型与运行信息（左侧控制面板底部）
+// 上一成功版本横幅：新预测未就绪（更新中/失败）时页面必须如实披露，绝不清空
+const usingPreviousVersion = computed(() =>
+  Boolean(predictionSnapshot.predictionSnapshotId) && Boolean(predictionSnapshot.status?.using_previous_success)
+)
 const modelInfo = computed(() => ({
-  runStatus: modelState.value === 'ok' ? '63 模型已接入 · 情景推演' : '模型状态检查中',
-  modelVersion: modelStatus.value?.status === 'ready' ? '算法交付包 V0.2（63 模型）' : '算法交付包 V0.2',
+  runStatus: modelState.value === 'ok'
+    ? (modelSource.value === 'v3' ? 'V0.3 真实数据模型已接入 · 推演' : 'V0.2 legacy 对照 · 情景推演')
+    : '模型状态检查中',
+  modelVersion: modelStatusV3.value?.status === 'ready'
+    ? `算法交付包 V0.3（真实数据 · ${modelStatusV3.value.model_count} 模型）`
+    : (modelStatus.value?.status === 'ready' ? '算法交付包 V0.2（63 模型）' : '算法交付包 V0.2'),
   issuedAt: modelForecast.value?.issued_at ? formatStamp(modelForecast.value.issued_at) : '—',
   dataTime: modelForecast.value?.scope?.observed_at ? formatStamp(modelForecast.value.scope.observed_at) : '—'
 }))
+
+// ---------- 站点预测能力小标签 ----------
+// 只用后端实测诊断，不在前端做任何数值修饰；诊断缺失时不臆断。
+const focusDiagnostic = computed(() => entityDiagnostic(selectedHorizon.value))
+
+const predictionStatusKind = computed(() => {
+  const diag = focusDiagnostic.value
+  if (!diag) return 'unknown'
+  if (diag.valueOrigin === 'legacy_v0_2_synthetic_fallback' || selectedHorizon.value >= 30) return 'scenario'
+  if (diag.comparisonUsable) return 'usable'
+  if (diag.numericVariation) return 'evidence'
+  return 'no-response'
+})
+
+const predictionStatusText = computed(() => {
+  const kind = predictionStatusKind.value
+  if (kind === 'scenario') return '情景推演口径（未完成真实标签验证），不可作真实站点预测'
+  if (kind === 'usable') return '站点差异预测已通过验证，可用于站点比较'
+  const diag = focusDiagnostic.value
+  if (kind === 'evidence') {
+    if (diag?.gateStatus === 'FAIL') return '验证未通过：融合模型未达 10% 提升门禁，仅供研发观察'
+    if (diag?.gateStatus === 'NA') return '验证未通过（该任务时效无门禁评估记录），仅供研发观察'
+    return '数值随站点变化，验证证据不足，仅供研判展示'
+  }
+  return '当前模型暂不支持站点差异预测'
+})
 
 // 实测快照摘要数值
 const classRateText = computed(() => {
@@ -983,6 +1180,27 @@ const diffSummary = computed(() => {
   }
 })
 
+// 完整站点环比：同时保留上期/本期值，让结果面板能画出真正的站点变化图。
+const stationDiffRows = computed(() => {
+  if (!rtDiff.value || !prevSummary.value) return []
+  const previous = new Map((prevSummary.value.markers || []).map((m) => [m.id, m]))
+  return (realtimeSummary.value?.markers || []).map((current) => {
+    const before = previous.get(current.id)
+    const prev = Number(before?.chla)
+    const next = Number(current?.chla)
+    const comparable = before?.chla != null && current?.chla != null && Number.isFinite(prev) && Number.isFinite(next)
+    const delta = comparable ? Number((next - prev).toFixed(2)) : null
+    return {
+      id: current.id,
+      name: current.name,
+      previous: comparable ? prev : null,
+      current: comparable ? next : null,
+      delta,
+      status: !comparable ? 'missing' : Math.abs(delta) < 0.05 ? 'flat' : delta > 0 ? 'up' : 'down'
+    }
+  })
+})
+
 const diffBaseTimeText = computed(() => {
   const t = prevSummary.value?.latest_observed_at
   if (!t) return '上一快照'
@@ -1023,17 +1241,48 @@ const MODEL_METRIC_LABELS = { risk: '风险概率', chla: '叶绿素 a', area: '
 const modelSpatialPoints = computed(() => {
   if (spatialState.value !== 'ok' || !spatialField.value) return []
   const unit = spatialField.value.unit || ''
-  return (spatialField.value.points || []).map((point) => ({
-    ...point,
-    tooltip: `${point.name} · T+${spatialField.value.horizon_days} ${MODEL_METRIC_LABELS[metric.value] || metric.value} ${metric.value === 'risk' ? `${(Number(point.value) * 100).toFixed(1)}%` : `${Number(point.value).toLocaleString('zh-CN', { maximumFractionDigits: 3 })} ${unit}`}`
+  const fmtVal = (v) => (metric.value === 'risk'
+    ? `${(Number(v) * 100).toFixed(1)}%`
+    : `${Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 3 })} ${unit}`)
+  const points = (spatialField.value.points || []).map((point) => ({
+    id: point.entity_id,
+    name: point.name,
+    lon: point.lon,
+    lat: point.lat,
+    value: point.value,
+    tooltip: `${point.name} · T+${spatialField.value.horizon_days} ${MODEL_METRIC_LABELS[metric.value] || metric.value} ${fmtVal(point.value)}`
   }))
+  if (!points.length) return points
+  // 站间归一化仅用于"相对高值前 35%"的相对排序标记；它不是预警范围，
+  // 数值是否可用于站点比较由快照 comparison_usable 口径在治理页披露。
+  const values = points.map((p) => Number(p.value))
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min
+  const withNorm = points.map((p) => ({ ...p, normalized: span > 0 ? (Number(p.value) - min) / span : 0 }))
+  const sorted = withNorm.slice().sort((a, b) => b.normalized - a.normalized)
+  const cutoffIndex = Math.max(2, Math.ceil(sorted.length * 0.35) - 1)
+  const cutoff = Number(sorted[Math.min(cutoffIndex, sorted.length - 1)].normalized)
+  return withNorm.map((point) => ({ ...point, high: point.normalized >= cutoff }))
 })
 const modelSpatialBoundary = computed(() => {
-  if (!modelBoundaryEnabled.value) return []
-  const high = modelSpatialPoints.value
-    .filter((point) => Number(point.normalized) >= 0.65)
-    .map((point) => [Number(point.lon), Number(point.lat)])
-  return convexHull(high)
+  // 相对高值可能分散在多个湖区，不再用一个巨大凸包把中间低值水域误圈入。
+  return []
+})
+
+const spatialLayerSummary = computed(() => {
+  // 覆盖口径统一到快照：total=快照站点层总数（79），covered=可上图站，
+  // withPrediction=有预测值站（含缺坐标不可上图的站）。
+  const coverage = spatialField.value?.coverage || null
+  return {
+    state: spatialState.value,
+    covered: coverage?.plottable ?? modelSpatialPoints.value.length,
+    total: coverage?.total ?? 0,
+    withPrediction: coverage?.with_prediction ?? 0,
+    // 未上图 = 有预测但缺可核验坐标的站（仅列表查看）；与"缺预测"分开统计
+    notPlottable: Math.max((coverage?.with_prediction ?? 0) - (coverage?.plottable ?? 0), 0),
+    highCount: modelSpatialPoints.value.length ? Math.max(3, Math.ceil(modelSpatialPoints.value.length * 0.35)) : 0
+  }
 })
 
 // 实时观测点位（observed 轨）：与遥感影像同图叠加，颜色按 chla 筛查口径；
@@ -1123,13 +1372,16 @@ function onMobileMqChange(e) {
 }
 
 onMounted(() => {
-  restoreFromQuery()
+  applyQuery(route.query)
   fetchRsManifest()
   // 实时观测图层（observed）：失败自动重试，不阻塞主视图
   loadSummary(rtSnapshotId.value || '')
   getAlgorithmModelStatusEnvelope().then(({ data }) => { modelStatus.value = data }).catch(() => { modelStatus.value = null })
+  getAlgorithmV3StatusEnvelope().then(({ data }) => { modelStatusV3.value = data }).catch(() => { modelStatusV3.value = null })
   fetchRealtimeTimeline().then((t) => { rtTimeline.value = t.snapshots || [] }).catch(() => { rtTimeline.value = [] })
   fetchRealtimeStations().then((list) => { stationCatalog.value = list }).catch(() => { stationCatalog.value = [] })
+  // 首次进入必须把预生成快照写入页面态；仅预取仓库不会触发非 immediate 的 watch。
+  loadModelForecast().then(loadSpatialField).catch(() => {})
   realtimeRefreshTimer = setInterval(refreshRealtime, 60_000)
   mobileMq?.addEventListener('change', onMobileMqChange)
 })
@@ -1156,9 +1408,36 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     'title'
+    'prevbanner'
     'hmain';
   align-items: start;
   min-width: 0;
+}
+
+/* ---------- 上一成功版本横幅 ---------- */
+.hm-prev-banner {
+  grid-area: prevbanner;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-top: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgba(226, 166, 90, 0.45);
+  border-radius: 10px;
+  background: rgba(226, 166, 90, 0.12);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.hm-prev-banner b {
+  font-size: 12px;
+  color: #e2a65a;
+  white-space: nowrap;
+}
+.hm-prev-banner span {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 /* ---------- 标题区 ---------- */
@@ -1193,7 +1472,7 @@ onBeforeUnmount(() => {
 .hm-main {
   grid-area: hmain;
   display: grid;
-  grid-template-columns: minmax(224px, 17fr) minmax(0, 64fr) minmax(252px, 19fr);
+  grid-template-columns: minmax(224px, 17fr) minmax(0, 56fr) minmax(390px, 27fr);
   grid-template-areas: 'hleft hcenter hright';
   gap: 6px;
   align-items: start;
@@ -1373,6 +1652,23 @@ onBeforeUnmount(() => {
 }
 
 /* V0.3 月度栅格场：标题切换按钮 + 地图上方浮动面板 */
+/* 站点预测能力小标签：业务页只保留一行诚实状态 */
+.hm-status-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: rgba(127, 147, 168, 0.08);
+  font-size: 12px;
+}
+.hm-status-tag span[data-state='no-response'] { color: #e2a65a; }
+.hm-status-tag span[data-state='evidence'] { color: #d9c46a; }
+.hm-status-tag span[data-state='scenario'] { color: #9a8cc9; }
+.hm-status-tag span[data-state='usable'] { color: #43b58c; }
+.hm-status-tag span[data-state='unknown'] { color: var(--text-secondary); }
+
 .hm-raster-toggle {
   margin-left: 12px;
   border: 1px solid var(--border-subtle);
@@ -1602,14 +1898,13 @@ onBeforeUnmount(() => {
 /* ---------- 响应式 ---------- */
 @media (max-width: 1280px) {
   .hm-main {
-    grid-template-columns: minmax(210px, 24fr) minmax(0, 76fr);
-    grid-template-areas: 'hleft hcenter';
+    grid-template-columns: minmax(205px, 0.7fr) minmax(0, 1.55fr) minmax(390px, 1.25fr);
+    grid-template-areas: 'hleft hcenter hright';
   }
   .hm-right {
-    grid-column: 1 / -1;
-    grid-area: auto;
-    max-height: none;
-    overflow: visible;
+    grid-area: hright;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
   }
 }
 @media (max-width: 960px) {
@@ -1631,6 +1926,7 @@ onBeforeUnmount(() => {
   .hm-body {
     grid-template-areas:
       'title'
+      'prevbanner'
       'hcenter'
       'hright'
       'hleft';

@@ -110,6 +110,32 @@ FEATURE_COLUMNS_V2: tuple[str, ...] = tuple(dict.fromkeys((
 assert len(FEATURE_COLUMNS_V2) == 78, f"feature contract v2 must hold 78 fields, got {len(FEATURE_COLUMNS_V2)}"
 
 
+# ---------- 推理可信（serving-faithful）特征子契约（2026-09-11） ----------
+# 服务对象是 MEE 79 站：推理时逐站可变的输入只有站点实测水质与日历。其余特征
+# （滞后/遥感/气象/水文/机理/静态）在推理时为 TAIHU_WHOLE 上下文常量或中位数
+# 插补——用它们训练出的模型在服务时对站点输入无响应（实测教训：80 实体
+# transformed 指纹互不相同、输出却完全同值）。本子契约只含「训练面板真实变化
+# ∩ 推理时逐站可得」的特征。注意 wq_chla 不在冻结 78 列契约中（仅其滞后列在内，
+# 防同月同源泄漏），因此它不出现在任何监督表里，训练交集自然为 7 列。
+SERVING_OBSERVED_WQ_V2: tuple[str, ...] = (
+    "wq_tp", "wq_tn", "wq_do", "wq_nh4_n", "wq_ph",
+)
+SERVING_CALENDAR_V2: tuple[str, ...] = CALENDAR_V2
+SERVING_FEATURE_COLUMNS_V2: tuple[str, ...] = tuple(dict.fromkeys((
+    *SERVING_OBSERVED_WQ_V2, *SERVING_CALENDAR_V2,
+)))
+assert len(SERVING_FEATURE_COLUMNS_V2) == 7
+
+FEATURE_CONTRACT_FROZEN = "v2.0-78col-frozen"
+FEATURE_CONTRACT_SERVING = "v2.1-serving-8col"
+
+
+def serving_feature_columns_for_task(label_family: str) -> tuple[str, ...]:
+    """serving 子契约的任务级特征列：同样剔除目标同源特征。"""
+    excluded = set(TARGET_SOURCE_FEATURE_EXCLUSIONS.get(label_family, ()))
+    return tuple(name for name in SERVING_FEATURE_COLUMNS_V2 if name not in excluded)
+
+
 def feature_contract_sha256() -> str:
     payload = json.dumps(list(FEATURE_COLUMNS_V2), ensure_ascii=False, sort_keys=True)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()

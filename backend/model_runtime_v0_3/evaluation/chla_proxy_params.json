@@ -1,0 +1,23 @@
+{
+  "schema": "chla_station_proxy_v1",
+  "seed": 20260911,
+  "a": 1.295068,
+  "b_tp": 0.74,
+  "b_tn": 0.25,
+  "a_season": 0.35,
+  "month_peak": 8,
+  "tp_ref_mg_l": 0.0670833333333333,
+  "tn_ref_mg_l": 1.0120666666666667,
+  "sigma_ln": 0.35,
+  "anchor": {
+    "chla_month": "2020-12",
+    "chla_mean_ug_l": 3.0651,
+    "chla_n_samples": 1,
+    "nutrient_month": "2020-11",
+    "tp_mg_l": 0.067083,
+    "tn_mg_l": 1.012067,
+    "nutrient_lag_note": "航次为 2020-12 混合样，水质取相邻 2020-11 月，1 个月滞后口径"
+  },
+  "disclosure": "站点 chla 代理标签（公示口径）：ln(chla)=a+0.74·ln(TP/0.0671)+0.25·ln(TN/1.012)+0.35·cos(2π(month-8)/12)+ε，ε~N(0,σ)，seed=20260911；截距由 2020-12 航次实测 chla 均值 × 2020-11 分区站实测 TP/TN 中位数唯一锚定；斜率/季节振幅取公开文献常用口径。站点差异来自实测营养盐经公示响应曲线的传导，不是独立观测；消费方必须按 proxy_derived 口径披露。",
+  "filled_rows": 576
+}

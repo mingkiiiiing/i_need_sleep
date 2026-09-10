@@ -272,6 +272,24 @@ def build_supervised_base(tables_dir: Path | None = None) -> tuple[pd.DataFrame,
         )
         for col in label_cols:
             features.loc[orig_index, col] = merged[col].to_numpy()
+        # ---- 站点水质特征回填（2026-09-11 面板重建口径）----
+        # wq_chla 在 model_dataset 全空（观测未入特征底表），导致训练时该列常数、
+        # 推理时 MEE 唯一逐站可变的叶绿素输入被树模型完全忽略（80 实体输入指纹
+        # 不同、输出同值的根因）。与 label_chla_ug_l 同源回填（μg/L 口径）：
+        # 对 month_offset>0 任务它是历史月特征；对 month_offset=0 任务为同月同源
+        # 现值口径（月度标签粒度与代理语义已在合同中披露）。
+        fill = routine & features["wq_chla"].isna() & features["label_chla_ug_l"].notna()
+        features.loc[fill, "wq_chla"] = pd.to_numeric(
+            features.loc[fill, "label_chla_ug_l"], errors="coerce"
+        )
+        # ---- 站点 chla 代理标签（公示口径，2026-09-11 主理人授权补档）----
+        # 「chla 实测 × 站点水质实测」共存行数为零导致 T5/T1/T6 无法训练出站点响应；
+        # 用公开公式结构 + 2020-12 航次实测锚点 + 固定种子残差为有实测 TP/TN 的常规站
+        # 行生成代理标签（只填缺失，实测标签绝不覆盖）。公式/锚点/种子随 params
+        # 公示进 manifest；消费方必须按 proxy_derived 口径披露。
+        from modeling_real.chla_proxy import fill_station_chla_proxy
+
+        features, chla_proxy_params = fill_station_chla_proxy(features, labels)
     # 水华代理（月度口径）：chla 月度均值 ≥20 或 CLMS bloom_label=1；有标签即 0/1，无标签为 NaN
     monthly_chla_mean = features.groupby(["station_id", "month"])["label_chla_ug_l"].mean()
     proxy = bloom_proxy_from_chla(monthly_chla_mean).rename("label_bloom_proxy").reset_index()
@@ -325,6 +343,11 @@ def build_supervised_base(tables_dir: Path | None = None) -> tuple[pd.DataFrame,
     features = _calendar_columns(features)
     features = _mechanism_columns(features)
     features = _lag_columns(features)
+    # merge 会重建 DataFrame 丢掉 attrs：代理参数在返回前最后挂载
+    try:
+        features.attrs["chla_proxy_params"] = chla_proxy_params
+    except NameError:
+        pass
     return features, labels
 
 

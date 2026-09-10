@@ -1,0 +1,477 @@
+{
+  "generated_at": "2026-09-10T19:11:06.032054+00:00",
+  "method": "nearest_published_subregion_centroid",
+  "disclosure": "MEE 站点目录无湖区字段；按公开常用分区质心最近邻归属（公示口径），分区面积按太湖总面积 2338.4 km² 归一，仅用于面积加权。无可信坐标的站不归属。",
+  "lake_total_km2": 2338.4,
+  "zones": {
+    "TAIHU_ML": {
+      "name": "梅梁湾",
+      "centroid": {
+        "lon": 120.155,
+        "lat": 31.415
+      },
+      "area_km2_published": 124,
+      "area_km2_normalized": 132.58
+    },
+    "TAIHU_ZS": {
+      "name": "竺山湖",
+      "centroid": {
+        "lon": 119.925,
+        "lat": 31.395
+      },
+      "area_km2_published": 68,
+      "area_km2_normalized": 72.71
+    },
+    "TAIHU_GH": {
+      "name": "贡湖",
+      "centroid": {
+        "lon": 120.345,
+        "lat": 31.445
+      },
+      "area_km2_published": 147,
+      "area_km2_normalized": 157.18
+    },
+    "TAIHU_ET": {
+      "name": "东太湖",
+      "centroid": {
+        "lon": 120.475,
+        "lat": 31.195
+      },
+      "area_km2_published": 131,
+      "area_km2_normalized": 140.07
+    },
+    "TAIHU_CT": {
+      "name": "东部沿岸",
+      "centroid": {
+        "lon": 120.475,
+        "lat": 31.315
+      },
+      "area_km2_published": 268,
+      "area_km2_normalized": 286.55
+    },
+    "TAIHU_XK": {
+      "name": "湖心区",
+      "centroid": {
+        "lon": 120.185,
+        "lat": 31.235
+      },
+      "area_km2_published": 971,
+      "area_km2_normalized": 1038.22
+    },
+    "TAIHU_ST": {
+      "name": "南部沿岸",
+      "centroid": {
+        "lon": 120.135,
+        "lat": 31.075
+      },
+      "area_km2_published": 279,
+      "area_km2_normalized": 298.31
+    },
+    "TAIHU_WT": {
+      "name": "西部沿岸",
+      "centroid": {
+        "lon": 119.985,
+        "lat": 31.295
+      },
+      "area_km2_published": 199,
+      "area_km2_normalized": 212.78
+    }
+  },
+  "assignments": {
+    "mee-0145cdb7": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-077b367a": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 52.89
+    },
+    "mee-0e770fb5": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 33.97
+    },
+    "mee-1c5c6f47": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-1d96cbf3": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 67.18
+    },
+    "mee-1eeede89": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-1fb5ae3c": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-200076ad": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 161.14
+    },
+    "mee-2ae2a213": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-2ee5f9df": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-2f8fdf3a": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 76.16
+    },
+    "mee-314c928a": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-32bb00e0": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 48.28
+    },
+    "mee-3690676e": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 70.68
+    },
+    "mee-36e4cf04": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 10.95
+    },
+    "mee-374d21b8": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-3cf85ef9": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 50.5
+    },
+    "mee-3debb9c3": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 73.32
+    },
+    "mee-3ec2562a": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 133.36
+    },
+    "mee-44eb23a0": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 100.52
+    },
+    "mee-483f6dda": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-4ad1e758": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-4ad8f5ae": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 58.34
+    },
+    "mee-4cf554ca": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 43.73
+    },
+    "mee-4ef1f64f": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 11.3
+    },
+    "mee-4f8d20ef": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-5141d5a2": {
+      "zone_code": "TAIHU_CT",
+      "zone_name": "东部沿岸",
+      "distance_km": 79.2
+    },
+    "mee-53520e11": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-53d9fdc0": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 13.49
+    },
+    "mee-55a7fc03": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 112.29
+    },
+    "mee-5e631c12": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 76.15
+    },
+    "mee-62925380": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-6451dafd": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 87.77
+    },
+    "mee-676b2c36": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-67cfd093": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-6b2512fd": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 17.87
+    },
+    "mee-6d044da8": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 42.65
+    },
+    "mee-6df61dd3": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-74019e39": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-75f3e937": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 21.13
+    },
+    "mee-7731e7b4": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 25.18
+    },
+    "mee-7b4d5a90": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-7d5e1520": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 98.7
+    },
+    "mee-82bb9d63": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 14.63
+    },
+    "mee-8f1fca51": {
+      "zone_code": "TAIHU_GH",
+      "zone_name": "贡湖",
+      "distance_km": 5.76
+    },
+    "mee-913a7d5b": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-9319f513": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-93797451": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-9e491169": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 144.26
+    },
+    "mee-a1562c29": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-a773a1d5": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-a7c254c3": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-b19e7df3": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-b704700a": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-b80df03e": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 9.96
+    },
+    "mee-b9a72d93": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 4.23
+    },
+    "mee-c4ef89e7": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 17.66
+    },
+    "mee-c61eed69": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 36.79
+    },
+    "mee-c7127335": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 33.22
+    },
+    "mee-c73a25c1": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 89.73
+    },
+    "mee-c80e3f4c": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-cbc0fa7d": {
+      "zone_code": "TAIHU_GH",
+      "zone_name": "贡湖",
+      "distance_km": 53.24
+    },
+    "mee-d4e7ea16": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 136.29
+    },
+    "mee-d5959dc0": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 29.26
+    },
+    "mee-d67d1072": {
+      "zone_code": "TAIHU_ZS",
+      "zone_name": "竺山湖",
+      "distance_km": 57.37
+    },
+    "mee-d6a538a8": {
+      "zone_code": "TAIHU_CT",
+      "zone_name": "东部沿岸",
+      "distance_km": 48.26
+    },
+    "mee-dab0c8b0": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 43.29
+    },
+    "mee-db47644f": {
+      "zone_code": "TAIHU_ML",
+      "zone_name": "梅梁湾",
+      "distance_km": 10.06
+    },
+    "mee-de8a2844": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-ea8e4009": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 60.74
+    },
+    "mee-f0a58f9d": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 89.44
+    },
+    "mee-f0c9278a": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-f2452a7b": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-f2483ba9": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 124.63
+    },
+    "mee-f65676d9": {
+      "zone_code": null,
+      "zone_name": null,
+      "reason": "missing_verified_coords"
+    },
+    "mee-f739cd2d": {
+      "zone_code": "TAIHU_ET",
+      "zone_name": "东太湖",
+      "distance_km": 87.46
+    },
+    "mee-f98e7cf6": {
+      "zone_code": "TAIHU_CT",
+      "zone_name": "东部沿岸",
+      "distance_km": 28.55
+    },
+    "mee-f9c52aa8": {
+      "zone_code": "TAIHU_GH",
+      "zone_name": "贡湖",
+      "distance_km": 10.05
+    },
+    "mee-fda42af0": {
+      "zone_code": "TAIHU_ST",
+      "zone_name": "南部沿岸",
+      "distance_km": 13.07
+    }
+  }
+}

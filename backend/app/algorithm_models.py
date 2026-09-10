@@ -654,9 +654,13 @@ OBSERVED_FEATURE_MAP_V2 = {
     "dissolved_oxygen": "wq_do",
     "pH": "wq_ph",
     "ammonia_nitrogen": "wq_nh4_n",
-    "chlorophyll_a": "wq_chla",  # MEE 为 μg/L，契约特征为 mg/L，写入时 ÷1000
+    "chlorophyll_a": "wq_chla",  # MEE 为 μg/L；训练面板回填后 wq_chla 同为 μg/L 口径，直喂
 }
-UNIT_CONVERTED_FEATURES = {"wq_chla": ("μg/L", "mg/L", 0.001)}
+# wq_chla 单位对齐（2026-09-11 面板重建后）：训练面板 wq_chla 由 label_chla_ug_l
+# 同源回填，口径为 μg/L；推理时 MEE 实测（μg/L）直接进入特征，不再 ÷1000。
+# 此前的 μg/L→mg/L 换算把逐站叶绿素压到训练分布之外（训练列恒为常数中位数），
+# 是"79 站输入不同、预测同值"的直接根因之一。其它水质特征训练/推理同为 mg/L，无需换算。
+UNIT_CONVERTED_FEATURES: dict[str, tuple[str, str, float]] = {}
 
 V3_SENSITIVITY_FEATURES: tuple[tuple[str, str], ...] = (
     ("wq_tp", "总磷"),
@@ -670,6 +674,37 @@ V3_SENSITIVITY_FEATURES: tuple[tuple[str, str], ...] = (
     ("hydro_water_level_m", "水位"),
 )
 
+# ---------------------------------------------------------------- 不确定性合同
+# 区间按三层独立报告，禁止用单一布尔量把三层含义压成一句"校准有效"：
+#   ① structural_valid  —— 上下界自洽（点预测落在区间内、非零宽、有限）
+#   ② calibration_evidence —— 冻结测试集是否提供足够经验覆盖率证据
+#   ③ decision_usable   —— 是否足以支撑页面展示与业务判断（= ① ∧ ②）
+UNCERTAINTY_SEMANTICS = "prediction_interval_not_parameter_confidence_interval"
+
+# 经验覆盖率的最小测试样本量：低于该阈值（尤其 test_n=0/1）时覆盖率非 0 即 1，
+# 不构成校准证据，不得判定为"校准有效"。T5-chla test_n=1、T3/T4 test_n=0 均属此列。
+MIN_CALIBRATION_TEST_N = 15
+
+# 校准状态枚举（写进 uncertainty.calibration_status）
+CALIBRATION_VALIDATED = "validated"
+CALIBRATION_NO_TEST_EVIDENCE = "no_test_evidence"
+CALIBRATION_INSUFFICIENT_TEST_EVIDENCE = "insufficient_test_evidence"
+CALIBRATION_UNAVAILABLE = "unavailable"
+
+CALIBRATION_STATUS_LABELS = {
+    CALIBRATION_VALIDATED: "经验覆盖率已由冻结测试集核算",
+    CALIBRATION_NO_TEST_EVIDENCE: "冻结测试集无该任务标签，经验覆盖率无法核算",
+    CALIBRATION_INSUFFICIENT_TEST_EVIDENCE: "冻结测试集样本过少，经验覆盖率不具统计意义",
+    CALIBRATION_UNAVAILABLE: "该任务未提供 conformal 区间",
+}
+
+# ---------------------------------------------------------------- 输入指纹合同
+# 两类指纹必须同时保存，二者证明的事情不同：
+#   observed_input_fingerprint    —— 站点实测原文是否随实体变化
+#   transformed_model_input_fingerprint —— 模型最终接收的矩阵是否随实体/时效变化
+# 后者覆盖缺失标记、中位数插补、列序与具体 bundle，是"模型输入是否真的不同"的唯一凭据。
+FINGERPRINT_SCHEMA = "dual_fingerprint_v1"
+
 
 class AlgorithmModelServiceV3:
     """V0.3 真实数据模型族运行适配层（月度标签粒度 + conformal 区间 + 动态门禁）。"""
@@ -681,7 +716,89 @@ class AlgorithmModelServiceV3:
         self.legacy = legacy_service
         self._bundles: dict[tuple[str, str, int], Any] = {}
         self._context_frame: Any = None
+        self._feature_scales: dict[str, float] | None = None
         self._load_lock = threading.RLock()
+        # 实测快照内的热点缓存。热启动单次 predict_suite 约 4.6s，其中真正的
+        # bundle 推理不足 0.4s，其余都是与实测快照绑定、可整批复用的周边计算：
+        # legacy 回退 ~1.4s、局部敏感性解释 ~1.1s、实时输入 ~0.9s、机理分解 ~0.9s。
+        # 缓存不改变任何计算口径，只在同一实测快照内复用，签名变化即整体失效。
+        self._obs_cache: dict[str, tuple[dict[str, float], dict[str, Any]]] = {}
+        self._mech_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+        self._legacy_cache: dict[tuple[Any, ...], dict[str, Any] | None] = {}
+        self._legacy_inputs_cache: dict[str, tuple[dict[str, float], dict[str, Any], dict[str, float]]] = {}
+        self._explain_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+        # 全湖汇总（summary 内部是全湖 pandas 聚合，实测约 1.0s）：站点批量预生成时
+        # 逐站重算同一份聚合毫无意义，按实测快照签名缓存，不改变任何口径。
+        self._summary_cache: tuple[Any, dict[str, Any]] | None = None
+        # 初值用唯一哨兵对象，保证首次调用必然触发一次对齐。
+        self._cache_epoch_key: Any = object()
+        # 世代序号：每次实测快照（或实时数据源实例）变化 +1。所有缓存读取前都必须
+        # 先经 _cache_epoch() 对齐，否则会把上一世代的聚合结果留给新数据（曾出现
+        # 替换实时源后机理分解仍返回旧氨氮 0.0646 的隔离缺口）。
+        self._cache_epoch_serial: int = 0
+        self._epoch_provider: Any = realtime_provider
+        # bundle 文件哈希缓存：键 = (路径, 大小, mtime_ns)，只在文件真正变化时重算 SHA256
+        self._artifact_hash_cache: dict[tuple[str, int, int], str] = {}
+
+    def _realtime_signature(self) -> Any:
+        """实测目录签名（status.json 的 mtime+size）。
+
+        实测目录每次成功发布都会重写 status.json，因此该签名与
+        「最新实测快照」同生命周期，且读取成本远低于 summary() 的全量 pandas 计算。
+        """
+        getter = getattr(self.realtime, "catalog_signature", None)
+        if callable(getter):
+            try:
+                return getter()
+            except Exception:  # noqa: BLE001 — 签名不可得时退化为逐次计算，不影响正确性
+                return None
+        try:
+            return self.realtime.summary().get("latest_snapshot_id")
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _cache_epoch(self) -> int:
+        """把缓存对齐到当前实测快照：签名变化即整体失效，绝不把旧快照的预测喂给新数据。
+
+        同时把实时数据源本身的实例身份纳入判据：测试或运维替换 provider（即使新源
+        恰好回报同一个 snapshot_id）也必须整体失效，否则缓存会跨数据源串味。
+        返回当前世代序号，调用方可据此构造带世代的缓存键。
+        """
+        signature = self._realtime_signature()
+        provider = self.realtime
+        if provider is not self._epoch_provider or signature != self._cache_epoch_key:
+            with self._load_lock:
+                if provider is not self._epoch_provider or signature != self._cache_epoch_key:
+                    self._obs_cache.clear()
+                    self._mech_cache.clear()
+                    self._legacy_cache.clear()
+                    self._legacy_inputs_cache.clear()
+                    self._explain_cache.clear()
+                    self._summary_cache = None
+                    self._cache_epoch_key = signature
+                    self._epoch_provider = provider
+                    self._cache_epoch_serial += 1
+        return self._cache_epoch_serial
+
+    def _realtime_summary(self) -> dict[str, Any]:
+        """全湖实时汇总，按实测快照签名缓存（同一快照内结果必然相同）。"""
+        epoch = self._cache_epoch()
+        cached = self._summary_cache
+        if cached is not None and cached[0] == epoch:
+            return cached[1]
+        summary = self.realtime.summary()
+        self._summary_cache = (self._cache_epoch(), summary)
+        return summary
+
+    def cache_stats(self) -> dict[str, int]:
+        """缓存规模（运维与验收观测用，不参与业务口径）。"""
+        return {
+            "observed_inputs": len(self._obs_cache),
+            "mechanism_drivers": len(self._mech_cache),
+            "legacy_fallback": len(self._legacy_cache),
+            "legacy_inputs": len(self._legacy_inputs_cache),
+            "explainability": len(self._explain_cache),
+        }
 
     @property
     def model_dir(self) -> Path:
@@ -696,6 +813,64 @@ class AlgorithmModelServiceV3:
         except Exception as exc:  # noqa: BLE001
             raise AlgorithmModelUnavailable(f"V0.3 模型清单无法读取: {exc}") from exc
 
+    def _model_artifacts(self) -> dict[str, Any]:
+        """模型产物摘要：manifest 摘要 + bundle 哈希集合 + 训练数据/预处理器版本。
+
+        预测快照的版本键必须包含这些内容，否则"同一版本号下替换模型文件"不会让旧快照
+        自动失效（这是本轮要求修补的缺口）。bundle 哈希按 (size, mtime_ns) 缓存，
+        只在文件真正变化时重算 SHA256。
+        """
+        manifest_path = self.package_dir / "manifest.json"
+        try:
+            manifest_sha = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+        except OSError:
+            manifest_sha = None
+
+        bundle_hashes: dict[str, str] = {}
+        for path in sorted(self.model_dir.glob("*.joblib")):
+            try:
+                stat = path.stat()
+            except OSError:
+                continue
+            key = (str(path), stat.st_size, stat.st_mtime_ns)
+            digest = self._artifact_hash_cache.get(key)
+            if digest is None:
+                try:
+                    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                except OSError:
+                    digest = "unreadable"
+                self._artifact_hash_cache[key] = digest
+            bundle_hashes[path.name] = digest
+        bundle_digest = (
+            hashlib.sha256(json.dumps(bundle_hashes, sort_keys=True).encode("utf-8")).hexdigest()
+            if bundle_hashes else None
+        )
+
+        preprocessor_source = self.package_dir / "code" / "modeling_real" / "data_real.py"
+        try:
+            preprocessor_source_sha = hashlib.sha256(preprocessor_source.read_bytes()).hexdigest()
+        except OSError:
+            preprocessor_source_sha = None
+        try:
+            contract = (json.loads(manifest_path.read_text(encoding="utf-8")).get("feature_contract") or {})
+        except Exception:  # noqa: BLE001
+            contract = {}
+
+        return {
+            "manifest_sha256": manifest_sha,
+            "bundle_hashes": bundle_hashes,
+            "bundle_digest": bundle_digest,
+            "bundle_count": len(bundle_hashes),
+            # 训练数据版本 + 预处理器版本：同版本号下替换模型文件/预处理器也必须换代
+            "training_data_version": DATA_VERSION_V3,
+            "preprocessor": {
+                "implementation": "RealPreprocessor(train_median_fillna + missing_indicator)",
+                "source_sha256": preprocessor_source_sha,
+                "feature_contract_version": contract.get("version"),
+                "feature_contract_sha256": contract.get("sha256"),
+            },
+        }
+
     def _runtime_imports(self):
         code_path = str(self.package_dir / "code")
         if code_path not in sys.path:
@@ -706,12 +881,21 @@ class AlgorithmModelServiceV3:
                 FEATURE_COLUMNS_V2,
                 HORIZON_GRANULARITY_TIER_V3,
                 HORIZON_MAP_V3,
+                RISK_BANDS_UG_L,
                 SCENARIO_HORIZONS_V3,
             )
             from modeling_real.data_real import load_bundle
         except Exception as exc:  # noqa: BLE001
             raise AlgorithmModelUnavailable(f"V0.3 模型运行依赖不可用: {exc}") from exc
-        return pd, load_bundle, HORIZON_MAP_V3, SCENARIO_HORIZONS_V3, HORIZON_GRANULARITY_TIER_V3, FEATURE_COLUMNS_V2
+        return (
+            pd,
+            load_bundle,
+            HORIZON_MAP_V3,
+            SCENARIO_HORIZONS_V3,
+            HORIZON_GRANULARITY_TIER_V3,
+            FEATURE_COLUMNS_V2,
+            RISK_BANDS_UG_L,
+        )
 
     def _context(self) -> dict[str, float]:
         """站点-月度上下文：全湖代表站（TAIHU_WHOLE）最近月特征记录。"""
@@ -754,19 +938,28 @@ class AlgorithmModelServiceV3:
         ready = dependency_status == "ready" and expected > 0 and len(files) == expected
         availability = manifest.get("availability_matrix", [])
         trainable = [entry for entry in availability if entry.get("trainable")]
+        protocol_counts: dict[str, int] = {}
+        for model in manifest.get("models", []):
+            protocol = (model.get("uncertainty") or {}).get("split_protocol") or "frozen_split"
+            protocol_counts[protocol] = protocol_counts.get(protocol, 0) + 1
         return {
             "status": "ready" if ready else "unavailable",
             "package_generation": "v0_3",
             "package_version": str(manifest.get("version")),
             "model_count": len(files),
             "expected_model_count": expected,
+            "training_protocols": protocol_counts,
             "horizons": list(manifest.get("horizons", SUPPORTED_HORIZONS)),
             "training_window": "2005-02..2026-08（按时间冻结划分 train≤2021 / val 2022-2023 / test≥2024）",
             "data_version": manifest.get("data_version"),
             "claim_boundary": manifest.get("claim_boundary", CLAIM_BOUNDARY_V3),
             "feature_contract": manifest.get("feature_contract"),
+            "feature_contract_mode": manifest.get("feature_contract_mode"),
+            "serving_contract_note": manifest.get("serving_contract_note"),
             "granularity_tier": manifest.get("horizon_granularity_tier"),
             "granularity_disclosure": manifest.get("granularity_disclosure"),
+            # 模型产物摘要：快照版本键据此判断"模型文件是否已变化"
+            "model_artifacts": self._model_artifacts(),
             "availability_summary": {
                 "trainable": len(trainable),
                 "not_applicable": len(availability) - len(trainable),
@@ -794,16 +987,37 @@ class AlgorithmModelServiceV3:
             cached = self._bundles.get(key)
             if cached is not None:
                 return cached
-            _, load_bundle, _, _, _, _ = self._runtime_imports()
+            _, load_bundle, _, _, _, _, _ = self._runtime_imports()
             path = self.model_dir / f"{task_id}-{variant}-{month_offset}m-s{MODEL_SEED_V3}-{horizon_days}d.joblib"
             if not path.is_file():
                 return None
-            bundle = load_bundle(path)
+            try:
+                # 与 legacy loader 相同：joblib 反序列化旧 NumPy 数组时会触发 NumPy 2.5
+                # shape 弃用警告；模型内容不变，而测试策略会将所有警告升级为异常。
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
+                        "ignore",
+                        message="Setting the shape on a NumPy array has been deprecated.*",
+                        category=DeprecationWarning,
+                    )
+                    bundle = load_bundle(path)
+            except Exception as exc:  # noqa: BLE001 — 损坏 bundle 归一为包不可用（409），不让调用方收到 500
+                raise AlgorithmModelUnavailable(f"V0.3 模型加载失败 {path.name}: {exc}") from exc
             self._bundles[key] = bundle
             return bundle
 
     def _observed_inputs_v2(self, entity_id: str) -> tuple[dict[str, float], dict[str, Any]]:
-        summary = self.realtime.summary()
+        """同一实测快照内按实体复用：summary() 是全湖 pandas 聚合，重复调用纯属浪费。"""
+        self._cache_epoch()
+        cached = self._obs_cache.get(entity_id)
+        if cached is not None:
+            return dict(cached[0]), dict(cached[1])
+        observed, scope_context = self._observed_inputs_v2_uncached(entity_id)
+        self._obs_cache[entity_id] = (dict(observed), dict(scope_context))
+        return observed, scope_context
+
+    def _observed_inputs_v2_uncached(self, entity_id: str) -> tuple[dict[str, float], dict[str, Any]]:
+        summary = self._realtime_summary()
         context = self._context()
         observed: dict[str, float] = {}
         unit_notes: list[str] = []
@@ -848,6 +1062,57 @@ class AlgorithmModelServiceV3:
             "month_context_note": "月度上下文取清洗包特征底表 TAIHU_WHOLE 最近月记录（历史观测/遥感聚合值）",
         }
 
+    def _monthly_field_area_result(self, horizon_days: int) -> dict[str, Any] | None:
+        """月度反演基底场的水华边界面积（全湖量，公示口径）。
+
+        面积 = 最新月度校准场按 20 μg/L 阈值分割的边界区域面积（rs_overlays 预计算）。
+        它是"当前月度水华面积现值"，不随预测时效外推；30/60/90 天仍属情景口径。
+        """
+        try:
+            raster = RasterFieldService().get_raster_layer()
+        except Exception:  # noqa: BLE001 — 栅格缺失时回到 legacy 合成回退
+            return None
+        boundary = raster.get("boundary") or {}
+        area = boundary.get("area_km2")
+        if not isinstance(area, (int, float)) or isinstance(area, bool) or area <= 0:
+            return None
+        scenario = horizon_days >= 30
+        return {
+            "task_id": "T2",
+            "variant": "area",
+            "label": "水华面积",
+            "value": round(float(area), 4),
+            "probability": None,
+            "predicted_class": None,
+            "target": "area",
+            "unit": "km²",
+            "status": "ok",
+            "value_origin": "derived_from_monthly_retrieval_field",
+            "value_origin_note": (
+                "月度反演重建基底场按 "
+                f"{boundary.get('threshold_ug_l') or 20} μg/L 阈值分割的边界面积（{raster.get('month')} 月场）；"
+                "月度现值口径，不随预测时效外推"
+            ),
+            "issued_month": raster.get("month"),
+            "boundary_threshold_ug_l": boundary.get("threshold_ug_l"),
+            "model_file": None,
+            "model_run_id": None,
+            "selected_family": None,
+            "model_family": None,
+            "static_baseline_model": False,
+            "granularity_tier": "month_retrieval_base",
+            "label_provenance": "derived_from_calibrated_retrieval_field",
+            "status_note": "全湖量指标：不逐站变化，不作站点间比较",
+            "training_protocol": None,
+            "uncertainty": None,
+            "uncertainty_available": False,
+            "compliance": {
+                "label": "情景推演" if scenario else "月度反演基底",
+                "locked": scenario,
+                "granularity_tier": "month_retrieval_base",
+            },
+        }
+
     def _raw_frame(self, pd: Any, bundle: Any, observed: dict[str, float], context: dict[str, float]) -> Any:
         row = {name: float("nan") for name in bundle.feature_columns}
         for name, value in context.items():
@@ -870,8 +1135,147 @@ class AlgorithmModelServiceV3:
         angle = 2 * math.pi * (month - 1) / 12.0
         return {"calendar_month_sin": math.sin(angle), "calendar_month_cos": math.cos(angle)}
 
-    def predict_suite(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
-        pd, _, horizon_map, scenario_horizons, tiers, _ = self._runtime_imports()
+    # -------------------------------------------------------- 双指纹（P0.5）
+    @staticmethod
+    def _observed_fingerprint(observed: dict[str, float]) -> str:
+        """站点实测原文指纹：证明"站点观测确实不同"，但不证明模型最终输入不同。"""
+        return hashlib.sha1(
+            json.dumps({k: observed[k] for k in sorted(observed)}, sort_keys=True).encode("utf-8")
+        ).hexdigest()[:16]
+
+    def _transformed_fingerprint(self, bundle: Any, frame: Any) -> str | None:
+        """模型实际接收的变换后输入矩阵指纹。
+
+        覆盖「原始行 → 预处理器 transform（缺失标记 + 训练期中位数插补）→ 最终列序」，
+        因此它才是"该 bundle 在该时效上看到的输入是否随实体变化"的凭据。
+        按模型/指标/时效分别计算（调用方各自传入自己的 bundle 与 frame）。
+        """
+        try:
+            transformed = bundle.preprocessor.transform(frame)
+        except Exception:  # noqa: BLE001 — 指纹不可得不应使预测失败
+            return None
+        try:
+            from modeling_real.data_real import frame_digest
+
+            return str(frame_digest(transformed))[:16]
+        except Exception:  # noqa: BLE001
+            return None
+
+    # ---------------------------------------------------- 不确定性三层合同
+    def _build_uncertainty(
+        self, bundle: Any, value: Any, output_key: str, training_protocol: str
+    ) -> dict[str, Any] | None:
+        """conformal 区间 → 三层结论（结构自洽 / 校准证据 / 决策可用）。
+
+        predict_suite 与 predict_suite_batch 共用本函数，保证两条路径给出一致结论。
+        """
+        if bundle.intervals is None:
+            return None
+        point = float(value) if value is not None else 0.0
+        raw_p05 = point + bundle.intervals.residual_p05
+        raw_p95 = point + bundle.intervals.residual_p95
+        lower_bound = 0.0
+        upper_bound = 1.0 if output_key in {"bloom", "coverage", "density", "probability", "spatial"} else None
+        p05 = max(raw_p05, lower_bound)
+        p95 = min(raw_p95, upper_bound) if upper_bound is not None else raw_p95
+
+        # ① 结构自洽：与模型判别力、校准证据无关，只回答"这组上下界本身是否成立"。
+        finite = bool(math.isfinite(float(p05)) and math.isfinite(float(p95)))
+        point_in_interval = bool(
+            value is not None and finite and float(p05) - 1e-12 <= float(value) <= float(p95) + 1e-12
+        )
+        degenerate = bool(finite and float(p05) == float(p95))
+        structural_valid = bool(finite and point_in_interval and not degenerate)
+        structural_reason = None
+        if not finite:
+            structural_reason = "区间上下界非有限值，无法作为区间解读"
+        elif degenerate:
+            structural_reason = (
+                "区间宽度退化为 0（校准残差分位数恒为常数并被物理边界裁剪），该区间不具信息量"
+            )
+        elif not point_in_interval:
+            structural_reason = "点预测落在预测区间之外，区间与点预测不自洽"
+
+        # ② 校准证据：只看冻结测试集是否真的核算过经验覆盖率，且样本量足够。
+        test_n_raw = bundle.uncertainty_meta.get("test_n")
+        test_n = int(test_n_raw) if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool) else None
+        empirical_coverage = bundle.uncertainty_meta.get("empirical_coverage_test")
+        calibration_n = bundle.intervals.calibration_n
+        if test_n is None or test_n == 0:
+            calibration_status = CALIBRATION_NO_TEST_EVIDENCE
+        elif test_n < MIN_CALIBRATION_TEST_N:
+            calibration_status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
+        elif empirical_coverage is None:
+            calibration_status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
+        else:
+            calibration_status = CALIBRATION_VALIDATED
+        calibration_reason = CALIBRATION_STATUS_LABELS[calibration_status]
+        if calibration_status == CALIBRATION_INSUFFICIENT_TEST_EVIDENCE:
+            calibration_reason = f"{calibration_reason}（test_n={test_n}，阈值 {MIN_CALIBRATION_TEST_N}）"
+
+        calibration_evidence = {
+            "status": calibration_status,
+            "reason": calibration_reason,
+            "calibration_n": calibration_n,
+            "test_n": test_n,
+            "empirical_coverage": empirical_coverage,
+            "coverage_target": 0.90,
+            "min_test_n": MIN_CALIBRATION_TEST_N,
+        }
+        calibration_ok = calibration_status == CALIBRATION_VALIDATED
+
+        # ③ 决策可用：结构自洽 ∧ 校准证据充分。任一不满足即不得作为决策依据展示。
+        decision_usable = bool(structural_valid and calibration_ok)
+        if not structural_valid:
+            decision_reason = structural_reason
+        elif not calibration_ok:
+            decision_reason = calibration_reason
+        else:
+            decision_reason = None
+
+        return {
+            "method": "split_conformal_residual_quantiles",
+            # 语义声明：这是"单次预测"的预测区间，不是参数置信区间。
+            "is_prediction_interval": True,
+            "interval_semantics": UNCERTAINTY_SEMANTICS,
+            "p05": _json_scalar(p05),
+            "p95": _json_scalar(p95),
+            "point_value": _json_scalar(value),
+            # ① 结构层
+            "structural_valid": structural_valid,
+            "structural_reason": structural_reason,
+            # ② 校准证据层
+            "calibration_status": calibration_status,
+            "calibration_evidence": calibration_evidence,
+            "test_n": test_n,
+            "empirical_coverage": empirical_coverage,
+            "calibration_n": calibration_n,
+            # ③ 决策层
+            "decision_usable": decision_usable,
+            "decision_reason": decision_reason,
+            # 兼容字段：区间自洽性结论（等价于 structural_valid），页面与旧消费者继续可用
+            "interval_valid": structural_valid,
+            "interval_degenerate": degenerate,
+            "point_in_interval": point_in_interval,
+            "invalid_reason": structural_reason or (None if calibration_ok else calibration_reason),
+            "bounds": {"lower": lower_bound, "upper": upper_bound},
+            "clipped_to_physical_bounds": bool(p05 != raw_p05 or p95 != raw_p95),
+            "training_protocol": training_protocol,
+            "coverage": {
+                "target": 0.90,
+                "calibration_n": calibration_n,
+                "empirical_coverage_test": empirical_coverage,
+                "test_n": test_n,
+            },
+        }
+
+    def predict_suite(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk",
+                      *, explain: bool = True) -> dict[str, Any]:
+        """explain=False 用于批量预生成：局部敏感性要额外跑约 19 次推理，
+        而预测快照并不承载解释（解释与 focus_metric 绑定），批量生成时可安全跳过。"""
+        pd, _, horizon_map, scenario_horizons, tiers, _, risk_bands = self._runtime_imports()
+        # 先把热点缓存对齐到当前实测快照，保证同一次推理内的输入、机理与解释同源。
+        self._cache_epoch()
         if horizon_days not in horizon_map.month_map:
             raise ValueError(f"horizon_days must be one of {sorted(horizon_map.month_map)}")
         month_offset = horizon_map.month_offset(horizon_days)
@@ -880,6 +1284,20 @@ class AlgorithmModelServiceV3:
         if focus_metric not in focus_map:
             raise ValueError(f"focus_metric must be one of {sorted(focus_map)}")
         manifest = self._manifest()
+        # 各 bundle 的留出测试集指标（roc_auc / pr_auc / n 等）随交付包冻结，用于在结果侧
+        # 如实披露模型判别力：ROC AUC 接近 0.5 的模型不具备站点区分能力，不得被当作有效依据。
+        model_quality = {
+            entry.get("run_id"): {
+                "selected_family": entry.get("selected_family"),
+                "test_metrics": entry.get("test_metrics"),
+                "validation_metrics": entry.get("validation_metrics"),
+                "validation_metric_source": entry.get("validation_metric_source"),
+                "train_rows": entry.get("train_rows"),
+                "test_rows": entry.get("test_rows"),
+            }
+            for entry in (manifest.get("models") or [])
+            if entry.get("run_id")
+        }
         availability = {
             (entry["task_id"], entry["variant"]): entry
             for entry in manifest.get("availability_matrix", [])
@@ -889,75 +1307,171 @@ class AlgorithmModelServiceV3:
         context = self._context()
         calendar = self._calendar_features(scope_context.get("observed_at"))
         context = {**context, **calendar}
+        legacy_box: dict[str, Any] = {}
         results: dict[str, Any] = {}
         all_feature_columns: set[str] = set()
         for output_key, task_id, variant, label in TASKS:
+            compliance = {
+                "label": "情景推演" if horizon_days in scenario_horizons else "研判推演",
+                "locked": horizon_days in scenario_horizons,
+                "granularity_tier": tier,
+            }
             bundle = self._bundle(task_id, variant, month_offset, horizon_days)
             entry = availability.get((task_id, variant), {})
             if bundle is None:
-                result = {
-                    "task_id": task_id, "variant": variant, "label": label,
-                    "value": None, "probability": None, "unit": None,
-                    "status": "not_applicable",
-                    "not_applicable_reason": entry.get("reason") or "model_bundle_missing",
-                    "label_provenance": entry.get("label_provenance"),
-                    "uncertainty_available": False,
-                }
-                if horizon_days in scenario_horizons:
-                    result["compliance"] = {"label": "情景推演", "locked": True, "granularity_tier": tier}
-                results[output_key] = result
+                # 水华面积：无训练模型时改用「月度反演重建基底场 20μg/L 阈值边界的实测面积」
+                # （面积本就是全湖量，不存在"逐站训练"问题），替代 V0.2 合成回退；
+                # 栅格场缺失时才回退 legacy，且两种来源都如实标注。
+                if output_key == "area":
+                    field_area = self._monthly_field_area_result(horizon_days)
+                    if field_area is not None:
+                        results[output_key] = field_area
+                        continue
+                fallback = self._legacy_fallback_result(
+                    task_id, variant, horizon_days, output_key, label, entity_id, legacy_box
+                )
+                if fallback is not None:
+                    fallback["label_provenance"] = entry.get("label_provenance")
+                    fallback["compliance"] = compliance
+                    fallback["not_applicable_reason"] = entry.get("reason") or "model_bundle_missing"
+                    results[output_key] = fallback
+                else:
+                    results[output_key] = {
+                        "task_id": task_id, "variant": variant, "label": label,
+                        "value": None, "probability": None, "unit": None,
+                        "status": "not_applicable",
+                        "value_origin": None,
+                        "not_applicable_reason": entry.get("reason") or "model_bundle_missing",
+                        "label_provenance": entry.get("label_provenance"),
+                        "uncertainty_available": False,
+                        "compliance": compliance,
+                    }
                 continue
             frame = self._raw_frame(pd, bundle, observed, context)
             raw = bundle.predict_point(frame).iloc[0].to_dict()
             value = _json_scalar(raw.get("prediction"))
             probability = _json_scalar(raw.get("probability"))
-            uncertainty = None
-            if bundle.intervals is not None:
-                point = float(probability if probability is not None else (value or 0.0))
-                p05, p95 = point + bundle.intervals.residual_p05, point + bundle.intervals.residual_p95
-                uncertainty = {
-                    "method": "split_conformal_residual_quantiles",
-                    "p05": _json_scalar(max(p05, 0.0)),
-                    "p95": _json_scalar(p95),
-                    "is_calibrated_confidence_interval": True,
-                    "coverage": {
-                        "target": 0.90,
-                        "calibration_n": bundle.intervals.calibration_n,
-                        "empirical_coverage_test": bundle.uncertainty_meta.get("empirical_coverage_test"),
-                        "test_n": bundle.uncertainty_meta.get("test_n"),
-                    },
-                }
+            predicted_class = None
+            if bundle.problem_type in {"binary", "probability"} and probability is not None:
+                # 概率任务的 value 语义 = 概率本身；0/1 分类决策另存 predicted_class。
+                # 修正旧版把类别标签（如 0）当概率展示、导致风险得分恒为 0 的语义错误。
+                predicted_class = value
+                value = probability
+            training_protocol = (bundle.uncertainty_meta or {}).get("split_protocol") or "frozen_split"
+            uncertainty = self._build_uncertainty(bundle, value, output_key, training_protocol)
+            transformed_fingerprint = self._transformed_fingerprint(bundle, frame)
             result = {
                 "task_id": task_id,
                 "variant": variant,
                 "label": label,
                 "value": value,
                 "probability": probability,
+                "predicted_class": predicted_class,
                 "target": bundle.target,
                 "unit": {
-                    "area": "km²", "coverage": "ratio", "density": "cells/L",
+                    "area": "km²", "coverage": "ratio", "density": "rank",
                     "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
                 }.get(output_key),
                 "model_file": f"{bundle.run_id}-{bundle.horizon_days}d.joblib",
+                "model_run_id": bundle.run_id,
                 "selected_family": bundle.selected_family,
+                # 静态基线模型（simple_baseline）不依赖输入，逐站点输出必然相同；
+                # 此处只标注模型族事实，是否真的对站点无响应由快照层的实测离散度判定。
+                "model_family": bundle.selected_family,
+                "static_baseline_model": bundle.selected_family == "simple_baseline",
                 "granularity_tier": bundle.granularity_tier,
                 "label_provenance": entry.get("label_provenance"),
+                "status": "ok",
+                "value_origin": "v0_3_real_bundle",
+                "training_protocol": training_protocol,
                 "uncertainty": uncertainty,
                 "uncertainty_available": uncertainty is not None,
+                # 该 (任务, 时效) 下模型实际接收的输入矩阵指纹：证明"模型输入是否随实体变化"
+                "transformed_model_input_fingerprint": transformed_fingerprint,
+                "compliance": compliance,
             }
-            if output_key == focus_map[focus_metric]:
-                result["explainability"] = self._explain(bundle, frame, observed)
-            if horizon_days in scenario_horizons:
-                result["compliance"] = {"label": "情景推演", "locked": True, "granularity_tier": tier}
+            if explain and output_key == focus_map[focus_metric]:
+                # 局部敏感性要额外跑 ~19 次 bundle 推理，是单次 predict_suite 的大头；
+                # 输入仅由 (任务, 实体, 时效, 实测快照) 决定，因此按同一键复用。
+                explain_key = (output_key, entity_id, month_offset, horizon_days)
+                explainability = self._explain_cache.get(explain_key)
+                if explainability is None:
+                    explainability = self._explain(bundle, frame, observed)
+                    self._explain_cache[explain_key] = explainability
+                result["explainability"] = explainability
             results[output_key] = result
             all_feature_columns.update(bundle.feature_columns)
-        probability_value = results.get("probability", {}).get("value")
+        # 风险等级：训练期标签单类，无独立可训练模型；由 T5 叶绿素 a 真实模型预测值按
+        # 冻结风险带推导（与 20 μg/L 水华阈值同源），绝不伪造独立等级模型输出。
+        # 推导不可行（无叶绿素值）时保留上方 legacy 回退或 not_applicable 原状。
+        risk_level_result = results.get("risk_level") or {}
+        if risk_level_result.get("value_origin") != "derived_from_chla_v0_3_risk_bands":
+            derived = self._derive_risk_level(results.get("chla"), risk_bands)
+            if derived is not None:
+                derived["compliance"] = {
+                    "label": "情景推演" if horizon_days in scenario_horizons else "研判推演",
+                    "locked": horizon_days in scenario_horizons,
+                    "granularity_tier": tier,
+                }
+                results["risk_level"] = derived
+        origin_counts = {
+            "real_data_v0_3": 0,
+            "derived_from_chla": 0,
+            "derived_from_retrieval_field": 0,
+            "legacy_v0_2_synthetic_fallback": 0,
+            "not_applicable": 0,
+        }
+        for item in results.values():
+            if item.get("value") is None or item.get("status") == "not_applicable":
+                origin_counts["not_applicable"] += 1
+            elif item.get("value_origin") == "legacy_v0_2_synthetic_fallback":
+                origin_counts["legacy_v0_2_synthetic_fallback"] += 1
+            elif item.get("value_origin") == "derived_from_chla_v0_3_risk_bands":
+                origin_counts["derived_from_chla"] += 1
+            elif item.get("value_origin") == "derived_from_monthly_retrieval_field":
+                # 月度反演基底边界面积：真实反演产物派生，但不是逐站训练模型输出，单列披露
+                origin_counts["derived_from_retrieval_field"] += 1
+            else:
+                origin_counts["real_data_v0_3"] += 1
+        probability_result = results.get("probability") or {}
+        probability_value = probability_result.get("probability")
+        if probability_value is None:
+            probability_value = probability_result.get("value")
         risk_score = round(float(probability_value) * 100, 1) if isinstance(probability_value, (int, float)) else None
+        focus_result = results.get(focus_map[focus_metric]) or {}
+        quality_gate = self._quality_gate(focus_result, origin_counts, focus_metric, horizon_days in scenario_horizons)
+        # 双指纹：observed 证明"站点实测不同"，transformed 证明"模型最终输入矩阵不同"。
+        observed_fingerprint = self._observed_fingerprint(observed)
+        transformed_fingerprints = {
+            key: item["transformed_model_input_fingerprint"]
+            for key, item in results.items()
+            if item.get("transformed_model_input_fingerprint")
+        }
+        # 顶层指纹必须随焦点指标切换：合成回退 / 无真实 bundle 的焦点任务没有
+        # 真实模型输入矩阵，指纹必须显式置空并说明原因，而不是回落到别的任务的指纹。
+        focus_fp = transformed_fingerprints.get(focus_map[focus_metric])
+        if focus_fp:
+            fp_unavailable_reason = None
+        else:
+            focus_origin = focus_result.get("value_origin") or focus_result.get("status")
+            fp_unavailable_reason = {
+                "legacy_v0_2_synthetic_fallback": "synthetic_fallback_no_real_model_inputs",
+                "not_applicable": "no_real_bundle_for_task_horizon",
+            }.get(focus_origin, "transformed_frame_not_recorded")
         return {
             "prediction_run_id": f"ALG-V0.3-{scope_context.get('snapshot_id') or 'no-snapshot'}-{entity_id}-{horizon_days}d",
+            "entity_id": entity_id,
+            # 兼容字段：等价于 observed_input_fingerprint（旧消费者仍可读）
+            "input_fingerprint": observed_fingerprint,
+            "fingerprint_schema": FINGERPRINT_SCHEMA,
+            "observed_input_fingerprint": observed_fingerprint,
+            "transformed_model_input_fingerprint": focus_fp,
+            "transformed_model_input_fingerprint_unavailable_reason": fp_unavailable_reason,
+            "transformed_model_input_fingerprints": transformed_fingerprints,
             "horizon_days": horizon_days,
             "month_offset": month_offset,
             "granularity_tier": tier,
+            "granularity_disclosure": manifest.get("granularity_disclosure"),
             "issued_at": scope_context.get("observed_at"),
             "scope": scope_context,
             "results": results,
@@ -977,11 +1491,637 @@ class AlgorithmModelServiceV3:
             "acceptance": self.acceptance(),
             "retrieval_and_calibration": self.retrieval_status(),
             "input_provenance": self._provenance_bundle(observed, context),
-            "quality_gate": {
+            "mechanism_drivers": self._mechanism_drivers_cached(entity_id, observed, context),
+            "quality_gate": quality_gate,
+            # 按 model_run_id 索引的模型健康度（留出集指标），供结果侧如实披露判别力。
+            "model_quality": model_quality,
+        }
+
+    def predict_suite_batch(
+        self, horizon_days: int, entity_ids: list[str]
+    ) -> dict[str, dict[str, Any]]:
+        """批量预测：同一 (task, variant, horizon) 的全部实体合并为一次推理。
+
+        与逐实体 predict_suite 口径完全一致（同一 bundle、同一 frame 构造方式、同一
+        conformal 区间、同一风险带推导与动态门禁），只把 N 次单行推理合并成一次 N 行
+        推理。实测单行推理约 0.28s 而 20 行批量仅 0.20s，因此站点批量预生成由
+        「每站点数十秒」降为毫秒级。
+
+        不做局部敏感性解释：解释与 focus_metric 绑定且不随预测快照落盘。
+        落盘的顶层指纹口径固定为 risk；快照 serve 时按请求的 focus_metric 重新解析
+        顶层指纹（见 prediction_snapshot.assemble），前端也可直接读按任务的指纹表。
+        """
+        if not entity_ids:
+            return {}
+        pd, _, horizon_map, scenario_horizons, tiers, _, risk_bands = self._runtime_imports()
+        if horizon_days not in horizon_map.month_map:
+            raise ValueError(f"horizon_days must be one of {sorted(horizon_map.month_map)}")
+        month_offset = horizon_map.month_offset(horizon_days)
+        tier = tiers[horizon_days]
+        is_scenario = horizon_days in scenario_horizons
+        focus_map = {"risk": "probability", "chla": "chla", "area": "area", "biomass": "biomass", "density": "density"}
+        self._cache_epoch()
+        manifest = self._manifest()
+        availability = {
+            (entry["task_id"], entry["variant"]): entry
+            for entry in manifest.get("availability_matrix", [])
+            if entry.get("horizon_days") == horizon_days
+        }
+        base_context = self._context()
+        observed_by_entity: dict[str, dict[str, float]] = {}
+        context_by_entity: dict[str, dict[str, float]] = {}
+        scopes: dict[str, dict[str, Any]] = {}
+        for entity_id in entity_ids:
+            observed, scope = self._observed_inputs_v2(entity_id)
+            calendar = self._calendar_features(scope.get("observed_at"))
+            observed_by_entity[entity_id] = observed
+            context_by_entity[entity_id] = {**base_context, **calendar}
+            scopes[entity_id] = scope
+
+        results_by_entity: dict[str, dict[str, Any]] = {entity_id: {} for entity_id in entity_ids}
+        transformed_fingerprints_by_entity: dict[str, dict[str, str | None]] = {
+            entity_id: {} for entity_id in entity_ids
+        }
+        legacy_box: dict[str, Any] = {}
+        for output_key, task_id, variant, label in TASKS:
+            compliance = {
+                "label": "情景推演" if is_scenario else "研判推演",
+                "locked": is_scenario,
+                "granularity_tier": tier,
+            }
+            bundle = self._bundle(task_id, variant, month_offset, horizon_days)
+            entry = availability.get((task_id, variant), {})
+            if bundle is None:
+                # 水华面积：与单条口径一致，优先月度反演基底边界面积（见 _monthly_field_area_result）
+                field_area = None
+                if output_key == "area":
+                    field_area = self._monthly_field_area_result(horizon_days)
+                    if field_area is not None:
+                        for entity_id in entity_ids:
+                            results_by_entity[entity_id][output_key] = dict(field_area)
+                if not (output_key == "area" and field_area is not None):
+                    bulk = self._legacy_fallback_batch(
+                        task_id, variant, horizon_days, output_key, label, entity_ids, legacy_box
+                    )
+                    for entity_id in entity_ids:
+                        fallback = bulk.get(entity_id)
+                        if fallback is not None:
+                            fallback["label_provenance"] = entry.get("label_provenance")
+                            fallback["compliance"] = compliance
+                            fallback["not_applicable_reason"] = entry.get("reason") or "model_bundle_missing"
+                            results_by_entity[entity_id][output_key] = fallback
+                        else:
+                            results_by_entity[entity_id][output_key] = {
+                                "task_id": task_id, "variant": variant, "label": label,
+                                "value": None, "probability": None, "unit": None,
+                                "status": "not_applicable",
+                                "value_origin": None,
+                                "not_applicable_reason": entry.get("reason") or "model_bundle_missing",
+                                "label_provenance": entry.get("label_provenance"),
+                                "uncertainty_available": False,
+                                "compliance": compliance,
+                            }
+                continue
+            frames_by_entity = {
+                eid: self._raw_frame(pd, bundle, observed_by_entity[eid], context_by_entity[eid])
+                for eid in entity_ids
+            }
+            batch_frame = pd.concat([frames_by_entity[eid] for eid in entity_ids], ignore_index=True)
+            raw_all = bundle.predict_point(batch_frame)
+            training_protocol = (bundle.uncertainty_meta or {}).get("split_protocol") or "frozen_split"
+            unit_map = {
+                "area": "km²", "coverage": "ratio", "density": "rank",
+                "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
+            }
+            for index, entity_id in enumerate(entity_ids):
+                raw = raw_all.iloc[index].to_dict()
+                value = _json_scalar(raw.get("prediction"))
+                probability = _json_scalar(raw.get("probability"))
+                predicted_class = None
+                if bundle.problem_type in {"binary", "probability"} and probability is not None:
+                    predicted_class = value
+                    value = probability
+                uncertainty = self._build_uncertainty(bundle, value, output_key, training_protocol)
+                transformed_fingerprints_by_entity[entity_id][output_key] = self._transformed_fingerprint(
+                    bundle, frames_by_entity[entity_id]
+                )
+                results_by_entity[entity_id][output_key] = {
+                    "task_id": task_id,
+                    "variant": variant,
+                    "label": label,
+                    "value": value,
+                    "probability": probability,
+                    "predicted_class": predicted_class,
+                    "target": bundle.target,
+                    "unit": unit_map.get(output_key),
+                    "model_file": f"{bundle.run_id}-{bundle.horizon_days}d.joblib",
+                    "model_run_id": bundle.run_id,
+                    "selected_family": bundle.selected_family,
+                    "model_family": bundle.selected_family,
+                    "static_baseline_model": bundle.selected_family == "simple_baseline",
+                    "granularity_tier": bundle.granularity_tier,
+                    "label_provenance": entry.get("label_provenance"),
+                    "status": "ok",
+                    "value_origin": "v0_3_real_bundle",
+                    "training_protocol": training_protocol,
+                    "uncertainty": uncertainty,
+                    "uncertainty_available": uncertainty is not None,
+                    # 与 predict_suite 同口径：该 (任务, 时效) 下模型实际接收的输入矩阵指纹
+                    "transformed_model_input_fingerprint": transformed_fingerprints_by_entity[entity_id][output_key],
+                    "compliance": compliance,
+                }
+
+        # ---- 逐实体后置：风险等级推导、来源计数、风险得分与动态门禁 ----
+        model_quality = {
+            entry.get("run_id"): {
+                "selected_family": entry.get("selected_family"),
+                "test_metrics": entry.get("test_metrics"),
+                "validation_metrics": entry.get("validation_metrics"),
+                "validation_metric_source": entry.get("validation_metric_source"),
+                "train_rows": entry.get("train_rows"),
+                "test_rows": entry.get("test_rows"),
+            }
+            for entry in (manifest.get("models") or [])
+            if entry.get("run_id")
+        }
+        assembled: dict[str, dict[str, Any]] = {}
+        for entity_id in entity_ids:
+            results = results_by_entity[entity_id]
+            risk_level_result = results.get("risk_level") or {}
+            if risk_level_result.get("value_origin") != "derived_from_chla_v0_3_risk_bands":
+                derived = self._derive_risk_level(results.get("chla"), risk_bands)
+                if derived is not None:
+                    # 结果被风险带推导覆盖后，序数模型自身的输入指纹不再代表所呈现结果，
+                    # 与单条路径同口径：不输出 risk_level 的指纹（derived 无模型输入）。
+                    transformed_fingerprints_by_entity.get(entity_id, {}).pop("risk_level", None)
+                if derived is not None:
+                    derived["compliance"] = {
+                        "label": "情景推演" if is_scenario else "研判推演",
+                        "locked": is_scenario,
+                        "granularity_tier": tier,
+                    }
+                    results["risk_level"] = derived
+            origin_counts = {
+                "real_data_v0_3": 0,
+                "derived_from_chla": 0,
+                "derived_from_retrieval_field": 0,
+                "legacy_v0_2_synthetic_fallback": 0,
+                "not_applicable": 0,
+            }
+            for item in results.values():
+                if item.get("value") is None or item.get("status") == "not_applicable":
+                    origin_counts["not_applicable"] += 1
+                elif item.get("value_origin") == "legacy_v0_2_synthetic_fallback":
+                    origin_counts["legacy_v0_2_synthetic_fallback"] += 1
+                elif item.get("value_origin") == "derived_from_chla_v0_3_risk_bands":
+                    origin_counts["derived_from_chla"] += 1
+                elif item.get("value_origin") == "derived_from_monthly_retrieval_field":
+                    # 月度反演基底边界面积：真实反演产物派生，但不是逐站训练模型输出，单列披露
+                    origin_counts["derived_from_retrieval_field"] += 1
+                else:
+                    origin_counts["real_data_v0_3"] += 1
+            probability_result = results.get("probability") or {}
+            probability_value = probability_result.get("probability")
+            if probability_value is None:
+                probability_value = probability_result.get("value")
+            risk_score = round(float(probability_value) * 100, 1) if isinstance(probability_value, (int, float)) else None
+            focus_result = results.get(focus_map["risk"]) or {}
+            quality_gate = self._quality_gate(focus_result, origin_counts, "risk", is_scenario)
+            scope_context = scopes[entity_id]
+            observed = observed_by_entity[entity_id]
+            context = context_by_entity[entity_id]
+            observed_fingerprint = self._observed_fingerprint(observed)
+            transformed_fingerprints = {
+                key: value
+                for key, value in (transformed_fingerprints_by_entity.get(entity_id) or {}).items()
+                if value
+            }
+            # 与 predict_suite 同口径：顶层指纹为 risk 任务自己的；合成/缺失时置空并说明原因。
+            # （快照 serve 时会按请求的 focus_metric 重新解析顶层指纹，见 prediction_snapshot.assemble。）
+            risk_fp = transformed_fingerprints.get(focus_map["risk"])
+            if risk_fp:
+                fp_unavailable_reason = None
+            else:
+                risk_origin = focus_result.get("value_origin") or focus_result.get("status")
+                fp_unavailable_reason = {
+                    "legacy_v0_2_synthetic_fallback": "synthetic_fallback_no_real_model_inputs",
+                    "not_applicable": "no_real_bundle_for_task_horizon",
+                }.get(risk_origin, "transformed_frame_not_recorded")
+            assembled[entity_id] = {
+                "prediction_run_id": f"ALG-V0.3-{scope_context.get('snapshot_id') or 'no-snapshot'}-{entity_id}-{horizon_days}d",
+                "entity_id": entity_id,
+                # 兼容字段：等价于 observed_input_fingerprint（旧消费者仍可读）
+                "input_fingerprint": observed_fingerprint,
+                "fingerprint_schema": FINGERPRINT_SCHEMA,
+                "observed_input_fingerprint": observed_fingerprint,
+                "transformed_model_input_fingerprint": risk_fp,
+                "transformed_model_input_fingerprint_unavailable_reason": fp_unavailable_reason,
+                "transformed_model_input_fingerprints": transformed_fingerprints,
+                "horizon_days": horizon_days,
+                "month_offset": month_offset,
+                "granularity_tier": tier,
+                "granularity_disclosure": manifest.get("granularity_disclosure"),
+                "issued_at": scope_context.get("observed_at"),
+                "scope": scope_context,
+                "results": results,
+                "risk_score": risk_score,
+                "analysis_focus": {"requested_metric": "risk", "result_key": focus_map["risk"]},
+                "model": {
+                    "package_generation": "v0_3",
+                    "package_version": "0.3",
+                    "model_count": len(list(self.model_dir.glob('*.joblib'))),
+                    "training_data": DATA_VERSION_V3,
+                    "claim_boundary": CLAIM_BOUNDARY_V3,
+                    "granularity_disclosure": manifest.get("granularity_disclosure"),
+                    "mechanism_modules": ["真实驱动机理因子（温度/光照/磷/氮限制）", "营养盐限制", "净生长率代理"],
+                    "ai_algorithms": ["Random Forest", "XGBoost"],
+                    "fusion_algorithms": ["机理特征融合", "残差融合", "约束加权融合"],
+                },
+                "acceptance": self.acceptance(),
+                "retrieval_and_calibration": self.retrieval_status(),
+                "input_provenance": self._provenance_bundle(observed, context),
+                "mechanism_drivers": self._mechanism_drivers_cached(entity_id, observed, context),
+                "quality_gate": quality_gate,
+                "model_quality": model_quality,
+            }
+        return assembled
+
+    def _legacy_fallback_batch(
+        self,
+        task_id: str,
+        variant: str,
+        horizon_days: int,
+        output_key: str,
+        label: str,
+        entity_ids: list[str],
+        legacy_box: dict[str, Any],
+    ) -> dict[str, dict[str, Any]]:
+        """legacy V0.2 回退的批量版本：全部实体一次推理，逐实体拆分。"""
+        legacy = self.legacy
+        if legacy is None:
+            return {}
+        try:
+            bundle = legacy._bundle(task_id, variant, horizon_days)
+            legacy_pd, _, predict_batch, _ = legacy._runtime_imports()
+            frames = []
+            for entity_id in entity_ids:
+                observed, context, calendar = self._legacy_inputs(entity_id)
+                frames.append(legacy._raw_frame(legacy_pd, bundle, observed, calendar))
+            raw_all = predict_batch(bundle, legacy_pd.concat(frames, ignore_index=True))
+        except Exception:  # noqa: BLE001 — 回退链任何一步失败都不得伪造结果
+            return {}
+        model_name = getattr(bundle.model, "name", type(bundle.model).__name__)
+        out: dict[str, dict[str, Any]] = {}
+        for index, entity_id in enumerate(entity_ids):
+            raw = raw_all.iloc[index].to_dict()
+            value = _json_scalar(raw.get("prediction"))
+            probability = _json_scalar(raw.get("probability"))
+            if output_key in {"bloom", "probability"} and probability is not None:
+                value = probability
+            out[entity_id] = {
+                "task_id": task_id,
+                "variant": variant,
+                "label": label,
+                "value": value,
+                "probability": probability,
+                "unit": self.LEGACY_UNIT_MAP.get(output_key),
                 "status": "ok",
-                "decision": "real_data_scenario_assessment",
-                "reason": "模型由真实清洗数据训练（月度标签粒度）；结果用于业务研判与情景推演，精度表述以冻结测试集评估为准。",
+                "value_origin": "legacy_v0_2_synthetic_fallback",
+                "model_file": f"{task_id}-{variant}-{horizon_days}d-s{MODEL_SEED}.joblib",
+                "selected_model": model_name,
+                "training_protocol": "synthetic_augmented_legacy_v0_2",
+                "uncertainty": None,
+                "uncertainty_available": False,
+            }
+        return out
+
+    def _mechanism_drivers_cached(
+        self, entity_id: str, observed: dict[str, float], context: dict[str, float]
+    ) -> dict[str, Any]:
+        """机理分解仅依赖「实测输入 + 上下文月 + 冻结上下文表」，同一实测快照内按实体复用。
+
+        该分解与模型无关、恒可用，重复计算不产生任何新信息。
+        """
+        self._cache_epoch()
+        cached = self._mech_cache.get((entity_id,))
+        if cached is None:
+            cached = self._mechanism_drivers(observed, context)
+            self._mech_cache[(entity_id,)] = cached
+        return cached
+
+    def _mechanism_drivers(self, observed: dict[str, float], context: dict[str, float]) -> dict[str, Any]:
+        """机理净生长率分解（运行时展示口径，与特征契约 mech_* 同一公式，模型无关、恒可用）。
+
+        温度/光照基准优先取签发月上下文；上下文缺测时回退到最近含气象的上下文月（披露月份），
+        温度再回退 MEE 实测水温（代理口径，逐项披露）。磷/氮条件优先 MEE 实测。
+        """
+        def clip01(value: float) -> float:
+            return float(min(max(value, 0.0), 1.0))
+
+        met_month = None
+        temp = context.get("met_air_temperature_c")
+        light = context.get("met_shortwave_radiation_wm2")
+        # 冻结中位数（与模型推理路径一致：TAIHU_WHOLE 上下文无气象列，模型实际接收的
+        # 就是预处理器按训练期中位数插补后的值），用于光照等无可实时来源的字段
+        medians = None
+        if (temp is None or light is None) and self._context_frame is not None and len(self._context_frame):
+            import pandas as pd
+
+            whole = self._context_frame[self._context_frame["station_id"] == "TAIHU_WHOLE"]
+            met_rows = whole.dropna(subset=["met_air_temperature_c", "met_shortwave_radiation_wm2"]).sort_values("month")
+            if len(met_rows):
+                row = met_rows.iloc[-1]
+                met_month = str(row["month"])
+                temp = float(row["met_air_temperature_c"])
+                light = float(row["met_shortwave_radiation_wm2"])
+        temp_proxy = False
+        if temp is None:
+            summary = self._realtime_summary()
+            water_temp = (summary.get("means", {}).get("water_temperature") or {}).get("value")
+            if water_temp is not None:
+                temp = float(water_temp)
+                temp_proxy = True
+        # 光照：气象列在监督表中仅 NASA_POWER 网格行有值（TAIHU_WHOLE 全缺测、训练时 0 插补），
+        # 展示口径改用签发月同期气候态中位（真实数据聚合，季节正确），绝不使用 0 插补值
+        light_source = "上下文气象" if light is not None else None
+        if light is None:
+            try:
+                issuing_month = int((context.get("observed_at") or datetime.now().isoformat())[5:7])
+            except (ValueError, TypeError, IndexError):
+                issuing_month = datetime.now().month
+            if self._context_frame is not None and len(self._context_frame):
+                import pandas as pd
+
+                met_rows = self._context_frame[
+                    self._context_frame["met_shortwave_radiation_wm2"].notna()
+                    & (self._context_frame["month"].str[5:7].astype(int) == issuing_month)
+                ]
+                if len(met_rows):
+                    light = float(met_rows["met_shortwave_radiation_wm2"].median())
+                    light_source = f"{issuing_month} 月气候态·NASA_POWER"
+        tp = observed.get("wq_tp", context.get("wq_tp"))
+        tn = observed.get("wq_tn", context.get("wq_tn"))
+        nh4 = observed.get("wq_nh4_n", context.get("wq_nh4_n"))
+
+        f_temp = clip01((temp - 10.0) / 18.0) if temp is not None else None
+        if f_temp is not None and (temp <= 4.0 or temp >= 38.0):
+            f_temp = 0.0
+        f_light = clip01(light / 18.0) if light is not None else None
+        f_phos = clip01(tp / (tp + 0.02)) if tp else None
+        f_nitro = clip01(tn / (tn + 0.6)) if tn else None
+        f_nutr = min((x for x in (f_phos, f_nitro) if x is not None), default=None)
+        net = 0.9 * f_temp * f_light * f_nutr - 0.16 if None not in (f_temp, f_light, f_nutr) else None
+        factors = [
+            {"key": "temperature", "label": "温度适合度", "value": f_temp,
+             "source_value": temp, "unit": "℃", "proxy": temp_proxy,
+             "source": "MEE 水温代理" if temp_proxy else ("上下文气象" if temp is not None else "缺测")},
+            {"key": "light", "label": "光照适合度", "value": f_light,
+             "source_value": light, "unit": "W/m²", "proxy": False,
+             "source": (f"上下文气象 {met_month}" if (light is not None and light_source == "上下文气象" and met_month) else (light_source or "缺测"))},
+            {"key": "phosphorus", "label": "磷条件", "value": f_phos,
+             "source_value": tp, "unit": "mg/L", "proxy": False,
+             "source": "MEE 实测" if "wq_tp" in observed else "上下文"},
+            {"key": "nitrogen", "label": "氮条件", "value": f_nitro,
+             "source_value": tn, "unit": "mg/L", "proxy": False,
+             "source": "MEE 实测" if "wq_tn" in observed else "上下文"},
+            {"key": "ammonia", "label": "氨氮输入", "value": None,
+             "source_value": nh4, "unit": "mg/L", "proxy": False, "state_only": True,
+             "source": ("MEE 实测·未纳入当前机理公式" if "wq_nh4_n" in observed
+                        else "上下文·未纳入当前机理公式" if nh4 is not None else "缺测·未纳入当前机理公式")},
+            {"key": "flow", "label": "流速输入", "value": None,
+             "source_value": None, "unit": "m/s", "proxy": False, "state_only": True,
+             "source": "当前 V0.3 特征契约无流速字段·不可用"},
+        ]
+        known = [f for f in factors if f["value"] is not None]
+        limiting = min(known, key=lambda f: f["value"])["key"] if known else None
+        return {
+            "factors": factors,
+            "nutrient_factor": f_nutr,
+            "limiting_factor": limiting,
+            "net_growth_rate_d": _json_scalar(net) if net is not None else None,
+            "net_growth_range": [-0.16, 0.6],
+            "formula": "net = 0.9·f_T·f_I·min(f_P, f_N) − 0.16（与特征契约 mech_* 同式）",
+            "note": (
+                "机理净生长率分解：反映当前环境对藻类生长的适合度与限制因子，公式与训练特征一致、"
+                "不依赖任何训练模型，模型敏感性不可用时恒可用。数据质量事实：气象列在监督表仅 NASA_POWER "
+                "网格行有值（TAIHU_WHOLE 全缺测、训练时 0 插补），故光照取签发月同期气候态中位、"
+                "温度优先 MEE 实测水温（代理口径），均为展示口径并已逐项标注来源。氨氮仅展示输入状态，"
+                "流速因当前契约缺字段显示不可用；两者均不伪装成机理贡献。"
+            ),
+        }
+
+    # ---- 单任务 legacy V0.2 合成数据回退（缺失 (task, horizon) 的对照链） ----
+
+    LEGACY_UNIT_MAP = {
+        "area": "km²", "coverage": "ratio", "density": "cells/L",
+        "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
+    }
+
+    def _legacy_fallback_result(
+        self,
+        task_id: str,
+        variant: str,
+        horizon_days: int,
+        output_key: str,
+        label: str,
+        entity_id: str,
+        legacy_box: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """同一实测快照内复用 legacy 回退结果。
+
+        单次 predict_suite 会为 v0.3 缺失 (task, horizon) 各跑一次 legacy 模型推理，
+        而 legacy 输入与实测快照一一对应，故整批复用不改变任何口径。
+        调用方会补写 label_provenance/compliance，因此必须返回副本而非缓存对象本身。
+        """
+        cache_key = (task_id, variant, horizon_days, entity_id)
+        self._cache_epoch()
+        if cache_key in self._legacy_cache:
+            cached = self._legacy_cache[cache_key]
+            return dict(cached) if cached is not None else None
+        result = self._legacy_fallback_result_uncached(
+            task_id, variant, horizon_days, output_key, label, entity_id, legacy_box
+        )
+        self._legacy_cache[cache_key] = result
+        return dict(result) if result is not None else None
+
+    def _legacy_inputs(
+        self, entity_id: str
+    ) -> tuple[dict[str, float], dict[str, Any], dict[str, float]]:
+        """legacy 回退输入（V0.2 特征契约）：同一实测快照内按实体复用。
+
+        原实现把 legacy 输入放在每次 predict_suite 各自的局部 legacy_box 中，
+        于是七个时效会把同一实体的 V0.2 输入（含全湖聚合）各算一遍，
+        这是站点批量预生成最主要的耗时来源。
+        """
+        self._cache_epoch()
+        cached = self._legacy_inputs_cache.get(entity_id)
+        if cached is None:
+            legacy = self.legacy
+            observed, context = legacy._observed_inputs(entity_id)
+            calendar = legacy._calendar_features(context.get("observed_at"))
+            cached = (observed, context, calendar)
+            self._legacy_inputs_cache[entity_id] = cached
+        return cached
+
+    def _legacy_fallback_result_uncached(
+        self,
+        task_id: str,
+        variant: str,
+        horizon_days: int,
+        output_key: str,
+        label: str,
+        entity_id: str,
+        legacy_box: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """缺失 (task, horizon) 时回退 legacy V0.2 合成数据模型：单任务推理，如实标注 provenance。
+
+        legacy 观测输入与 V0.2 特征契约（非 v2 契约）配套，独立于本服务的 v2 输入。
+        回退失败时返回 None，由调用方记 not_applicable；绝不静默丢弃或改用其他口径顶替。
+        """
+        legacy = self.legacy
+        if legacy is None:
+            return None
+        try:
+            if "inputs" not in legacy_box:
+                legacy_box["inputs"] = self._legacy_inputs(entity_id)
+            observed, context, calendar = legacy_box["inputs"]
+            bundle = legacy._bundle(task_id, variant, horizon_days)
+            legacy_pd, _, predict_batch, _ = legacy._runtime_imports()
+            frame = legacy._raw_frame(legacy_pd, bundle, observed, calendar)
+            raw = predict_batch(bundle, frame).iloc[0].to_dict()
+        except Exception:  # noqa: BLE001 — 回退链任何一步失败都不得伪造结果
+            return None
+        value = _json_scalar(raw.get("prediction"))
+        probability = _json_scalar(raw.get("probability"))
+        if output_key in {"bloom", "probability"} and probability is not None:
+            value = probability
+        return {
+            "task_id": task_id,
+            "variant": variant,
+            "label": label,
+            "value": value,
+            "probability": probability,
+            "unit": self.LEGACY_UNIT_MAP.get(output_key),
+            "status": "ok",
+            "value_origin": "legacy_v0_2_synthetic_fallback",
+            "model_file": f"{task_id}-{variant}-{horizon_days}d-s{MODEL_SEED}.joblib",
+            "selected_model": getattr(bundle.model, "name", type(bundle.model).__name__),
+            "training_protocol": "synthetic_augmented_legacy_v0_2",
+            "uncertainty": None,
+            "uncertainty_available": False,
+        }
+
+    @staticmethod
+    def _band_of(value: float, risk_bands: dict[str, tuple[float, float]]) -> str | None:
+        for name, (low, high) in risk_bands.items():
+            if low <= value < high:
+                return name
+        return None
+
+    def _derive_risk_level(
+        self, chla_result: dict[str, Any] | None, risk_bands: dict[str, tuple[float, float]]
+    ) -> dict[str, Any] | None:
+        """由叶绿素 a 真实模型预测值推导风险等级（冻结 risk_bands_ug_l 阈值映射）。"""
+        if not chla_result or chla_result.get("value") is None:
+            return None
+        value = float(chla_result["value"])
+        band = self._band_of(value, risk_bands)
+        if band is None:
+            return None
+        chla_uncertainty = chla_result.get("uncertainty") or {}
+        p05_band = p95_band = None
+        # 只有"决策可用"的区间才允许映射等级范围：结构自洽但缺乏校准证据的区间
+        # （如 test_n=1 的叶绿素 a）不足以支撑等级范围结论。
+        if chla_uncertainty.get("decision_usable") and chla_uncertainty.get("p05") is not None and chla_uncertainty.get("p95") is not None:
+            p05_band = self._band_of(float(chla_uncertainty["p05"]), risk_bands)
+            p95_band = self._band_of(float(chla_uncertainty["p95"]), risk_bands)
+        band_range = p05_band is not None and p95_band is not None
+        return {
+            "task_id": "T6",
+            "variant": "risk_level",
+            "label": "风险等级",
+            "value": band,
+            "probability": None,
+            "predicted_class": None,
+            "unit": None,
+            "status": "ok",
+            "value_origin": "derived_from_chla_v0_3_risk_bands",
+            "derived_from": {
+                "task_id": "T5",
+                "variant": "chla",
+                "chla_value_ug_l": chla_result.get("value"),
+                "rule": "冻结风险带 risk_bands_ug_l（none<10≤low<20≤medium<30≤high<50≤severe，μg/L；与 20 μg/L 水华阈值同源）",
             },
+            "model_file": chla_result.get("model_file"),
+            "selected_family": chla_result.get("selected_family"),
+            "granularity_tier": chla_result.get("granularity_tier"),
+            "training_protocol": chla_result.get("training_protocol"),
+            "uncertainty": (
+                {
+                    "method": "derived_band_range_from_chla_conformal_interval",
+                    "is_prediction_interval": True,
+                    "interval_semantics": UNCERTAINTY_SEMANTICS,
+                    "calibration_status": CALIBRATION_UNAVAILABLE,
+                    "decision_usable": False,
+                    "p05_band": p05_band,
+                    "p95_band": p95_band,
+                    "note": "等级范围由叶绿素 a conformal 区间映射；等级本身不是经校准的概率输出。",
+                }
+                if band_range
+                else None
+            ),
+            "uncertainty_available": band_range,
+        }
+
+    @staticmethod
+    def _quality_gate(
+        focus_result: dict[str, Any],
+        origin_counts: dict[str, int],
+        focus_metric: str,
+        scenario: bool,
+    ) -> dict[str, Any]:
+        """质量门按实际输出计算：ok / partial / degraded / unavailable，禁止无结果时返回 ok。"""
+        counts = {"value_origin_counts": origin_counts}
+        focus_origin = focus_result.get("value_origin")
+        if focus_result.get("value") is None:
+            return {
+                "status": "unavailable",
+                "decision": "no_valid_prediction",
+                "reason": (
+                    f"当前时效的 {focus_metric} 指标没有可用模型输出："
+                    "该任务/时效在真实标签下不可训练，legacy 回退也不可用；页面必须显示空态，不得展示替代数值。"
+                ),
+                **counts,
+            }
+        if focus_origin == "legacy_v0_2_synthetic_fallback":
+            return {
+                "status": "degraded",
+                "decision": "legacy_synthetic_fallback_scenario",
+                "reason": (
+                    f"当前指标（{focus_metric}）在 V0.3 真实数据包下不可训练（对应标签缺失），"
+                    "展示值为 legacy V0.2 合成数据模型的对照输出，仅用于情景推演与系统联调；"
+                    "不得表述为真实太湖预测精度。"
+                ),
+                **counts,
+            }
+        if origin_counts["legacy_v0_2_synthetic_fallback"] > 0:
+            return {
+                "status": "partial",
+                "decision": "real_data_with_legacy_supplement",
+                "reason": (
+                    "当前焦点指标来自 V0.3 真实数据模型；同时效内另有任务因标签缺失以 legacy V0.2 合成数据"
+                    "对照输出补位（逐任务见 value_origin），仅作情景推演。"
+                ),
+                **counts,
+            }
+        return {
+            "status": "ok",
+            "decision": "real_data_v0_3",
+            "reason": (
+                "当前结果由 V0.3 真实清洗数据模型生成（月度标签粒度）；精度表述以冻结测试集评估为准，"
+                "30/60/90 天仅作情景推演。"
+            ),
+            **counts,
         }
 
     def _provenance_bundle(self, observed: dict[str, float], context: dict[str, float]) -> dict[str, Any]:
@@ -1002,18 +2142,56 @@ class AlgorithmModelServiceV3:
             "note": (
                 "MEE 实时水质字段（含氨氮 wq_nh4_n）直接写入；其余字段取 TAIHU_WHOLE 最近月上下文，"
                 "仍缺失者由 bundle 冻结预处理器按训练期中位数插补；遥感字段均为 remote_retrieval 口径。"
+                "注意：MEE 叶绿素 a（wq_chla）在 v2 契约中仅以滞后/滚动列形式存在（防同月泄漏），"
+                "当月实测值不直接进入模型。"
             ),
         }
 
+    def _feature_scales_map(self) -> dict[str, float]:
+        """训练期特征标准差（来自监督底表全体站点-月），用作敏感性步长下限。
+
+        树模型在 ±10%（绝对最小 0.01）的微扰下常跨不过任何分裂阈值，导致敏感性
+        恒为 0；步长取 max(10% 基线, 0.5σ, 0.01) 才能反映模型对特征的真实局部响应。
+        """
+        if self._feature_scales is not None:
+            return self._feature_scales
+        scales: dict[str, float] = {}
+        try:
+            frame = self._context_frame
+            if frame is None:
+                self._context()
+                frame = self._context_frame
+            if frame is not None and len(frame):
+                import pandas as pd
+
+                for name in frame.columns:
+                    values = pd.to_numeric(frame[name], errors="coerce").dropna()
+                    if len(values) >= 10:
+                        scales[name] = float(values.std())
+        except Exception:  # noqa: BLE001 — 步长表缺失时退回原 ±10% 规则
+            scales = {}
+        self._feature_scales = scales
+        return scales
+
     def _explain(self, bundle: Any, frame: Any, observed: dict[str, float]) -> dict[str, Any]:
+        scales = self._feature_scales_map()
         factors = []
         base_output = bundle.predict_point(frame).iloc[0]
         base_value = float(base_output.get("probability", base_output.get("prediction")))
         for feature, label in V3_SENSITIVITY_FEATURES:
             if feature not in frame.columns:
                 continue
-            baseline = float(frame.iloc[0][feature])
-            step = max(abs(baseline) * 0.10, 0.01)
+            raw_baseline = float(frame.iloc[0][feature])
+            input_source = "observed" if feature in observed else "month_context_or_imputed"
+            baseline = raw_baseline
+            if math.isnan(baseline):
+                # 缺测字段模型实际看到的是冻结中位数插补值：围绕有效输入扰动才有意义
+                median = (bundle.preprocessor.medians or {}).get(feature)
+                if median is None:
+                    continue
+                baseline = float(median)
+                input_source = "frozen_train_median_baseline"
+            step = max(abs(baseline) * 0.10, 0.5 * scales.get(feature, 0.0), 0.01)
             low, high = frame.copy(), frame.copy()
             low.loc[:, feature] = baseline - step
             high.loc[:, feature] = baseline + step
@@ -1027,22 +2205,40 @@ class AlgorithmModelServiceV3:
             effect = (high_value - low_value) / 2.0
             factors.append({
                 "feature": feature, "label": label, "baseline": baseline,
-                "perturbation": "plus_minus_10_percent_local",
+                "raw_value": None if math.isnan(raw_baseline) else raw_baseline,
+                "perturbation": "plus_minus_10_percent_or_half_sigma_local",
+                "step": step,
                 "effect": effect,
                 "direction": "increase" if effect > 0 else "decrease" if effect < 0 else "neutral",
-                "input_source": "observed" if feature in observed else "month_context_or_imputed",
+                "input_source": input_source,
             })
         total = sum(abs(item["effect"]) for item in factors)
         for item in factors:
             item["contribution_percent"] = round(abs(item["effect"]) / total * 100, 2) if total else 0.0
         factors.sort(key=lambda item: abs(item["effect"]), reverse=True)
+        # 常数基线或在小样本上退化为常数输出的树模型：全部效应为 0 时如实标记，
+        # 前端据此不把全 0 贡献度排序当作有效解释展示。
+        effective = any(abs(item["effect"]) > 0.0 for item in factors)
+        if effective:
+            ineffective_reason = None
+        elif bundle.selected_family == "simple_baseline" or getattr(bundle.model, "constant", None) is not None \
+                or getattr(bundle.model, "single_class_value", None) is not None:
+            ineffective_reason = "selected_model_constant_baseline_not_input_sensitive"
+        else:
+            ineffective_reason = "trained_model_zero_response_in_perturbation_range"
         return {
             "method": "local_one_at_a_time_sensitivity",
             "is_shap": False,
+            "effective": effective,
+            "ineffective_reason": ineffective_reason,
+            "selected_family": bundle.selected_family,
             "baseline": base_value,
             "factors": factors[:8],
             "unavailable_factors": [],
-            "note": "贡献度为冻结输入空间内的局部单因素敏感性归一化结果，不是因果贡献，也不是 SHAP 值。",
+            "note": (
+                "贡献度为局部单因素敏感性归一化结果（步长 = max(±10% 基线, 0.5×训练期σ, 0.01)），"
+                "缺测字段围绕冻结中位数插补值计算；不是因果贡献，也不是 SHAP 值。"
+            ),
         }
 
     # ---- 门禁（唯一来源：evaluation/gate_table.json；无硬编码比较数） ----
@@ -1052,6 +2248,20 @@ class AlgorithmModelServiceV3:
         if not path.is_file():
             raise AlgorithmModelUnavailable(f"门禁表不存在: {path}（请先运行 cli_real.py gate）")
         return json.loads(path.read_text(encoding="utf-8"))
+
+    def gate_rows_index(self) -> dict[tuple[str, str, int], dict[str, Any]]:
+        """按 (task_id, variant, horizon_days) 索引门禁行，供可比较性判定消费。
+
+        门禁表缺失时返回空索引（调用方按"无门禁评估记录"处理，不得放行站点比较）。
+        """
+        try:
+            gate = self._gate_table()
+        except Exception:  # noqa: BLE001 — 门禁证据缺失必须收敛为"不可比较"
+            return {}
+        return {
+            (row.get("task_id"), row.get("variant"), row.get("horizon_days")): row
+            for row in gate.get("rows") or []
+        }
 
     def acceptance(self) -> dict[str, Any]:
         gate = self._gate_table()
@@ -1114,22 +2324,58 @@ class AlgorithmModelServiceV3:
         }
 
     def calibration_coverage(self) -> dict[str, Any]:
+        """区间与校准证据清单：按"结构自洽 / 校准证据 / 决策可用"三层如实披露。
+
+        不再使用模型清单里恒为 true 的 is_calibrated_confidence_interval 布尔量，
+        而是直接由 test_n 与经验覆盖率判定校准状态。
+        """
         manifest = self._manifest()
         items = []
+        reviewed = 0
         for model in manifest.get("models", []):
             uncertainty = model.get("uncertainty") or {}
-            if not uncertainty.get("is_calibrated_confidence_interval"):
+            if not uncertainty:
                 continue
+            reviewed += 1
+            test_n_raw = uncertainty.get("test_n")
+            test_n = int(test_n_raw) if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool) else None
+            empirical = uncertainty.get("empirical_coverage_test")
+            if test_n is None or test_n == 0:
+                status = CALIBRATION_NO_TEST_EVIDENCE
+            elif test_n < MIN_CALIBRATION_TEST_N or empirical is None:
+                status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
+            else:
+                status = CALIBRATION_VALIDATED
             items.append({
                 "task_id": model["run_id"].split("-")[0],
                 "run_id": model["run_id"],
                 "horizon_days": model.get("horizon_days"),
+                "calibration_status": status,
+                "calibration_reason": CALIBRATION_STATUS_LABELS[status],
+                "is_prediction_interval": True,
                 "coverage_target": uncertainty.get("coverage_target", 0.90),
-                "empirical_coverage": uncertainty.get("empirical_coverage_test"),
+                "empirical_coverage": empirical,
                 "calibration_n": uncertainty.get("calibration_n"),
-                "test_n": uncertainty.get("test_n"),
+                "test_n": test_n,
+                "min_test_n": MIN_CALIBRATION_TEST_N,
             })
-        return {"items": items, "method": "split_conformal_residual_quantiles"}
+        validated = [item for item in items if item["calibration_status"] == CALIBRATION_VALIDATED]
+        return {
+            "items": items,
+            "method": "split_conformal_residual_quantiles",
+            "interval_semantics": UNCERTAINTY_SEMANTICS,
+            "summary": {
+                "reviewed": reviewed,
+                "calibration_validated": len(validated),
+                "without_test_evidence": len([i for i in items if i["calibration_status"] == CALIBRATION_NO_TEST_EVIDENCE]),
+                "insufficient_test_evidence": len([i for i in items if i["calibration_status"] == CALIBRATION_INSUFFICIENT_TEST_EVIDENCE]),
+            },
+            "honesty_note": (
+                "结构自洽不等于校准有效：经验覆盖率需要冻结测试集样本支撑。"
+                f"当前 {len(validated)}/{reviewed} 个模型具备充分校准证据；其余在页面上不得表述为"
+                "\u201c校准有效区间\u201d。"
+            ),
+        }
 
     def retrieval_validation(self) -> dict[str, Any]:
         path = self.package_dir / "evaluation" / "calibration_manifest.json"
@@ -1185,7 +2431,13 @@ class AlgorithmModelServiceV3:
             "value_origin_rule": "retrieved/calibrated values remain derived and never become observed truth",
         }
 
-    def spatial_field(self, horizon_days: int, metric: str = "chla", layer: str = "raster") -> dict[str, Any]:
+    def spatial_field(
+        self,
+        horizon_days: int,
+        metric: str = "chla",
+        layer: str = "raster",
+        prediction_run_id: str | None = None,
+    ) -> dict[str, Any]:
         if horizon_days not in SUPPORTED_HORIZONS:
             raise ValueError(f"horizon_days must be one of {SUPPORTED_HORIZONS}")
         raster_service = RasterFieldService()
@@ -1198,12 +2450,18 @@ class AlgorithmModelServiceV3:
                     if horizon_days in (30, 60, 90)
                     else {"label": "月度反演基底", "locked": False}
                 )
+                raster_run_id = (
+                    f"{prediction_run_id}-RASTER-CHLA"
+                    if prediction_run_id
+                    else f"ALG-V0.3-RASTER-{month}-{horizon_days}d-chla"
+                )
                 return {
-                    "prediction_run_id": f"ALG-V0.3-RASTER-{month}-{horizon_days}d-chla",
+                    "prediction_run_id": raster_run_id,
                     "horizon_days": horizon_days,
                     "metric": "chla",
                     "unit": raster["unit"],
                     "layer": "raster",
+                    "layer_semantics": "monthly_reconstruction_base_not_horizon_forecast",
                     "png_url": raster["png_url"],
                     "bounds": raster["bounds"],
                     "vmin": raster["vmin"],
@@ -1219,6 +2477,7 @@ class AlgorithmModelServiceV3:
                     "compliance": compliance,
                     "note": (
                         "连续栅格 = 年度反演产品（固定色标反解）× 地面/CLMS 月度锚点残差 IDW 修正；"
+                        "它是最新月度反演重建基底，不随预测时效生成未来空间场；"
                         f"水华边界为 {raster['boundary']['threshold_ug_l']} μg/L 阈值分割。"
                     ),
                 }
@@ -1244,8 +2503,24 @@ class AlgorithmModelServiceV3:
         contract = manifest.get("feature_contract") or {}
         p0_1 = "达标" if contract.get("n_features") == 78 else "未达标"
         models = manifest.get("models", [])
-        calibrated = [m for m in models if (m.get("uncertainty") or {}).get("is_calibrated_confidence_interval")]
-        p0_2 = "达标" if calibrated else "未达标"
+        # 覆盖有效性分层：校准器存在 ≠ 已验证 ≠ 可决策。判据只看 test_n 与经验覆盖率，
+        # 不用模型清单里恒为 true 的 is_calibrated_confidence_interval。
+        calibrated = [
+            m for m in models
+            if (m.get("uncertainty") or {}).get("test_n") is not None
+            or (m.get("uncertainty") or {}).get("calibration_n")
+        ]
+        validated = [
+            m for m in calibrated
+            if ((m["uncertainty"].get("test_n") or 0) >= MIN_CALIBRATION_TEST_N)
+            and m["uncertainty"].get("empirical_coverage_test") is not None
+        ]
+        if validated and len(validated) == len(calibrated):
+            p0_2 = "达标"
+        elif calibrated:
+            p0_2 = "部分达标"
+        else:
+            p0_2 = "未达标"
         try:
             calibration = json.loads(
                 (self.package_dir / "evaluation" / "calibration_manifest.json").read_text(encoding="utf-8")
@@ -1288,7 +2563,12 @@ class AlgorithmModelServiceV3:
                     "id": "P0-2", "title": "残差校准置信区间（split-conformal P05/P95）",
                     "status": p0_2,
                     "evidence": [{"label": "覆盖率元数据", "href": "/api/v1/model/calibration/coverage"}],
-                    "detail": f"{len(calibrated)}/{len(models)} 个可训练 bundle 带 conformal 校准器；覆盖率经冻结测试集经验核算。",
+                    "detail": (
+                        f"{len(calibrated)}/{len(models)} 个 bundle 带 conformal 校准器；"
+                        f"{len(validated)}/{len(calibrated)} 在冻结测试集完成经验覆盖核算"
+                        "（二类任务 97.5%，n=40）；叶绿素 a 测试集 n=1，覆盖核算不具统计意义。"
+                        if calibrated else "无带校准器的 bundle。"
+                    ),
                 },
                 {
                     "id": "P0-3", "title": "遥感反演地面配对校准（留出验证）",

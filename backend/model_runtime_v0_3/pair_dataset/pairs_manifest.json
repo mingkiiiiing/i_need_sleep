@@ -1,0 +1,24 @@
+{
+  "pair_rule_version": "rs-pair-v1",
+  "generated_at": "2026-09-09T10:53:13.078084+00:00",
+  "rules": {
+    "sentinel2_monthly": "S2 月度产品 ↔ 地面采样当月记录（月度聚合，天然 ±15 天内）；空间=同代表点（发布包中野外样本收敛为代表点，距离=0）",
+    "modis_lwq300": "lwq300 10 日产品 ↔ 地面采样 ±3 天内最近过境；产品为湖泊代表点（120.25,31.08~31.10）口径，距离如实记录，不做逐点距离筛除"
+  },
+  "spatial_tolerance": "same_representative_station_or_lake_representative_point(distance_disclosed)",
+  "reference_provenance": "ground_truth (water_quality.parquet chla, μg/L)",
+  "retrieved_provenance": "remote_retrieval (never observed truth)",
+  "field_sample_count": 83,
+  "pair_count_by_sensor": {
+    "modis_lwq300_10daily": 82,
+    "s2_30m_mci": 63,
+    "s2_30m_ndci": 63
+  },
+  "distinct_months_by_sensor": {
+    "modis_lwq300_10daily": 3,
+    "s2_30m_mci": 3,
+    "s2_30m_ndci": 3
+  },
+  "pairs_sha256": "7f2d85347836069cd62d2bd96407dc3eb57389660e3e3d66f65c6a899d8b6bc9",
+  "honesty_note": "配对数与月覆盖如实统计；S2 月度产品在航次月仅有单一合成值，跨月仿射拟合的自由度有限（见 calibration_manifest 披露）。"
+}

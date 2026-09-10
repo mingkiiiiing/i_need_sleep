@@ -1,0 +1,14 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+  "granularity_tier": "month_approx_half",
+  "horizon_days": 7,
+  "label_provenance": "proxy_derived",
+  "month_offset": 0,
+  "primary_metric": "brier_score",
+  "problem_type": "binary",
+  "run_id": "T1-bloom-0m-s20260907",
+  "seed": 20260907,
+  "task_id": "T1",
+  "variant": "bloom"
+}

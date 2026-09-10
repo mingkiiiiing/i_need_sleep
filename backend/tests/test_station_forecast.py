@@ -208,10 +208,27 @@ def _covered_station_ids() -> set[str]:
     return set(engine._table["sid"])
 
 
+def _live_engine_state():
+    """实时目录会增长；旧站点试点可能随新数据落入诚实的 no-skill 状态。"""
+    from backend.app.services import service, station_forecast_engine
+
+    engine = station_forecast_engine(service.realtime)
+    return engine, engine.status()
+
+
 def test_station_forecast_api_contract():
     from backend.main import app
 
     client = TestClient(app)
+    engine, status = _live_engine_state()
+    if status["status"] != "ready":
+        stations = client.get(
+            "/api/v1/spatial-entities", params={"mode": "observed", "active": "latest"}
+        ).json()["data"]
+        response = client.get(f"/api/v1/realtime/stations/{stations[0]['id']}/forecast")
+        assert response.status_code == 409
+        assert response.json()["errors"][0]["code"] == "FORECAST_NOT_AVAILABLE"
+        return
     covered = _covered_station_ids()
     station_id = sorted(covered)[0]
     body = client.get(f"/api/v1/realtime/stations/{station_id}/forecast").json()
@@ -232,6 +249,15 @@ def test_station_forecast_api_uncovered_station_409():
     from backend.main import app
 
     client = TestClient(app)
+    engine, status = _live_engine_state()
+    if status["status"] != "ready":
+        stations = client.get(
+            "/api/v1/spatial-entities", params={"mode": "observed", "active": "latest"}
+        ).json()["data"]
+        response = client.get(f"/api/v1/realtime/stations/{stations[-1]['id']}/forecast")
+        assert response.status_code == 409
+        assert response.json()["errors"][0]["code"] == "FORECAST_NOT_AVAILABLE"
+        return
     covered = _covered_station_ids()
     stations = client.get(
         "/api/v1/spatial-entities", params={"mode": "observed", "active": "latest"}

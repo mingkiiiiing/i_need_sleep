@@ -12,17 +12,51 @@ def _manifest() -> dict:
 
 
 def test_every_trainable_bundle_carries_conformal_calibrator():
+    """bundle 必须携带 conformal 校准器；但"携带校准器"不等于"校准有效"。
+
+    清单里的 is_calibrated_confidence_interval 恒为 true（含 test_n=0/1 的模型），
+    运行口径已停止消费该字段，改由 test_n + 经验覆盖率判定，见 calibration_coverage()。
+    """
     manifest = _manifest()
     models = manifest.get("models", [])
     assert models, "V0.3 包应至少有一个可训练 bundle"
     for model in models:
         uncertainty = model.get("uncertainty") or {}
-        assert uncertainty.get("is_calibrated_confidence_interval") is True, (
+        # 序数任务（T6-risk_level 风险带）预测是标签字符串，无数值残差可池化，
+        # conformal 区间不适用——这是 2026-09-11 代理标签重训后首次可训练时明确的口径。
+        if model["run_id"].startswith("T6-risk_level"):
+            continue
+        assert uncertainty.get("method") == "split_conformal_residual_quantiles", (
             f"{model['run_id']} 缺少 conformal 校准器"
         )
-        assert uncertainty.get("method") == "split_conformal_residual_quantiles"
         assert uncertainty.get("coverage_target") == 0.90
         assert uncertainty.get("calibration_n", 0) > 0
+
+
+def test_calibration_status_is_evidence_based_not_flag_based():
+    """校准状态必须由测试集证据决定：test_n=0/1 一律不得判为 validated。"""
+    from backend.app.algorithm_models import (
+        CALIBRATION_NO_TEST_EVIDENCE,
+        CALIBRATION_VALIDATED,
+        AlgorithmModelServiceV3,
+        MIN_CALIBRATION_TEST_N,
+    )
+
+    service = AlgorithmModelServiceV3(realtime_provider=None)
+    payload = service.calibration_coverage()
+    assert payload["items"], "校准清单不得为空"
+    assert payload["interval_semantics"] == "prediction_interval_not_parameter_confidence_interval"
+    for item in payload["items"]:
+        assert item["is_prediction_interval"] is True
+        if item["test_n"] in (None, 0):
+            assert item["calibration_status"] == CALIBRATION_NO_TEST_EVIDENCE
+            assert item["test_n"] != MIN_CALIBRATION_TEST_N
+        if item["calibration_status"] == CALIBRATION_VALIDATED:
+            assert item["test_n"] >= MIN_CALIBRATION_TEST_N
+            assert item["empirical_coverage"] is not None
+    # 现状必须如实反映：存在缺乏校准证据的模型，不得全绿
+    assert payload["summary"]["reviewed"] == len(payload["items"])
+    assert payload["summary"]["without_test_evidence"] >= 1
 
 
 def test_empirical_coverage_is_disclosed_not_fitted_on_test():

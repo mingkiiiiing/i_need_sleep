@@ -38,6 +38,7 @@ __pycache__/
 *.py[cod]
 backend/.venv/
 .pytest_cache/
+backend/model_runtime_v0_2/code/**/tests/
 .pnpm-store/
 .workbuddy/memory/2026-08-17.md
 
@@ -102,3 +103,9 @@ data-cleaning/storage/*
 
 # 卫星遥感年度 PNG（build_rs_overlays.py 生成产物，脚本可复现，不入库）
 backend/rs_overlays/
+
+# 运行时缓存与本地临时（不入库）
+backend/prediction-cache/
+backend/.qa_pytest_tmp/
+__nonexistent__/
+backend/model_runtime_v0_2/

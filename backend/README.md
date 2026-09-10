@@ -1,6 +1,6 @@
 # 后端联调说明
 
-当前是 **P0 模拟数据联调阶段**。所有接口均明确返回 `data_mode=simulated`、数据版本和 `claim_boundary=simulation_only`，不得用于真实监管、预警发布或模型效果宣传。
+当前后端同时提供三条明确隔离的链路：`observed` MEE 实时观测、`simulated` 旧演示接口，以及 `hybrid` 算法交付包 V0.2 情景推演。算法链已能执行 63 个 bundle，但训练边界仍为 `synthetic_development_only`，不得用于真实监管、正式预警发布或真实精度宣传。
 
 ## 本地启动
 
@@ -23,6 +23,20 @@ backend\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127
 - 解释接口仅返回 `demo_rule_contribution`，不是 SHAP；
 - 模拟预警处理仅写演示响应，不发送短信、邮件或其他真实通知。
 
+## 算法交付包 V0.2
+
+- 运行目录：`backend/model_runtime_v0_2`；
+- 模型：9 个任务变体 × 7 个时效，共 63 个；
+- 状态接口：`GET /api/v1/model/status`；
+- 推演接口：`GET /api/v1/model/predictions?horizon_days=3&entity_id=lake&focus_metric=risk`；
+- 空间样点：`GET /api/v1/model/spatial-field?horizon_days=3&metric=risk`；
+- 10% 门禁：`GET /api/v1/model/acceptance`（当前冻结结果为 `FAIL`，0/189 通过）；
+- 反演状态：`GET /api/v1/model/retrieval/status`；同期地面配对校准：`POST /api/v1/model/retrieval/calibrate`；
+- 当前查看指标随响应返回局部单因素敏感性排序和 64 次输入扰动情景分布；该分布不是经真实残差校准的置信区间。
+- `entity_id` 可为 `lake` 或一个 `mee-*` 站点 ID；
+- 平台只将语义一致的 MEE 水温、总磷、总氮、溶解氧、pH 写入模型，时间特征由观测时间派生；缺失的气象、遥感、机理与空间字段由 bundle 冻结预处理器按训练期中位数插补并保留缺失标记；
+- 每次响应包含 `snapshot_id`、`prediction_run_id`、实测/派生/插补字段清单和 `scenario_assessment_only` 质量门禁。
+
 ## 数据接入
 
-P0 不提供任意 JSON records 上传，也不提供伪模型预测接口。后续将通过清洗发布物契约接入：`POST /api/v1/ingestion/releases`（待 P2 实现），并校验 manifest、哈希、schema、质量、版本与允许路径。
+当前不提供任意 JSON records 上传。后续可通过清洗发布物契约实现 `POST /api/v1/ingestion/releases`，并校验 manifest、哈希、schema、质量、版本与允许路径。

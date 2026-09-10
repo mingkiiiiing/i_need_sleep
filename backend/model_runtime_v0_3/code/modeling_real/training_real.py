@@ -51,13 +51,15 @@ def regression_metrics(actual: np.ndarray, prediction: np.ndarray) -> dict:
     valid = np.isfinite(true) & np.isfinite(pred)
     true, pred = true[valid], pred[valid]
     if not len(true):
-        return {"mae": None, "rmse": None, "r2": None, "n": 0}
+        return {"mae": None, "rmse": None, "r2": None, "log1p_mae": None, "n": 0}
     residual = true - pred
     ss_tot = float(np.sum((true - true.mean()) ** 2))
     return {
         "mae": float(np.mean(np.abs(residual))),
         "rmse": float(np.sqrt(np.mean(residual**2))),
         "r2": None if ss_tot == 0 else float(1.0 - np.sum(residual**2) / ss_tot),
+        # T3-density 声明的主指标（log1p 空间 MAE）；对 0-1 秩代理目标同样良定义
+        "log1p_mae": float(np.mean(np.abs(np.log1p(np.maximum(true, 0.0)) - np.log1p(np.maximum(pred, 0.0))))),
         "n": int(len(true)),
     }
 
@@ -85,6 +87,27 @@ def probability_metrics(actual: np.ndarray, probability: np.ndarray) -> dict:
         "f1": None,
         "n": int(len(true)),
     }
+    # 校准证据：期望校准误差（ECE，10 等宽桶）+ 分桶明细（预测置信 vs 实际频率）。
+    # 单类样本也成立；roc/pr 仅在双类时可算。
+    bin_idx = np.clip((prob * 10).astype(int), 0, 9)
+    ece = 0.0
+    calibration_bins = []
+    for b in range(10):
+        mask = bin_idx == b
+        if not mask.any():
+            continue
+        conf = float(prob[mask].mean())
+        obs = float(true[mask].mean())
+        w = int(mask.sum())
+        ece += (w / len(true)) * abs(obs - conf)
+        calibration_bins.append({
+            "bin": b,
+            "mean_predicted": round(conf, 4),
+            "observed_frequency": round(obs, 4),
+            "n": w,
+        })
+    out["expected_calibration_error"] = round(float(ece), 6)
+    out["calibration_bins"] = calibration_bins
     if true.min() == 0.0 and true.max() == 1.0:
         from sklearn.metrics import average_precision_score, roc_auc_score
 
@@ -676,19 +699,20 @@ def train_run_real(
     selected_validation_pred = _predict_output(
         candidates[selected], validation_features.loc[:, list(preprocessor.output_columns)], spec
     )
-    val_point = (
-        selected_validation_pred["probability"].to_numpy(dtype=float)
-        if spec.problem_type in {"binary", "probability"}
-        else selected_validation_pred["prediction"].to_numpy(dtype=float)
-    )
+    # 序数任务（风险等级带）的预测是字符串标签，没有数值残差可池化——跳过 conformal。
+    if spec.problem_type in {"binary", "probability"}:
+        val_point = selected_validation_pred["probability"].to_numpy(dtype=float)
+    elif spec.problem_type == "regression":
+        val_point = selected_validation_pred["prediction"].to_numpy(dtype=float)
+    else:
+        val_point = None
     val_actual = pd.to_numeric(validation["actual"], errors="coerce").to_numpy()
-    val_residuals = val_actual - val_point
+    val_residuals = (val_actual - val_point) if val_point is not None else np.empty(0)
     oof_residuals = _fit_oof_residuals(
         train_features, source, spec, selected, factories, preprocessor, seed
     )
-    pooled = np.concatenate([
-        r[np.isfinite(r)] for r in (oof_residuals, val_residuals) if len(r)
-    ])
+    parts = [r[np.isfinite(r)] for r in (oof_residuals, val_residuals) if len(r)]
+    pooled = np.concatenate(parts) if parts else np.empty(0)
     intervals = None
     if spec.problem_type in {"regression", "probability", "binary"} and len(pooled):
         intervals = ResidualIntervals(
@@ -721,7 +745,11 @@ def train_run_real(
                 selected_test_point = (
                     predicted["probability"].to_numpy(dtype=float)
                     if spec.problem_type in {"binary", "probability"}
-                    else predicted["prediction"].to_numpy(dtype=float)
+                    else (
+                        predicted["prediction"].to_numpy(dtype=float)
+                        if spec.problem_type == "regression"
+                        else None  # 序数任务预测是标签字符串，无数值点/覆盖率可言
+                    )
                 )
         if selected_test_frame is not None:
             selected_test_frame.to_csv(output / "test_predictions.csv", index=False)

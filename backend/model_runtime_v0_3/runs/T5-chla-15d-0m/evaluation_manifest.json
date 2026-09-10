@@ -1,0 +1,73 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-10T19:15:51.655766+00:00",
+  "run_id": "T5-chla-0m-s20260907",
+  "selected_family": "xgboost",
+  "test_metrics_by_family": {
+    "constrained_blend": {
+      "log1p_mae": 2.252665747611569,
+      "mae": 8.768453330993653,
+      "n": 1,
+      "r2": null,
+      "rmse": 8.768453330993653
+    },
+    "mechanism": {
+      "log1p_mae": 2.101027195744885,
+      "mae": 7.389799351535836,
+      "n": 1,
+      "r2": null,
+      "rmse": 7.389799351535836
+    },
+    "mechanism_feature": {
+      "log1p_mae": 2.242432554759249,
+      "mae": 8.668695161238102,
+      "n": 1,
+      "r2": null,
+      "rmse": 8.668695161238102
+    },
+    "random_forest": {
+      "log1p_mae": 2.2439813312060894,
+      "mae": 8.683727910047624,
+      "n": 1,
+      "r2": null,
+      "rmse": 8.683727910047624
+    },
+    "residual": {
+      "log1p_mae": 2.243079960614244,
+      "mae": 8.674976186238096,
+      "n": 1,
+      "r2": null,
+      "rmse": 8.674976186238096
+    },
+    "simple_baseline": {
+      "log1p_mae": 2.101027195744885,
+      "mae": 7.389799351535836,
+      "n": 1,
+      "r2": null,
+      "rmse": 7.389799351535836
+    },
+    "xgboost": {
+      "log1p_mae": 2.252665747611569,
+      "mae": 8.768453330993653,
+      "n": 1,
+      "r2": null,
+      "rmse": 8.768453330993653
+    }
+  },
+  "test_primary_metric": "mae",
+  "test_rows": 1,
+  "test_value": 8.768453330993653,
+  "uncertainty": {
+    "calibration_n": 212,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 0.0,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 1
+  }
+}

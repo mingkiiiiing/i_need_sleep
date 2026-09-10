@@ -275,6 +275,10 @@ class MeeRealtimeObservationProvider:
         self._observations: Any = None  # pandas DataFrame
         self._catalog_signature: tuple[int, int] | None = None
         self._load_lock = threading.RLock()
+        # summary() 内部是全湖 pandas 聚合（实测约 1.0s）。同一实测快照内结果必然相同，
+        # 因此按目录签名缓存：站点批量预生成时 79 个站点只计算一次。
+        self._summary_cache: dict[str, tuple[tuple[int, int] | None, dict[str, Any]]] = {}
+        self._summary_lock = threading.RLock()
 
     def name(self) -> str:
         return "mee_realtime"
@@ -368,7 +372,11 @@ class MeeRealtimeObservationProvider:
             }
         self._ensure_loaded()
         status = dict(self._status)
-        status["available"] = status.get("collection_status") == "completed" and bool(self._stations)
+        # 最近一次抓取失败/运行中时仍保留并服务最后一次成功快照；available 表示
+        # “是否有可用观测”，不等同于“本次抓取是否成功”。失败状态与错误继续单独披露。
+        status["available"] = bool(self._stations) and bool(
+            status.get("last_success_at") or status.get("latest_snapshot_id")
+        )
         status["dataset_version"] = REALTIME_VERSION
         # 新鲜度按当前时刻重算（status.json 是构建时刻口径）
         latest_observed = status.get("latest_observed_at")
@@ -633,12 +641,24 @@ class MeeRealtimeObservationProvider:
             "snapshots": items,
         }
 
+    def _previous_trend_index(self, idx: int) -> int | None:
+        """Return the nearest earlier snapshot with a distinct observation time."""
+        if not (0 <= idx < len(self._snapshots)):
+            return None
+        current_at = self._snapshots[idx].get("latest_observed_at")
+        for candidate_idx in range(idx - 1, -1, -1):
+            candidate_at = self._snapshots[candidate_idx].get("latest_observed_at")
+            if candidate_at and candidate_at != current_at:
+                return candidate_idx
+        return None
+
     def _trend_baseline(self, idx: int) -> dict[str, Any]:
-        """趋势比较两端的观测时间与实际间隔（小时）；无上一快照时如实给 None。"""
+        """趋势比较两端的观测时间与实际间隔（小时）；同观测时刻快照不重复比较。"""
         from datetime import datetime
 
         current = self._snapshots[idx] if 0 <= idx < len(self._snapshots) else {}
-        prev = self._snapshots[idx - 1] if idx >= 1 else None
+        prev_idx = self._previous_trend_index(idx)
+        prev = self._snapshots[prev_idx] if prev_idx is not None else None
         current_at = current.get("latest_observed_at")
         prev_at = (prev or {}).get("latest_observed_at")
         gap_hours: float | None = None
@@ -659,7 +679,7 @@ class MeeRealtimeObservationProvider:
             "current_observed_at": current_at,
             "prev_observed_at": prev_at,
             "gap_hours": gap_hours,
-            "note": "trends 为所选快照相对其相邻上一成功快照的环比，间隔随抓取节奏波动（约 2—8 小时），非固定日趋势",
+            "note": "trends 为所选快照相对最近一个不同观测时刻成功快照的环比；同观测时刻的重复抓取会跳过，间隔非固定日趋势",
         }
 
     def summary(self, snapshot_id: str | None = None) -> dict[str, Any]:
@@ -669,12 +689,19 @@ class MeeRealtimeObservationProvider:
         self._require_loaded()
         if self._observations is None or self._observations.empty or not self._snapshots:
             raise RealtimeDataUnavailable("无可用快照")
+        # 同一实测快照内汇总结果必然相同，按目录签名复用，避免批量预生成时重复全湖聚合。
+        cache_key = snapshot_id or "__latest__"
+        signature = self._catalog_signature
+        cached = self._summary_cache.get(cache_key)
+        if cached is not None and cached[0] == signature:
+            return cached[1]
         latest_id = self._snapshots[-1]["snapshot_id"]
         target_id = snapshot_id or latest_id
         if target_id not in {s["snapshot_id"] for s in self._snapshots}:
             raise KeyError(f"snapshot not found: {target_id}")
         idx = next(i for i, s in enumerate(self._snapshots) if s["snapshot_id"] == target_id)
-        prev_id = self._snapshots[idx - 1]["snapshot_id"] if idx >= 1 else None
+        prev_idx = self._previous_trend_index(idx)
+        prev_id = self._snapshots[prev_idx]["snapshot_id"] if prev_idx is not None else None
         lat = self._latest_rows(target_id)
         prv = self._latest_rows(prev_id) if prev_id else pd.DataFrame()
 
@@ -690,8 +717,8 @@ class MeeRealtimeObservationProvider:
             direction = "flat" if delta_pct is None or abs(delta_pct) < 3.0 else ("up" if delta_pct > 0 else "down")
             trends[code] = {"delta_pct": delta_pct, "direction": direction, "prev_value": prev_value}
 
-        # 趋势基线披露：trends 是"所选快照 vs 其相邻上一成功快照"的环比，快照抓取节奏
-        # 不规律（约 2—8 小时），必须把实际间隔随响应给出，防止被解读成固定日趋势。
+        # 趋势基线披露：trends 是"所选快照 vs 最近不同观测时刻成功快照"的环比；
+        # 重复抓取同一观测时刻不形成趋势，实际间隔必须随响应给出。
         trend_baseline = self._trend_baseline(idx)
 
         info_by_id = {e["entity_id"]: e for e in self._stations}
@@ -791,7 +818,7 @@ class MeeRealtimeObservationProvider:
         status = self.status()
         dominant = max(level_counts.items(), key=lambda kv: kv[1])[0] if level_counts else None
         is_latest = target_id == latest_id
-        return {
+        payload = {
             "source": REALTIME_SOURCE_ID,
             "dataset_version": REALTIME_VERSION,
             "as_of": status.get("as_of") if is_latest else next(s["retrieved_at_utc"] for s in self._snapshots if s["snapshot_id"] == target_id),
@@ -829,6 +856,9 @@ class MeeRealtimeObservationProvider:
             },
             "markers": markers,
         }
+        with self._summary_lock:
+            self._summary_cache[cache_key] = (signature, payload)
+        return payload
 
     def quality(self, entity_id: str) -> dict[str, Any] | None:
         self._require_loaded()

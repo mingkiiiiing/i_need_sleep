@@ -72,13 +72,12 @@
           type="button"
           :class="{ active: metric === m.key }"
           :aria-pressed="String(metric === m.key)"
-          :disabled="m.blocked"
-          :aria-disabled="String(m.blocked)"
+          :disabled="false"
+          aria-disabled="false"
           :data-role="`metric-${m.key}`"
-          :title="m.blocked ? '该指标数值模型未接入，当前无法预测' : ''"
-          @click="!m.blocked && $emit('update:metric', m.key)"
+          @click="$emit('update:metric', m.key)"
         >
-          {{ m.label }}<small v-if="m.blocked">待模型</small>
+          {{ m.label }}
         </button>
       </div>
     </section>
@@ -123,10 +122,27 @@
           :aria-pressed="String(polygonEnabled)"
           @click="$emit('update:polygonEnabled', !polygonEnabled)"
         >预警范围示意<small>预警站凸包</small></button>
-        <button type="button" class="fcp-btn--blocked" disabled aria-disabled="true" title="风险网格与不确定性空间图层未接入">风险网格<small>待接入</small></button>
-        <button type="button" class="fcp-btn--blocked" disabled aria-disabled="true" title="预测水华空间边界未接入">水华边界<small>待接入</small></button>
+        <button
+          type="button"
+          :class="{ active: fieldEnabled }"
+          :aria-pressed="String(fieldEnabled)"
+          data-role="model-field-toggle"
+          @click="$emit('update:fieldEnabled', !fieldEnabled)"
+        >模型空间场<small>{{ spatialSummary.covered || 0 }} 站可上图 · {{ spatialSummary.withPrediction || 0 }} 站有预测</small></button>
+        <button
+          type="button"
+          :class="{ active: boundaryEnabled }"
+          :aria-pressed="String(boundaryEnabled)"
+          data-role="model-boundary-toggle"
+          @click="$emit('update:boundaryEnabled', !boundaryEnabled)"
+        >相对高值区<small>站间相对排序前 35%，非预警范围</small></button>
       </div>
-      <p v-if="diffEnabled" class="fcp-note">环比变化：红=叶绿素 a 上升、绿=下降、灰=持平/缺测；预警范围为筛查预警站点凸包示意（非模型风险场）。</p>
+      <div v-if="mode === 'forecast'" class="fcp-layer-status" aria-label="空间图层状态">
+        <span :data-state="spatialSummary.state" data-role="prediction-coverage">预测覆盖 {{ spatialSummary.withPrediction || 0 }}/{{ spatialSummary.total || '—' }}</span>
+        <span :data-state="spatialSummary.state" data-role="spatial-coverage">地图覆盖 {{ spatialSummary.covered || 0 }}/{{ spatialSummary.total || '—' }}</span>
+        <span v-if="spatialSummary.notPlottable" data-role="not-plottable-note">未上图 {{ spatialSummary.notPlottable }} 站：缺少可核验坐标，仅列表查看</span>
+        <span v-if="boundaryEnabled">圈定 {{ spatialSummary.highCount || 0 }} 个相对高值站</span>
+      </div>
     </section>
 
     <!-- 底图（遥感模式） -->
@@ -161,22 +177,19 @@
       </details>
     </section>
 
-    <!-- 模型与运行信息（仅预测推演相关；回放/遥感模式不展示预测起报） -->
-    <section v-if="mode === 'forecast'" class="fcp-sec" aria-label="模型与运行信息">
-      <h3 class="fcp-h">模型与运行信息</h3>
+    <section v-if="mode === 'forecast'" class="fcp-sec" aria-label="推演时间">
+      <h3 class="fcp-h">推演时间</h3>
       <dl class="fcp-kv">
-        <div><dt>模型版本</dt><dd>{{ info.modelVersion }}</dd></div>
         <div><dt>预测起报</dt><dd>{{ info.issuedAt }}</dd></div>
-        <div><dt>数据截止</dt><dd>{{ info.dataTime }}</dd></div>
+        <div><dt>数据更新</dt><dd>{{ info.dataTime }}</dd></div>
       </dl>
-      <p class="fcp-note">逐站实测明细见 <RouterLink to="/stations">监测站点研判</RouterLink>。</p>
     </section>
   </div>
 </template>
 
 <script setup>
 // 时空推演左侧预测控制：分析模式 / 空间范围 / 预测指标 / 时间尺度 / 图层 / 底图 / 模型信息。
-// 能力未接入的控件以“待接入”禁用态明示，不提供模拟值。
+// 四类核心指标均由算法交付包 V0.2 提供情景推演结果。
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -190,15 +203,19 @@ const props = defineProps({
   realtimeVisible: { type: Boolean, default: true },
   diffEnabled: { type: Boolean, default: false },
   polygonEnabled: { type: Boolean, default: false },
+  fieldEnabled: { type: Boolean, default: true },
+  boundaryEnabled: { type: Boolean, default: false },
   basemap: { type: String, default: 'satellite' },
   // { runStatus, modelVersion, issuedAt, dataTime }
   info: { type: Object, default: () => ({}) },
+  spatialSummary: { type: Object, default: () => ({ state: 'loading', covered: 0, total: 0, highCount: 0 }) },
   compact: { type: Boolean, default: false }
 })
 
 defineEmits([
   'update:mode', 'update:scope', 'update:metric', 'update:scale', 'update:stationQuery',
-  'station-select', 'update:realtimeVisible', 'update:diffEnabled', 'update:polygonEnabled', 'update:basemap'
+  'station-select', 'update:realtimeVisible', 'update:diffEnabled', 'update:polygonEnabled',
+  'update:fieldEnabled', 'update:boundaryEnabled', 'update:basemap'
 ])
 
 const MODES = [
@@ -210,14 +227,14 @@ const MODES = [
 const METRICS = [
   { key: 'risk', label: '风险等级' },
   { key: 'chla', label: '叶绿素 a' },
-  { key: 'area', label: '水华面积', blocked: true },
-  { key: 'biomass', label: '蓝藻生物量', blocked: true }
+  { key: 'area', label: '水华面积' },
+  { key: 'biomass', label: '蓝藻生物量' }
 ]
 
 const SCALES = [
   { key: 'short', label: '短临', hint: '未来 1-3 天' },
   { key: 'mid', label: '趋势', hint: '未来 7-15 天' },
-  { key: 'long', label: '中长期', hint: '未来 30-90 天' }
+  { key: 'long', label: '情景推演', hint: '30-90 天 · 未验证' }
 ]
 
 const stationOptions = computed(() => {
@@ -244,6 +261,27 @@ const stationOptions = computed(() => {
 .fcp-sec:last-child {
   border-bottom: none;
   padding-bottom: 0;
+}
+.fcp-layer-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.fcp-layer-status span {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.fcp-layer-status span[data-state='ok']::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #5fd6a4;
 }
 .fcp-h {
   margin: 0;

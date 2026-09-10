@@ -1,0 +1,22 @@
+{
+  "mechanism": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
+  "random_forest": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
+  "simple_baseline": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
+  "xgboost": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  }
+}

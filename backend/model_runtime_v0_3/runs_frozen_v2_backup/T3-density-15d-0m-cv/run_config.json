@@ -1,0 +1,24 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+  "granularity_tier": "month_approx_half",
+  "horizon_days": 15,
+  "label_provenance": "proxy_derived",
+  "month_offset": 0,
+  "primary_metric": "log1p_mae",
+  "problem_type": "regression",
+  "run_id": "T3-density-0m-s20260907",
+  "seed": 20260907,
+  "split_counts_internal": {
+    "cv_validation": 171,
+    "train": 405
+  },
+  "split_protocol": {
+    "block_fraction": 0.7,
+    "disclosure": "T3/T4 的 576 行真实标签全部在冻结 train 期（2005-02..2020-11），冻结 validation/test 均为 0 行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。",
+    "generated_at": "2026-09-09T15:32:23.212134+00:00",
+    "protocol_id": "train_internal_time_block_cv_v1"
+  },
+  "task_id": "T3",
+  "variant": "density"
+}

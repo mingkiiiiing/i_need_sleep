@@ -29,7 +29,8 @@ from .providers import (
 from .alerts import AlertEngine
 from .station_forecast import MODEL_VERSION as _STATION_FC_VERSION
 from .station_forecast import StationForecastEngine
-from .algorithm_models import AlgorithmModelService, AlgorithmModelServiceV3
+from .algorithm_models import AlgorithmModelService, AlgorithmModelServiceV3, AlgorithmModelUnavailable
+from .prediction_snapshot import FOCUS_RESULT_KEY, SNAPSHOT_HORIZONS, PredictionSnapshotService
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
 _STAGE_DAYS = (1, 3, 7, 15, 30)
@@ -63,6 +64,13 @@ class BackendService:
         self.algorithm_v3 = (
             AlgorithmModelServiceV3(realtime, legacy_service=self.algorithm)
             if realtime is not None
+            else None
+        )
+        # 实测快照驱动的预测快照：后台预生成 + 磁盘持久化 + 原子发布。
+        # 页面打开时读现成结果，只有实测数据/模型版本变化才重新推理。
+        self.prediction_snapshot = (
+            PredictionSnapshotService(self.algorithm_v3, realtime)
+            if self.algorithm_v3 is not None
             else None
         )
 
@@ -184,10 +192,126 @@ class BackendService:
         return self._require_algorithm_v3().status()
 
     def algorithm_predictions_v3(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
+        """优先命中预测快照。
+
+        同一实测快照内不再重复运行模型；结果直接来自快照，只有"当前指标的局部
+        敏感性解释"因与指标绑定而无法随快照落盘，需要时按需补齐一次并进入缓存。
+        """
+        snapshot = self.prediction_snapshot
+        if snapshot is not None:
+            data = snapshot.assemble(entity_id, horizon_days, focus_metric)
+            if data is not None:
+                result_key = FOCUS_RESULT_KEY.get(focus_metric)
+                results = data.get("results") or {}
+                item = results.get(result_key) if result_key else None
+                if isinstance(item, dict) and item.get("explainability") is None:
+                    explainability = snapshot.ensure_explainability(entity_id, horizon_days, focus_metric)
+                    if explainability is not None:
+                        item["explainability"] = explainability
+                return data
         return self._require_algorithm_v3().predict_suite(horizon_days, entity_id, focus_metric)
+
+    # ---- 预测快照（实测快照驱动的后台预生成结果） ----
+
+    def prediction_snapshot_status(self) -> dict[str, Any]:
+        snapshot = self.prediction_snapshot
+        if snapshot is None:
+            raise RealtimeDataUnavailable("预测快照服务未配置")
+        return snapshot.status()
+
+    def prediction_snapshot_rebuild(self) -> dict[str, Any]:
+        """管理员主动重算：交给快照服务的后台线程强制重新推理。"""
+        snapshot = self.prediction_snapshot
+        if snapshot is None:
+            raise RealtimeDataUnavailable("预测快照服务未配置")
+        return snapshot.request_rebuild()
+
+    def prediction_snapshot_view(self, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
+        """一次返回全部时效结果与版本状态。
+
+        快照未覆盖该实体时（站点补齐尚未完成），回落到即时推理组装同一结构，
+        并在 snapshot_source 中如实标注来源，页面无需区分两条路径。
+        """
+        snapshot = self.prediction_snapshot
+        if snapshot is not None:
+            payload = snapshot.snapshot_payload(entity_id, focus_metric)
+            if payload is not None:
+                return payload
+        if snapshot is not None:
+            # 可观测性：本次读取触发了即时推理（审计口径要求页面切换零推理）。
+            snapshot.count_live_inference_fallback()
+        horizons: dict[str, Any] = {}
+        for horizon in SNAPSHOT_HORIZONS:
+            horizons[str(horizon)] = self.algorithm_predictions_v3(horizon, entity_id, focus_metric)
+        return {
+            "entity_id": entity_id,
+            "focus_metric": focus_metric,
+            "horizons": horizons,
+            "horizon_list": list(SNAPSHOT_HORIZONS),
+            "trend": {
+                "points": [
+                    {
+                        "horizon_days": int(horizon_key),
+                        "risk_score": data.get("risk_score"),
+                        "focus_value": (
+                            (data.get("results") or {}).get(
+                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
+                            ) or {}
+                        ).get("value"),
+                        "focus_unit": (
+                            (data.get("results") or {}).get(
+                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
+                            ) or {}
+                        ).get("unit"),
+                        "focus_status": (
+                            (data.get("results") or {}).get(
+                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
+                            ) or {}
+                        ).get("status"),
+                        "issued_at": data.get("issued_at"),
+                    }
+                    for horizon_key, data in horizons.items()
+                ]
+            },
+            "prediction_snapshot_id": None,
+            "source_snapshot_id": None,
+            "generated_at": None,
+            "model_version": None,
+            "status": {
+                "state": "unavailable",
+                "using_previous_success": False,
+                "last_error": None,
+                "stations": {"ready": False, "done": 0, "total": 0},
+            },
+            "snapshot_source": {"served_from_snapshot": False},
+        }
 
     def algorithm_acceptance_v3(self) -> dict[str, Any]:
         return self._require_algorithm_v3().acceptance()
+
+    def prediction_station_field(self, horizon_days: int, metric: str = "risk") -> dict[str, Any]:
+        """快照驱动的站点空间场：与结果面板同一 prediction_snapshot_id，覆盖分母=快照站点层。"""
+        snapshot = self.prediction_snapshot
+        if snapshot is None:
+            raise RealtimeDataUnavailable("预测快照服务未配置")
+        data = snapshot.station_field(horizon_days, metric)
+        if data is None:
+            raise AlgorithmModelUnavailable(
+                "预测快照站点场不可用：快照未就绪、站点层未补齐或版本已过期"
+            )
+        return data
+
+    def prediction_driver_distribution(self, horizon_days: int = 1) -> dict[str, Any]:
+        """全湖驱动因素分布：79 站机理分解的站间分布（环境状态口径，非模型贡献）。"""
+        snapshot = self.prediction_snapshot
+        if snapshot is None:
+            raise RealtimeDataUnavailable("预测快照服务未配置")
+        data = snapshot.driver_distribution(horizon_days)
+        if data is None:
+            raise AlgorithmModelUnavailable(
+                "全湖驱动因素分布不可用：快照未就绪或站点层未补齐"
+            )
+        return data
 
     def algorithm_acceptance_detail(self) -> dict[str, Any]:
         return self._require_algorithm_v3().acceptance_detail()
@@ -195,8 +319,11 @@ class BackendService:
     def algorithm_calibration_coverage(self) -> dict[str, Any]:
         return self._require_algorithm_v3().calibration_coverage()
 
-    def algorithm_spatial_field_v3(self, horizon_days: int, metric: str = "chla", layer: str = "raster") -> dict[str, Any]:
-        return self._require_algorithm_v3().spatial_field(horizon_days, metric, layer)
+    def algorithm_spatial_field_v3(
+        self, horizon_days: int, metric: str = "chla", layer: str = "raster",
+        prediction_run_id: str | None = None,
+    ) -> dict[str, Any]:
+        return self._require_algorithm_v3().spatial_field(horizon_days, metric, layer, prediction_run_id)
 
     def retrieval_validation(self) -> dict[str, Any]:
         return self._require_algorithm_v3().retrieval_validation()

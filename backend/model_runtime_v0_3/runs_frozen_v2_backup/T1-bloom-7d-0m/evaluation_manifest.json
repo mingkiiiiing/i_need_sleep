@@ -1,0 +1,78 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-09T13:58:15.228209+00:00",
+  "run_id": "T1-bloom-0m-s20260907",
+  "selected_family": "simple_baseline",
+  "test_metrics_by_family": {
+    "constrained_blend": {
+      "brier_score": 0.02871900826446281,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    },
+    "mechanism": {
+      "brier_score": 0.02871900826446281,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    },
+    "mechanism_feature": {
+      "brier_score": 0.126775,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    },
+    "random_forest": {
+      "brier_score": 0.126775,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    },
+    "simple_baseline": {
+      "brier_score": 0.02871900826446281,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    },
+    "xgboost": {
+      "brier_score": 0.028719008621598086,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.5
+    }
+  },
+  "test_primary_metric": "brier_score",
+  "test_rows": 40,
+  "test_value": 0.02871900826446281,
+  "uncertainty": {
+    "calibration_n": 31,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 0.975,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 40
+  }
+}

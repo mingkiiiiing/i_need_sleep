@@ -4,8 +4,8 @@
       <div class="rl-head-text">
         <h3>V0.3 月度叶绿素 a 栅格场</h3>
         <p>
-          年度反演产品（固定色标反解）× 地面 / CLMS 月度锚点残差 IDW 修正；
-          边界为 {{ field?.boundary?.threshold_ug_l ?? 20 }} μg/L 阈值分割。
+          月度反演重建基底：年度反演产品（固定色标反解）× 地面 / CLMS 月度锚点残差 IDW 修正，
+          不随预测时效生成未来空间场；边界为 {{ field?.boundary?.threshold_ug_l ?? 20 }} μg/L 阈值分割。
         </p>
       </div>
       <label class="rl-month">
@@ -53,6 +53,8 @@ import { getRasterFieldEnvelope, rsImageUrl } from '../../services/api.js'
 
 const props = defineProps({
   horizonDays: { type: Number, default: 3 },
+  // 与结果面板同一次预测运行的 prediction_run_id（仅作运行追踪串联）
+  runId: { type: String, default: '' },
   closable: { type: Boolean, default: false }
 })
 
@@ -102,7 +104,7 @@ async function load() {
   state.value = 'loading'
   error.value = ''
   try {
-    const { data } = await getRasterFieldEnvelope(props.horizonDays, 'chla')
+    const { data } = await getRasterFieldEnvelope(props.horizonDays, 'chla', props.runId)
     field.value = { ...data, available_months: data.available_months || [] }
     // 后端只返回当前月份图层；可选月份清单由 availability 揭示（缺省仅当前月）
     if (!months.value.length && data.issued_month) {
@@ -160,6 +162,11 @@ async function render() {
 
 watch(selectedMonth, () => {
   if (state.value === 'ok') render()
+})
+
+// 时效变化 → 以对应时效重取图层元数据（栅格本身仍是月度反演基底，由后端披露）
+watch(() => props.horizonDays, () => {
+  load()
 })
 
 onMounted(load)

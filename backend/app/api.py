@@ -651,8 +651,12 @@ def get_algorithm_spatial_field(
     horizon_days: int = Query(3),
     metric: Literal["risk", "chla", "area", "biomass"] = "risk",
     layer: Literal["model", "raster"] = "model",
+    run_id: str | None = Query(None),
 ):
-    """太湖范围内空间场：layer=model（legacy 站点样点）或 layer=raster（V0.3 连续栅格）。"""
+    """太湖范围内空间场：layer=model（legacy 站点样点）或 layer=raster（V0.3 连续栅格）。
+
+    run_id 用于把空间场挂到同一次 predict_suite 运行（共享 prediction_run_id 前缀）。
+    """
     if horizon_days not in ALGORITHM_HORIZONS:
         raise invalid_horizon(
             "算法空间推演仅支持 1、3、7、15、30、60、90 天",
@@ -661,7 +665,7 @@ def get_algorithm_spatial_field(
         )
     if layer == "raster":
         data = _v3_algorithm_call(
-            lambda: service.algorithm_spatial_field_v3(horizon_days, metric, "raster")
+            lambda: service.algorithm_spatial_field_v3(horizon_days, metric, "raster", run_id)
         )
     else:
         data = service.algorithm_spatial_field(horizon_days, metric)
@@ -735,6 +739,100 @@ def get_algorithm_predictions_v3(
         prediction_run_id=data["prediction_run_id"],
         data_mode="hybrid",
         as_of=data.get("issued_at") or _observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/prediction-status", response_model=schemas.Envelope[dict])
+def get_prediction_snapshot_status(request: Request):
+    """预测快照状态（轻量）：前端轮询此接口比对 prediction_snapshot_id，不触发任何推理。"""
+    data = _v3_algorithm_call(service.prediction_snapshot_status)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data.get("prediction_snapshot_id"),
+        data_mode="hybrid",
+        as_of=data.get("generated_at") or _observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.post("/model/v3/prediction-snapshot/rebuild", response_model=schemas.Envelope[dict])
+def rebuild_prediction_snapshot(request: Request):
+    """管理员主动重算：丢弃当前版本缓存产物，后台强制重新推理全部时效与站点。
+
+    版本键不变也重算——用于代码口径修复后版本键看不见代码变更的场景。
+    期间继续服务当前已发布快照，新结果通过完整性校验后才原子切换。
+    """
+    data = _v3_algorithm_call(service.prediction_snapshot_rebuild)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data.get("published_prediction_snapshot_id"),
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/prediction-snapshot", response_model=schemas.Envelope[dict])
+def get_prediction_snapshot(
+    request: Request,
+    entity_id: str = "lake",
+    focus_metric: Literal["risk", "chla", "area", "biomass", "density"] = "risk",
+):
+    """一次读取全部时效结果与版本状态：页面打开即有结果，切换时效不再运行模型。"""
+    data = _v3_algorithm_call(lambda: service.prediction_snapshot_view(entity_id, focus_metric))
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data.get("prediction_snapshot_id"),
+        data_mode="hybrid",
+        as_of=data.get("generated_at") or _observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/prediction-spatial-field", response_model=schemas.Envelope[dict])
+def get_prediction_station_field(
+    request: Request,
+    horizon_days: int = Query(3),
+    metric: Literal["risk", "chla", "biomass", "density"] = "risk",
+):
+    """快照驱动的站点空间场：与结果面板同一 prediction_snapshot_id，覆盖分母=快照站点层总数。
+
+    区别于 /model/spatial-field（legacy V0.2 合成站点场）：本接口逐站给出数值或缺失原因，
+    仅缺可信坐标的站不绘制，且坐标缺失原因逐站披露。
+    """
+    data = _v3_algorithm_call(lambda: service.prediction_station_field(horizon_days, metric))
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data.get("prediction_snapshot_id"),
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
+@router.get("/model/v3/driver-distribution", response_model=schemas.Envelope[dict])
+def get_prediction_driver_distribution(
+    request: Request,
+    horizon_days: int = Query(1),
+):
+    """全湖驱动因素分布：79 站机理净生长率分解的站间分布（环境状态口径，非模型贡献排序）。"""
+    data = _v3_algorithm_call(lambda: service.prediction_driver_distribution(horizon_days))
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=data.get("prediction_snapshot_id"),
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
         claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
     )
 

@@ -1,0 +1,110 @@
+{
+  "constrained_blend": {
+    "brier_score": 0.02498671316374383,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0005,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.0245,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.025,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.16666666666666669
+  },
+  "mechanism": {
+    "brier_score": 0.024578038183321875,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0392,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.014249,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.025,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.5
+  },
+  "mechanism_feature": {
+    "brier_score": 0.02484798686514452,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0012,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.023753,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.0625,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.8076923076923077
+  },
+  "random_forest": {
+    "brier_score": 0.02500515528901035,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0011,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.023923,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.025,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.3846153846153846
+  },
+  "simple_baseline": {
+    "brier_score": 0.024578038183321875,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0392,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.014249,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.025,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.5
+  },
+  "xgboost": {
+    "brier_score": 0.02498671316374383,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0005,
+        "n": 40,
+        "observed_frequency": 0.025
+      }
+    ],
+    "expected_calibration_error": 0.0245,
+    "f1": null,
+    "n": 40,
+    "pr_auc": 0.025,
+    "precision": null,
+    "recall": 0.0,
+    "roc_auc": 0.16666666666666669
+  }
+}

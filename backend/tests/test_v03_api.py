@@ -62,7 +62,29 @@ def test_v03_predictions_month_granularity_and_uncertainty(fake_v3_realtime):
     uncertainty = results["probability"].get("uncertainty")
     if uncertainty is not None:
         assert uncertainty["method"] == "split_conformal_residual_quantiles"
-        assert uncertainty["is_calibrated_confidence_interval"] is True
+        # 区间语义：这是预测区间，不是参数置信区间；旧口径单一布尔量已停用
+        assert "is_calibrated_confidence_interval" not in uncertainty
+        assert uncertainty["is_prediction_interval"] is True
+        assert uncertainty["interval_semantics"] == "prediction_interval_not_parameter_confidence_interval"
+        # 三层结论必须独立给出：结构自洽 / 校准证据 / 决策可用
+        assert isinstance(uncertainty["structural_valid"], bool)
+        assert uncertainty["calibration_status"] in {
+            "validated", "no_test_evidence", "insufficient_test_evidence", "unavailable",
+        }
+        evidence = uncertainty["calibration_evidence"]
+        assert {"status", "calibration_n", "test_n", "empirical_coverage", "min_test_n"} <= set(evidence)
+        # 决策可用 = 结构自洽 ∧ 校准证据充分；二者缺一即不可用于决策
+        assert uncertainty["decision_usable"] == (
+            uncertainty["structural_valid"] and uncertainty["calibration_status"] == "validated"
+        )
+        # test_n=0/1 时经验覆盖率非 0 即 1，绝不构成校准证据
+        if uncertainty["test_n"] in (None, 0, 1):
+            assert uncertainty["calibration_status"] != "validated"
+            assert uncertainty["decision_usable"] is False
+        # 双指纹：既证明站点实测不同，也证明模型最终输入矩阵不同
+        assert data["observed_input_fingerprint"]
+        assert data["fingerprint_schema"] == "dual_fingerprint_v1"
+        assert data["transformed_model_input_fingerprints"]
 
 
 def test_v03_predictions_scenario_lock_on_30_60_90(fake_v3_realtime):
@@ -70,10 +92,14 @@ def test_v03_predictions_scenario_lock_on_30_60_90(fake_v3_realtime):
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["month_offset"] == 1
-    for result in data["results"].values():
-        assert result["compliance"] == {
+    for key, result in data["results"].items():
+        expected = {
             "label": "情景推演", "locked": True, "granularity_tier": "multi_month",
         }
+        if key == "area":
+            # 2026-09-11 起水华面积来自月度反演基底边界面积，粒度口径如实标注
+            expected["granularity_tier"] = "month_retrieval_base"
+        assert result["compliance"] == expected
 
 
 def test_v03_predictions_rejects_unsupported_horizon(fake_v3_realtime):

@@ -36,6 +36,11 @@ const props = defineProps({
   // 实时观测点位（observed）：形状与 LakeMap pointList 一致
   points: { type: Array, default: () => [] },
   pointsVisible: { type: Boolean, default: true },
+  // 预测空间样点：仅用于模型推演场，不与 observed 点位混为一条数据轨
+  fieldPoints: { type: Array, default: () => [] },
+  fieldVisible: { type: Boolean, default: false },
+  fieldBoundary: { type: Array, default: () => [] },
+  boundaryVisible: { type: Boolean, default: false },
   // 预警范围凸包（[[lat,lon],...]，首尾不闭合；空数组不渲染）
   hull: { type: Array, default: () => [] },
   basemap: { type: String, default: 'satellite' },
@@ -52,6 +57,8 @@ const divider = ref(50)
 let map = null
 let markers = []
 let hullLayer = null
+let fieldLayer = null
+let fieldBoundaryLayer = null
 let satelliteLayer = null
 let topoLayer = null
 let labelsLayer = null
@@ -122,6 +129,7 @@ function initMap() {
   attachTileGuards(topoLayer)
 
   addMarkers()
+  rebuildField()
   rebuildOverlays()
   rebuildHull()
   setTimeout(() => map && map.invalidateSize(), 200)
@@ -173,15 +181,86 @@ function rebuildHull() {
     hullLayer = null
   }
   if (Array.isArray(props.hull) && props.hull.length >= 3) {
-    hullLayer = L.polygon(props.hull, {
+    hullLayer = L.layerGroup()
+    L.polygon(props.hull, {
       color: '#ef4444',
-      weight: 1.5,
-      dashArray: '5 5',
-      fill: true,
-      fillOpacity: 0.08,
+      weight: 8,
+      opacity: 0.12,
+      fill: false,
       interactive: false
-    })
+    }).addTo(hullLayer)
+    L.polygon(props.hull, {
+      color: '#ef4444',
+      weight: 2,
+      dashArray: '8 6',
+      fill: true,
+      fillColor: '#ef4444',
+      fillOpacity: 0.12,
+      interactive: false
+    }).addTo(hullLayer)
+    const center = props.hull.reduce((sum, point) => [sum[0] + point[0], sum[1] + point[1]], [0, 0])
+      .map((value) => value / props.hull.length)
+    L.marker(center, {
+      interactive: false,
+      icon: L.divIcon({ className: 'rs-hull-label', html: '<span>预警范围</span>', iconSize: [72, 24], iconAnchor: [36, 12] })
+    }).addTo(hullLayer)
     hullLayer.addTo(map)
+  }
+}
+
+function fieldColor(value) {
+  const v = Math.max(0, Math.min(1, Number(value) || 0))
+  if (v >= 0.75) return '#ef4444'
+  if (v >= 0.5) return '#f59e0b'
+  if (v >= 0.25) return '#f5d45d'
+  return '#22c55e'
+}
+
+function rebuildField() {
+  if (!map) return
+  if (fieldLayer) map.removeLayer(fieldLayer)
+  if (fieldBoundaryLayer) map.removeLayer(fieldBoundaryLayer)
+  fieldLayer = null
+  fieldBoundaryLayer = null
+  if (props.fieldVisible && props.fieldPoints.length) {
+    fieldLayer = L.layerGroup()
+    props.fieldPoints.forEach((point) => {
+      if (point.lat == null || point.lon == null) return
+      const color = fieldColor(point.normalized)
+      const circle = L.circle([point.lat, point.lon], {
+        radius: 4200,
+        stroke: true,
+        color,
+        weight: 1,
+        opacity: 0.75,
+        fillColor: color,
+        fillOpacity: 0.24,
+        interactive: true
+      })
+      if (point.tooltip) circle.bindTooltip(point.tooltip, { direction: 'top' })
+      circle.addTo(fieldLayer)
+    })
+    fieldLayer.addTo(map)
+  }
+  if (props.boundaryVisible) {
+    fieldBoundaryLayer = L.layerGroup()
+    props.fieldPoints.filter((point) => point.high).forEach((point) => {
+      if (point.lat == null || point.lon == null) return
+      const halo = L.circle([point.lat, point.lon], {
+        radius: 7200,
+        color: '#fb7185',
+        weight: 2,
+        dashArray: '7 5',
+        opacity: 0.95,
+        fill: true,
+        fillColor: '#ef4444',
+        fillOpacity: 0.08,
+        interactive: true
+      })
+      halo.bindTooltip(`相对高值 · ${point.tooltip || point.name}`, { direction: 'top' })
+      halo.addTo(fieldBoundaryLayer)
+    })
+    fieldBoundaryLayer.addTo(map)
   }
 }
 
@@ -281,6 +360,9 @@ watch(() => props.points, addMarkers, { deep: true })
 watch(() => props.pointsVisible, () => {
   addMarkers()
 })
+watch(() => props.fieldPoints, rebuildField, { deep: true })
+watch(() => [props.fieldVisible, props.boundaryVisible], rebuildField)
+watch(() => props.fieldBoundary, rebuildField, { deep: true })
 // 选中站点变化：只重绘点位图标（高亮），不重建地图
 watch(() => props.activeId, addMarkers)
 watch(() => props.hull, rebuildHull, { deep: true })
@@ -376,6 +458,24 @@ onBeforeUnmount(() => {
 .rs-dot-wrapper {
   background: none !important;
   border: none !important;
+}
+.rs-hull-label {
+  background: none !important;
+  border: none !important;
+}
+.rs-hull-label span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 24px;
+  border: 1px solid rgba(251, 113, 133, 0.8);
+  border-radius: 999px;
+  background: rgba(69, 10, 22, 0.86);
+  color: #fecdd3;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.28);
 }
 .rs-dot-marker {
   position: relative;

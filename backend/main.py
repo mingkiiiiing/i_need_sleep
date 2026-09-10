@@ -61,8 +61,8 @@ logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(
     title="蓝藻水华监测预警系统 API",
-    description="统一信封的模拟数据联调服务。所有模拟值均带有数据版本和非决策声明。",
-    version="2.1.0",
+    description="太湖 A23 蓝藻水华监测、反演与机理-AI 推演服务。观测、代理、派生和模拟值按来源分别披露。",
+    version="2.2.0",
 )
 app.add_middleware(
     CORSMiddleware,
@@ -120,9 +120,31 @@ async def lifespan(_: FastAPI):
         except Exception as exc:  # noqa: BLE001 — 预热失败留痕，不阻断应用启动
             logger.warning("站点级预测引擎预热失败（首次请求时重试）: %s", exc)
     threading.Thread(target=_warm_station_forecast, name="station-fc-warmup", daemon=True).start()
+
+    # 预测快照服务：后台常驻，检测到实测快照或模型/特征合同版本变化才批量重新生成预测；
+    # 磁盘已有同版本快照时零推理直接复用，因此服务重启不需要重新跑完才能打开页面。
+    # 首屏关键路径只等全湖七个时效（秒级），站点结果在后台渐进补齐。
+    if service.prediction_snapshot is not None:
+        service.prediction_snapshot.start()
+        logger.info(
+            "预测快照服务已启动: cache_dir=%s, horizons=%s",
+            service.prediction_snapshot.cache_dir,
+            list(service.prediction_snapshot.horizons),
+        )
+    else:
+        # 无实时观测轨时的兜底：仅预热算法 bundle 缓存，不生成预测（无实测快照可依据）。
+        def _warm_algorithm_models() -> None:
+            try:
+                service.algorithm_predictions_v3(1, "lake", "risk")
+                logger.info("V0.3 算法模型预热完成（bundle 缓存已建立）")
+            except Exception as exc:  # noqa: BLE001 — 预热失败留痕，不阻断应用启动
+                logger.warning("V0.3 算法模型预热失败（首次请求时懒加载）: %s", exc)
+        threading.Thread(target=_warm_algorithm_models, name="algorithm-v3-warmup", daemon=True).start()
     try:
         yield
     finally:
+        if service.prediction_snapshot is not None:
+            service.prediction_snapshot.stop()
         alert_stop.set()
         alert_thread.join(timeout=5)
 
@@ -227,6 +249,13 @@ def health(request: Request):
 
     return envelope(
         request,
-        {"status": "ok", "data_mode": DATA_MODE, "service": "a23-backend"},
+        {
+            "status": "ok",
+            "data_mode": DATA_MODE,
+            "service": "a23-backend",
+            "product_id": "taihu-a23-algae-warning",
+            "api_title": app.title,
+            "api_version": app.version,
+        },
         dataset_version=OBSERVATION_VERSION,
     )

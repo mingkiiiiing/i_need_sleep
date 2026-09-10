@@ -1,0 +1,200 @@
+{
+  "generated_at": "2026-09-10T19:28:32.251552+00:00",
+  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+  "seed": 20260907,
+  "disclosure": "站点留出协议只度量跨站点空间泛化，评估集仍在冻结 train 期（2005-2020）；结果不参与任何模型选择，仅作为验收证据披露。",
+  "tasks": [
+    {
+      "task_id": "T3",
+      "variant": "density",
+      "horizon_days": 1,
+      "protocol": "leave_one_zone_out_within_train_period",
+      "time_block_fraction": 0.7,
+      "feature_contract": "serving",
+      "primary_metric": "log1p_mae",
+      "n_folds": 8,
+      "wins_vs_simple_baseline": 6,
+      "win_rate": 0.75,
+      "mean_model_mae": 0.2455,
+      "mean_baseline_mae": 0.2585,
+      "folds": [
+        {
+          "held_out_zone": "TAIHU_CT",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.17423118351316935,
+          "baseline_primary": 0.17517166543236912,
+          "model_mae": 0.23955121057072148,
+          "baseline_mae": 0.24092399691358027,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_ET",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.16269385392478164,
+          "baseline_primary": 0.1664592967904041,
+          "model_mae": 0.23865946847421154,
+          "baseline_mae": 0.24437029803240742,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_GH",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.1553760623308873,
+          "baseline_primary": 0.17079169864324645,
+          "model_mae": 0.23163658672245302,
+          "baseline_mae": 0.25536807966820985,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_ML",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.16611536078562683,
+          "baseline_primary": 0.19542642573852861,
+          "model_mae": 0.262465556998694,
+          "baseline_mae": 0.3073588806905864,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_ST",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.19016712305430095,
+          "baseline_primary": 0.1888611540995148,
+          "model_mae": 0.2672443060227382,
+          "baseline_mae": 0.26518102575231484,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_WT",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.14820160753474101,
+          "baseline_primary": 0.16220524000173886,
+          "model_mae": 0.21760906794775714,
+          "baseline_mae": 0.23966471354166669,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_XK",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.19910236039787585,
+          "baseline_primary": 0.17932951145796777,
+          "model_mae": 0.2776248962808462,
+          "baseline_mae": 0.24668104383680556,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_ZS",
+          "n_eval_rows": 64,
+          "selected_family": "residual",
+          "model_primary": 0.14786268950090758,
+          "baseline_primary": 0.17287608614802835,
+          "model_mae": 0.22926207450951103,
+          "baseline_mae": 0.268835750626929,
+          "beats_baseline": true
+        }
+      ]
+    },
+    {
+      "task_id": "T4",
+      "variant": "biomass",
+      "horizon_days": 1,
+      "protocol": "leave_one_zone_out_within_train_period",
+      "time_block_fraction": 0.7,
+      "feature_contract": "serving",
+      "primary_metric": "mae",
+      "n_folds": 8,
+      "wins_vs_simple_baseline": 4,
+      "win_rate": 0.5,
+      "mean_model_mae": 4.6139,
+      "mean_baseline_mae": 4.6183,
+      "folds": [
+        {
+          "held_out_zone": "TAIHU_CT",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 2.7559109918867355,
+          "baseline_primary": 3.0580670182437273,
+          "model_mae": 2.7559109918867355,
+          "baseline_mae": 3.0580670182437273,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_ET",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 3.9993755204274577,
+          "baseline_primary": 4.203065007024299,
+          "model_mae": 3.9993755204274577,
+          "baseline_mae": 4.203065007024299,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_GH",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 4.064806297373545,
+          "baseline_primary": 4.271681849483366,
+          "model_mae": 4.064806297373545,
+          "baseline_mae": 4.271681849483366,
+          "beats_baseline": true
+        },
+        {
+          "held_out_zone": "TAIHU_ML",
+          "n_eval_rows": 64,
+          "selected_family": "simple_baseline",
+          "model_primary": 7.577155633818893,
+          "baseline_primary": 7.577155633818893,
+          "model_mae": 7.577155633818893,
+          "baseline_mae": 7.577155633818893,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_ST",
+          "n_eval_rows": 64,
+          "selected_family": "xgboost",
+          "model_primary": 4.08263399721643,
+          "baseline_primary": 3.886327118965185,
+          "model_mae": 4.08263399721643,
+          "baseline_mae": 3.886327118965185,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_WT",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 4.495217173932054,
+          "baseline_primary": 4.468004571336131,
+          "model_mae": 4.495217173932054,
+          "baseline_mae": 4.468004571336131,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_XK",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 4.19159121354434,
+          "baseline_primary": 3.5586631424114277,
+          "model_mae": 4.19159121354434,
+          "baseline_mae": 3.5586631424114277,
+          "beats_baseline": false
+        },
+        {
+          "held_out_zone": "TAIHU_ZS",
+          "n_eval_rows": 64,
+          "selected_family": "constrained_blend",
+          "model_primary": 5.744262651739756,
+          "baseline_primary": 5.923757293793823,
+          "model_mae": 5.744262651739756,
+          "baseline_mae": 5.923757293793823,
+          "beats_baseline": true
+        }
+      ]
+    }
+  ]
+}

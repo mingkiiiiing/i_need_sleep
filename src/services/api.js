@@ -1,7 +1,9 @@
 // 驾驶舱 API 统一入口。开发服务器将 /api 代理到本地 FastAPI。
 // 页面全部读取同一份、可追溯的 P0 情景数据：不做接口失败时的数据源切换，
 // 失败一律进入各页面的错误态与重试流程。
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+// Vite 注入 import.meta.env；在 node --test 等非 Vite 运行时下 env 不存在，
+// 用可选链兜底到同源代理前缀，使仓库层可以在纯 Node 中做自动化回归测试。
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api/v1'
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -155,8 +157,10 @@ export function getAlgorithmPredictionsEnvelope(horizonDays, entityId = 'lake', 
   return requestEnvelope(`/model/predictions?${query.toString()}`)
 }
 
-export function getAlgorithmSpatialFieldEnvelope(horizonDays, metric = 'risk') {
+export function getAlgorithmSpatialFieldEnvelope(horizonDays, metric = 'risk', options = {}) {
   const query = new URLSearchParams({ horizon_days: String(horizonDays), metric })
+  if (options.layer) query.set('layer', options.layer)
+  if (options.runId) query.set('run_id', options.runId)
   return requestEnvelope(`/model/spatial-field?${query.toString()}`)
 }
 
@@ -183,6 +187,32 @@ export function getAlgorithmV3AcceptanceEnvelope() {
   return requestEnvelope('/model/v3/acceptance')
 }
 
+// 预测快照：页面一次读取全部时效的现成结果；只有实测数据/模型版本变化才会重新推理。
+// signal 用于快速切换站点时中止过期请求，避免旧站点的响应晚到并覆盖新站点的结果。
+export function getPredictionSnapshotStatusEnvelope(options = {}) {
+  return requestEnvelope('/model/v3/prediction-status', options)
+}
+
+export function getPredictionSnapshotEnvelope(entityId = 'lake', focusMetric = 'risk', options = {}) {
+  const query = new URLSearchParams({
+    entity_id: entityId || 'lake',
+    focus_metric: focusMetric || 'risk'
+  })
+  return requestEnvelope(`/model/v3/prediction-snapshot?${query.toString()}`, options)
+}
+
+// 快照驱动的站点空间场：与结果面板同一 prediction_snapshot_id，覆盖分母=快照站点层总数，
+// 逐站给出数值或缺失原因（区别于 legacy /model/spatial-field 的 V0.2 合成站点场）。
+export function getPredictionStationFieldEnvelope(horizonDays, metric = 'risk', options = {}) {
+  const query = new URLSearchParams({ horizon_days: String(horizonDays), metric })
+  return requestEnvelope(`/model/v3/prediction-spatial-field?${query.toString()}`, options)
+}
+
+// 全湖驱动因素分布：79 站机理净生长率分解的站间分布（环境状态口径，非模型贡献排序）。
+export function getDriverDistributionEnvelope(horizonDays = 1, options = {}) {
+  return requestEnvelope(`/model/v3/driver-distribution?horizon_days=${horizonDays}`, options)
+}
+
 export function getAlgorithmAcceptanceDetailEnvelope() {
   return requestEnvelope('/model/acceptance/detail')
 }
@@ -191,8 +221,9 @@ export function getCalibrationCoverageEnvelope() {
   return requestEnvelope('/model/calibration/coverage')
 }
 
-export function getRasterFieldEnvelope(horizonDays = 3, metric = 'chla') {
+export function getRasterFieldEnvelope(horizonDays = 3, metric = 'chla', runId = '') {
   const query = new URLSearchParams({ horizon_days: String(horizonDays), metric, layer: 'raster' })
+  if (runId) query.set('run_id', runId)
   return requestEnvelope(`/model/spatial-field?${query.toString()}`)
 }
 
