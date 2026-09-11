@@ -1,6 +1,6 @@
 {
-  "passed": 70,
-  "total": 70,
+  "passed": 71,
+  "total": 71,
   "failures": [],
   "results": [
     {
@@ -41,12 +41,12 @@
     {
       "name": "T1 全湖 hero 数值与接口聚合中位同源",
       "ok": true,
-      "detail": "页面=1.8% 接口=1.7517%"
+      "detail": "页面=1.8% 接口=1.7528%"
     },
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T152435Z_80f335d797be\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T152435Z_80f335d797be\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T152435Z_80f335d797be\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
@@ -66,7 +66,7 @@
     {
       "name": "T2 深链站点 A：本站 vs 全湖中位可见",
       "ok": true,
-      "detail": "本站风险等级 vs 全湖中位（79 站）\n0.16 vs 0.018 ratio（+0.143，高于全湖中位）"
+      "detail": "本站风险等级 vs 全湖中位（79 站）\n0.164 vs 0.018 ratio（+0.147，高于全湖中位）"
     },
     {
       "name": "T2 深链站点 A：hero 口径为本站预测",
@@ -76,7 +76,7 @@
     {
       "name": "T2 深链站点 A：T+1 概率与接口同值（展示精度）",
       "ok": true,
-      "detail": "页面=16% 接口=16.013676785339285%"
+      "detail": "页面=16.4% 接口=16.429527275733406%"
     },
     {
       "name": "T3 快速切换后落在最后目标 A",
@@ -86,7 +86,7 @@
     {
       "name": "T3 落点 A 的 T+1 值与接口一致（未串站）",
       "ok": true,
-      "detail": "页面=16% A=16.013676785339285% C=2.6962895906540822%"
+      "detail": "页面=16.4% A=16.429527275733406% C=2.6962895906540822%"
     },
     {
       "name": "T4 换指标后 hash metric=chla",
@@ -96,7 +96,7 @@
     {
       "name": "T4 hero 显示 μg/L 口径",
       "ok": true,
-      "detail": "hero=27.593 μg/L"
+      "detail": "hero=30.113 μg/L"
     },
     {
       "name": "T5 hero 口径为\"中长期\"",
@@ -156,7 +156,7 @@
     {
       "name": "T6 返回全湖后 hero 数值回到聚合中位",
       "ok": true,
-      "detail": "页面=1.8% 接口=1.7517%"
+      "detail": "页面=1.8% 接口=1.7528%"
     },
     {
       "name": "T6b 下拉选站后 URL 写入 station",
@@ -166,7 +166,7 @@
     {
       "name": "T6b 下拉选站后 hero 数值与 B 接口同值",
       "ok": true,
-      "detail": "页面=1.3% 接口=1.2628364558025738%"
+      "detail": "页面=1.8% 接口=1.7517443056319253%"
     },
     {
       "name": "T7 后退：hash 回到 A 且对象名为 A",
@@ -251,12 +251,12 @@
     {
       "name": "T10 站点驱动每项带来源标注",
       "ok": true,
-      "detail": "[\"全湖 24.385 ℃ · ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.366 mg/L · MEE 实测\",\"逐站 2.303 mg/L · MEE 实测\",\"逐站 0.16 mg/L · MEE 实测·未纳入当前机理公式\"]"
+      "detail": "[\"逐站 26.97 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.366 mg/L · MEE 实测\",\"逐站 2.303 mg/L · MEE 实测\",\"逐站 0.16 mg/L · MEE 实测·未纳入当前机理公式\"]"
     },
     {
       "name": "T10 温度来源标注与本站观测一致（缺测时诚实回退网格）",
       "ok": true,
-      "detail": "observed_temp=false 标注=全湖 24.385 ℃ · ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）"
+      "detail": "observed_temp=true 标注=逐站 26.97 ℃ · 本站实测·MEE 水温"
     },
     {
       "name": "T10 光照标注为网格/气候态且非本站实测",
@@ -271,17 +271,17 @@
     {
       "name": "T10 驱动来源分组披露逐站与全湖",
       "ok": true,
-      "detail": "逐站：磷、氮、氨氮；全湖同值：温度、气温（参考）、光照、流速（单一气象网格，物理上无站间差异）"
+      "detail": "逐站：温度、磷、氮、氨氮；全湖同值：气温（参考）、光照、流速（单一气象网格，物理上无站间差异）"
     },
     {
       "name": "T10 逐站/全湖徽标成对出现",
       "ok": true,
-      "detail": "[\"lake\",\"lake\",\"lake\",\"station\",\"station\",\"station\",\"lake\"]"
+      "detail": "[\"station\",\"lake\",\"lake\",\"station\",\"station\",\"station\",\"lake\"]"
     },
     {
       "name": "T10 流速明示不可用",
       "ok": true,
-      "detail": "[\"全湖 24.385 ℃ · ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.366 mg/L · MEE 实测\",\"逐站 2.303 mg/L · MEE 实测\",\"逐站 0.16 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
+      "detail": "[\"逐站 26.97 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.366 mg/L · MEE 实测\",\"逐站 2.303 mg/L · MEE 实测\",\"逐站 0.16 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
     },
     {
       "name": "T10 全湖驱动数据口径披露光/流",
@@ -347,6 +347,11 @@
       "name": "T13 控制台零错误",
       "ok": true,
       "detail": "[]"
+    },
+    {
+      "name": "T13 外部第三方资源错误单列披露（不阻塞门禁）",
+      "ok": true,
+      "detail": "external=0 []"
     },
     {
       "name": "T13 控制台零警告",
