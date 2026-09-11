@@ -121,10 +121,11 @@ def test_seasonal_climatology_interval_reports_real_coverage(v3):
 
 
 def test_climatology_artifact_carries_coverage_fields():
+    """v3（2026-09-12 复审整改）：覆盖率必须来自与分位数校准段不重叠的独立测试段。"""
     payload = json.loads(
         (V3_PACKAGE_DIR / "evaluation" / "seasonal_climatology.json").read_text(encoding="utf-8")
     )
-    assert payload["artifact_version"] == "seasonal_climatology_v2"
+    assert payload["artifact_version"] == "seasonal_climatology_v3"
     assert payload["coverage_acceptance_min"] == COVERAGE_ACCEPTANCE_MIN
     for task in payload["tasks"]:
         backtest = task["backtest"]
@@ -132,6 +133,10 @@ def test_climatology_artifact_carries_coverage_fields():
         assert "coverage_n" in backtest
         if task["problem_type"] != "ordinal" and backtest.get("n"):
             assert backtest["empirical_coverage"] is not None
+            # 三段去泄漏合同：分位数校准段整体早于独立测试段，二者行数都为正
+            assert backtest["protocol"] == "time_block_three_segment_v1"
+            assert backtest["interval_calibration_max_month"] < backtest["test_min_month"]
+            assert backtest["interval_calibration_n"] > 0 and backtest["coverage_n"] > 0
 
 
 # ------------------------------------------------- 中长期路由（P1）

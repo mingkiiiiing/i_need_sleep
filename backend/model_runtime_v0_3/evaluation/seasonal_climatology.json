@@ -1,8 +1,8 @@
 {
-  "artifact_version": "seasonal_climatology_v2",
-  "generated_at": "2026-09-11T10:50:23.955447+00:00",
-  "method": "per_target_month_climatology_with_time_block_holdout_backtest",
-  "disclosure": "季节气候态基线：由该任务历史标签序列按目标月聚合成均值（分类任务取众数概率）得到，反映真实季节循环。它不含站点分辨——同一目标月全湖同值，不得据此做站间比较。留出回测把时间上最后 20% 的目标月完全排除在拟合之外，指标、经验残差区间与经验覆盖率都在该段核算。仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。",
+  "artifact_version": "seasonal_climatology_v3",
+  "generated_at": "2026-09-11T16:40:03.875033+00:00",
+  "method": "per_target_month_climatology_with_three_segment_time_block_backtest",
+  "disclosure": "季节气候态基线：由该任务历史标签序列按目标月聚合成均值（分类任务取众数概率）得到，反映真实季节循环。它不含站点分辨——同一目标月全湖同值，不得据此做站间比较。回测按唯一目标月时间序三段拆分：前 60% 拟合气候态，中 20% 只核算经验残差分位数，末 20% 只做独立测试（指标与经验覆盖率）——分位数与覆盖率来自互不重叠的时间段，覆盖率是独立测试结果而非分位数构造的必然值。仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。",
   "station_resolution_note": "同一目标月全湖同值；站间比较请改用有逐站模型支撑的时效。",
   "coverage_target": 0.9,
   "coverage_tolerance": 0.02,
@@ -66,48 +66,47 @@
         "2": 0.0,
         "5": 0.0,
         "8": 0.0,
-        "11": 0.0,
-        "12": 0.5,
-        "10": 0.0,
-        "9": 0.0,
-        "1": 0.0
+        "11": 0.0
       },
-      "fallback": 0.038338658146964855,
+      "fallback": 0.043209876543209874,
       "backtest": {
-        "protocol": "time_block_holdout_tail_months",
-        "holdout_fraction": 0.2,
-        "train_max_month": "2025-01",
+        "protocol": "time_block_three_segment_v1",
+        "holdout_fractions": {
+          "fit": 0.6,
+          "interval_calibration": 0.2,
+          "independent_test": 0.2
+        },
+        "train_max_month": "2018-05",
+        "interval_calibration_min_month": "2018-08",
+        "interval_calibration_max_month": "2025-01",
+        "interval_calibration_n": 140,
         "test_min_month": "2025-02",
+        "test_max_month": "2026-08",
         "n": 31,
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "brier_score": 0.01665059289656801,
+          "brier_score": 0.0011443475866680431,
           "roc_auc": null,
           "pr_auc": null,
           "recall": null,
           "precision": null,
           "f1": null,
           "n": 31,
-          "expected_calibration_error": 0.045862,
+          "expected_calibration_error": 0.026483,
           "calibration_bins": [
             {
               "bin": 0,
-              "mean_predicted": 0.0145,
+              "mean_predicted": 0.0265,
               "observed_frequency": 0.0,
-              "n": 29
-            },
-            {
-              "bin": 5,
-              "mean_predicted": 0.5,
-              "observed_frequency": 0.0,
-              "n": 2
+              "n": 31
             }
           ]
         },
         "residual_quantiles": {
-          "p05": -0.26916932907348246,
+          "p05": -0.043209876543209874,
           "p95": 0.0
         },
-        "empirical_coverage": 0.9354838709677419,
+        "empirical_coverage": 1.0,
         "coverage_n": 31,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88
@@ -168,30 +167,39 @@
         ]
       },
       "by_month": {
-        "2": 0.8360339506172839,
-        "5": 0.7912808641975309,
-        "8": 0.9492669753086419,
-        "11": 0.5372299382716048
+        "2": 0.6826774691358025,
+        "5": 0.48823302469135793,
+        "8": 0.7804783950617283,
+        "11": 0.6361882716049383
       },
-      "fallback": 0.4888003812636166,
+      "fallback": 0.4404189002599091,
       "backtest": {
-        "protocol": "time_block_holdout_tail_months",
-        "holdout_fraction": 0.2,
-        "train_max_month": "2017-08",
+        "protocol": "time_block_three_segment_v1",
+        "holdout_fractions": {
+          "fit": 0.6,
+          "interval_calibration": 0.2,
+          "independent_test": 0.2
+        },
+        "train_max_month": "2014-05",
+        "interval_calibration_min_month": "2014-08",
+        "interval_calibration_max_month": "2017-08",
+        "interval_calibration_n": 117,
         "test_min_month": "2017-11",
+        "test_max_month": "2020-11",
         "n": 117,
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "mae": 0.32009074601667187,
-          "rmse": 0.380841756859853,
-          "r2": -1.2293078014715508,
-          "log1p_mae": 0.20010984381792174,
+          "mae": 0.2802030574021315,
+          "rmse": 0.32582452265788914,
+          "r2": -0.6317305750391016,
+          "log1p_mae": 0.18010423770895304,
           "n": 117
         },
         "residual_quantiles": {
-          "p05": -0.7086419753086419,
-          "p95": 0.3415895061728396
+          "p05": -0.37052469135802474,
+          "p95": 0.31141975308641956
         },
-        "empirical_coverage": 0.8974358974358975,
+        "empirical_coverage": 0.6495726495726496,
         "coverage_n": 117,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88
@@ -252,30 +260,39 @@
         ]
       },
       "by_month": {
-        "2": 13.264995143549354,
-        "5": 18.13033016240367,
-        "8": 23.508487792935966,
-        "11": 4.972356071428571
+        "2": 5.6706851785714285,
+        "5": 3.0407237797619047,
+        "8": 6.902500273809524,
+        "11": 4.781774547619047
       },
-      "fallback": 5.116815873575554,
+      "fallback": 4.299563140379386,
       "backtest": {
-        "protocol": "time_block_holdout_tail_months",
-        "holdout_fraction": 0.2,
-        "train_max_month": "2017-08",
+        "protocol": "time_block_three_segment_v1",
+        "holdout_fractions": {
+          "fit": 0.6,
+          "interval_calibration": 0.2,
+          "independent_test": 0.2
+        },
+        "train_max_month": "2014-05",
+        "interval_calibration_min_month": "2014-08",
+        "interval_calibration_max_month": "2017-08",
+        "interval_calibration_n": 117,
         "test_min_month": "2017-11",
+        "test_max_month": "2020-11",
         "n": 117,
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "mae": 10.976086030177745,
-          "rmse": 13.155369874722453,
-          "r2": -2.43332795944923,
-          "log1p_mae": 1.2653780566930606,
+          "mae": 5.15360030952643,
+          "rmse": 7.7431104458196645,
+          "r2": -0.18943324189146726,
+          "log1p_mae": 0.8466346244250619,
           "n": 117
         },
         "residual_quantiles": {
-          "p05": -22.703830387221682,
-          "p95": 6.926483300107045
+          "p05": -4.306712178571429,
+          "p95": 22.698326476165928
         },
-        "empirical_coverage": 0.8974358974358975,
+        "empirical_coverage": 0.7606837606837606,
         "coverage_n": 117,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88
@@ -337,30 +354,39 @@
         ]
       },
       "by_month": {
-        "2": 4.409255555555556,
-        "5": 4.702022222222222,
-        "8": 10.027044444444446,
-        "11": 6.935977777777778
+        "2": 6.857022222222223,
+        "5": 6.133422222222222,
+        "8": 8.306811111111111,
+        "11": 5.588488888888889
       },
-      "fallback": 7.472985390946502,
+      "fallback": 7.574895833333334,
       "backtest": {
-        "protocol": "time_block_holdout_tail_months",
-        "holdout_fraction": 0.2,
-        "train_max_month": "2018-05",
+        "protocol": "time_block_three_segment_v1",
+        "holdout_fractions": {
+          "fit": 0.6,
+          "interval_calibration": 0.2,
+          "independent_test": 0.2
+        },
+        "train_max_month": "2014-11",
+        "interval_calibration_min_month": "2015-02",
+        "interval_calibration_max_month": "2018-05",
+        "interval_calibration_n": 126,
         "test_min_month": "2018-08",
+        "test_max_month": "2026-08",
         "n": 132,
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "mae": 3.7063192460094774,
-          "rmse": 4.6201993857597765,
-          "r2": 0.007491246632270188,
-          "log1p_mae": 0.5444537180362332,
+          "mae": 3.841439745370371,
+          "rmse": 4.7156458661642695,
+          "r2": -0.033939854163920646,
+          "log1p_mae": 0.5627198972009142,
           "n": 132
         },
         "residual_quantiles": {
-          "p05": -6.347630390946502,
-          "p95": 7.899667777777767
+          "p05": -4.329872222222223,
+          "p95": 9.396486111111113
         },
-        "empirical_coverage": 0.9242424242424242,
+        "empirical_coverage": 0.7196969696969697,
         "coverage_n": 132,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88
@@ -424,48 +450,47 @@
         "2": 0.0,
         "5": 0.0,
         "8": 0.0,
-        "11": 0.0,
-        "12": 0.5,
-        "10": 0.0,
-        "9": 0.0,
-        "1": 0.0
+        "11": 0.0
       },
-      "fallback": 0.038338658146964855,
+      "fallback": 0.043209876543209874,
       "backtest": {
-        "protocol": "time_block_holdout_tail_months",
-        "holdout_fraction": 0.2,
-        "train_max_month": "2025-01",
+        "protocol": "time_block_three_segment_v1",
+        "holdout_fractions": {
+          "fit": 0.6,
+          "interval_calibration": 0.2,
+          "independent_test": 0.2
+        },
+        "train_max_month": "2018-05",
+        "interval_calibration_min_month": "2018-08",
+        "interval_calibration_max_month": "2025-01",
+        "interval_calibration_n": 140,
         "test_min_month": "2025-02",
+        "test_max_month": "2026-08",
         "n": 31,
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "brier_score": 0.01665059289656801,
+          "brier_score": 0.0011443475866680431,
           "roc_auc": null,
           "pr_auc": null,
           "recall": null,
           "precision": null,
           "f1": null,
           "n": 31,
-          "expected_calibration_error": 0.045862,
+          "expected_calibration_error": 0.026483,
           "calibration_bins": [
             {
               "bin": 0,
-              "mean_predicted": 0.0145,
+              "mean_predicted": 0.0265,
               "observed_frequency": 0.0,
-              "n": 29
-            },
-            {
-              "bin": 5,
-              "mean_predicted": 0.5,
-              "observed_frequency": 0.0,
-              "n": 2
+              "n": 31
             }
           ]
         },
         "residual_quantiles": {
-          "p05": -0.26916932907348246,
+          "p05": -0.043209876543209874,
           "p95": 0.0
         },
-        "empirical_coverage": 0.9354838709677419,
+        "empirical_coverage": 1.0,
         "coverage_n": 31,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88

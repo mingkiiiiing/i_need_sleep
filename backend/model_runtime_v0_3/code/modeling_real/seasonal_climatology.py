@@ -30,12 +30,21 @@ from .training_real import evaluate_real
 # v2（2026-09-11）：新增留出段经验覆盖率、逐行标签来源汇总、按「评估充分性」判定的
 # fallback_horizons。旧版 v1 只有残差分位数、无覆盖率记录，运行层会硬编码
 # empirical_coverage=None 却仍返回 decision_usable=true——那是确定的逻辑错误。
-ARTIFACT_VERSION = "seasonal_climatology_v2"
+# v3（2026-09-12 复审整改）：三段时序拆分，修统计泄漏。v2 的残差分位数与经验覆盖率
+# 在同一段（末尾 20% 目标月）上核算——分位数由这批残差构造，覆盖率再在这批记录上
+# 回算，~90% 的覆盖几乎是构造的必然结果，不是独立验证。v3 起：前 60% 拟合气候态、
+# 中 20% 只出残差分位数、末 20% 只做独立测试（指标+覆盖率），三段互不重叠且测试段
+# 最晚（无前视）。独立测试后的覆盖率显著低于 v2 的"共段覆盖率"，欠覆盖如实暴露。
+ARTIFACT_VERSION = "seasonal_climatology_v3"
 SEASONAL_CLIMATOLOGY_PATH = "evaluation/seasonal_climatology.json"
 
-# 留出回测：按「唯一目标月」的时间顺序，末尾这一段完全不参与气候态拟合
-BACKTEST_HOLDOUT_FRACTION = 0.2
-# 气候态下限样本量：低于此不做回测，只给点值并如实标注无证据
+# 三段拆分比例：按「唯一目标月」时间序，拟合段 → 区间校准段 → 独立测试段
+FIT_FRACTION = 0.6
+CALIBRATION_FRACTION = 0.2
+THREE_SEGMENT_PROTOCOL = "time_block_three_segment_v1"
+# 每段最少唯一目标月数：低于此值的三段回测不具统计意义，按"无区间证据"降级处理
+MIN_SEGMENT_MONTHS = 6
+# 旧口径兼容：完全无法三段回测时的最低月数（只给点值并如实标注无证据）
 MIN_BACKTEST_MONTHS = 6
 
 # 区间覆盖率的验收线：标称 90% 区间的留出段实测覆盖率允许有有限样本容差，
@@ -62,9 +71,22 @@ RATIO_OUTPUT_VARIANTS = {"bloom", "coverage", "density", "probability", "spatial
 DISCLOSURE = (
     "季节气候态基线：由该任务历史标签序列按目标月聚合成均值（分类任务取众数概率）得到，"
     "反映真实季节循环。它不含站点分辨——同一目标月全湖同值，不得据此做站间比较。"
-    "留出回测把时间上最后 20% 的目标月完全排除在拟合之外，指标、经验残差区间与经验覆盖率"
-    "都在该段核算。仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。"
+    "回测按唯一目标月时间序三段拆分：前 60% 拟合气候态，中 20% 只核算经验残差分位数，"
+    "末 20% 只做独立测试（指标与经验覆盖率）——分位数与覆盖率来自互不重叠的时间段，"
+    "覆盖率是独立测试结果而非分位数构造的必然值。"
+    "仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。"
 )
+
+
+def split_month_segments(
+    months, *, fit_fraction: float = FIT_FRACTION, calibration_fraction: float = CALIBRATION_FRACTION
+) -> tuple[list[str], list[str], list[str]]:
+    """按唯一目标月时间序切 拟合/区间校准/独立测试 三段；测试段最晚，无前视。"""
+    ordered = sorted(str(m) for m in months)
+    total = len(ordered)
+    fit_cut = int(total * fit_fraction)
+    calib_cut = int(total * (fit_fraction + calibration_fraction))
+    return ordered[:fit_cut], ordered[fit_cut:calib_cut], ordered[calib_cut:]
 
 
 def _month_num(month: str) -> int:
@@ -117,6 +139,82 @@ def _slot_exists(task_id: str, variant: str, offset: int, horizon: int, seed: in
     return slot_evidence(task_id, variant, offset, horizon, seed)["evidence_sufficient"]
 
 
+def _three_segment_backtest(
+    frame: pd.DataFrame, spec, variant: str, *, is_ordinal: bool,
+    fit_months: list[str], calib_months: list[str], test_months: list[str],
+    by_month: dict, fallback,
+) -> dict:
+    """三段时序回测：残差分位数只来自校准段，指标与经验覆盖率只来自独立测试段。
+
+    这是 v3 去泄漏的核心：分位数由校准段残差构造，覆盖率在与其不重叠的测试段上
+    回算——不再存在"同一批记录既造区间又验证区间"的必然 ~90% 覆盖。
+    """
+    calib = frame.loc[frame["target_month"].isin(set(calib_months))]
+    test = frame.loc[frame["target_month"].isin(set(test_months))]
+
+    def _predicted(seg: pd.DataFrame) -> np.ndarray:
+        return np.asarray(
+            [by_month.get(str(_month_num(m)), fallback) for m in seg["target_month"]],
+            dtype=object,
+        )
+
+    backtest: dict = {
+        "protocol": THREE_SEGMENT_PROTOCOL,
+        "holdout_fractions": {
+            "fit": FIT_FRACTION,
+            "interval_calibration": CALIBRATION_FRACTION,
+            "independent_test": round(1 - FIT_FRACTION - CALIBRATION_FRACTION, 6),
+        },
+        "train_max_month": max(fit_months),
+        "interval_calibration_min_month": min(calib_months),
+        "interval_calibration_max_month": max(calib_months),
+        "interval_calibration_n": int(len(calib)),
+        "test_min_month": min(test_months),
+        "test_max_month": max(test_months),
+        "n": int(len(test)),
+        "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
+    }
+    if is_ordinal:
+        metrics = evaluate_real(spec, test["actual"].to_numpy(), _predicted(test))
+        residual_quantiles = None
+    else:
+        residual = calib["actual_num"].to_numpy(dtype=float) - np.asarray(_predicted(calib), dtype=float)
+        residual_quantiles = {
+            "p05": float(np.quantile(residual, 0.05)),
+            "p95": float(np.quantile(residual, 0.95)),
+        }
+        numeric_pred_test = np.asarray(_predicted(test), dtype=float)
+        metrics = evaluate_real(spec, test["actual_num"].to_numpy(), numeric_pred_test)
+        # 独立测试段经验覆盖率：与运行层完全一致的"点值 + 校准段残差分位数 + 物理边界
+        # 裁剪"口径回算，否则产物里记的覆盖率和线上区间对不上，等于没有证据。
+        p05 = np.asarray([
+            _clip(float(v) + residual_quantiles["p05"], variant, lower=True) for v in numeric_pred_test
+        ])
+        p95 = np.asarray([
+            _clip(float(v) + residual_quantiles["p95"], variant, lower=False) for v in numeric_pred_test
+        ])
+        actual_test = test["actual_num"].to_numpy(dtype=float)
+        covered = (actual_test >= p05) & (actual_test <= p95)
+        return {
+            **backtest,
+            "metrics": metrics,
+            "residual_quantiles": residual_quantiles,
+            "empirical_coverage": float(np.mean(covered)),
+            "coverage_n": int(len(actual_test)),
+            "coverage_target": COVERAGE_TARGET,
+            "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+        }
+    return {
+        **backtest,
+        "metrics": metrics,
+        "residual_quantiles": residual_quantiles,
+        "empirical_coverage": None,
+        "coverage_n": 0,
+        "coverage_target": COVERAGE_TARGET,
+        "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+    }
+
+
 def build_seasonal_climatology(
     base: pd.DataFrame, labels: pd.DataFrame, *, seed: int | None = None
 ) -> dict:
@@ -137,14 +235,18 @@ def build_seasonal_climatology(
         if not len(frame):
             continue
         months = sorted(frame["target_month"].unique())
-        cut_index = int(len(months) * (1 - BACKTEST_HOLDOUT_FRACTION))
-        can_backtest = len(months) >= MIN_BACKTEST_MONTHS and 0 < cut_index < len(months)
+        fit_seg, calib_seg, test_seg = split_month_segments(months)
+        can_backtest = (
+            len(months) >= MIN_BACKTEST_MONTHS
+            and len(calib_seg) >= MIN_SEGMENT_MONTHS
+            and len(test_seg) >= MIN_SEGMENT_MONTHS
+        )
         if can_backtest:
-            fit_months = set(months[:cut_index])
-            holdout_months = set(months[cut_index:])
+            fit_months = set(fit_seg)
             fit_frame = frame.loc[frame["target_month"].isin(fit_months)]
         else:
-            fit_months, holdout_months = set(months), set()
+            # 月份不足以三段回测：只给点值，不出区间、不出覆盖率（如实降级，不伪造证据）
+            fit_months, calib_seg, test_seg = set(months), [], []
             fit_frame = frame
 
         is_ordinal = spec.problem_type == "ordinal"
@@ -165,55 +267,19 @@ def build_seasonal_climatology(
         else:
             fallback = float(fit_frame["actual_num"].mean()) if len(fit_frame) else 0.0
 
-        backtest: dict = {"protocol": "time_block_holdout_tail_months", "holdout_fraction": BACKTEST_HOLDOUT_FRACTION}
-        empirical_coverage = None
-        coverage_n = 0
-        if can_backtest and holdout_months:
-            holdout = frame.loc[frame["target_month"].isin(holdout_months)]
-            predicted = np.asarray(
-                [by_month.get(str(_month_num(m)), fallback) for m in holdout["target_month"]],
-                dtype=object,
+        backtest: dict = {"protocol": THREE_SEGMENT_PROTOCOL}
+        if can_backtest:
+            backtest = _three_segment_backtest(
+                frame, spec, variant, is_ordinal=is_ordinal,
+                fit_months=sorted(fit_months), calib_months=calib_seg, test_months=test_seg,
+                by_month=by_month, fallback=fallback,
             )
-            residual_quantiles = None
-            if is_ordinal:
-                metrics = evaluate_real(spec, holdout["actual"].to_numpy(), predicted)
-            else:
-                numeric_pred = np.asarray(predicted, dtype=float)
-                metrics = evaluate_real(spec, holdout["actual_num"].to_numpy(), numeric_pred)
-                residual = holdout["actual_num"].to_numpy() - numeric_pred
-                residual_quantiles = {
-                    "p05": float(np.quantile(residual, 0.05)),
-                    "p95": float(np.quantile(residual, 0.95)),
-                }
-                # 留出段经验覆盖率：用与运行层完全一致的"点值 + 残差分位数 + 物理边界裁剪"
-                # 口径回算，否则产物里记的覆盖率和线上区间对不上，等于没有证据。
-                p05 = np.asarray([
-                    _clip(float(v) + residual_quantiles["p05"], variant, lower=True) for v in numeric_pred
-                ])
-                p95 = np.asarray([
-                    _clip(float(v) + residual_quantiles["p95"], variant, lower=False) for v in numeric_pred
-                ])
-                actual_holdout = holdout["actual_num"].to_numpy(dtype=float)
-                covered = (actual_holdout >= p05) & (actual_holdout <= p95)
-                empirical_coverage = float(np.mean(covered))
-                coverage_n = int(len(actual_holdout))
-            backtest.update({
-                "train_max_month": max(fit_months),
-                "test_min_month": min(holdout_months),
-                "n": int(len(holdout)),
-                "metrics": metrics,
-                "residual_quantiles": residual_quantiles,
-                "empirical_coverage": empirical_coverage,
-                "coverage_n": coverage_n,
-                "coverage_target": COVERAGE_TARGET,
-                "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
-            })
         else:
             backtest.update({"n": 0, "metrics": None, "residual_quantiles": None,
                              "empirical_coverage": None, "coverage_n": 0,
                              "coverage_target": COVERAGE_TARGET,
                              "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
-                             "reason": "holdout_months_insufficient_for_backtest"})
+                             "reason": "segments_insufficient_for_three_way_backtest"})
 
         # 该任务在哪些情景时效上需要回退到本基线：没有「评估充分」的逐站模型的那些。
         # 判据从"文件是否存在"改为"评估是否充分"，因为 T+30/T+60 存在持久性模型文件、
@@ -265,7 +331,7 @@ def build_seasonal_climatology(
     return {
         "artifact_version": ARTIFACT_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "method": "per_target_month_climatology_with_time_block_holdout_backtest",
+        "method": "per_target_month_climatology_with_three_segment_time_block_backtest",
         "disclosure": DISCLOSURE,
         "station_resolution_note": "同一目标月全湖同值；站间比较请改用有逐站模型支撑的时效。",
         "coverage_target": COVERAGE_TARGET,

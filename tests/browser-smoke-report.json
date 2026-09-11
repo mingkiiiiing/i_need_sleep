@@ -1,6 +1,6 @@
 {
-  "passed": 71,
-  "total": 71,
+  "passed": 69,
+  "total": 69,
   "failures": [],
   "results": [
     {
@@ -46,7 +46,7 @@
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T155437Z_de3b7985ca19\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T155437Z_9d95b44f304d\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T155437Z_9d95b44f304d\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T155437Z_9d95b44f304d\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
@@ -219,19 +219,9 @@
       "detail": "后端=true 页面=usable"
     },
     {
-      "name": "T8b T+30 呈现风险等级范围（源区间达标）",
+      "name": "T8b T+30 等级范围与源区间可决策状态一致",
       "ok": true,
-      "detail": "chlaUsable=true band=true"
-    },
-    {
-      "name": "T8b T+30 等级范围给出三档结论",
-      "ok": true,
-      "detail": "偏低情景 无风险 当前等级 无风险 偏高情景 低"
-    },
-    {
-      "name": "T8b T+30 等级范围状态不与\"区间无效\"混淆",
-      "ok": true,
-      "detail": "bandStatus=范围可用"
+      "detail": "chlaUsable=false band=false blocked=true reason=风险等级范围 由叶绿素 a 预测区间映射 不给出范围 风险等级范围由叶绿素 a 的预测区间映射得到；该源区间未达决策可用（覆盖率未达标 / "
     },
     {
       "name": "T9 预测覆盖 79/79",

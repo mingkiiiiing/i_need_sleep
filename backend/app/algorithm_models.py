@@ -780,7 +780,7 @@ SEASONAL_CLIMATOLOGY_PATH_FRAGMENT = "evaluation/seasonal_climatology.json"
 # 的边界依旧成立，故 locked 保持 True，并把粒度写进标签本身。
 LONG_TERM_COMPLIANCE_LABEL = "中长期月度趋势"
 SHORT_TERM_COMPLIANCE_LABEL = "短期预测（月度标签粒度）"
-SEASONAL_CLIMATOLOGY_VERSION = "seasonal_climatology_v2"
+SEASONAL_CLIMATOLOGY_VERSION = "seasonal_climatology_v3"
 SEASONAL_CLIMATOLOGY_PROTOCOL = "seasonal_climatology_baseline_v1"
 
 # 中长期交付路由策略（写进中长期结果的 long_term_route，供页面与验收引用）
@@ -2820,7 +2820,7 @@ class AlgorithmModelServiceV3:
             coverage_n = backtest.get("coverage_n")
             calibration_status, calibration_reason, coverage_gap = _calibration_verdict(
                 empirical_coverage, coverage_n if coverage_n is not None else backtest.get("n"),
-                source_label="季节基线留出段",
+                source_label="季节基线独立测试段",
             )
             uncertainty = {
                 "method": "seasonal_climatology_backtest_residual_quantiles",
@@ -2841,8 +2841,11 @@ class AlgorithmModelServiceV3:
                 "coverage_n": int(coverage_n) if isinstance(coverage_n, (int, float)) else None,
                 "training_protocol": SEASONAL_CLIMATOLOGY_PROTOCOL,
                 "note": (
-                    "区间为气候态基线在时间留出段上的经验残差分位数，非逐站模型残差；"
-                    f"留出段 n={int(backtest.get('n') or 0)}（{backtest.get('test_min_month')} 起），"
+                    "区间为气候态基线残差分位数（来自区间校准段），非逐站模型残差；"
+                    f"经验覆盖率在与校准段不重叠的独立测试段核算：n={int(backtest.get('n') or 0)}"
+                    f"（{backtest.get('test_min_month')} 起），"
+                    f"校准段 n={backtest.get('interval_calibration_n')}"
+                    f"（{backtest.get('interval_calibration_min_month')}..{backtest.get('interval_calibration_max_month')}），"
                     f"经验覆盖率 {empirical_coverage if empirical_coverage is None else f'{float(empirical_coverage):.2%}'}。"
                 ),
             }

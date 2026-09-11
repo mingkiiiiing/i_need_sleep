@@ -82,8 +82,11 @@ _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 # v9：2026-09-11 第五轮（续）——station_resolution 由"模型族自称"改为"实测站点离散度"判定，
 #   并新增 station_resolution_basis 披露判定依据（declared / measured_station_spread）。
 #   字段语义变化同样属于口径变化，必须递增版本，否则旧快照会继续以旧语义被服务。
+# v10：2026-09-12 复审整改——季节基线产物升 v3（三段时序回测，去"校准=测试"泄漏）后，
+#   T+30/60 的经验覆盖率与 decision_usable 语义改变（独立测试覆盖率低于共段构造值，
+#   多数任务将如实翻转为 undercovered/不可决策），uncertainty.note 增加校准段/测试段披露。
 # 教训：版本键只覆盖模型产物，看不见"代码口径"变更——结构/口径变化必须递增此版本。
-CACHE_SCHEMA_VERSION = "prediction_snapshot_v9"
+CACHE_SCHEMA_VERSION = "prediction_snapshot_v10"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 

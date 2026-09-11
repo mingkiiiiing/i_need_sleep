@@ -225,7 +225,7 @@ async function main() {
   check('T5 hero 口径为"中长期"', (st.heroScope || '').includes('中长期'), `heroScope=${st.heroScope}`)
   check('T5 hero 口径不再出现"未验证"', !(st.heroScope || '').includes('未验证'), `heroScope=${st.heroScope}`)
   check('T5 状态标签为 longterm 态', st.statusTagState === 'longterm', `state=${st.statusTagState} 文本=${st.statusTagText}`)
-  check('T5 中长期口径标签说明来源', /逐站模型|季节气候态/.test(st.statusTagText || ''), st.statusTagText)
+  check('T5 中长期口径标签说明来源', /逐站模型|季节气候态|全湖常量模型/.test(st.statusTagText || ''), st.statusTagText)
   check('T5 趋势图虚线分口仍在', st.trendScenarioLine, `scenarioLine=${st.trendScenarioLine}`)
   check('T5 趋势图短期/中长期双标注', st.trendCaptions.includes('短期') && st.trendCaptions.includes('中长期'),
     JSON.stringify(st.trendCaptions))
@@ -354,7 +354,8 @@ async function main() {
   check('T8b 后端 decision_usable 与页面结论一致',
     !eRisk.decisionUsable || uDerived.statusKey === 'usable',
     `后端=${eRisk.decisionUsable} 页面=${uDerived.statusKey}`)
-  // T+30（中长期档）：季节基线源区间有留出核算且达标 → 必须呈现三档等级范围。
+  // T+30（中长期档）：季节基线 v3 三段回测后，独立测试覆盖率低于验收线的时效同样阻断；
+  // 断言数据驱动——源区间可决策必须给三档范围，不可决策必须渲染阻断原因，不允许空态。
   await page.goto(deep(`mode=forecast&scale=long&metric=risk&station=${ST_A}&stop=t30`), { waitUntil: 'domcontentloaded' })
   await settle(1800)
   await page.click('[data-role="result-tab-uncertainty"]')
@@ -362,18 +363,27 @@ async function main() {
   const uBand30 = await page.evaluate(() => {
     const band = document.querySelector('[data-role="derived-band-range"]')
     const bandHead = document.querySelector('[data-role="risk-band-range-head"] strong')
+    const blockedBox = document.querySelector('[data-role="band-range-blocked"]')
     return {
       bandPresent: Boolean(band),
       bandText: band ? band.innerText.replace(/\s+/g, ' ').trim() : '',
-      bandStatus: bandHead ? bandHead.innerText.trim() : null
+      bandStatus: bandHead ? bandHead.innerText.trim() : null,
+      bandBlocked: Boolean(blockedBox),
+      bandBlockedReason: blockedBox ? blockedBox.innerText.replace(/\s+/g, ' ').trim() : ''
     }
   })
   const eBand30 = await expected(ST_A, 'risk', 30)
-  check('T8b T+30 呈现风险等级范围（源区间达标）', eBand30.chlaUsable && uBand30.bandPresent,
-    `chlaUsable=${eBand30.chlaUsable} band=${uBand30.bandPresent}`)
-  check('T8b T+30 等级范围给出三档结论', /无风险|低|中|高|严重/.test(uBand30.bandText) && uBand30.bandText.length > 0,
-    uBand30.bandText)
-  check('T8b T+30 等级范围状态不与"区间无效"混淆', uBand30.bandStatus !== '区间无效', `bandStatus=${uBand30.bandStatus}`)
+  check('T8b T+30 等级范围与源区间可决策状态一致',
+    eBand30.chlaUsable
+      ? uBand30.bandPresent
+      : (uBand30.bandBlocked && uBand30.bandBlockedReason.length > 0 && !uBand30.bandPresent),
+    `chlaUsable=${eBand30.chlaUsable} band=${uBand30.bandPresent} blocked=${uBand30.bandBlocked} ` +
+    `reason=${uBand30.bandBlockedReason.slice(0, 70)}`)
+  if (eBand30.chlaUsable) {
+    check('T8b T+30 等级范围给出三档结论', /无风险|低|中|高|严重/.test(uBand30.bandText) && uBand30.bandText.length > 0,
+      uBand30.bandText)
+    check('T8b T+30 等级范围状态不与"区间无效"混淆', uBand30.bandStatus !== '区间无效', `bandStatus=${uBand30.bandStatus}`)
+  }
   // 回到 T+1 短临态，保证下游 T9/T10 的前置状态不变。
   await page.goto(deep(`mode=forecast&scale=short&metric=risk&station=${ST_A}&stop=t1`), { waitUntil: 'domcontentloaded' })
   await settle(1800)

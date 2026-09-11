@@ -1113,6 +1113,11 @@ const predictionStatusText = computed(() => {
     if (metrics.n != null) parts.push(`n=${metrics.n}`)
     const metricText = parts.length ? `，留出集 ${parts.join(' · ')}` : ''
     const fileText = diag?.modelFile ? ` · ${diag.modelFile}` : ''
+    // 2026-09-12 复审整改：T+90 只有逐站响应的指标可称"逐站模型"；概率/生物量/密度
+    // 在补训中选中 climatology_global 全局常量模型，对站点输入无响应，不得沿用该措辞。
+    if (diag && (diag.modelEntityResponse === false || diag.numericVariation === false)) {
+      return `中长期 · 全湖常量模型（读模型文件但无站点响应），不做站间比较${fileText}`
+    }
     if (diag?.gateStatus === 'PASS') return `中长期月度趋势：逐站模型，融合增益已过 10% 门禁${metricText}${fileText}`
     if (diag?.gateStatus === 'FAIL') return `中长期月度趋势：逐站模型，融合增益未达 10% 门禁阈值${metricText}${fileText}`
     if (diag?.gateStatus === 'NA') return `中长期月度趋势：逐站模型，该时效暂无评估记录${metricText}${fileText}`

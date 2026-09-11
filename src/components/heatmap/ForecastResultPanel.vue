@@ -628,11 +628,27 @@ const lakeAreaNote = computed(() => {
 // T+30 起为中长期月度趋势档：来源可能是逐站模型（T+90）或季节气候态基线（T+30/60），
 // 主结果上必须带口径徽标说清是哪一种，不能笼统写成"未验证"——两者都有真实来源与回测。
 const isLongTermHorizon = computed(() => Number(props.horizonDays) >= 30)
+// 2026-09-12 复审整改：T+90 并非所有指标都有站点响应——叶绿素 a 是逐站模型（48 站不同值），
+// 而概率/生物量/密度在补训时选中的是 climatology_global 全局常量模型：读的是模型文件，
+// 但模型输入不随站点变化。站点语义必须来自快照的指标级三态诊断（按时效桶），
+// 不得从"不是季节基线"倒推"逐站"。
+function horizonStationResolution(metric, horizonDays) {
+  const key = METRIC_KEYS[metric] || metric
+  const entry = predictionSnapshot.metricDiagnostics?.[key]
+  if (!entry) return null
+  const h = Number(horizonDays)
+  if ((entry.non_responsive_horizons || []).includes(h)) return false
+  if ((entry.responsive_horizons || []).includes(h) && (entry.variation_horizons || []).includes(h)) return true
+  return null
+}
 const longTermTag = computed(() => {
   const item = props.modelForecast?.results?.[METRIC_KEYS[props.metric]]
   if (!item || item.value == null) return '中长期月度趋势'
   if (item.value_origin === 'seasonal_climatology_baseline') return '中长期 · 季节气候态（全湖同值）'
-  return '中长期月度趋势 · 逐站模型'
+  const res = horizonStationResolution(props.metric, props.horizonDays)
+  if (res === false) return '中长期 · 全湖常量模型（无站点响应）'
+  if (res === true) return '中长期月度趋势 · 逐站模型'
+  return '中长期月度趋势'
 })
 const heroScopeLabel = computed(() => {
   if (props.scope === 'station') {
@@ -733,13 +749,26 @@ const riskRing = computed(() => {
 })
 
 // ---- 六宫格指标卡 ----
+// 2026-09-12 复审整改：不得把补训结果统一写成"真实·补训"——标签来源必须按
+// label_provenance 区分实测/混合/代理，代理与混合不得被读成纯实测。
+function provenanceBadge(item) {
+  const p = String(item?.label_provenance || '')
+  if (!p) return ''
+  if (p.startsWith('mixed') || (p.includes('ground_truth') && p.includes('proxy'))) return '混合标签'
+  if (p.includes('ground_truth')) return '实测标签'
+  if (p.includes('proxy')) return '代理标签'
+  return ''
+}
 function originLabel(item) {
   if (!item || item.value == null) return '无输出'
   if (item.value_origin === 'legacy_v0_2_synthetic_fallback') return '合成对照'
   if (item.value_origin === 'derived_from_chla_v0_3_risk_bands') return '叶绿素推导'
   if (item.value_origin === 'derived_from_monthly_retrieval_field') return '遥感反演'
   if (item.value_origin === 'seasonal_climatology_baseline') return '季节气候态·全湖同值'
-  if (item.training_protocol === 'train_internal_time_block_cv_v1') return '真实·补训'
+  if (item.training_protocol === 'train_internal_time_block_cv_v1') {
+    const badge = provenanceBadge(item)
+    return badge ? `补训模型·${badge}` : '补训模型'
+  }
   return ''
 }
 function originKey(item) {
@@ -918,8 +947,13 @@ const horizonTrend = computed(() => {
       ? `T+${horizon}：79 站中位 ${valueText}${props.metric === 'risk' ? '%' : ''}${bandLow != null ? `（P25–P75：${bandLow.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}—${bandHigh.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}）` : ''}`
       : `T+${horizon}：${valueText}${props.metric === 'risk' ? '%' : ''} · ${originLabel(item) || 'V0.3真实链路'}`
     // 中长期两点必须逐点标注来源，否则"全湖同值"会被读成"逐站趋势"。
+    // 常量全局模型（climatology_global）虽读取模型文件，但无站点响应，同样按全湖对待。
     const stationResolution = item
-      ? (item.station_resolution != null ? Boolean(item.station_resolution) : item.value_origin !== 'seasonal_climatology_baseline')
+      ? (item.station_resolution != null
+          ? Boolean(item.station_resolution)
+          : item.value_origin === 'seasonal_climatology_baseline'
+            ? false
+            : horizonStationResolution(props.metric, horizon) === true)
       : null
     return {
       horizon, value, item,
@@ -980,7 +1014,10 @@ const horizonTrend = computed(() => {
       return `${label} 逐站月度趋势（${originLabel(p.item) || 'V0.3 模型'}${file ? ` · ${file}` : ''}），可做站间比较`
     }
     if (p.stationResolution === false) {
-      return `${label} 全湖季节基线（季节气候态 · 全湖同值），不做站间比较`
+      const src = p.item?.value_origin === 'seasonal_climatology_baseline'
+        ? '全湖季节基线（季节气候态 · 全湖同值）'
+        : '全湖常量模型（读模型文件但无站点响应）'
+      return `${label} ${src}，不做站间比较`
     }
     return `${label} 来源未标注站点分辨率，按全湖同值对待`
   })
