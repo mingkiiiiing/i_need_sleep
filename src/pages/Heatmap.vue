@@ -379,9 +379,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   getAlgorithmModelStatusEnvelope,
-  getAlgorithmPredictionsEnvelope,
   getPredictionStationFieldEnvelope,
-  getAlgorithmV3PredictionsEnvelope,
   getAlgorithmV3StatusEnvelope,
   getRsManifestEnvelope,
   rsImageUrl
@@ -836,10 +834,21 @@ function applySnapshotHorizon() {
   }
 }
 
+// 审计合同：读取接口不存在任何回落推理路径。快照未就绪时进入 pending 态，
+// 由短周期重试 + prediction-status 轮询在快照就绪后自动恢复。
+let pendingRetryTimer = null
+function clearPendingRetry() {
+  if (pendingRetryTimer) {
+    clearTimeout(pendingRetryTimer)
+    pendingRetryTimer = null
+  }
+}
+
 async function loadModelForecast() {
   if (pageMode.value !== 'forecast') return
   const token = ++modelRequestToken
   const entityId = selectedStationId.value || 'lake'
+  clearPendingRetry()
   // 已有结果时切换指标不闪回 loading，避免整页重新等待。
   if (modelState.value !== 'ok') modelState.value = 'loading'
   modelError.value = ''
@@ -848,20 +857,17 @@ async function loadModelForecast() {
     if (token !== modelRequestToken) return
     applySnapshotHorizon()
     loadHorizonEvidence()
-  } catch {
-    // 快照不可用 → legacy V0.2 对照回退（结果面板按 value_origin/来源标签如实区分）
+  } catch (err) {
+    // 快照未就绪（409 PREDICTION_SNAPSHOT_NOT_READY）→ 诚实等待；其余→错误态。
     if (token !== modelRequestToken) return
-    try {
-      const { data } = await getAlgorithmPredictionsEnvelope(selectedHorizon.value, entityId, metric.value)
-      if (token !== modelRequestToken) return
-      modelForecast.value = data
-      modelSource.value = 'v0_2_legacy_fallback'
-      modelState.value = 'ok'
-    } catch (err) {
-      if (token !== modelRequestToken) return
-      modelForecast.value = null
-      modelState.value = 'error'
-      modelError.value = err?.message || '算法模型请求失败'
+    modelForecast.value = null
+    const pending = err?.code === 'PREDICTION_SNAPSHOT_NOT_READY'
+    modelState.value = pending ? 'pending' : 'error'
+    modelError.value = err?.message || '预测快照未就绪'
+    if (pending) {
+      pendingRetryTimer = setTimeout(() => {
+        if (token === modelRequestToken) loadModelForecast()
+      }, 10000)
     }
   }
 }
@@ -1389,6 +1395,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
   stopPlay()
+  clearPendingRetry()
   if (realtimeRefreshTimer) clearInterval(realtimeRefreshTimer)
   if (summaryRetryTimer) clearTimeout(summaryRetryTimer)
   mobileMq?.removeEventListener('change', onMobileMqChange)

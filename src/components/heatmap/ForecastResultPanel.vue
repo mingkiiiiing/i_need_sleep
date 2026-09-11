@@ -60,6 +60,14 @@
         description="读取后台按最新实测快照预生成的预测结果；仅当实测数据或模型版本变化时才会重新推理。"
       />
       <StatePanel
+        v-else-if="modelState === 'pending'"
+        state="loading"
+        title="预测快照未就绪"
+        :description="(modelError || '预测快照生成中。') + ' 页面只读取预生成结果、不运行模型；生成完成后自动显示。'"
+      >
+        <button type="button" class="frp-inline-btn" data-role="model-retry" @click="$emit('retry-model')">立即重试</button>
+      </StatePanel>
+      <StatePanel
         v-else-if="modelState === 'error' || !modelForecast"
         state="error"
         title="算法模型暂不可用"

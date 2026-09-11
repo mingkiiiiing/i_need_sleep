@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import json
 import re
 from datetime import date, timedelta
 from typing import Any
@@ -30,6 +31,7 @@ from .alerts import AlertEngine
 from .station_forecast import MODEL_VERSION as _STATION_FC_VERSION
 from .station_forecast import StationForecastEngine
 from .algorithm_models import AlgorithmModelService, AlgorithmModelServiceV3, AlgorithmModelUnavailable
+from .errors import ApiError
 from .prediction_snapshot import FOCUS_RESULT_KEY, SNAPSHOT_HORIZONS, PredictionSnapshotService
 
 _GRID_CELL_RE = re.compile(r"^R(0[1-9]|1[01])-C(0[1-9]|1[0-9])$")
@@ -192,24 +194,46 @@ class BackendService:
         return self._require_algorithm_v3().status()
 
     def algorithm_predictions_v3(self, horizon_days: int, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
-        """优先命中预测快照。
+        """快照只读接口：命中返回，未命中 409，绝不回落即时推理。
 
-        同一实测快照内不再重复运行模型；结果直接来自快照，只有"当前指标的局部
-        敏感性解释"因与指标绑定而无法随快照落盘，需要时按需补齐一次并进入缓存。
+        审计合同（2026-09-11 第三轮）：业务读取接口不存在任何
+        "cache miss → live inference" 路径。推理只发生在后台快照线程
+        （实测快照/模型版本/特征合同变化，或管理员 rebuild 触发）。
         """
+        if horizon_days not in SNAPSHOT_HORIZONS:
+            # 参数校验先于快照可用性判定：非法时效保持 422，而不是被 409 短路。
+            raise ValueError(f"unsupported horizon_days: {horizon_days}")
         snapshot = self.prediction_snapshot
         if snapshot is not None:
             data = snapshot.assemble(entity_id, horizon_days, focus_metric)
             if data is not None:
+                # 解释只读缓存（随快照线程预热），未命中就不展示，绝不为此运行模型。
                 result_key = FOCUS_RESULT_KEY.get(focus_metric)
                 results = data.get("results") or {}
                 item = results.get(result_key) if result_key else None
                 if isinstance(item, dict) and item.get("explainability") is None:
-                    explainability = snapshot.ensure_explainability(entity_id, horizon_days, focus_metric)
-                    if explainability is not None:
-                        item["explainability"] = explainability
+                    cached = snapshot.ensure_explainability(entity_id, horizon_days, focus_metric)
+                    if cached is not None:
+                        item["explainability"] = cached
                 return data
-        return self._require_algorithm_v3().predict_suite(horizon_days, entity_id, focus_metric)
+        status = snapshot.status() if snapshot is not None else {}
+        raise ApiError(
+            status_code=409,
+            code="PREDICTION_SNAPSHOT_NOT_READY",
+            message="预测快照未就绪：页面只读取预生成结果，不运行模型",
+            detail=json.dumps(
+                {
+                    "entity_id": entity_id,
+                    "horizon_days": horizon_days,
+                    "focus_metric": focus_metric,
+                    "snapshot_state": status.get("state"),
+                    "using_previous_success": status.get("using_previous_success"),
+                    "stations": status.get("stations"),
+                    "note": "等待后台生成完成（实测快照/模型版本变化或管理员 rebuild 触发）。",
+                },
+                ensure_ascii=False,
+            ),
+        )
 
     # ---- 预测快照（实测快照驱动的后台预生成结果） ----
 
@@ -227,64 +251,34 @@ class BackendService:
         return snapshot.request_rebuild()
 
     def prediction_snapshot_view(self, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any]:
-        """一次返回全部时效结果与版本状态。
+        """只读预生成快照：一次返回全部时效结果与版本状态。
 
-        快照未覆盖该实体时（站点补齐尚未完成），回落到即时推理组装同一结构，
-        并在 snapshot_source 中如实标注来源，页面无需区分两条路径。
+        审计合同（2026-09-11 第三轮）：快照未覆盖该实体/时效时返回 409
+        PREDICTION_SNAPSHOT_NOT_READY，绝不回落即时推理——页面打开与切换
+        的任何情况下都不运行模型；推理只发生在后台快照线程。
         """
         snapshot = self.prediction_snapshot
         if snapshot is not None:
             payload = snapshot.snapshot_payload(entity_id, focus_metric)
             if payload is not None:
                 return payload
-        if snapshot is not None:
-            # 可观测性：本次读取触发了即时推理（审计口径要求页面切换零推理）。
-            snapshot.count_live_inference_fallback()
-        horizons: dict[str, Any] = {}
-        for horizon in SNAPSHOT_HORIZONS:
-            horizons[str(horizon)] = self.algorithm_predictions_v3(horizon, entity_id, focus_metric)
-        return {
-            "entity_id": entity_id,
-            "focus_metric": focus_metric,
-            "horizons": horizons,
-            "horizon_list": list(SNAPSHOT_HORIZONS),
-            "trend": {
-                "points": [
-                    {
-                        "horizon_days": int(horizon_key),
-                        "risk_score": data.get("risk_score"),
-                        "focus_value": (
-                            (data.get("results") or {}).get(
-                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
-                            ) or {}
-                        ).get("value"),
-                        "focus_unit": (
-                            (data.get("results") or {}).get(
-                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
-                            ) or {}
-                        ).get("unit"),
-                        "focus_status": (
-                            (data.get("results") or {}).get(
-                                FOCUS_RESULT_KEY.get(focus_metric) or "", {}
-                            ) or {}
-                        ).get("status"),
-                        "issued_at": data.get("issued_at"),
-                    }
-                    for horizon_key, data in horizons.items()
-                ]
-            },
-            "prediction_snapshot_id": None,
-            "source_snapshot_id": None,
-            "generated_at": None,
-            "model_version": None,
-            "status": {
-                "state": "unavailable",
-                "using_previous_success": False,
-                "last_error": None,
-                "stations": {"ready": False, "done": 0, "total": 0},
-            },
-            "snapshot_source": {"served_from_snapshot": False},
-        }
+        status = snapshot.status() if snapshot is not None else {}
+        raise ApiError(
+            status_code=409,
+            code="PREDICTION_SNAPSHOT_NOT_READY",
+            message="预测快照未就绪：页面只读取预生成结果，不运行模型",
+            detail=json.dumps(
+                {
+                    "entity_id": entity_id,
+                    "focus_metric": focus_metric,
+                    "snapshot_state": status.get("state"),
+                    "using_previous_success": status.get("using_previous_success"),
+                    "stations": status.get("stations"),
+                    "note": "等待后台生成完成（实测快照/模型版本变化或管理员 rebuild 触发）。",
+                },
+                ensure_ascii=False,
+            ),
+        )
 
     def algorithm_acceptance_v3(self) -> dict[str, Any]:
         return self._require_algorithm_v3().acceptance()

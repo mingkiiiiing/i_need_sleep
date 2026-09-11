@@ -45,7 +45,14 @@ def fake_realtime(monkeypatch):
 
 
 def _suite(horizon: int, focus: str = "risk") -> dict:
-    return services_module.service.algorithm_predictions_v3(horizon, "lake", focus)
+    """模型层语义测试直接调 predict_suite。
+
+    2026-09-11 起业务读取接口（algorithm_predictions_v3 / prediction_snapshot_view）
+    为快照只读、快照未就绪一律 409，绝不回落即时推理；因此模型语义断言
+    不再经过读取层，避免依赖机器上是否存在已发布快照。
+    """
+    v3 = services_module.service.algorithm_v3
+    return v3.predict_suite(horizon, "lake", focus)
 
 
 def test_risk_score_uses_probability_not_class_label(fake_realtime):

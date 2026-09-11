@@ -146,3 +146,35 @@ def test_status_file_records_counters(tmp_path):
     status = json.loads((tmp_path / "status.json").read_text(encoding="utf-8"))
     assert status["generation_count"] == 1
     assert status["live_inference_fallbacks"] == 0
+
+
+def test_business_reads_never_fall_back_to_live_inference(tmp_path, monkeypatch):
+    """GPT 审计指令（2026-09-11）：业务读取接口必须彻底移除 cache miss → live inference。
+
+    快照未就绪时 prediction_snapshot_view / algorithm_predictions_v3 一律 409
+    PREDICTION_SNAPSHOT_NOT_READY，绝不允许为读取运行模型。
+    """
+    from types import SimpleNamespace as NS
+
+    import pytest
+
+    from backend.app import services as services_module
+    from backend.app.errors import ApiError
+
+    class _NoCapability:
+        """无 status()/stations() 能力：快照无法核实同源关系，不服务。"""
+
+    stub = PredictionSnapshotService(NS(realtime=_NoCapability()), _NoCapability(), cache_dir=tmp_path)
+    original = services_module.service.prediction_snapshot
+    monkeypatch.setattr(services_module.service, "prediction_snapshot", stub)
+    try:
+        with pytest.raises(ApiError) as exc_view:
+            services_module.service.prediction_snapshot_view("lake", "risk")
+        assert exc_view.value.status_code == 409
+        assert exc_view.value.detail["code"] == "PREDICTION_SNAPSHOT_NOT_READY"
+        with pytest.raises(ApiError) as exc_pred:
+            services_module.service.algorithm_predictions_v3(1, "lake", "risk")
+        assert exc_pred.value.status_code == 409
+        assert exc_pred.value.detail["code"] == "PREDICTION_SNAPSHOT_NOT_READY"
+    finally:
+        services_module.service.prediction_snapshot = original

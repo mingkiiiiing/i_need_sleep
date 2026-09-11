@@ -133,6 +133,30 @@ async function main() {
     st.heroPct != null && Math.abs(st.heroPct - eLake1.lakeProbMedian * 100) < 0.05,
     `页面=${st.heroPct}% 接口=${eLake1.lakeProbMedian * 100}%`)
 
+  // ---------- T1b 四区域同快照绑定（GPT 审计 #9 直接证据） ----------
+  // 右侧结果/趋势=快照载荷，地图=站点场端点，驱动=驱动分布端点：
+  // 四者的 prediction_snapshot_id 必须完全一致（纯接口级直接证据）。
+  const binding = await page.evaluate(async () => {
+    const base = '/api/v1'
+    const j = async (u) => (await (await fetch(base + u)).json()).data
+    const [payload, spatial, driver] = await Promise.all([
+      j('/model/v3/prediction-snapshot?focus_metric=risk'),
+      j('/model/v3/prediction-spatial-field?horizon_days=1&metric=risk'),
+      j('/model/v3/driver-distribution?horizon_days=1')
+    ])
+    const trendPointIds = Object.values(payload.horizons)
+      .map((h) => h.snapshot_source?.prediction_snapshot_id || payload.prediction_snapshot_id)
+    return {
+      payload: payload.prediction_snapshot_id,
+      spatial: spatial.prediction_snapshot_id,
+      driver: driver.prediction_snapshot_id,
+      trendAllBound: trendPointIds.every((id) => id === payload.prediction_snapshot_id)
+    }
+  })
+  check('T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id',
+    binding.payload && binding.payload === binding.spatial && binding.payload === binding.driver && binding.trendAllBound,
+    JSON.stringify(binding))
+
   // ---------- T2 深链：站点 A ----------
   const eA = await expected(ST_A, 'risk', 1)
   await page.goto(deep(`mode=forecast&scale=short&metric=risk&station=${ST_A}&stop=t1`), { waitUntil: 'domcontentloaded' })

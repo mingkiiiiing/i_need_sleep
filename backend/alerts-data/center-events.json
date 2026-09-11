@@ -1,6 +1,6 @@
 {
   "version": "alert-center-v1",
-  "updated_at": "2026-09-10T22:38:29.693656+00:00",
+  "updated_at": "2026-09-11T03:05:03.144527+00:00",
   "events": [
     {
       "id": "evt-baa0ff13a869",
@@ -22,18 +22,21 @@
         "observed_at": "2026-09-09T15:00:00+08:00",
         "triggered_at": "2026-09-09T07:59:00.525182+00:00",
         "snapshot_id": "mee_surface_water_realtime_20260909T075439Z",
-        "state": "recovered",
+        "state": "valid",
         "continuous": 1,
         "rule_name": "蓝藻筛查 · 黄色预警（叶绿素a ≥ 10 μg/L）"
       },
       "rule_name": "蓝藻筛查 · 黄色预警",
-      "engine_alert_id": "alr-2026-09-10T00:24:55.357077+00:00-483f6dda-l",
+      "engine_alert_id": "alr-2026-09-11T02:59:16.154410+00:00-483f6dda-l",
       "engine_alert_ids": [
         "alr-2026-09-10T00:24:55.357077+00:00-483f6dda-l",
-        "alr-2026-09-09T22:28:56.805169+00:00-483f6dda-l",
         "alr-2026-09-09T18:28:08.956217+00:00-483f6dda-l",
+        "alr-2026-09-09T22:28:56.805169+00:00-483f6dda-l",
+        "alr-2026-09-09T09:57:14.537874+00:00-483f6dda-l",
+        "alr-2026-09-10T22:58:33.454975+00:00-483f6dda-l",
         "alr-2026-09-09T07:59:00.525182+00:00-483f6dda-l",
-        "alr-2026-09-09T09:57:14.537874+00:00-483f6dda-l"
+        "alr-2026-09-11T02:59:16.154410+00:00-483f6dda-l",
+        "alr-2026-09-11T00:58:54.476867+00:00-483f6dda-l"
       ],
       "plan": null,
       "records": [
@@ -96,15 +99,45 @@
           "actor": "系统",
           "action": "recovered",
           "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-10T22:58:33.466604+00:00",
+          "actor": "系统",
+          "action": "escalate",
+          "detail": "风险等级由 黄色预警 升级为 黄色预警"
+        },
+        {
+          "at": "2026-09-10T23:58:44.410388+00:00",
+          "actor": "系统",
+          "action": "recovered",
+          "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-11T00:58:54.495771+00:00",
+          "actor": "系统",
+          "action": "escalate",
+          "detail": "风险等级由 黄色预警 升级为 黄色预警"
+        },
+        {
+          "at": "2026-09-11T01:59:05.385652+00:00",
+          "actor": "系统",
+          "action": "recovered",
+          "detail": "指标恢复至阈值以下，转入待复核"
+        },
+        {
+          "at": "2026-09-11T02:59:16.165243+00:00",
+          "actor": "系统",
+          "action": "escalate",
+          "detail": "风险等级由 黄色预警 升级为 黄色预警"
         }
       ],
       "pushes": [],
       "notified": {},
       "created_at": "2026-09-09T07:59:00.525182+00:00",
-      "updated_at": "2026-09-10T22:38:29.693398+00:00",
+      "updated_at": "2026-09-11T02:54:15.219670+00:00",
       "closed_at": null,
       "acknowledged_at": null,
-      "recovered_at": "2026-09-10T05:27:12.653619+00:00"
+      "recovered_at": "2026-09-11T01:59:05.385637+00:00"
     },
     {
       "id": "evt-82e1a073db82",
@@ -126,7 +159,7 @@
         "observed_at": "2026-09-09T03:00:00+08:00",
         "triggered_at": "2026-09-08T19:31:38.089982+00:00",
         "snapshot_id": "mee_surface_water_realtime_20260908T192435Z",
-        "state": "valid",
+        "state": "recovered",
         "continuous": 1,
         "rule_name": "蓝藻筛查 · 黄色预警（叶绿素a ≥ 10 μg/L）"
       },
@@ -194,15 +227,21 @@
           "actor": "系统",
           "action": "escalate",
           "detail": "风险等级由 黄色预警 升级为 黄色预警"
+        },
+        {
+          "at": "2026-09-11T00:58:54.501808+00:00",
+          "actor": "系统",
+          "action": "recovered",
+          "detail": "指标恢复至阈值以下，转入待复核"
         }
       ],
       "pushes": [],
       "notified": {},
       "created_at": "2026-09-08T19:31:38.089982+00:00",
-      "updated_at": "2026-09-10T17:51:22.331953+00:00",
+      "updated_at": "2026-09-11T03:05:03.144250+00:00",
       "closed_at": null,
       "acknowledged_at": null,
-      "recovered_at": "2026-09-10T13:26:33.792226+00:00"
+      "recovered_at": "2026-09-11T00:58:54.501791+00:00"
     },
     {
       "id": "evt-8ca4a1b503f5",

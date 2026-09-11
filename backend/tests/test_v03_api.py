@@ -50,10 +50,13 @@ def test_v03_status_discloses_package_generation_and_legacy(fake_v3_realtime):
     assert body["meta"]["claim_boundary"] == "real_data_monthly_station_v0_3"
 
 
+def _suite(horizon: int) -> dict:
+    """模型层记录：读取接口已改为快照只读，端到端语义断言直接调 predict_suite。"""
+    return services_module.service.algorithm_v3.predict_suite(horizon, "lake", "risk")
+
+
 def test_v03_predictions_month_granularity_and_uncertainty(fake_v3_realtime):
-    response = client.get("/api/v1/model/v3/predictions?horizon_days=3")
-    assert response.status_code == 200
-    data = response.json()["data"]
+    data = _suite(3)
     assert data["month_offset"] == 0
     assert data["granularity_tier"] == "month_granularity"
     assert data["model"]["claim_boundary"] == "real_data_monthly_station_v0_3"
@@ -88,9 +91,7 @@ def test_v03_predictions_month_granularity_and_uncertainty(fake_v3_realtime):
 
 
 def test_v03_predictions_scenario_lock_on_30_60_90(fake_v3_realtime):
-    response = client.get("/api/v1/model/v3/predictions?horizon_days=30")
-    assert response.status_code == 200
-    data = response.json()["data"]
+    data = _suite(30)
     assert data["month_offset"] == 1
     for key, result in data["results"].items():
         expected = {
@@ -100,6 +101,15 @@ def test_v03_predictions_scenario_lock_on_30_60_90(fake_v3_realtime):
             # 2026-09-11 起水华面积来自月度反演基底边界面积，粒度口径如实标注
             expected["granularity_tier"] = "month_retrieval_base"
         assert result["compliance"] == expected
+
+
+def test_v03_predictions_snapshot_not_ready_returns_409(fake_v3_realtime):
+    """审计合同：业务读取接口快照未就绪一律 409，绝不回落即时推理。"""
+    response = client.get("/api/v1/model/v3/predictions?horizon_days=3")
+    assert response.status_code == 409
+    body = response.json()
+    codes = [body.get("detail", {}).get("code")] + [e.get("code") for e in body.get("errors", [])]
+    assert "PREDICTION_SNAPSHOT_NOT_READY" in codes
 
 
 def test_v03_predictions_rejects_unsupported_horizon(fake_v3_realtime):

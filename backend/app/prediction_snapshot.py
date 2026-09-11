@@ -522,24 +522,16 @@ class PredictionSnapshotService:
         return getter.get((result_key, entity_id, month_offset, horizon_days))
 
     def ensure_explainability(self, entity_id: str, horizon_days: int, focus_metric: str) -> Any:
-        """按需补齐当前指标的局部敏感性解释。
+        """只读解释缓存：命中即返回，未命中返回 None。
 
-        解释与 focus_metric 绑定，无法随快照落盘，因此在这里单独取：命中后端解释缓存
-        则零推理返回，未命中才实际运行一次，随后即进入缓存。
+        审计合同（2026-09-11 第三轮）：读取接口不得为解释而运行推理。
+        解释缓存由后台快照线程预热（lake 全指标）；未预热期间页面如实
+        隐藏"AI 响应排序"板块，绝不为单次读取现算。
         """
         result_key = FOCUS_RESULT_KEY.get(focus_metric)
         if not result_key:
             return None
-        cached = self._cached_explainability(entity_id, horizon_days, result_key)
-        if cached is not None:
-            return cached
-        try:
-            data = self.algorithm.predict_suite(horizon_days, entity_id, focus_metric)
-        except Exception as exc:  # noqa: BLE001 — 解释不可得不应使主结果失败
-            logger.info("解释补齐失败（%s/%s/%s）: %s", entity_id, horizon_days, focus_metric, exc)
-            return None
-        item = (data.get("results") or {}).get(result_key) or {}
-        return item.get("explainability")
+        return self._cached_explainability(entity_id, horizon_days, result_key)
 
     def snapshot_payload(self, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any] | None:
         """一次返回全部时效结果 + 趋势摘要 + 版本与状态，供前端一次读取。"""
