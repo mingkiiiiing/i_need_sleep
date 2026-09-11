@@ -25,12 +25,15 @@
 
     <template v-else-if="state === 'ok' && primary">
       <div class="sfc-main" data-role="forecast-main">
-        <div class="sfc-band-row">
+        <!-- 主值为浓度 μg/L（非 0-1 概率），按口径走大数字版式，不画环形仪 -->
+        <div class="sfc-hero" :class="`sfc-hero--${primary.band}`">
           <span class="sfc-band" :class="`sfc-band--${primary.band}`">{{ primary.band_label }}</span>
-          <span class="sfc-value">
-            预测叶绿素 a <b>{{ primary.chlorophyll_a.value }}</b> μg/L
-            <small>区间 {{ primary.chlorophyll_a.lower_bound }}–{{ primary.chlorophyll_a.upper_bound }}</small>
+          <span class="sfc-hero-label">预测叶绿素 a</span>
+          <span class="sfc-hero-value">
+            <b>{{ primary.chlorophyll_a.value }}</b>
+            <i>μg/L</i>
           </span>
+          <small class="sfc-hero-range">区间 {{ primary.chlorophyll_a.lower_bound }}–{{ primary.chlorophyll_a.upper_bound }}</small>
         </div>
         <p class="sfc-meta">
           基于 {{ formatCn(originTime) }} 观测，预测 {{ formatCn(primary.target_time) }}（T+{{ primary.horizon_days }} 天）；
@@ -44,9 +47,15 @@
       <div class="sfc-drivers" data-role="forecast-drivers">
         <span class="sfc-drivers-title">主要驱动因子（线性归因）</span>
         <ul>
-          <li v-for="d in primary.drivers" :key="d.feature">
-            <i :class="d.direction === 'raise' ? 'up' : 'down'">{{ d.direction === 'raise' ? '↑' : '↓' }}</i>
-            {{ d.label }}
+          <li v-for="d in primary.drivers" :key="d.feature" class="sfc-driver">
+            <span class="sfc-driver-line">
+              <i :class="d.direction === 'raise' ? 'up' : 'down'">{{ d.direction === 'raise' ? '↑' : '↓' }}</i>
+              <span class="sfc-driver-label">{{ d.label }}</span>
+              <span class="sfc-driver-val">{{ fmtContrib(d.contribution_log) }}</span>
+            </span>
+            <span class="sfc-driver-track" aria-hidden="true">
+              <i class="sfc-driver-bar" :class="d.direction === 'raise' ? 'up' : 'down'" :style="{ width: driverBarWidth(d) }"></i>
+            </span>
           </li>
         </ul>
       </div>
@@ -67,7 +76,8 @@
     </template>
 
     <button type="button" class="stn-inline-btn sfc-goto" data-role="goto-heatmap" @click="gotoHeatmap">
-      进入时空推演 →
+      <span>进入时空推演</span>
+      <i class="sfc-goto-arrow" aria-hidden="true">→</i>
     </button>
   </section>
 </template>
@@ -76,6 +86,8 @@
 // 最新预测卡：接入站点级机理+AI 融合预测（/realtime/stations/{id}/forecast，v0.1 试点）。
 // 诚实呈现三态——覆盖站点显示模型预测+模型卡披露；无叶绿素a 序列站点显示覆盖范围说明；
 // 服务异常显示错误态。档位口径与预警引擎一致（10/25 μg/L 筛查阈值）。
+// 视觉口径：主值为叶绿素 a 浓度（μg/L），非 0-1 概率 → 大数字版式，不画环形仪、不做归一化；
+// 驱动条宽度按本组 drivers 的 |contribution_log| 相对最大值缩放（真实线性归因值，同结果面板做法）。
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ApiError, getStationForecastEnvelope } from '../../services/api.js'
@@ -93,6 +105,26 @@ const primary = computed(() => forecast.value?.forecasts?.[0])
 const originTime = computed(() => forecast.value?.origin_time)
 const evaluation = computed(() => primary.value?.evaluation || {})
 const blockedHorizons = computed(() => forecast.value?.model_card?.blocked_horizons || [])
+
+// 驱动条：组内相对最大 |contribution_log| 作为显示比例尺，只缩放不造数
+const maxDriverContrib = computed(() =>
+  (primary.value?.drivers || []).reduce((m, d) => {
+    const v = Number(d.contribution_log)
+    return Number.isFinite(v) ? Math.max(m, Math.abs(v)) : m
+  }, 0)
+)
+
+function driverBarWidth(d) {
+  const v = Number(d.contribution_log)
+  if (!Number.isFinite(v) || maxDriverContrib.value <= 0) return '0%'
+  return `${Math.min(100, (Math.abs(v) / maxDriverContrib.value) * 100).toFixed(1)}%`
+}
+
+function fmtContrib(v) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return '—'
+  return `${n > 0 ? '+' : ''}${n}`
+}
 
 async function load(force = false) {
   if (!props.stationId) {
@@ -158,61 +190,151 @@ function gotoHeatmap() {
 }
 .sfc-main {
   display: grid;
-  gap: 5px;
-}
-.sfc-band-row {
-  display: flex;
-  align-items: baseline;
   gap: 8px;
-  flex-wrap: wrap;
+}
+
+/* ---- 主值：大数字版式（非概率主值不画环），左侧档位语义色竖条承色 ---- */
+.sfc-hero {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 8px 12px;
+  border-left: 3px solid var(--risk-medium, #facc15);
+  border-radius: 0 var(--radius-sm, 10px) var(--radius-sm, 10px) 0;
+  background: color-mix(in srgb, var(--risk-medium, #facc15) 6%, transparent);
+}
+.sfc-hero--none {
+  border-left-color: var(--risk-low, #22c55e);
+  background: color-mix(in srgb, var(--risk-low, #22c55e) 6%, transparent);
+}
+.sfc-hero--light {
+  border-left-color: var(--risk-medium, #facc15);
+  background: color-mix(in srgb, var(--risk-medium, #facc15) 6%, transparent);
+}
+.sfc-hero--moderate {
+  border-left-color: var(--risk-critical, #ef4444);
+  background: color-mix(in srgb, var(--risk-critical, #ef4444) 6%, transparent);
 }
 .sfc-band {
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   color: #04121f;
 }
 .sfc-band--none { background: var(--risk-low, #22c55e); }
 .sfc-band--light { background: var(--risk-medium, #facc15); }
 .sfc-band--moderate { background: var(--risk-critical, #ef4444); color: #fff; }
-.sfc-value {
-  font-size: 12px;
+.sfc-hero-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
 }
-.sfc-value b {
-  font-size: 16px;
+.sfc-hero-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.sfc-hero-value b {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
 }
-.sfc-value small {
+.sfc-hero-value i {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.sfc-hero-range {
+  font-size: 11px;
+  font-family: var(--font-mono);
   color: var(--text-tertiary, var(--text-secondary));
 }
 .sfc-meta,
-.sfc-note,
-.sfc-eval {
+.sfc-note {
+  margin: 0;
   font-size: 11px;
   line-height: 1.6;
   color: var(--text-secondary);
 }
+
+/* ---- 驱动因子：令牌化条形 + 240ms 宽度过渡 + 数值右对齐等宽 ---- */
 .sfc-drivers-title {
+  display: block;
+  margin-bottom: 8px;
   font-size: 11px;
   color: var(--text-tertiary, var(--text-secondary));
 }
 .sfc-drivers ul {
   list-style: none;
-  margin: 4px 0 0;
+  margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
+  display: grid;
+  gap: 8px;
   font-size: 11px;
   color: var(--text-secondary);
 }
-.sfc-drivers i {
-  font-style: normal;
-  margin-right: 2px;
+.sfc-driver {
+  display: grid;
+  gap: 4px;
 }
-.sfc-drivers i.up { color: var(--risk-high, #f97316); }
-.sfc-drivers i.down { color: var(--risk-low, #22c55e); }
+.sfc-driver-line {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+}
+.sfc-driver-line > i {
+  font-style: normal;
+  flex: none;
+}
+.sfc-driver-line > i.up { color: var(--risk-high, #f97316); }
+.sfc-driver-line > i.down { color: var(--risk-low, #22c55e); }
+.sfc-driver-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sfc-driver-val {
+  flex: none;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+.sfc-driver-track {
+  display: block;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border-subtle) 30%, transparent);
+  overflow: hidden;
+}
+.sfc-driver-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 240ms ease;
+}
+.sfc-driver-bar.up { background: var(--risk-high, #f97316); }
+.sfc-driver-bar.down { background: var(--risk-low, #22c55e); }
+
+/* ---- 评估注记：左侧 2px 语义色竖条 + 浅底分层 ---- */
+.sfc-eval {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--c-watch, var(--risk-medium, #f5b45d));
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--c-watch, var(--risk-medium, #f5b45d)) 7%, transparent);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
 .sfc-disclosure {
   font-size: 11px;
   color: var(--text-secondary);
@@ -225,7 +347,39 @@ function gotoHeatmap() {
   margin: 4px 0 0;
   line-height: 1.6;
 }
-.sfc-goto {
+
+/* ---- 跳转按钮：主色描边 + 箭头图标，≥44px 触达 ---- */
+.stn-inline-btn.sfc-goto {
   justify-self: start;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  border-radius: var(--radius-pill, 999px);
+  background: transparent;
+  color: var(--color-primary);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.stn-inline-btn.sfc-goto:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border-color: var(--color-primary);
+  filter: none;
+}
+.sfc-goto-arrow {
+  font-style: normal;
+  transition: transform 160ms ease;
+}
+.stn-inline-btn.sfc-goto:hover .sfc-goto-arrow {
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sfc-driver-bar,
+  .stn-inline-btn.sfc-goto,
+  .sfc-goto-arrow {
+    transition: none;
+  }
+  .stn-inline-btn.sfc-goto:hover .sfc-goto-arrow {
+    transform: none;
+  }
 }
 </style>

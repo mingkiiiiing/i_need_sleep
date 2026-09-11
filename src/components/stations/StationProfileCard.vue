@@ -59,20 +59,32 @@ const lagText = computed(() => (props.quality?.observed_lag_h != null ? formatLa
 </script>
 
 <style scoped>
+/* 状态徽标：令牌色 + 25% 当前色微辉光（0 0 10px），随 statusTone 走既有令牌 */
 .spc-status {
   font-size: 10.5px;
   padding: 1px 8px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   white-space: nowrap;
+  box-shadow: 0 0 10px color-mix(in srgb, currentColor 25%, transparent);
 }
 .spc-status--ok { color: var(--risk-low, #5fd6a4); border-color: color-mix(in srgb, currentColor 45%, transparent); }
 .spc-status--delayed { color: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, currentColor 45%, transparent); }
 .spc-status--bad { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, currentColor 45%, transparent); }
+/* kv 排版节奏统一：label 11px muted / value 等宽 12px
+   （提高选择器优先级以稳定覆盖页面级 .stn-kv 共享类） */
+.spc .stn-kv dt { font-size: 11px; }
+.spc .stn-kv dd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
 .spc-kv { margin: 0; }
 .spc-loc {
   margin-left: 6px;
   font-size: 10px;
+  font-family: var(--font-body);
   color: var(--text-muted);
 }
 .spc-loc--warn { color: var(--risk-medium, #f5b45d); }

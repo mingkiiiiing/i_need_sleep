@@ -46,7 +46,7 @@
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T205433Z_b574648cae24\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T205433Z_b574648cae24\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T205433Z_b574648cae24\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
@@ -66,7 +66,7 @@
     {
       "name": "T2 深链站点 A：本站 vs 全湖中位可见",
       "ok": true,
-      "detail": "本站风险等级 vs 全湖中位（79 站）\n0.04 vs 0.018 ratio（+0.023，高于全湖中位）"
+      "detail": "本站风险等级 vs 全湖中位（79 站）\n0.018 vs 0.018 ratio（+0，与全湖中位持平）"
     },
     {
       "name": "T2 深链站点 A：hero 口径为本站预测",
@@ -76,7 +76,7 @@
     {
       "name": "T2 深链站点 A：T+1 概率与接口同值（展示精度）",
       "ok": true,
-      "detail": "页面=4% 接口=4.03807156839215%"
+      "detail": "页面=1.8% 接口=1.7517443056319253%"
     },
     {
       "name": "T3 快速切换后落在最后目标 A",
@@ -86,7 +86,7 @@
     {
       "name": "T3 落点 A 的 T+1 值与接口一致（未串站）",
       "ok": true,
-      "detail": "页面=4% A=4.03807156839215% C=1.7517443056319253%"
+      "detail": "页面=1.8% A=1.7517443056319253% C=1.7517443056319253%"
     },
     {
       "name": "T4 换指标后 hash metric=chla",
@@ -96,7 +96,7 @@
     {
       "name": "T4 hero 显示 μg/L 口径",
       "ok": true,
-      "detail": "hero=10.328 μg/L"
+      "detail": "hero=8.961 μg/L"
     },
     {
       "name": "T5 hero 口径为\"中长期\"",
@@ -166,7 +166,7 @@
     {
       "name": "T6b 下拉选站后 hero 数值与 B 接口同值",
       "ok": true,
-      "detail": "页面=1.8% 接口=1.7517443056319253%"
+      "detail": "页面=1.3% 接口=1.2628364558025738%"
     },
     {
       "name": "T7 后退：hash 回到 A 且对象名为 A",
@@ -241,12 +241,12 @@
     {
       "name": "T10 站点驱动每项带来源标注",
       "ok": true,
-      "detail": "[\"逐站 27.36 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.138 mg/L · MEE 实测\",\"逐站 1.743 mg/L · MEE 实测\",\"逐站 0.068 mg/L · MEE 实测·未纳入当前机理公式\"]"
+      "detail": "[\"逐站 27.19 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\"]"
     },
     {
       "name": "T10 温度来源标注与本站观测一致（缺测时诚实回退网格）",
       "ok": true,
-      "detail": "observed_temp=true 标注=逐站 27.36 ℃ · 本站实测·MEE 水温"
+      "detail": "observed_temp=true 标注=逐站 27.19 ℃ · 本站实测·MEE 水温"
     },
     {
       "name": "T10 光照标注为网格/气候态且非本站实测",
@@ -271,7 +271,7 @@
     {
       "name": "T10 流速明示不可用",
       "ok": true,
-      "detail": "[\"逐站 27.36 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.138 mg/L · MEE 实测\",\"逐站 1.743 mg/L · MEE 实测\",\"逐站 0.068 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
+      "detail": "[\"逐站 27.19 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
     },
     {
       "name": "T10 全湖驱动数据口径披露光/流",
@@ -341,7 +341,7 @@
     {
       "name": "T13 外部第三方资源错误单列披露（不阻塞门禁）",
       "ok": true,
-      "detail": "external=24 [{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/417/854\"},{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/418/854\"}]"
+      "detail": "external=24 [{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/10/418/852\"},{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/10/418/853\"}]"
     },
     {
       "name": "T13 控制台零警告",

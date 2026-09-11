@@ -7,9 +7,11 @@
           :stations="stations"
           :selected-id="selectedId"
           :state="stationsState"
+          :chla-by-id="chlaById"
           v-model:search="search"
           v-model:location-filter="locationFilter"
           @select="selectStation"
+          @hover="hoverId = $event"
           @retry="loadStations(true)"
           @reset-filters="resetFilters"
         />
@@ -29,6 +31,7 @@
         ref="mapRef"
         :model-value="selectedId"
         :point-list="mapPoints"
+        :highlight-id="hoverId"
         :show-header="false"
         :show-tabs="false"
         :show-legend="false"
@@ -83,6 +86,7 @@ import StationTrendPanel from '../components/stations/StationTrendPanel.vue'
 import StationDetailTabs from '../components/stations/StationDetailTabs.vue'
 import {
   fetchRealtimeStations,
+  fetchRealtimeSummary,
   fetchStationObservations,
   fetchStationQuality,
   sortStationsByDataStatus,
@@ -102,6 +106,23 @@ const qualityState = ref('loading')
 
 const search = ref('')
 const locationFilter = ref('all')
+
+// 列表 hover ↔ 地图高亮联动（键盘 focus 同样触发）
+const hoverId = ref('')
+
+// 列表「最新 Chl-a」芯片的真实数据源：/realtime/summary markers（有坐标上报站点），
+// 与地图着色同一口径；失败保留上次结果，不阻塞页面。
+const chlaById = ref({})
+async function loadSummaryChla() {
+  try {
+    const s = await fetchRealtimeSummary()
+    const map = {}
+    ;(s?.markers || []).forEach((m) => {
+      if (m?.id && m.chla != null) map[m.id] = Number(m.chla)
+    })
+    chlaById.value = map
+  } catch { /* 静默：芯片等待下次 60s 刷新，不造值 */ }
+}
 
 let obsToken = 0
 let qualityToken = 0
@@ -228,8 +249,16 @@ onMounted(() => {
   refreshTimer = setInterval(() => loadStations(true, true), 60_000)
 })
 
+onMounted(() => loadSummaryChla())
+
 onBeforeUnmount(() => {
   if (refreshTimer) clearInterval(refreshTimer)
+})
+
+// 跟随页面 60s 刷新节奏同步最新 chla 快照
+onMounted(() => {
+  const timer = setInterval(loadSummaryChla, 60_000)
+  onBeforeUnmount(() => clearInterval(timer))
 })
 </script>
 

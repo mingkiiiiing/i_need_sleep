@@ -56,7 +56,9 @@ const props = defineProps({
   // P01 允许风险面在地形图层同样显示（默认保持“仅卫星图层”的旧行为）
   heatAllLayers: { type: Boolean, default: false },
   // 外部递增触发：回到默认视野 + 重试瓦片
-  resetToken: { type: Number, default: 0 }
+  resetToken: { type: Number, default: 0 },
+  // 列表↔地图联动（可选）：外部 hover/聚焦的站点 id，对应点位加高亮描边；空串=无高亮
+  highlightId: { type: String, default: '' }
 })
 
 const emit = defineEmits(['update:modelValue', 'tile-error'])
@@ -102,10 +104,11 @@ function createMarkerIcon(point, isActive) {
   const color = point.color || colors[riskClass] || colors.low
   const dotSize = isActive ? 20 : 14
   const ringSize = isActive ? 36 : 26
+  const isHot = !isActive && props.highlightId === point.id
 
   // point.short/name 来自接口，必须走 textContent，不能拼进 HTML 字符串
   const root = document.createElement('div')
-  root.className = `lake-marker${isActive ? ' is-active' : ''} level-${riskClass}`
+  root.className = `lake-marker${isActive ? ' is-active' : ''}${isHot ? ' is-hot' : ''} level-${riskClass}`
   root.style.setProperty('--mc', color)
   root.style.setProperty('--dot', `${dotSize}px`)
   root.style.setProperty('--ring', `${ringSize}px`)
@@ -290,9 +293,10 @@ function addMarkers() {
   props.pointList.forEach(point => {
     if (!point.coord) return
     const isActive = point.id === props.modelValue
+    const isHot = !isActive && props.highlightId === point.id
     const marker = L.marker([point.coord.lat, point.coord.lon], {
       icon: createMarkerIcon(point, isActive),
-      zIndexOffset: isActive ? 1000 : 0
+      zIndexOffset: isActive ? 1000 : isHot ? 600 : 0
     })
 
     marker.on('click', () => {
@@ -317,7 +321,8 @@ function updateMarkerStates() {
     if (!point) return
     const isActive = id === props.modelValue
     marker.setIcon(createMarkerIcon(point, isActive))
-    marker.setZIndexOffset(isActive ? 1000 : 0)
+    const isHot = !isActive && props.highlightId === id
+    marker.setZIndexOffset(isActive ? 1000 : isHot ? 600 : 0)
   })
 }
 
@@ -412,6 +417,10 @@ function switchLayer(layer) {
 }
 
 watch(() => props.modelValue, () => {
+  updateMarkerStates()
+})
+
+watch(() => props.highlightId, () => {
   updateMarkerStates()
 })
 
@@ -710,6 +719,18 @@ onBeforeUnmount(() => {
 .lake-marker:hover .lake-marker-dot {
   transform: scale(1.15);
   transition: transform 0.15s ease;
+}
+
+/* 列表 hover 联动高亮（is-hot）：琥珀描边环+微放大，不与选中态(is-active)叠加 */
+.lake-marker.is-hot .lake-marker-ring {
+  opacity: 1;
+  box-shadow: 0 0 0 3px var(--c-watch, #f5b45d),
+    0 0 0 6px color-mix(in srgb, var(--c-watch, #f5b45d) 45%, transparent),
+    0 0 20px color-mix(in srgb, var(--c-watch, #f5b45d) 75%, transparent);
+}
+
+.lake-marker.is-hot .lake-marker-dot {
+  transform: scale(1.25);
 }
 
 /* Hide default leaflet marker shadow */

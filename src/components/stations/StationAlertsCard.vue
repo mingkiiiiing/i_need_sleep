@@ -24,7 +24,13 @@
       </li>
     </ul>
 
-    <p v-else class="sac-none" data-role="no-alert">当前无活动预警</p>
+    <p v-else class="sac-none" data-role="no-alert">
+      <svg class="sac-none-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+        <path d="M8 1.6 13.4 3.6v4c0 3.1-2.2 5.5-5.4 6.8C4.8 13.1 2.6 10.7 2.6 7.6v-4L8 1.6Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+        <path d="m5.8 7.9 1.6 1.6 3-3.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span>当前无活动预警</span>
+    </p>
   </section>
 </template>
 
@@ -76,17 +82,32 @@ onMounted(() => load())
   gap: 6px;
 }
 .sac-item {
+  --sac-bar: var(--color-primary);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  padding: 6px 9px;
+  padding: 6px 9px 6px 12px;
   background: var(--surface-panel-soft);
+  position: relative;
+  overflow: hidden;
 }
-.sac-item--moderate { border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 45%, transparent); }
-.sac-item--light { border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 45%, transparent); }
+/* 左缘 3px 严重度色条：moderate= critical 红 / light= medium 琥珀（既有映射），
+   无等级字段时退统一主色，不另造等级 */
+.sac-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--sac-bar);
+}
+.sac-item--moderate { --sac-bar: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 45%, transparent); }
+.sac-item--light { --sac-bar: var(--risk-medium, #f5b45d); border-color: color-mix(in srgb, var(--risk-medium, #f5b45d) 45%, transparent); }
+.sac-item:hover { filter: brightness(1.12); }
 .sac-level {
   font-size: 10.5px;
   padding: 1px 8px;
@@ -103,5 +124,13 @@ onMounted(() => load())
   margin: 0;
   font-size: 12px;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.85;
+}
+.sac-none-ico { flex: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .sac-item { transition: filter 160ms var(--ease-out, ease); }
 }
 </style>

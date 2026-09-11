@@ -29,57 +29,57 @@
         </button>
       </div>
 
-    <!-- 指标明细：11 项状态一行不缺，可溯源 -->
-    <div v-if="activeTab === 'detail'" class="stn-table-wrap" role="tabpanel" aria-label="指标明细">
-      <table class="stn-table">
-        <thead>
-          <tr>
-            <th>指标</th><th>数值</th><th>单位</th><th>状态</th><th>QC</th><th>观测时间</th><th>快照</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in rows" :key="row.variable_code">
-            <td>{{ variableLabel(row.variable_code) }}</td>
-            <td class="stn-mono">{{ row.observation_status === 'ok' || row.observation_status === 'qc_rejected' ? fmtMeasure(row.value) : '—' }}</td>
-            <td>{{ row.unit || '—' }}</td>
-            <td>
-              <span class="sdt-status" :class="`sdt-status--${row.observation_status}`">
-                {{ OBS_STATUS_TEXT[row.observation_status] || row.observation_status }}
-              </span>
-            </td>
-            <td>{{ row.qc_status }}</td>
-            <td class="stn-mono">{{ formatStamp(row.observed_at) }}</td>
-            <td class="stn-mono sdt-snap">{{ row.snapshot_id.replace('mee_surface_water_realtime_', '') }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- 指标明细：11 项状态一行不缺，可溯源；表头在滚动容器内吸顶 -->
+      <div v-if="activeTab === 'detail'" class="stn-table-wrap sdt-table-wrap" role="tabpanel" aria-label="指标明细">
+        <table class="stn-table">
+          <thead>
+            <tr>
+              <th>指标</th><th class="sdt-num">数值</th><th>单位</th><th>状态</th><th>QC</th><th>观测时间</th><th>快照</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in rows" :key="row.variable_code">
+              <td>{{ variableLabel(row.variable_code) }}</td>
+              <td class="stn-mono sdt-num">{{ row.observation_status === 'ok' || row.observation_status === 'qc_rejected' ? fmtMeasure(row.value) : '—' }}</td>
+              <td>{{ row.unit || '—' }}</td>
+              <td>
+                <span class="sdt-status" :class="`sdt-status--${row.observation_status}`">
+                  {{ OBS_STATUS_TEXT[row.observation_status] || row.observation_status }}
+                </span>
+              </td>
+              <td>{{ row.qc_status }}</td>
+              <td class="stn-mono">{{ formatStamp(row.observed_at) }}</td>
+              <td class="stn-mono sdt-snap">{{ row.snapshot_id.replace('mee_surface_water_realtime_', '') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <!-- 情景推演：独立标签页，惰性加载情景分区内容，绝不与实时站点合并 -->
-    <div v-else class="sdt-sim" role="tabpanel" aria-label="情景推演（情景数据）">
-      <p class="sdt-sim-banner">
-        以下为情景推演分区内容，与上方真实站点无关；系统不会为真实站点自动生成情景推演分数。
-      </p>
-      <div v-if="simState === 'idle'" class="stn-list-empty">
-        <p class="sle-title">情景推演未加载</p>
-        <p class="sle-desc">按需加载情景分区预测（demo_zone · simulated 轨）。</p>
-        <button type="button" class="stn-inline-btn" @click="loadSim">加载情景推演</button>
+      <!-- 情景推演：独立标签页，惰性加载情景分区内容，绝不与实时站点合并 -->
+      <div v-else class="sdt-sim" role="tabpanel" aria-label="情景推演（情景数据）">
+        <p class="sdt-sim-banner">
+          以下为情景推演分区内容，与上方真实站点无关；系统不会为真实站点自动生成情景推演分数。
+        </p>
+        <div v-if="simState === 'idle'" class="stn-list-empty">
+          <p class="sle-title">情景推演未加载</p>
+          <p class="sle-desc">按需加载情景分区预测（demo_zone · simulated 轨）。</p>
+          <button type="button" class="stn-inline-btn" @click="loadSim">加载情景推演</button>
+        </div>
+        <div v-else-if="simState === 'loading'" class="stn-list-skeleton" aria-hidden="true">
+          <div class="skel-row" v-for="i in 3" :key="i"></div>
+        </div>
+        <div v-else-if="simState === 'error'" class="stn-list-empty" role="alert">
+          <p class="sle-title">情景推演加载失败</p>
+          <button type="button" class="stn-inline-btn" @click="loadSim">重试</button>
+        </div>
+        <ul v-else class="sdt-sim-grid">
+          <li v-for="item in simRows" :key="item.id" class="sdt-sim-card">
+            <span class="sdt-sim-name">{{ item.short }} · {{ item.name }}</span>
+            <span class="sdt-sim-score">{{ item.score ?? '—' }}</span>
+            <span class="sdt-sim-tag">T+{{ horizon }}d 情景分数 · simulated</span>
+          </li>
+        </ul>
       </div>
-      <div v-else-if="simState === 'loading'" class="stn-list-skeleton" aria-hidden="true">
-        <div class="skel-row" v-for="i in 3" :key="i"></div>
-      </div>
-      <div v-else-if="simState === 'error'" class="stn-list-empty" role="alert">
-        <p class="sle-title">情景推演加载失败</p>
-        <button type="button" class="stn-inline-btn" @click="loadSim">重试</button>
-      </div>
-      <ul v-else class="sdt-sim-grid">
-        <li v-for="item in simRows" :key="item.id" class="sdt-sim-card">
-          <span class="sdt-sim-name">{{ item.short }} · {{ item.name }}</span>
-          <span class="sdt-sim-score">{{ item.score ?? '—' }}</span>
-          <span class="sdt-sim-tag">T+{{ horizon }}d 情景分数 · simulated</span>
-        </li>
-      </ul>
-    </div>
     </div>
   </section>
 </template>
@@ -135,20 +135,27 @@ watch(activeTab, (key) => {
 </script>
 
 <style scoped>
+/* ---- 折叠头：≥44px 触达，箭头 200ms 旋转 ---- */
 .sdt-toggle {
   appearance: none;
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 40px;
-  border: none;
-  background: transparent;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm, 10px);
+  background: var(--surface-panel-soft);
   color: var(--text-primary);
   font-size: 12.5px;
   font-weight: 650;
   cursor: pointer;
   text-align: left;
+  transition: border-color 160ms ease;
+}
+.sdt-toggle:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 .sdt-toggle small {
   font-size: 10px;
@@ -163,12 +170,13 @@ watch(activeTab, (key) => {
 }
 .sdt-caret {
   margin-left: auto;
+  flex: none;
   width: 8px;
   height: 8px;
   border-right: 2px solid var(--text-muted);
   border-bottom: 2px solid var(--text-muted);
   transform: rotate(45deg);
-  transition: transform 0.15s ease;
+  transition: transform 200ms ease;
 }
 .sdt-caret--open {
   transform: rotate(225deg);
@@ -179,11 +187,11 @@ watch(activeTab, (key) => {
 .sdt-tabs {
   display: inline-flex;
   gap: 4px;
-  padding: 3px;
+  padding: 4px;
   border: 1px solid var(--border-subtle);
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   background: var(--surface-panel-soft);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 .stn-tab {
   appearance: none;
@@ -194,7 +202,7 @@ watch(activeTab, (key) => {
   font-weight: 600;
   min-height: 34px;
   padding: 4px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill, 999px);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -206,18 +214,47 @@ watch(activeTab, (key) => {
   color: var(--text-primary);
   border-color: color-mix(in srgb, var(--color-primary) 42%, transparent);
 }
-.sdt-status { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-subtle); white-space: nowrap; }
+
+/* ---- 明细表：滚动容器内表头吸顶 + 斑马纹 + 数值列右对齐等宽 ---- */
+.sdt-table-wrap {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm, 10px);
+}
+.sdt-table-wrap .stn-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-panel-raised);
+}
+.sdt-table-wrap .stn-table tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--surface-panel-soft) 40%, transparent);
+}
+.sdt-table-wrap .stn-table tbody tr:hover td {
+  background: var(--surface-panel-soft);
+}
+.sdt-table-wrap .stn-table th.sdt-num {
+  text-align: right;
+}
+.sdt-table-wrap .stn-table td.sdt-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.sdt-status { font-size: 10.5px; padding: 1px 8px; border-radius: var(--radius-pill, 999px); border: 1px solid var(--border-subtle); white-space: nowrap; }
 .sdt-status--ok { color: var(--risk-low, #5fd6a4); }
 .sdt-status--missing, .sdt-status--parse_failed { color: var(--text-muted); }
 .sdt-status--qc_rejected { color: var(--risk-critical, #ef4444); }
 .sdt-snap { color: var(--text-muted); }
+
+/* ---- 情景推演：8/12/16 阶排版节奏，数值等宽令牌化 ---- */
 .sdt-sim-banner {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: 11.5px;
   color: var(--risk-medium, #f5b45d);
   border: 1px dashed color-mix(in srgb, var(--risk-medium, #f5b45d) 50%, transparent);
-  border-radius: 10px;
-  padding: 6px 10px;
+  border-radius: var(--radius-sm, 10px);
+  padding: 8px 12px;
   line-height: 1.6;
 }
 .sdt-sim-grid {
@@ -226,17 +263,29 @@ watch(activeTab, (key) => {
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 .sdt-sim-card {
   display: grid;
-  gap: 2px;
+  gap: 4px;
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: var(--radius-sm, 10px);
   background: var(--surface-panel-soft);
-  padding: 8px 10px;
+  padding: 12px;
 }
 .sdt-sim-name { font-size: 12px; color: var(--text-primary); font-weight: 600; }
-.sdt-sim-score { font-family: var(--font-mono); font-size: 16px; color: var(--text-secondary); }
+.sdt-sim-score {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
 .sdt-sim-tag { font-size: 9.5px; color: var(--text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sdt-toggle,
+  .sdt-caret {
+    transition: none;
+  }
+}
 </style>
