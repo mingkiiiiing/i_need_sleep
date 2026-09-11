@@ -36,7 +36,7 @@ def _spec(task_id: str, variant: str):
 
 def test_version_constants_stay_aligned():
     """生成器与运行层的产物版本常量必须一致，否则运行层按"版本不符=不可用"拒读。"""
-    assert ARTIFACT_VERSION == SEASONAL_CLIMATOLOGY_VERSION == "seasonal_climatology_v3"
+    assert ARTIFACT_VERSION == SEASONAL_CLIMATOLOGY_VERSION == "seasonal_climatology_v4"
 
 
 def test_split_month_segments_disjoint_ordered():
@@ -124,7 +124,7 @@ def test_regenerated_artifact_is_v3_with_disjoint_segments():
     artifact = json.loads(
         (V3_PACKAGE_DIR / "evaluation" / "seasonal_climatology.json").read_text(encoding="utf-8")
     )
-    assert artifact["artifact_version"] == "seasonal_climatology_v3"
+    assert artifact["artifact_version"] == "seasonal_climatology_v4"
     tasks = {f"{t['task_id']}/{t['variant']}": t for t in artifact["tasks"]}
     assert set(tasks) == {"T1/bloom", "T3/density", "T4/biomass", "T5/chla", "T6/probability"}
     for name, blk in tasks.items():
@@ -135,3 +135,39 @@ def test_regenerated_artifact_is_v3_with_disjoint_segments():
         assert bt["interval_calibration_max_month"] < bt["test_min_month"], name
         assert bt["interval_calibration_n"] > 0 and bt["coverage_n"] > 0, name
         assert bt.get("empirical_coverage") is not None, name
+        # 类别支持字段（v4）：二分类/概率任务必须披露正负例；回归任务为 null（不适用）
+        if blk.get("problem_type") in ("binary", "probability"):
+            assert isinstance(bt.get("test_positive_n"), int), name
+            assert isinstance(bt.get("test_negative_n"), int), name
+            assert bt["test_positive_n"] + bt["test_negative_n"] == bt["coverage_n"], name
+            assert isinstance(bt.get("class_support_sufficient"), bool), name
+        else:
+            assert bt.get("class_support_sufficient") is None, name
+
+
+def test_single_class_test_segment_downgrades_to_single_class_test():
+    """审计整改 P0-1：全负例测试段的 100% 覆盖率不得判 validated/可决策。"""
+    from backend.app.algorithm_models import (
+        CALIBRATION_SINGLE_CLASS_TEST,
+        CALIBRATION_VALIDATED,
+        _calibration_verdict,
+    )
+    # 样本充足、覆盖率达标，但测试段 0 正例 → single_class_test
+    status, reason, gap = _calibration_verdict(
+        1.0, 31,
+        source_label="季节基线独立测试段",
+        class_support={"applicable": True, "test_positive_n": 0, "test_negative_n": 31,
+                        "class_support_sufficient": False},
+    )
+    assert status == CALIBRATION_SINGLE_CLASS_TEST and gap is None and "正例 0" in reason
+    # 类别支持齐备时同参数应判 validated
+    status2, _, _ = _calibration_verdict(
+        0.95, 40,
+        source_label="季节基线独立测试段",
+        class_support={"applicable": True, "test_positive_n": 4, "test_negative_n": 36,
+                        "class_support_sufficient": True},
+    )
+    assert status2 == CALIBRATION_VALIDATED
+    # 回归任务不适用类别门槛：class_support=None 时行为不变
+    status3, _, _ = _calibration_verdict(0.95, 40, source_label="季节基线独立测试段")
+    assert status3 == CALIBRATION_VALIDATED

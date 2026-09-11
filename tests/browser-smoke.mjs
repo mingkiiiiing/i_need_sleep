@@ -33,9 +33,21 @@ function check(name, ok, detail) {
   }
 }
 
-async function expected(entityId, metric, horizon) {
+async function expected(entityId, metric, horizon, tries = 6) {
+  // 快照后台重建期间站点视图会短暂 409/data 为空：指数退避重试，而不是让整轮冒烟崩死
   const url = `${API}/model/v3/prediction-snapshot?entity_id=${encodeURIComponent(entityId)}&focus_metric=${metric}`
-  const d = (await (await fetch(url)).json()).data
+  let d = null
+  for (let t = 0; t < tries; t++) {
+    try {
+      const resp = await fetch(url)
+      if (resp.ok) {
+        const body = (await resp.json()).data
+        if (body && body.horizons && body.horizons[String(horizon)]) { d = body; break }
+      }
+    } catch { /* 网络抖动继续重试 */ }
+    await new Promise((r) => setTimeout(r, 4000))
+  }
+  if (!d) throw new Error(`expected(${entityId}, ${metric}, ${horizon}): 快照暂不可用（重试 ${tries} 次）`)
   const h = d.horizons[String(horizon)]
   const key = (h.analysis_focus || {}).result_key
   const box = (h.results || {})[key] || {}
@@ -392,7 +404,15 @@ async function main() {
   await page.click('[data-role="result-tab-overview"]')
   await settle(800)
   st = await readPage(page)
-  check('T9 预测覆盖 79/79', (st.predictionCoverage || '').includes('79/79'), st.predictionCoverage)
+  // 站点分母动态化（审计整改）：目录 79 站、当轮活跃可能只有 78，断言读 API 实际口径
+  {
+    const statusResp = await (await fetch(`${API}/model/v3/prediction-status`)).json()
+    const stb = (statusResp.data || {}).stations || {}
+    const expectCoverage = `${stb.done}/${stb.total}`
+    check('T9 预测覆盖与 API 实际口径一致（动态分母）',
+      (st.predictionCoverage || '').includes(expectCoverage),
+      `页面=${st.predictionCoverage} API=${expectCoverage}`)
+  }
   check('T9 地图覆盖 48/79', (st.mapCoverage || '').includes('48/79'), st.mapCoverage)
   check('T9 未上图站披露原因（缺可核验坐标）', (st.notPlottable || '').includes('缺少可核验坐标'), st.notPlottable)
 

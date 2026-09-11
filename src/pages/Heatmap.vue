@@ -883,7 +883,7 @@ async function loadSpatialField() {
   spatialState.value = 'loading'
   try {
     // 站点场直接来自预测快照：与右侧结果面板同一 prediction_snapshot_id，
-    // 覆盖分母统一为快照站点层总数（79），缺坐标站逐站给出排除原因。
+    // 覆盖分母统一为快照站点层总数（动态：目录站-当轮缺测站），缺坐标站逐站给出排除原因。
     const { data } = await getPredictionStationFieldEnvelope(selectedHorizon.value, metric.value)
     if (token !== spatialRequestToken) return
     spatialField.value = data
@@ -1104,7 +1104,10 @@ const predictionStatusText = computed(() => {
       const rejected = route?.model_rejected
         ? '（该时效原模型留出样本不足，已按路由规则降级）'
         : ''
-      return `季节气候态基线：按月给出历史同期值，全湖同值、不含站点分辨${rejected}`
+      const fallback = diag?.seasonalLookupMode === 'global_fallback'
+        ? '（目标月无同期样本，使用全期均值基线）'
+        : ''
+      return `季节气候态基线：按月给出历史同期值，全湖同值、不含站点分辨${fallback}${rejected}`
     }
     const metrics = diag?.testMetrics || {}
     const parts = []
@@ -1303,7 +1306,7 @@ const modelSpatialBoundary = computed(() => {
 })
 
 const spatialLayerSummary = computed(() => {
-  // 覆盖口径统一到快照：total=快照站点层总数（79），covered=可上图站，
+  // 覆盖口径统一到快照：total=快照站点层总数（动态），covered=可上图站，
   // withPrediction=有预测值站（含缺坐标不可上图的站）。
   const coverage = spatialField.value?.coverage || null
   return {

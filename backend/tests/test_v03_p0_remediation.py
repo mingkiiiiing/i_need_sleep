@@ -125,7 +125,7 @@ def test_climatology_artifact_carries_coverage_fields():
     payload = json.loads(
         (V3_PACKAGE_DIR / "evaluation" / "seasonal_climatology.json").read_text(encoding="utf-8")
     )
-    assert payload["artifact_version"] == "seasonal_climatology_v3"
+    assert payload["artifact_version"] == "seasonal_climatology_v4"
     assert payload["coverage_acceptance_min"] == COVERAGE_ACCEPTANCE_MIN
     for task in payload["tasks"]:
         backtest = task["backtest"]
@@ -137,6 +137,10 @@ def test_climatology_artifact_carries_coverage_fields():
             assert backtest["protocol"] == "time_block_three_segment_v1"
             assert backtest["interval_calibration_max_month"] < backtest["test_min_month"]
             assert backtest["interval_calibration_n"] > 0 and backtest["coverage_n"] > 0
+            # 类别支持（v4）：二分类/概率任务必须披露正负例构成；全负例段由运行层判 single_class_test
+            if task.get("problem_type") in ("binary", "probability"):
+                assert backtest["test_positive_n"] + backtest["test_negative_n"] == backtest["coverage_n"]
+                assert isinstance(backtest["class_support_sufficient"], bool)
 
 
 # ------------------------------------------------- 中长期路由（P1）

@@ -701,6 +701,9 @@ CALIBRATION_VALIDATED = "validated"
 CALIBRATION_UNDERCOVERED = "undercovered"
 CALIBRATION_NO_TEST_EVIDENCE = "no_test_evidence"
 CALIBRATION_INSUFFICIENT_TEST_EVIDENCE = "insufficient_test_evidence"
+# 单一类别测试段（审计整改 2026-09-12）：二分类/概率任务的独立测试段只含正例或只含
+# 负例时，无论覆盖率多高都只反映该类覆盖，不构成事件判别力或概率校准证据。
+CALIBRATION_SINGLE_CLASS_TEST = "single_class_test"
 CALIBRATION_UNAVAILABLE = "unavailable"
 
 CALIBRATION_STATUS_LABELS = {
@@ -708,12 +711,14 @@ CALIBRATION_STATUS_LABELS = {
     CALIBRATION_UNDERCOVERED: "留出段经验覆盖率低于验收线，区间宽度不足以覆盖实际误差",
     CALIBRATION_NO_TEST_EVIDENCE: "冻结测试集无该任务标签，经验覆盖率无法核算",
     CALIBRATION_INSUFFICIENT_TEST_EVIDENCE: "冻结测试集样本过少，经验覆盖率不具统计意义",
+    CALIBRATION_SINGLE_CLASS_TEST: "独立测试段只含单一类别样本，覆盖率不构成判别力证据，仅反映该类覆盖",
     CALIBRATION_UNAVAILABLE: "该任务未提供 conformal 区间",
 }
 
 
 def _calibration_verdict(
     empirical_coverage: Any, test_n: Any, *, source_label: str,
+    class_support: dict[str, Any] | None = None,
 ) -> tuple[str, str, float | None]:
     """统一的覆盖率验收判定（模型区间与季节基线区间共用同一条规则）。
 
@@ -721,7 +726,9 @@ def _calibration_verdict(
       ① 无测试样本        → no_test_evidence
       ② 样本少于阈值      → insufficient_test_evidence
       ③ 覆盖率未核算      → insufficient_test_evidence（"没算过"不等于"算过了且合格"）
-      ④ 覆盖率低于验收线  → undercovered（新增；此前这一步缺失，欠覆盖被当成已验证）
+      ④ 覆盖率低于验收线  → undercovered
+    class_support（审计整改 2026-09-12）：二分类/概率任务须同时提供测试段正负例
+    支持；单一类别测试段无论覆盖率多高都只反映该类覆盖 → single_class_test。
     """
     if test_n is None or (isinstance(test_n, (int, float)) and not isinstance(test_n, bool) and int(test_n) == 0):
         return CALIBRATION_NO_TEST_EVIDENCE, CALIBRATION_STATUS_LABELS[CALIBRATION_NO_TEST_EVIDENCE], None
@@ -739,6 +746,16 @@ def _calibration_verdict(
             f"（test_n={n}，阈值 {MIN_CALIBRATION_TEST_N}）",
             None,
         )
+    if class_support is not None and class_support.get("applicable"):
+        pos = class_support.get("test_positive_n")
+        neg = class_support.get("test_negative_n")
+        if not class_support.get("class_support_sufficient"):
+            return (
+                CALIBRATION_SINGLE_CLASS_TEST,
+                f"{CALIBRATION_STATUS_LABELS[CALIBRATION_SINGLE_CLASS_TEST]}"
+                f"（正例 {pos if pos is not None else '—'}、负例 {neg if neg is not None else '—'}，n={n}）",
+                None,
+            )
     if empirical_coverage is None or isinstance(empirical_coverage, bool):
         return (
             CALIBRATION_INSUFFICIENT_TEST_EVIDENCE,
@@ -780,7 +797,7 @@ SEASONAL_CLIMATOLOGY_PATH_FRAGMENT = "evaluation/seasonal_climatology.json"
 # 的边界依旧成立，故 locked 保持 True，并把粒度写进标签本身。
 LONG_TERM_COMPLIANCE_LABEL = "中长期月度趋势"
 SHORT_TERM_COMPLIANCE_LABEL = "短期预测（月度标签粒度）"
-SEASONAL_CLIMATOLOGY_VERSION = "seasonal_climatology_v3"
+SEASONAL_CLIMATOLOGY_VERSION = "seasonal_climatology_v4"
 SEASONAL_CLIMATOLOGY_PROTOCOL = "seasonal_climatology_baseline_v1"
 
 # 中长期交付路由策略（写进中长期结果的 long_term_route，供页面与验收引用）
@@ -2801,6 +2818,9 @@ class AlgorithmModelServiceV3:
         key = str(target_month)
         by_month = clim.get("by_month") or {}
         is_ordinal = clim.get("problem_type") == "ordinal"
+        # 季节表只含季度采样月（2/5/8/11）；目标月缺同期样本时回退全拟合段总体均值，
+        # 必须如实披露 lookup 口径，不得让"按目标月历史同期值"的表述覆盖全局回退。
+        lookup_mode = "target_month_climatology" if key in by_month else "global_fallback"
         value = by_month.get(key, clim.get("fallback"))
         if value is None:
             return None
@@ -2818,10 +2838,23 @@ class AlgorithmModelServiceV3:
             # 进而 decision_usable=true——"没核算过覆盖率"被当成了"覆盖率合格"。
             empirical_coverage = backtest.get("empirical_coverage")
             coverage_n = backtest.get("coverage_n")
+            # 类别支持（v4 产物）：二分类/概率任务的独立测试段须同时含正负例，
+            # 否则覆盖率只反映单一类别覆盖，按 single_class_test 处理、不开放决策。
+            problem_type = clim.get("problem_type")
+            class_support = None
+            if problem_type in {"binary", "probability"}:
+                class_support = {
+                    "applicable": True,
+                    "test_positive_n": backtest.get("test_positive_n"),
+                    "test_negative_n": backtest.get("test_negative_n"),
+                    "class_support_sufficient": backtest.get("class_support_sufficient"),
+                }
             calibration_status, calibration_reason, coverage_gap = _calibration_verdict(
                 empirical_coverage, coverage_n if coverage_n is not None else backtest.get("n"),
                 source_label="季节基线独立测试段",
+                class_support=class_support,
             )
+            interval_calibration_n = backtest.get("interval_calibration_n")
             uncertainty = {
                 "method": "seasonal_climatology_backtest_residual_quantiles",
                 "is_prediction_interval": True,
@@ -2831,7 +2864,9 @@ class AlgorithmModelServiceV3:
                 "point_value": float(value),
                 "calibration_status": calibration_status,
                 "calibration_reason": calibration_reason,
-                "calibration_n": int(backtest.get("n") or 0),
+                # calibration_n = 区间校准段样本数；test_n = 独立测试段样本数。二者
+                # 来自互不重叠的时间段，绝不能互相顶替（审计整改 2026-09-12）。
+                "calibration_n": int(interval_calibration_n) if isinstance(interval_calibration_n, (int, float)) else None,
                 "test_n": int(backtest.get("n") or 0),
                 "empirical_coverage": empirical_coverage,
                 "coverage_target": COVERAGE_TARGET,
@@ -2839,14 +2874,22 @@ class AlgorithmModelServiceV3:
                 "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
                 "coverage_gap": coverage_gap,
                 "coverage_n": int(coverage_n) if isinstance(coverage_n, (int, float)) else None,
+                "test_positive_n": backtest.get("test_positive_n"),
+                "test_negative_n": backtest.get("test_negative_n"),
+                "class_support_sufficient": backtest.get("class_support_sufficient"),
                 "training_protocol": SEASONAL_CLIMATOLOGY_PROTOCOL,
                 "note": (
                     "区间为气候态基线残差分位数（来自区间校准段），非逐站模型残差；"
                     f"经验覆盖率在与校准段不重叠的独立测试段核算：n={int(backtest.get('n') or 0)}"
                     f"（{backtest.get('test_min_month')} 起），"
-                    f"校准段 n={backtest.get('interval_calibration_n')}"
+                    f"校准段 n={interval_calibration_n}"
                     f"（{backtest.get('interval_calibration_min_month')}..{backtest.get('interval_calibration_max_month')}），"
                     f"经验覆盖率 {empirical_coverage if empirical_coverage is None else f'{float(empirical_coverage):.2%}'}。"
+                    + (
+                        f"当前目标月（{int(key)} 月）无同期样本，数值为全拟合段总体均值基线。"
+                        if lookup_mode == "global_fallback"
+                        else ""
+                    )
                 ),
             }
             if uncertainty["p05"] == uncertainty["p95"]:
@@ -2896,6 +2939,7 @@ class AlgorithmModelServiceV3:
             }.get(output_key),
             "status": "ok",
             "value_origin": "seasonal_climatology_baseline",
+            "seasonal_lookup_mode": lookup_mode,
             "model_family": "seasonal_climatology",
             "selected_family": "seasonal_climatology",
             "static_baseline_model": True,

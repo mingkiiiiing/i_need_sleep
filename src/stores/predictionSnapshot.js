@@ -162,6 +162,7 @@ export function entityDiagnostic(horizonDays) {
     comparisonBlockedReason: diag.comparison_blocked_reason || '',
     comparisonEvidence: diag.comparison_evidence || null,
     valueOrigin: diag.value_origin || '',
+    seasonalLookupMode: diag.seasonal_lookup_mode || null,
     modelFamily: diag.model_family || '',
     modelRunId: diag.model_run_id || '',
     sampledEntities: diag.sampled_entities ?? null,

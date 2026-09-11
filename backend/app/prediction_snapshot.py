@@ -85,8 +85,12 @@ _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 # v10：2026-09-12 复审整改——季节基线产物升 v3（三段时序回测，去"校准=测试"泄漏）后，
 #   T+30/60 的经验覆盖率与 decision_usable 语义改变（独立测试覆盖率低于共段构造值，
 #   多数任务将如实翻转为 undercovered/不可决策），uncertainty.note 增加校准段/测试段披露。
+# v11：2026-09-12 第三轮审计整改——季节基线 v4 产物（类别支持字段）生效，
+#   T1/T6 全负例测试段按 single_class_test 判定、不开放决策；calibration_n 改绑
+#   区间校准段样本数；新增 seasonal_lookup_mode（目标月缺同期样本时如实披露全局
+#   回退）；站点四口径（directory_total / excluded_stations）入 status 与 manifest。
 # 教训：版本键只覆盖模型产物，看不见"代码口径"变更——结构/口径变化必须递增此版本。
-CACHE_SCHEMA_VERSION = "prediction_snapshot_v10"
+CACHE_SCHEMA_VERSION = "prediction_snapshot_v11"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 
@@ -220,6 +224,9 @@ class PredictionSnapshotService:
         self._pending_id: str | None = None
         self._pending_source_snapshot_id: str | None = None
         self._stations_total = 0
+        # 站点四口径（审计整改）：目录站总数与本轮排除清单（缺测站+原因）
+        self._directory_station_total = 0
+        self._excluded_stations: list[dict[str, Any]] = []
         self._stations_done = 0
         self._stations_ready = False
         # 解释缓存是内存态（解释与 focus_metric 绑定，不随快照落盘），重启后需重建；
@@ -334,6 +341,9 @@ class PredictionSnapshotService:
                     "ready": self._stations_ready,
                     "done": self._stations_done,
                     "total": self._stations_total,
+                    # 四口径披露：目录站 vs 本轮活跃可预测站；当轮缺测站连同原因列出
+                    "directory_total": self._directory_station_total,
+                    "excluded_stations": self._excluded_stations,
                 },
                 # 正在服务的是上一版成功预测（新一轮生成中或已失败）
                 "using_previous_success": bool(published) and self._state in {"updating", "failed"},
@@ -432,7 +442,10 @@ class PredictionSnapshotService:
                 "stations": stations,
             }
             stations_ready = bool((manifest.get("stations") or {}).get("ready"))
-            self._stations_total = int((manifest.get("stations") or {}).get("total") or 0)
+            mstations = manifest.get("stations") or {}
+            self._stations_total = int(mstations.get("total") or 0)
+            self._directory_station_total = int(mstations.get("directory_total") or 0)
+            self._excluded_stations = list(mstations.get("excluded_stations") or [])
             self._stations_done = int((manifest.get("stations") or {}).get("done") or 0)
             self._stations_ready = stations_ready
         # 旧缓存（v3 之前的响应性结构，或完全没有诊断）就地补算三态诊断，
@@ -579,6 +592,9 @@ class PredictionSnapshotService:
                     "ready": self._stations_ready,
                     "done": self._stations_done,
                     "total": self._stations_total,
+                    # 四口径披露：目录站 vs 本轮活跃可预测站；当轮缺测站连同原因列出
+                    "directory_total": self._directory_station_total,
+                    "excluded_stations": self._excluded_stations,
                 },
             }
         trend = self._trend_summary(horizons)
@@ -789,14 +805,20 @@ class PredictionSnapshotService:
                 if record.get("prediction_run_id") is None:
                     raise RuntimeError(f"预测快照时效 {horizon_key} 缺少 prediction_run_id")
 
-            station_ids = self._active_station_ids()
+            directory_ids, station_ids, excluded_stations = self._station_scope()
             manifest = {
                 "prediction_snapshot_id": pred_id,
                 "version_key": key,
                 "schema": CACHE_SCHEMA_VERSION,
                 "generated_at": _now_iso(),
                 "horizons": list(self.horizons),
-                "stations": {"ready": False, "done": 0, "total": len(station_ids)},
+                # 站点四口径（审计整改 2026-09-12）：total=本轮活跃可预测站，
+                # directory_total=providers 目录站；当轮缺测站连同原因进 excluded_stations。
+                "stations": {
+                    "ready": False, "done": 0, "total": len(station_ids),
+                    "directory_total": len(directory_ids),
+                    "excluded_stations": excluded_stations,
+                },
                 "provenance": {
                     "generated_by": "PredictionSnapshotService",
                     "note": (
@@ -825,6 +847,8 @@ class PredictionSnapshotService:
                 }
                 self._state = "ready"
                 self._stations_total = len(station_ids)
+                self._directory_station_total = len(directory_ids)
+                self._excluded_stations = excluded_stations
                 self._stations_done = 0
                 self._stations_ready = not station_ids
                 self._pending_id = None
@@ -856,14 +880,37 @@ class PredictionSnapshotService:
             logger.warning("预测快照生成失败（保留上一版继续服务）: %s", exc, exc_info=True)
 
     def _active_station_ids(self) -> list[str]:
+        return self._station_scope()[1]
+
+    def _station_scope(self) -> tuple[list[str], list[str], list[dict[str, Any]]]:
+        """站点四口径（审计整改 2026-09-12）：目录总数 / 本轮活跃可预测 / 排除清单。
+
+        目录站（providers 全量）与本轮活跃站（latest 实测快照里有观测）不是同一
+        口径：某站当轮缺测时会被排除在预测之外，这是数据源事实，必须连同原因
+        披露，而不是让页面和验收脚本写死"79 站"。
+        """
         try:
-            stations = self._realtime_source().stations(active="latest")
+            all_views = self._realtime_source().stations()
+            active_views = self._realtime_source().stations(active="latest")
         except Exception as exc:  # noqa: BLE001
             logger.warning("站点列表获取失败，本轮跳过站点预生成: %s", exc)
-            return []
-        # 站点视图的实体标识键是 id（_station_view 的对外字段），不叫 entity_id。
-        ids = [item.get("id") or item.get("entity_id") for item in stations]
-        return [entity_id for entity_id in ids if entity_id]
+            return [], [], []
+        active_keys = {item.get("id") or item.get("entity_id") for item in active_views}
+        directory: list[str] = []
+        excluded: list[dict[str, Any]] = []
+        for item in all_views:
+            entity_id = item.get("id") or item.get("entity_id")
+            if not entity_id:
+                continue
+            directory.append(entity_id)
+            if entity_id not in active_keys:
+                excluded.append({
+                    "station_id": entity_id,
+                    "station_name": item.get("display_name") or item.get("source_station_name"),
+                    "reason": "no_observation_in_latest_cycle",
+                })
+        active_ids = [item.get("id") or item.get("entity_id") for item in active_views]
+        return directory, [e for e in active_ids if e], excluded
 
     def _warm_lake_explainability(self, key: dict[str, Any], pred_id: str) -> None:
         """把全湖各指标的解释算进后端缓存，使页面切换指标时解释面板也立即就绪。
@@ -1137,6 +1184,9 @@ class PredictionSnapshotService:
                     ),
                     "label_provenance": reference.get("label_provenance"),
                     "training_protocol": reference.get("training_protocol"),
+                    # 季节基线查找口径：目标月缺同期样本时为 global_fallback，页面须
+                    # 如实说明"使用全期均值基线"而不是笼统写"历史同期值"。
+                    "seasonal_lookup_mode": reference.get("seasonal_lookup_mode"),
                     "long_term_route": reference.get("long_term_route"),
                     "calibration_status": (reference.get("uncertainty") or {}).get("calibration_status"),
                     "empirical_coverage": (reference.get("uncertainty") or {}).get("empirical_coverage"),
@@ -1352,10 +1402,10 @@ class PredictionSnapshotService:
                 "prediction_snapshot_id": pred_id,
                 "source_snapshot_id": source_snapshot_id,
                 "aggregation_method": {
-                    "probability": "station_median_p25_p75_p90（79 站预测分布）",
-                    "chla": "station_median_p25_p75（79 站预测分布）",
+                    "probability": f"station_median_p25_p75_p90（{len(stations)} 站预测分布）",
+                    "chla": f"station_median_p25_p75（{len(stations)} 站预测分布）",
                     "biomass": "station_median_p25_p75 + 分区面积加权均值并列披露",
-                    "density": "station_median_p25_p75（79 站预测分布）",
+                    "density": f"station_median_p25_p75（{len(stations)} 站预测分布）",
                     "risk_level": "frozen_risk_bands_on_lake_chla_median（按全湖规则重新判级，非站点等级平均）",
                     "excluded": "area/coverage 不从站点预测推导：面积=月度遥感反演边界面积，覆盖率=遥感口径",
                 },

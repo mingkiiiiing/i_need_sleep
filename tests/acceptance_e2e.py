@@ -82,9 +82,10 @@ def main() -> int:
 
     # ---------- ② 季节基线产物 v3：三段互不重叠、覆盖率来自独立测试段 ----------
     clim = json.loads((PKG / "evaluation" / "seasonal_climatology.json").read_text(encoding="utf-8"))
-    check("季节基线产物为 v3（三段时序回测）",
-          clim.get("artifact_version") == "seasonal_climatology_v3",
+    check("季节基线产物为 v4（三段回测+类别支持）",
+          clim.get("artifact_version") == "seasonal_climatology_v4",
           str(clim.get("artifact_version")))
+    clim_by_task = {(b.get("task_id"), b.get("variant")): b for b in clim.get("tasks") or []}
     seg_bad = []
     for blk in clim.get("tasks") or []:
         bt = blk.get("backtest") or {}
@@ -98,8 +99,19 @@ def main() -> int:
     # ---------- ③ 快照状态 ----------
     status = get("/model/v3/prediction-status")
     check("快照 state=ready", status.get("state") == "ready", str(status.get("state")))
-    check("站点 79/79 就绪", (status.get("stations") or {}).get("done") == 79,
-          json.dumps(status.get("stations")))
+    stb = status.get("stations") or {}
+    check("快照站点层 完成数=分母（动态口径，不写死 79）",
+          stb.get("done") == stb.get("total") and (stb.get("total") or 0) > 0,
+          json.dumps(stb, ensure_ascii=False))
+    dir_total = stb.get("directory_total")
+    check("目录站总数已披露且 ≥ 活跃预测站",
+          isinstance(dir_total, int) and dir_total >= (stb.get("total") or 0),
+          f"directory={dir_total} active={stb.get('total')}")
+    excluded = stb.get("excluded_stations")
+    check("当轮缺测站连同原因披露（可为空表）",
+          isinstance(excluded, list) and all(
+              isinstance(x, dict) and x.get("station_id") and x.get("reason") for x in excluded),
+          json.dumps(excluded, ensure_ascii=False)[:200])
     check("无回退旧版", status.get("using_previous_success") is False)
     print(f"    schema={status.get('schema')} generated_at={status.get('generated_at')}")
 
@@ -140,12 +152,25 @@ def main() -> int:
             chla_vals[(entity, h)] = ch.get("value")
             if origin == "seasonal_climatology_baseline":
                 exp = expected_usable(cov, tn)
+                bt = (clim_by_task.get((ch.get("task_id"), ch.get("variant"))) or {}).get("backtest") or {}
+                class_ok = bt.get("class_support_sufficient")
+                expected_status = "undercovered"
+                if class_ok is False:
+                    expected_status = "single_class_test"
+                    exp = False
+                elif exp:
+                    expected_status = "validated"
                 check(f"{tag} 季节基线+全湖同值", ch.get("station_resolution") is False)
-                check(f"{tag} 覆盖率按 v3 独立测试段口径有记录", cov is not None, f"cov={cov} n={tn}")
-                check(f"{tag} decision_usable 与四条件期望一致（期望 {exp}）",
-                      u.get("decision_usable") is exp and u.get("calibration_status") ==
-                      ("validated" if exp else "undercovered"),
-                      f"cov={cov} got={u.get('calibration_status')}/{u.get('decision_usable')}")
+                check(f"{tag} 覆盖率按独立测试段口径有记录", cov is not None, f"cov={cov} n={tn}")
+                check(f"{tag} calibration_n 绑定区间校准段（审计整改）",
+                      u.get("calibration_n") == bt.get("interval_calibration_n"),
+                      f"api={u.get('calibration_n')} artifact={bt.get('interval_calibration_n')}")
+                check(f"{tag} lookup 口径已披露",
+                      ch.get("seasonal_lookup_mode") in ("target_month_climatology", "global_fallback"),
+                      str(ch.get("seasonal_lookup_mode")))
+                check(f"{tag} decision_usable 与(覆盖率∧类别支持)期望一致（期望 {expected_status}）",
+                      u.get("decision_usable") is exp and u.get("calibration_status") == expected_status,
+                      f"cov={cov} class_ok={class_ok} got={u.get('calibration_status')}/{u.get('decision_usable')}")
             elif origin == "v0_3_real_bundle":
                 aid = ch.get("artifact_id")
                 seen_artifacts.add(aid)

@@ -35,7 +35,11 @@ from .training_real import evaluate_real
 # 回算，~90% 的覆盖几乎是构造的必然结果，不是独立验证。v3 起：前 60% 拟合气候态、
 # 中 20% 只出残差分位数、末 20% 只做独立测试（指标+覆盖率），三段互不重叠且测试段
 # 最晚（无前视）。独立测试后的覆盖率显著低于 v2 的"共段覆盖率"，欠覆盖如实暴露。
-ARTIFACT_VERSION = "seasonal_climatology_v3"
+# v4（2026-09-12 第三轮审计整改）：新增独立测试段类别支持披露（test_positive_n /
+# test_negative_n / test_event_rate / class_support_sufficient）。T1/T6 的测试段
+# 恰好全为负例，覆盖率 100% 只反映负类覆盖，不构成事件判别力或概率校准证据；
+# 运行层据 class_support_sufficient 把这类时效判为 single_class_test、不开放决策。
+ARTIFACT_VERSION = "seasonal_climatology_v4"
 SEASONAL_CLIMATOLOGY_PATH = "evaluation/seasonal_climatology.json"
 
 # 三段拆分比例：按「唯一目标月」时间序，拟合段 → 区间校准段 → 独立测试段
@@ -195,6 +199,17 @@ def _three_segment_backtest(
         ])
         actual_test = test["actual_num"].to_numpy(dtype=float)
         covered = (actual_test >= p05) & (actual_test <= p95)
+        # 类别支持（v4，审计整改）：二分类/概率任务的覆盖率若在单一类别测试段上核算，
+        # 只反映该类覆盖，不构成判别力证据。回归任务该组字段为 null（不适用）。
+        test_positive_n: int | None = None
+        test_negative_n: int | None = None
+        test_event_rate: float | None = None
+        class_support_sufficient: bool | None = None
+        if spec.problem_type in {"binary", "probability"} and len(actual_test):
+            test_positive_n = int(np.sum(actual_test > 0.5))
+            test_negative_n = int(len(actual_test) - test_positive_n)
+            test_event_rate = round(float(test_positive_n) / len(actual_test), 6)
+            class_support_sufficient = bool(test_positive_n > 0 and test_negative_n > 0)
         return {
             **backtest,
             "metrics": metrics,
@@ -203,6 +218,10 @@ def _three_segment_backtest(
             "coverage_n": int(len(actual_test)),
             "coverage_target": COVERAGE_TARGET,
             "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+            "test_positive_n": test_positive_n,
+            "test_negative_n": test_negative_n,
+            "test_event_rate": test_event_rate,
+            "class_support_sufficient": class_support_sufficient,
         }
     return {
         **backtest,
@@ -212,6 +231,10 @@ def _three_segment_backtest(
         "coverage_n": 0,
         "coverage_target": COVERAGE_TARGET,
         "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+        "test_positive_n": None,
+        "test_negative_n": None,
+        "test_event_rate": None,
+        "class_support_sufficient": None,
     }
 
 

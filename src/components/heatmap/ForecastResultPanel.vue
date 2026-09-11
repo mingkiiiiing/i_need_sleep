@@ -76,15 +76,15 @@
         <button type="button" class="frp-inline-btn" data-role="model-retry" @click="$emit('retry-model')">重试模型</button>
       </StatePanel>
       <template v-else>
-        <!-- 全湖主结果 = 79 站聚合；站点层尚未补齐时如实等待，绝不用全湖虚拟实体顶替 -->
+        <!-- 全湖主结果 = 实际活跃站聚合；站点层尚未补齐时如实等待，绝不用全湖虚拟实体顶替 -->
         <div v-if="lakeAggregatePending" class="frp-agg-pending" data-role="lake-aggregate-pending">
           <b>全湖聚合生成中</b>
           <span>
-            全湖主结果由 79 站预测分布聚合得出；站点层补齐中（{{ lakeAggregatePending.done }}/{{ lakeAggregatePending.total }} 站），
+            全湖主结果由 {{ lakeStationCount ?? "—" }} 站预测分布聚合得出；站点层补齐中（{{ lakeAggregatePending.done }}/{{ lakeAggregatePending.total }} 站），
             完成后自动显示。当前不展示"均值虚拟站点"口径的替代数值。
           </span>
         </div>
-        <!-- 焦点指标 hero：全湖 = 79 站聚合中位；站点 = 本站模型预测 -->
+        <!-- 焦点指标 hero：全湖 = 活跃站聚合中位；站点 = 本站模型预测 -->
         <div v-else class="frp-hero" data-role="model-primary-result">
           <div class="frp-hero-main">
             <div class="frp-hero-value">
@@ -187,9 +187,9 @@
             </div>
           </div>
         </template>
-        <!-- 全湖模式：79 站聚合指标卡（主结果），不是全湖虚拟实体的模型输出 -->
+        <!-- 全湖模式：活跃站聚合指标卡（主结果），不是全湖虚拟实体的模型输出 -->
         <template v-else-if="lakeCards.length">
-          <h4 class="frp-sub-h">全湖聚合 · 79 站分布 <span>主结果口径</span></h4>
+          <h4 class="frp-sub-h">全湖聚合 · {{ lakeStationCount ?? "—" }} 站分布 <span>主结果口径</span></h4>
           <div class="frp-cards" data-role="lake-aggregate-cards">
             <div v-for="card in lakeCards" :key="card.key" class="frp-card" :title="card.title">
               <div class="frp-card-head">
@@ -235,15 +235,15 @@
         </dl>
         <dl v-if="stationVsLake" class="frp-kv" data-role="station-vs-lake">
           <div>
-            <dt>本站{{ metricLabel }} vs 全湖中位（79 站）</dt>
+            <dt>本站{{ metricLabel }} vs 全湖中位（{{ lakeStationCount ?? "—" }} 站）</dt>
             <dd>{{ stationVsLake.text }}</dd>
           </div>
         </dl>
       </template>
       <template v-else>
-        <!-- 全湖汇总：79 站预测分布聚合（替代"均值虚拟站点"口径） -->
+        <!-- 全湖汇总：活跃站预测分布聚合（替代"均值虚拟站点"口径） -->
         <div v-if="aggregate" class="frp-agg" data-role="lake-aggregate">
-          <h4 class="frp-sub-h">全湖汇总 · 79 站分布聚合 <span>中位数 [P25, P75]</span></h4>
+          <h4 class="frp-sub-h">全湖汇总 · {{ lakeStationCount ?? "—" }} 站分布聚合 <span>中位数 [P25, P75]</span></h4>
           <dl class="frp-kv">
             <div v-for="row in aggregateRows" :key="row.key">
               <dt>{{ row.label }}</dt>
@@ -272,7 +272,7 @@
 
     <!-- ===== 驱动因素 ===== -->
     <div v-else-if="activeTab === 'drivers'" class="frp-body" role="tabpanel" aria-label="驱动因素" data-role="result-drivers">
-      <!-- 全湖作用域：79 站驱动因素分布（环境状态口径，不是虚拟站点条形卡） -->
+      <!-- 全湖作用域：实际活跃站驱动因素分布（环境状态口径，不是虚拟站点条形卡） -->
       <LakeDriverDistribution v-if="scope === 'lake'" :horizon-days="horizonDays" />
       <!-- 站点作用域：机理净生长率分解（本站输入），模型无关、恒可用 -->
       <template v-else-if="mechanismDrivers">
@@ -533,7 +533,7 @@ const props = defineProps({
   v3Forecast: { type: Object, default: null },
   // 同对象、同指标的 1/3/7/15/30/60/90 天响应，用于跨时效对照；各点保留自身来源标签
   horizonForecasts: { type: Array, default: () => [] },
-  // 全湖聚合层（station_aggregate）：全湖指标由 79 站预测分布聚合，仅 lake 作用域展示
+  // 全湖聚合层（station_aggregate）：全湖指标由活跃站预测分布聚合，仅 lake 作用域展示
   aggregate: { type: Object, default: null },
   // 当前预测时效（驱动因素分布等随快照时效取数）
   horizonDays: { type: Number, default: 1 }
@@ -608,6 +608,13 @@ const focusResult = computed(() => {
 // 全湖模式一律读聚合层；"均值虚拟站点"的模型输出不再具备主展示资格。
 const lakeAggregate = computed(() => props.aggregate || null)
 const lakeAggregateReady = computed(() => Boolean(lakeAggregate.value?.metrics))
+// 站点分母动态化（审计整改 2026-09-12）：目录 79 站、当轮活跃可能只有 78，
+// 所有"79 站"字样必须读实际聚合分母，禁止写死。
+const lakeStationCount = computed(() =>
+  lakeAggregate.value?.station_total
+  ?? predictionSnapshot.status?.stations?.total
+  ?? null
+)
 const focusMetricKey = computed(() => FOCUS_KEY_BY_METRIC[props.metric] || 'probability')
 const aggregateMetric = (key) => lakeAggregate.value?.metrics?.[key] || null
 // 站点层尚未补齐（快照分两阶段发布）：全湖模式如实等待聚合层，不用虚拟站点数值顶替。
@@ -656,7 +663,10 @@ const heroScopeLabel = computed(() => {
     return isLongTermHorizon.value ? longTermTag.value : '本站模型预测'
   }
   if (props.metric === 'area') return '全湖 · 月度遥感反演现值'
-  const base = lakeAggregateReady.value ? '全湖 · 79 站聚合中位数' : '全湖'
+  // 站点分母读聚合层实际值（目录 79 站、当轮活跃可能只有 78）——不得写死。
+  const base = lakeAggregateReady.value
+    ? `全湖 · ${lakeAggregate.value?.station_total ?? '—'} 站聚合中位数`
+    : '全湖'
   return isLongTermHorizon.value ? `${base} · ${longTermTag.value}` : base
 })
 
@@ -1004,7 +1014,11 @@ const horizonTrend = computed(() => {
     notes.push('短期四档（T+1/3/7/15）共用同一个月度标签，数值按定义相同，图上合并标注为“同月短期结果”——训练面板为站-月粒度，不含日尺度信号。')
   }
   if (longOrigins.has('climatology')) {
-    notes.push('中长期虚线含季节气候态基线点：按目标月给出历史同期值，全湖同值、不含站点分辨。')
+    notes.push(
+      scenarioPoints.some((p) => p.item?.seasonal_lookup_mode === 'global_fallback')
+        ? '中长期虚线含季节气候态基线点：部分目标月无历史同期样本，该档使用全期均值基线（全湖同值、不含站点分辨）。'
+        : '中长期虚线含季节气候态基线点：按目标月给出历史同期值，全湖同值、不含站点分辨。'
+    )
   }
   // 逐点来源说明：让"哪一档能看站点差异"变成一条可核对的清单，而不是靠图例猜。
   const stationNotes = scenarioPoints.map((p) => {
@@ -1014,10 +1028,13 @@ const horizonTrend = computed(() => {
       return `${label} 逐站月度趋势（${originLabel(p.item) || 'V0.3 模型'}${file ? ` · ${file}` : ''}），可做站间比较`
     }
     if (p.stationResolution === false) {
-      const src = p.item?.value_origin === 'seasonal_climatology_baseline'
-        ? '全湖季节基线（季节气候态 · 全湖同值）'
-        : '全湖常量模型（读模型文件但无站点响应）'
-      return `${label} ${src}，不做站间比较`
+      if (p.item?.value_origin === 'seasonal_climatology_baseline') {
+        const fallback = p.item?.seasonal_lookup_mode === 'global_fallback'
+          ? '（目标月无同期样本，使用全期均值基线）'
+          : ''
+        return `${label} 全湖季节基线（季节气候态 · 全湖同值）${fallback}，不做站间比较`
+      }
+      return `${label} 全湖常量模型（读模型文件但无站点响应），不做站间比较`
     }
     return `${label} 来源未标注站点分辨率，按全湖同值对待`
   })
