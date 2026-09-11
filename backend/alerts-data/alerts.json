@@ -2,6 +2,78 @@
   "version": "alerts-v1",
   "alerts": [
     {
+      "id": "alr-2026-09-11T09:56:44.659401+00:00-483f6dda-l",
+      "station_id": "mee-483f6dda",
+      "station_name": "急水港桥",
+      "province": "上海市",
+      "level": "light",
+      "chla": 10.1,
+      "snapshot_id": "mee_surface_water_realtime_20260911T095435Z",
+      "observed_at": "2026-09-11T17:00:00+08:00",
+      "kind": "trigger",
+      "status": "resolved",
+      "triggered_at": "2026-09-11T09:56:44.659401+00:00",
+      "resolved_at": "2026-09-11T10:56:58.404463+00:00",
+      "deliveries": [
+        {
+          "channel": "none",
+          "status": "skipped",
+          "at": "2026-09-11T09:56:44.659401+00:00",
+          "recipients": [],
+          "detail": "push_disabled: alerts-config.json enabled=false（评估照常，推送未启用）"
+        }
+      ],
+      "resolve_reason": "below_threshold"
+    },
+    {
+      "id": "alr-2026-09-11T08:26:23.275729+00:00-b80df03e-l",
+      "station_id": "mee-b80df03e",
+      "station_name": "拖山",
+      "province": "江苏省",
+      "level": "light",
+      "chla": 11.02,
+      "snapshot_id": "mee_surface_water_realtime_20260911T082435Z",
+      "observed_at": "2026-09-11T16:00:00+08:00",
+      "kind": "trigger",
+      "status": "resolved",
+      "triggered_at": "2026-09-11T08:26:23.275729+00:00",
+      "resolved_at": "2026-09-11T11:27:04.618513+00:00",
+      "deliveries": [
+        {
+          "channel": "none",
+          "status": "skipped",
+          "at": "2026-09-11T08:26:23.275729+00:00",
+          "recipients": [],
+          "detail": "push_disabled: alerts-config.json enabled=false（评估照常，推送未启用）"
+        }
+      ],
+      "resolve_reason": "below_threshold"
+    },
+    {
+      "id": "alr-2026-09-11T03:25:10.256304+00:00-b80df03e-l",
+      "station_id": "mee-b80df03e",
+      "station_name": "拖山",
+      "province": "江苏省",
+      "level": "light",
+      "chla": 13.44,
+      "snapshot_id": "mee_surface_water_realtime_20260911T032437Z",
+      "observed_at": "2026-09-11T11:00:00+08:00",
+      "kind": "trigger",
+      "status": "resolved",
+      "triggered_at": "2026-09-11T03:25:10.256304+00:00",
+      "resolved_at": "2026-09-11T07:26:03.613316+00:00",
+      "deliveries": [
+        {
+          "channel": "none",
+          "status": "skipped",
+          "at": "2026-09-11T03:25:10.256304+00:00",
+          "recipients": [],
+          "detail": "push_disabled: alerts-config.json enabled=false（评估照常，推送未启用）"
+        }
+      ],
+      "resolve_reason": "below_threshold"
+    },
+    {
       "id": "alr-2026-09-11T02:59:16.154410+00:00-483f6dda-l",
       "station_id": "mee-483f6dda",
       "station_name": "急水港桥",
@@ -11,9 +83,9 @@
       "snapshot_id": "mee_surface_water_realtime_20260911T025435Z",
       "observed_at": "2026-09-11T10:00:00+08:00",
       "kind": "trigger",
-      "status": "active",
+      "status": "resolved",
       "triggered_at": "2026-09-11T02:59:16.154410+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-09-11T06:55:52.658589+00:00",
       "deliveries": [
         {
           "channel": "none",
@@ -22,7 +94,8 @@
           "recipients": [],
           "detail": "push_disabled: alerts-config.json enabled=false（评估照常，推送未启用）"
         }
-      ]
+      ],
+      "resolve_reason": "below_threshold"
     },
     {
       "id": "alr-2026-09-11T00:58:54.476867+00:00-483f6dda-l",
@@ -575,5 +648,5 @@
       ]
     }
   ],
-  "updated_at": "2026-09-11T02:59:16.155554+00:00"
+  "updated_at": "2026-09-11T11:27:04.619551+00:00"
 }

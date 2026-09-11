@@ -1,7 +1,98 @@
 {
   "version": "alert-center-v1",
-  "updated_at": "2026-09-11T02:59:16.166579+00:00",
+  "updated_at": "2026-09-11T11:27:04.631750+00:00",
   "notifications": [
+    {
+      "id": "ntf-1c9049f88202",
+      "at": "2026-09-11T11:27:04.631540+00:00",
+      "type": "recovery",
+      "event_id": "evt-82e1a073db82",
+      "event_no": "AL20260908-F324",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：拖山",
+      "lines": [
+        "拖山 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-423bf8c9406b",
+      "at": "2026-09-11T10:56:58.421061+00:00",
+      "type": "recovery",
+      "event_id": "evt-baa0ff13a869",
+      "event_no": "AL20260909-F116",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：急水港桥",
+      "lines": [
+        "急水港桥 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-78846e2c1dca",
+      "at": "2026-09-11T09:56:44.676661+00:00",
+      "type": "escalation",
+      "event_id": "evt-baa0ff13a869",
+      "event_no": "AL20260909-F116",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "风险升级：急水港桥",
+      "lines": [
+        "急水港桥 · 叶绿素a达到黄色预警阈值 已升级为 黄色预警"
+      ]
+    },
+    {
+      "id": "ntf-0214a957e6b3",
+      "at": "2026-09-11T08:26:23.285091+00:00",
+      "type": "escalation",
+      "event_id": "evt-82e1a073db82",
+      "event_no": "AL20260908-F324",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "风险升级：拖山",
+      "lines": [
+        "拖山 · 叶绿素a达到黄色预警阈值 已升级为 黄色预警"
+      ]
+    },
+    {
+      "id": "ntf-6e24a4186196",
+      "at": "2026-09-11T07:26:03.736997+00:00",
+      "type": "recovery",
+      "event_id": "evt-82e1a073db82",
+      "event_no": "AL20260908-F324",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：拖山",
+      "lines": [
+        "拖山 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-52e5172017fe",
+      "at": "2026-09-11T06:55:52.718772+00:00",
+      "type": "recovery",
+      "event_id": "evt-baa0ff13a869",
+      "event_no": "AL20260909-F116",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "指标已恢复待复核：急水港桥",
+      "lines": [
+        "急水港桥 叶绿素a 已恢复至阈值以下，请复核处置结果。"
+      ]
+    },
+    {
+      "id": "ntf-c777f5f5681e",
+      "at": "2026-09-11T03:25:10.279580+00:00",
+      "type": "escalation",
+      "event_id": "evt-82e1a073db82",
+      "event_no": "AL20260908-F324",
+      "event_level": "light",
+      "event_type": "realtime",
+      "title": "风险升级：拖山",
+      "lines": [
+        "拖山 · 叶绿素a达到黄色预警阈值 已升级为 黄色预警"
+      ]
+    },
     {
       "id": "ntf-485d439196e4",
       "at": "2026-09-11T02:59:16.166304+00:00",
