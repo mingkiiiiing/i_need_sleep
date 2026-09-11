@@ -171,7 +171,21 @@ export function entityDiagnostic(horizonDays) {
     constantValue: diag.constant_value ?? null,
     // 10% 提升门禁行状态（唯一来源 gate_table.json）：comparison_usable 的门禁证据
     gateStatus: diag.gate_status || '',
-    gateNaReason: diag.gate_na_reason || ''
+    gateNaReason: diag.gate_na_reason || '',
+    // 产物身份：让页面直接说出"这一档用的是哪份模型文件"，不再靠拼名或猜测
+    artifactId: diag.artifact_id || '',
+    modelFile: diag.model_file || '',
+    modelSha256: diag.model_sha256 || '',
+    stationResolution: diag.station_resolution ?? null,
+    // 判定依据：declared=结果自带声明；measured_station_spread=按本档实测站点离散度判定
+    stationResolutionBasis: diag.station_resolution_basis || '',
+    labelProvenance: diag.label_provenance || '',
+    trainingProtocol: diag.training_protocol || '',
+    longTermRoute: diag.long_term_route || null,
+    calibrationStatus: diag.calibration_status || '',
+    empiricalCoverage: diag.empirical_coverage ?? null,
+    uncertaintyDecisionUsable: diag.uncertainty_decision_usable ?? null,
+    testMetrics: diag.test_metrics || null
   }
 }
 
@@ -219,7 +233,9 @@ export function sourceSemantics(valueOrigin) {
   if (valueOrigin === 'derived_from_chla_v0_3_risk_bands') {
     return {
       kind: 'derived',
-      label: '由叶绿素 a 真实模型按冻结风险带推导',
+      // 审计口径（2026-09-11）：叶绿素 a 训练标签是"真实水质驱动 + 公示代理标签"，
+      // 不得称"真实标签/真实模型"——模型是真实数据训练的，标签来源必须随行披露。
+      label: '由叶绿素 a 月度趋势模型（代理标签）按冻结风险带推导',
       comparableClaim: '其可比性受叶绿素 a 模型验证证据约束'
     }
   }

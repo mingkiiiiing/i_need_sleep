@@ -1,0 +1,80 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-11T05:31:41.971249+00:00",
+  "run_id": "T3-density-3m-s20260907-cv",
+  "selected_family": "climatology_global",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "log1p_mae": 0.16050539887937046,
+      "mae": 0.2462759450680866,
+      "n": 117,
+      "r2": -0.3008028519686561,
+      "rmse": 0.2909144423754899
+    },
+    "constrained_blend": {
+      "log1p_mae": 0.14831060895568085,
+      "mae": 0.2276122276122276,
+      "n": 117,
+      "r2": -0.14911125628338628,
+      "rmse": 0.27342648623567495
+    },
+    "mechanism": {
+      "log1p_mae": 0.14831060895568085,
+      "mae": 0.2276122276122276,
+      "n": 117,
+      "r2": -0.14911125628338628,
+      "rmse": 0.27342648623567495
+    },
+    "mechanism_feature": {
+      "log1p_mae": 0.18635679778679762,
+      "mae": 0.27793129955901225,
+      "n": 117,
+      "r2": -0.9601285597157754,
+      "rmse": 0.357109842574488
+    },
+    "random_forest": {
+      "log1p_mae": 0.18631063007227958,
+      "mae": 0.27780281644340526,
+      "n": 117,
+      "r2": -0.95952458654737,
+      "rmse": 0.35705482032115626
+    },
+    "residual": {
+      "log1p_mae": 0.14784731573897,
+      "mae": 0.2275213109716148,
+      "n": 117,
+      "r2": -0.19995550548011343,
+      "rmse": 0.27941010809033817
+    },
+    "simple_baseline": {
+      "log1p_mae": 0.14831060895568085,
+      "mae": 0.2276122276122276,
+      "n": 117,
+      "r2": -0.14911125628338628,
+      "rmse": 0.27342648623567495
+    },
+    "xgboost": {
+      "log1p_mae": 0.19112525635453373,
+      "mae": 0.2819252709698035,
+      "n": 117,
+      "r2": -0.9812937821417667,
+      "rmse": 0.3590326795259923
+    }
+  },
+  "test_primary_metric": "log1p_mae",
+  "test_rows": 117,
+  "test_value": 0.16050539887937046,
+  "uncertainty": {
+    "calibration_n": 225,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 0.7948717948717948,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 117
+  }
+}

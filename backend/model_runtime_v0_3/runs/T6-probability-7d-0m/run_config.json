@@ -1,12 +1,20 @@
 {
+  "artifact_id": "T6:probability:frozen_split:off0:h7:s20260907",
   "claim_boundary": "real_data_monthly_station_v0_3",
   "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
   "granularity_tier": "month_approx_half",
   "horizon_days": 7,
   "label_provenance": "proxy_derived",
+  "label_provenance_breakdown": {
+    "proxy_derived": 657
+  },
+  "label_provenance_declared": "proxy_derived",
+  "label_provenance_rows": 657,
+  "label_provenance_unresolved_rows": 0,
   "month_offset": 0,
   "primary_metric": "brier_score",
   "problem_type": "probability",
+  "protocol": "frozen_split",
   "run_id": "T6-probability-0m-s20260907",
   "seed": 20260907,
   "task_id": "T6",

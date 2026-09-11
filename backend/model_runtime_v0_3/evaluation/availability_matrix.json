@@ -3,6 +3,11 @@
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -15,6 +20,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -27,6 +37,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -39,6 +54,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -51,42 +71,68 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 604,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -99,6 +145,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -111,6 +162,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -123,6 +179,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -135,10 +196,15 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -147,10 +213,15 @@
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -159,10 +230,15 @@
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 3,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -171,8 +247,13 @@
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -185,8 +266,13 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -199,8 +285,13 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -213,8 +304,13 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -227,218 +323,319 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 0,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "density"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 0,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "density"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 567
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 567,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
-      "test_rows": 0,
-      "train_rows": 567,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "density"
-    },
-    {
-      "horizon_days": 1,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 3,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 7,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 15,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 30,
-      "label_provenance": "ground_truth",
-      "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 60,
-      "label_provenance": "ground_truth",
-      "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 90,
-      "label_provenance": "ground_truth",
-      "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 567,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 1,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 3,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 7,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 15,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 30,
-      "label_provenance": "ground_truth",
-      "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T5",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 60,
-      "label_provenance": "ground_truth",
-      "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T5",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 90,
-      "label_provenance": "ground_truth",
-      "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
-      "task_id": "T5",
       "test_rows": 0,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "density"
+    },
+    {
+      "horizon_days": 1,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 3,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 7,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 15,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 30,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 0,
+      "month_offset": 1,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 60,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 0,
+      "month_offset": 2,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 90,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 567
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 567,
+      "month_offset": 3,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 567,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 1,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 3,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 7,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 15,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 30,
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
+      "month_offset": 1,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 60,
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
+      "month_offset": 2,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 90,
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 567,
+      "month_offset": 3,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 567,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "chla"
     },
     {
       "horizon_days": 1,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -450,7 +647,13 @@
     },
     {
       "horizon_days": 3,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -462,7 +665,13 @@
     },
     {
       "horizon_days": 7,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -474,7 +683,13 @@
     },
     {
       "horizon_days": 15,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -486,43 +701,65 @@
     },
     {
       "horizon_days": 30,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 60,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 90,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 567,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -535,6 +772,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -547,6 +789,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -559,6 +806,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -571,42 +823,66 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 604,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 1,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -619,6 +895,9 @@
     {
       "horizon_days": 3,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -631,6 +910,9 @@
     {
       "horizon_days": 7,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -643,6 +925,9 @@
     {
       "horizon_days": 15,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -655,6 +940,9 @@
     {
       "horizon_days": 30,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 1,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -667,6 +955,9 @@
     {
       "horizon_days": 60,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 2,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -679,6 +970,9 @@
     {
       "horizon_days": 90,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 3,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -689,13 +983,18 @@
       "variant": "spatial"
     }
   ],
-  "generated_at": "2026-09-10T19:25:45.367944+00:00",
+  "generated_at": "2026-09-11T10:50:22.332634+00:00",
+  "label_provenance_source": "supervised_table_actual_provenance_rowwise",
   "min_train_rows": 10,
   "min_validation_rows": 5,
   "supplemental_training": {
-    "block_fraction": 0.7,
-    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。",
-    "generated_at": "2026-09-10T19:27:46.536218+00:00",
+    "block_fractions": {
+      "test": 0.2,
+      "train": 0.6,
+      "validation": 0.2
+    },
+    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+    "generated_at": "2026-09-11T10:50:23.278754+00:00",
     "protocol_id": "train_internal_time_block_cv_v1"
   }
 }

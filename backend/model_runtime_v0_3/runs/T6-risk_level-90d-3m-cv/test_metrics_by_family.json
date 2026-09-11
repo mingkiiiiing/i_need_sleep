@@ -1,0 +1,37 @@
+{
+  "climatology_global": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "constrained_blend": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "mechanism": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "mechanism_feature": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "random_forest": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "simple_baseline": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  },
+  "xgboost": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 117
+  }
+}

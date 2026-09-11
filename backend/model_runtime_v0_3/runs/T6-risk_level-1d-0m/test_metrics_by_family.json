@@ -1,5 +1,20 @@
 {
+  "climatology_global": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
+  "constrained_blend": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
   "mechanism": {
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "n": 1
+  },
+  "mechanism_feature": {
     "accuracy": 0.0,
     "macro_f1": 0.0,
     "n": 1

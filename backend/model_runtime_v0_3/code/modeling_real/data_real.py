@@ -159,15 +159,30 @@ class ModelBundleV3:
         return self.model.predict_frame(features)
 
 
-def save_bundle(bundle: ModelBundleV3, out_dir: str | Path) -> Path:
+def save_bundle(bundle: ModelBundleV3, out_dir: str | Path, filename: str | None = None) -> Path:
+    """落盘 bundle。
+
+    filename 显式给出时按槽位名写（一个 (task, variant, month_offset, horizon) 一个文件，
+    推理侧 _bundle() 按槽位名取用）；缺省仍由 run_id 推导，兼容既有调用。
+
+    为什么需要显式槽位名（2026-09-11）：run_id 现在带协议标记（如 "cv"），若文件名跟着
+    run_id 走，同一个槽位会出现 frozen 与 cv 两份文件，推理侧取哪个将由文件名匹配顺序
+    决定——那等于把"服务哪个模型"交给巧合。必须一槽一份。
+    """
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     if not bundle.created_at:
         bundle.created_at = datetime.now(timezone.utc).isoformat()
     # 同一 run_id 可对应多个 horizon（run_id 含 month_offset 而非 horizon），文件名必须带时效防覆盖
-    path = out / f"{bundle.run_id}-{bundle.horizon_days}d.joblib"
+    name = filename or f"{bundle.run_id}-{bundle.horizon_days}d.joblib"
+    path = out / name
     joblib.dump(bundle, path)
     return path
+
+
+def bundle_slot_filename(task_id: str, variant: str, month_offset: int, horizon_days: int, seed: int) -> str:
+    """交付槽位文件名：一个 (任务, 变体, 月偏移, 时效) 唯一一份模型。"""
+    return f"{task_id}-{variant}-{month_offset}m-s{seed}-{horizon_days}d.joblib"
 
 
 def load_bundle(path: str | Path) -> ModelBundleV3:

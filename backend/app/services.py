@@ -313,6 +313,10 @@ class BackendService:
     def algorithm_calibration_coverage(self) -> dict[str, Any]:
         return self._require_algorithm_v3().calibration_coverage()
 
+    def algorithm_model_artifacts(self) -> dict[str, Any]:
+        """门禁—模型文件—线上预测的一一对应核查（artifact_id / 路径 / SHA256）。"""
+        return self._require_algorithm_v3().model_artifact_audit()
+
     def algorithm_spatial_field_v3(
         self, horizon_days: int, metric: str = "chla", layer: str = "raster",
         prediction_run_id: str | None = None,

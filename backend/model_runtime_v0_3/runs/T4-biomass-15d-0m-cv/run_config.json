@@ -1,22 +1,41 @@
 {
+  "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907",
   "claim_boundary": "real_data_monthly_station_v0_3",
   "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
   "granularity_tier": "month_approx_half",
   "horizon_days": 15,
   "label_provenance": "ground_truth",
+  "label_provenance_breakdown": {
+    "ground_truth": 576
+  },
+  "label_provenance_declared": "ground_truth",
+  "label_provenance_rows": 576,
+  "label_provenance_unresolved_rows": 0,
   "month_offset": 0,
   "primary_metric": "mae",
   "problem_type": "regression",
-  "run_id": "T4-biomass-0m-s20260907",
+  "protocol": "train_internal_time_block_cv_v1",
+  "run_id": "T4-biomass-0m-s20260907-cv",
   "seed": 20260907,
-  "split_counts_internal": {
-    "cv_validation": 171,
-    "train": 405
+  "split_block_bounds": {
+    "test_min_month": "2017-11",
+    "train_max_month": "2014-05",
+    "validation_max_month": "2017-08"
   },
+  "split_counts_internal": {
+    "cv_test": 117,
+    "cv_validation": 117,
+    "train": 342
+  },
+  "split_key": "month",
   "split_protocol": {
-    "block_fraction": 0.7,
-    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。",
-    "generated_at": "2026-09-10T19:27:18.025579+00:00",
+    "block_fractions": {
+      "test": 0.2,
+      "train": 0.6,
+      "validation": 0.2
+    },
+    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+    "generated_at": "2026-09-11T05:31:53.622270+00:00",
     "protocol_id": "train_internal_time_block_cv_v1"
   },
   "task_id": "T4",

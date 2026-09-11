@@ -124,11 +124,19 @@ def test_station_field_excludes_unplottable_but_counts_prediction():
     assert "丙站" in excluded["mee-c"]["name"]
 
 
-def test_station_field_marks_scenario_horizons():
+def test_station_field_marks_longterm_horizons():
+    """30/60/90 天的站点场必须带锁定口径标记，且标签与算法层同源。
+
+    标签文案从"情景推演"改为"中长期月度趋势"（该档现有真实来源与留出回测），
+    但锁定语义不变：它是月度粒度口径，不得当作逐站实测预测。这里断言**同源**——
+    站点场与预测结果两处的 label 必须来自同一常量，否则同一份快照会出现两个口径名。
+    """
+    from backend.app.algorithm_models import LONG_TERM_COMPLIANCE_LABEL
+
     service = _service()
     _published(service, service._current_live_prediction_id())
     field = service.station_field(30, "risk")
-    assert field["compliance"] == {"label": "情景推演", "locked": True}
+    assert field["compliance"] == {"label": LONG_TERM_COMPLIANCE_LABEL, "locked": True}
     short = service.station_field(1, "risk")
     assert short["compliance"]["locked"] is False
 

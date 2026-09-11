@@ -109,3 +109,9 @@ backend/prediction-cache/
 backend/.qa_pytest_tmp/
 __nonexistent__/
 backend/model_runtime_v0_2/
+
+# V0.3 交付包的中间备份副本：与正式产物同源、可由流水线重跑复现，
+# 保留在磁盘供追溯，但不属于发布内容（封版提交只含正式产物）。
+backend/model_runtime_v0_3/*backup*/
+backend/model_runtime_v0_3/*_backup/
+backend/model_runtime_v0_3/_derived_backup_*/

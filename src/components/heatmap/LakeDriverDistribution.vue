@@ -135,7 +135,13 @@ const meta = computed(() => ({
   snapshotId: distribution.value?.prediction_snapshot_id || ''
 }))
 
-// 数据口径披露：温度/光照/流速当前不具备站间差异，必须明说，不能包装成空间差异驱动。
+// 数据口径披露：哪些因子没有站间差异，必须明说，不能包装成空间差异驱动。
+// 2026-09-11 起温度取本站 MEE 实测水温（逐站），不再是统一气象代理——
+// 这条披露必须跟着数据走，否则会把真实存在的站间差异说成"没有差异"。
+const LAKE_WIDE_REASON = {
+  light: '单一气象网格值（全湖同一格点），物理上不构成站间差异',
+  air_temperature: '单一气象网格值（全湖同一格点），物理上不构成站间差异'
+}
 const dataNotes = computed(() => {
   const rows = distribution.value?.factors || []
   const notes = []
@@ -150,9 +156,7 @@ const dataNotes = computed(() => {
     if (total > 0 && proxy === total) {
       notes.push({
         key: f.key,
-        text: f.key === 'temperature'
-          ? `${label}：统一气象代理（${proxy}/${total} 站同值），不构成站间差异`
-          : `${label}：全部站点为代理输入（${proxy}/${total} 站）`
+        text: `${label}：${LAKE_WIDE_REASON[f.key] || `全部站点为代理输入（${proxy}/${total} 站）`}`
       })
       continue
     }

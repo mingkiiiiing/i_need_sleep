@@ -89,6 +89,14 @@ def build_gate_table(runs_dir: str | Path) -> dict[str, Any]:
                 "selected_family": selected,
                 "fusion_family": fusion_family,
                 "single_family": single_family,
+                # 评估记录绑定身份：run_id + 数据版本 + 训练协议，消费方据此对齐当前模型产物
+                "run_id": config.get("run_id"),
+                "data_version": config.get("data_version"),
+                "training_protocol": (
+                    config.get("training_protocol")
+                    or (config.get("split_protocol") or {}).get("protocol_id")
+                    or "frozen_split"
+                ),
             }
             if fusion_family is None or single_family is None:
                 row.update({

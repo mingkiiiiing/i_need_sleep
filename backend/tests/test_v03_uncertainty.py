@@ -34,11 +34,20 @@ def test_every_trainable_bundle_carries_conformal_calibrator():
 
 
 def test_calibration_status_is_evidence_based_not_flag_based():
-    """校准状态必须由测试集证据决定：test_n=0/1 一律不得判为 validated。"""
+    """校准状态必须由测试集证据决定，而不是由模型自带的布尔标志决定。
+
+    判据是**双向**的，与当前包里有几个模型恰好有证据无关：
+      无测试证据（test_n 为 None/0）→ 不得判为 validated；
+      判为 validated → test_n 必须达标、经验覆盖率必须核算过。
+    曾经额外断言"至少有 1 个模型无测试证据"——那是当时交付包的数据快照，不是合同；
+    补训协议补上真实留出测试段后该断言自然失效，而它失效恰恰说明合同在工作。
+    """
     from backend.app.algorithm_models import (
         CALIBRATION_NO_TEST_EVIDENCE,
+        CALIBRATION_UNDERCOVERED,
         CALIBRATION_VALIDATED,
         AlgorithmModelServiceV3,
+        COVERAGE_ACCEPTANCE_MIN,
         MIN_CALIBRATION_TEST_N,
     )
 
@@ -54,9 +63,25 @@ def test_calibration_status_is_evidence_based_not_flag_based():
         if item["calibration_status"] == CALIBRATION_VALIDATED:
             assert item["test_n"] >= MIN_CALIBRATION_TEST_N
             assert item["empirical_coverage"] is not None
-    # 现状必须如实反映：存在缺乏校准证据的模型，不得全绿
-    assert payload["summary"]["reviewed"] == len(payload["items"])
-    assert payload["summary"]["without_test_evidence"] >= 1
+            # 2026-09-11 加：达标还必须真的达到验收线，而不是"覆盖率非空"
+            assert float(item["empirical_coverage"]) >= COVERAGE_ACCEPTANCE_MIN
+            assert item["decision_usable"] is True
+    # 汇总必须与逐条明细自洽：四种校准状态互斥且完备，计数之和 == 明细条数
+    summary = payload["summary"]
+    assert summary["reviewed"] == len(payload["items"])
+    assert (
+        summary["calibration_validated"]
+        + summary["undercovered"]
+        + summary["without_test_evidence"]
+        + summary["insufficient_test_evidence"]
+        == summary["reviewed"]
+    )
+    # 欠覆盖必须是可核对的：每条 undercovered 的实测覆盖率都真的低于验收线
+    for item in payload["items"]:
+        if item["calibration_status"] == CALIBRATION_UNDERCOVERED:
+            assert item["decision_usable"] is False
+            assert item["empirical_coverage"] is not None
+            assert float(item["empirical_coverage"]) < COVERAGE_ACCEPTANCE_MIN
 
 
 def test_empirical_coverage_is_disclosed_not_fitted_on_test():

@@ -1,9 +1,33 @@
 {
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-10T19:15:32.682911+00:00",
+  "created_at": "2026-09-11T05:30:09.203560+00:00",
   "run_id": "T1-bloom-0m-s20260907",
   "selected_family": "random_forest",
   "test_metrics_by_family": {
+    "climatology_global": {
+      "brier_score": 0.027335023308268157,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0275,
+          "n": 36,
+          "observed_frequency": 0.0278
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1181,
+          "n": 4,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.012094,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.08974358974358976
+    },
     "constrained_blend": {
       "brier_score": 0.02498671316374383,
       "calibration_bins": [
@@ -41,40 +65,40 @@
       "roc_auc": 0.5
     },
     "mechanism_feature": {
-      "brier_score": 0.02484798686514452,
+      "brier_score": 0.025050340541213956,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0012,
+          "mean_predicted": 0.005,
           "n": 40,
           "observed_frequency": 0.025
         }
       ],
-      "expected_calibration_error": 0.023753,
-      "f1": null,
-      "n": 40,
-      "pr_auc": 0.0625,
-      "precision": null,
-      "recall": 0.0,
-      "roc_auc": 0.8076923076923077
-    },
-    "random_forest": {
-      "brier_score": 0.02500515528901035,
-      "calibration_bins": [
-        {
-          "bin": 0,
-          "mean_predicted": 0.0011,
-          "n": 40,
-          "observed_frequency": 0.025
-        }
-      ],
-      "expected_calibration_error": 0.023923,
+      "expected_calibration_error": 0.020036,
       "f1": null,
       "n": 40,
       "pr_auc": 0.025,
       "precision": null,
       "recall": 0.0,
-      "roc_auc": 0.3846153846153846
+      "roc_auc": 0.23076923076923078
+    },
+    "random_forest": {
+      "brier_score": 0.025069711113573562,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0045,
+          "n": 40,
+          "observed_frequency": 0.025
+        }
+      ],
+      "expected_calibration_error": 0.020467,
+      "f1": null,
+      "n": 40,
+      "pr_auc": 0.025,
+      "precision": null,
+      "recall": 0.0,
+      "roc_auc": 0.3076923076923077
     },
     "simple_baseline": {
       "brier_score": 0.024578038183321875,
@@ -115,7 +139,7 @@
   },
   "test_primary_metric": "brier_score",
   "test_rows": 40,
-  "test_value": 0.02500515528901035,
+  "test_value": 0.025069711113573562,
   "uncertainty": {
     "calibration_n": 212,
     "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",

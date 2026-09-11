@@ -24,11 +24,14 @@ from sklearn.ensemble import (
 from xgboost import XGBClassifier, XGBRegressor
 
 from .contracts_real import (
+    BLOOM_THRESHOLD_UG_L,
     CLAIM_BOUNDARY_V3,
     DATA_VERSION_V3,
     DEFAULT_SEED_V3,
     HORIZON_MAP_V3,
     TaskSpecReal,
+    artifact_id_real,
+    protocol_of_run,
     run_id_real,
 )
 from .data_real import (
@@ -36,6 +39,7 @@ from .data_real import (
     RealPreprocessor,
     ResidualIntervals,
     StationMonthSource,
+    bundle_slot_filename,
     frame_digest,
     save_bundle,
 )
@@ -115,8 +119,11 @@ def probability_metrics(actual: np.ndarray, probability: np.ndarray) -> dict:
         out["pr_auc"] = float(average_precision_score(true, prob))
         counts = _binary_counts(true, prob >= 0.5)
         positives = float(np.sum(true == 1.0))
+        predicted_positive = counts["tp"] + counts["fp"]
         recall = counts["tp"] / positives if positives else None
-        precision = counts["tp"] / counts["tp"] if counts["tp"] + counts["fp"] else None
+        # 查准率 = tp/(tp+fp)。此处原先写成 tp/tp：分母取了 tp+fp 判断非零、分子却是 tp，
+        # 于是「有正预测但零真阳性」（补训协议引入真实测试段后必然出现）触发除零。
+        precision = counts["tp"] / predicted_positive if predicted_positive else None
         f1 = (
             2 * precision * recall / (precision + recall)
             if precision and recall
@@ -191,6 +198,90 @@ class ConstantCandidateReal:
         if self.spec.problem_type == "ordinal":
             return pd.DataFrame({"prediction": pd.Series([self.label] * size, index=frame.index)})
         return pd.DataFrame({"prediction": np.full(size, max(self.value, 0.0))})
+
+
+def _frame_month_num(frame: pd.DataFrame) -> np.ndarray:
+    """由目标月日历正余弦还原月份（1-12）；无法还原时返回 0（调用方回退全局统计）。"""
+    sin = pd.to_numeric(frame.get("calendar_month_sin"), errors="coerce").to_numpy(dtype=float)
+    cos = pd.to_numeric(frame.get("calendar_month_cos"), errors="coerce").to_numpy(dtype=float)
+    angle = np.arctan2(sin, cos)
+    month = np.rint((np.mod(angle, 2.0 * np.pi)) * 12.0 / (2.0 * np.pi)).astype(int) + 1
+    month = np.where(np.isfinite(sin) & np.isfinite(cos) & ((np.abs(sin) + np.abs(cos)) > 1e-6), month, 0)
+    month = np.clip(month, 0, 12)
+    return month
+
+
+class ClimatologyCandidateReal:
+    """月气候态基线：训练期「目标月份 → actual 均值/众数」（全湖口径，可回测）。
+
+    serving 帧无站点身份，故为全局月气候态；它是中长期趋势必须超越的最低基线。
+    """
+
+    name = "climatology_global"
+
+    def __init__(self, spec: TaskSpecReal, by_month: dict, fallback):
+        self.spec = spec
+        self.by_month = dict(by_month)
+        self.fallback = fallback
+
+    @classmethod
+    def fit(cls, spec: TaskSpecReal, train: pd.DataFrame) -> "ClimatologyCandidateReal":
+        months = _frame_month_num(train)
+        actual = train["actual"]
+        if spec.problem_type == "ordinal":
+            labels = actual.astype(str)
+            by_month = {
+                int(m): str(labels[months == m].mode().iloc[0])
+                for m in sorted(set(months) - {0}) if (months == m).sum() >= 1 and len(labels[months == m].mode())
+            }
+            fallback = str(labels.mode().iloc[0]) if len(labels.mode()) else "none"
+        else:
+            values = pd.to_numeric(actual, errors="coerce").to_numpy(dtype=float)
+            by_month = {
+                int(m): float(np.nanmean(values[months == m]))
+                for m in sorted(set(months) - {0}) if np.isfinite(values[months == m]).any()
+            }
+            fallback = float(np.nanmean(values)) if np.isfinite(values).any() else 0.0
+        return cls(spec, by_month, fallback)
+
+    def _values(self, frame: pd.DataFrame) -> np.ndarray:
+        months = _frame_month_num(frame)
+        return np.asarray([self.by_month.get(int(m), self.fallback) for m in months], dtype=object)
+
+    def predict_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
+        values = self._values(frame)
+        if self.spec.problem_type == "ordinal":
+            return pd.DataFrame({"prediction": pd.Series(list(values), index=frame.index)})
+        numeric = np.asarray(values, dtype=float)
+        if self.spec.problem_type in {"binary", "probability"}:
+            prob = np.clip(numeric, 0.0, 1.0)
+            return pd.DataFrame({"probability": prob, "prediction": (prob >= 0.5).astype("int8")})
+        return pd.DataFrame({"prediction": np.maximum(numeric, 0.0)})
+
+
+class PersistenceCandidateReal:
+    """持续性基线：目标 = 当月实测（chla 家族用 wq_chla），可回测。
+
+    仅 month_offset≥1（当月实测相对目标月为历史量）且特征含 wq_chla 时注册。
+    probability/binary 口径：当月实测已越阈则概率 1，否则 0（朴素但可回测）。
+    """
+
+    name = "persistence"
+
+    def __init__(self, spec: TaskSpecReal, source_column: str = "wq_chla",
+                 bloom_threshold: float = BLOOM_THRESHOLD_UG_L):
+        self.spec = spec
+        self.source_column = source_column
+        self.bloom_threshold = float(bloom_threshold)
+
+    def predict_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
+        current = pd.to_numeric(frame[self.source_column], errors="coerce").to_numpy(dtype=float)
+        if self.spec.problem_type in {"binary", "probability"}:
+            prob = np.where(np.isfinite(current), (current >= self.bloom_threshold).astype(float), np.nan)
+            prob = np.nan_to_num(prob, nan=0.0)
+            return pd.DataFrame({"probability": prob, "prediction": (prob >= 0.5).astype("int8")})
+        pred = np.maximum(np.nan_to_num(current, nan=0.0), 0.0)
+        return pd.DataFrame({"prediction": pred})
 
 
 class SklearnCandidateReal:
@@ -302,11 +393,9 @@ class MechanismFeatureCandidateReal:
         self.feature_columns = ai.feature_columns
 
     def predict_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
-        augmented = frame.copy()
-        mech_out = self.mechanism.predict_frame(frame)
-        column = "probability" if "probability" in mech_out.columns else "prediction"
-        augmented["mechanism_prediction"] = mech_out[column].to_numpy(dtype=float)
-        return self.ai.predict_frame(augmented)
+        # 与训练侧共用 _augmented：序数任务的等级标签编码口径必须完全一致，
+        # 否则拟合时看到的是序号、推理时喂进去的是标签，模型输入口径两套。
+        return self.ai.predict_frame(_augmented(frame, self.mechanism))
 
 
 class ResidualCandidateReal:
@@ -344,13 +433,16 @@ class ConstrainedBlendCandidateReal:
         self.weight = float(weight)
 
     def predict_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
-        mech_value = _mech_values(self.mechanism, frame)
         ai_out = self.ai.predict_frame(frame)
         ai_column = "probability" if "probability" in ai_out.columns else "prediction"
-        ai_value = ai_out[ai_column].to_numpy(dtype=float)
         if self.spec.problem_type == "ordinal":
-            selected = np.where(self.weight >= 0.5, mech_value, ai_value)
-            return pd.DataFrame({"prediction": selected})
+            # 序数任务：两条支路都是等级标签，按权重在标签上取一（不存在"标签相加"）
+            mech_labels = _mech_values(self.mechanism, frame)
+            ai_labels = ai_out[ai_column].astype(str).to_numpy(dtype=object)
+            selected = np.where(self.weight >= 0.5, mech_labels, ai_labels)
+            return pd.DataFrame({"prediction": pd.Series(selected, index=frame.index)})
+        mech_value = _mech_values(self.mechanism, frame)
+        ai_value = ai_out[ai_column].to_numpy(dtype=float)
         raw = self.weight * mech_value + (1.0 - self.weight) * ai_value
         raw = np.maximum(raw, 0.0)
         if self.spec.problem_type in {"binary", "probability"}:
@@ -465,18 +557,38 @@ def _fit_mechanism(spec: TaskSpecReal, features: pd.DataFrame, seed: int) -> Mec
 
 
 def _augmented(features: pd.DataFrame, mechanism: MechanismCandidateReal) -> pd.DataFrame:
+    """特征 + 机制点值列。序数任务的机制输出是等级标签，须用等级序号数值化后入模型。
+
+    这是融合族在风险等级上可训练的唯一前提：直接 to_numpy(dtype=float) 会因标签是
+    字符串（如 'none'）而抛错，融合族因此从 test_metrics 里整族缺席。
+    """
     out = features.copy()
     mech_out = mechanism.predict_frame(features)
     column = "probability" if "probability" in mech_out.columns else "prediction"
-    out["mechanism_prediction"] = mech_out[column].to_numpy(dtype=float)
+    if mechanism.spec.problem_type == "ordinal":
+        out["mechanism_prediction"] = _ordinal_rank_encode(mechanism.classes, mech_out[column])
+    else:
+        out["mechanism_prediction"] = mech_out[column].to_numpy(dtype=float)
     return out
 
 
 def _mech_values(candidate: MechanismCandidateReal, frame: pd.DataFrame) -> np.ndarray:
-    """机制族点值：probability 任务输出 probability 列，其余取 prediction。"""
+    """机制族点值：probability 任务输出 probability 列，其余取 prediction。
+
+    序数任务（风险等级带）的输出是等级标签，必须原样返回字符串——转 float 会直接抛错，
+    这正是"融合族在风险等级上全军覆没、门禁只能记 NA"的根因。
+    """
     out = candidate.predict_frame(frame)
     column = "probability" if "probability" in out.columns else "prediction"
+    if candidate.spec.problem_type == "ordinal":
+        return out[column].astype(str).to_numpy(dtype=object)
     return out[column].to_numpy(dtype=float)
+
+
+def _ordinal_rank_encode(classes: tuple[str, ...], values: pd.Series) -> np.ndarray:
+    """等级标签 → 等级序号（保序）。未知标签落到 0，与 _fit_mechanism 内部编码一致。"""
+    order = {name: index for index, name in enumerate(classes or ())}
+    return values.astype(str).map(lambda v: float(order.get(v, 0))).to_numpy(dtype=float)
 
 
 def _fit_fusion(name: str, spec: TaskSpecReal, train: pd.DataFrame, validation: pd.DataFrame | None, seed: int):
@@ -502,21 +614,45 @@ def _fit_fusion(name: str, spec: TaskSpecReal, train: pd.DataFrame, validation: 
         mech_validation = _mech_values(mechanism, validation)
         ai_out = ai.predict_frame(validation)
         ai_column = "probability" if "probability" in ai_out.columns else "prediction"
-        ai_validation = ai_out[ai_column].to_numpy(dtype=float)
-        actual_validation = pd.to_numeric(validation["actual"], errors="coerce").to_numpy()
-        best = None
-        for candidate in (0.0, 0.25, 0.5, 0.75, 1.0):
-            blended = np.clip(candidate * mech_validation + (1 - candidate) * ai_validation, 0.0, 1.0) \
-                if spec.problem_type in {"binary", "probability"} \
-                else np.maximum(candidate * mech_validation + (1 - candidate) * ai_validation, 0.0)
-            error = float(np.mean((actual_validation - blended) ** 2))
-            if best is None or error < best[0]:
-                best = (error, candidate)
-        weight = best[1]
+        if spec.problem_type == "ordinal":
+            # 序数：候选权重在"选机制标签还是选 AI 标签"之间择一，用分类错误率挑
+            ai_validation = ai_out[ai_column].astype(str).to_numpy(dtype=object)
+            actual_validation = validation["actual"].astype(str).to_numpy(dtype=object)
+            best = None
+            for candidate in (0.0, 0.25, 0.5, 0.75, 1.0):
+                blended = np.where(candidate >= 0.5, mech_validation, ai_validation)
+                error = float(np.mean(actual_validation != blended))
+                if best is None or error < best[0]:
+                    best = (error, candidate)
+            weight = best[1]
+        else:
+            ai_validation = ai_out[ai_column].to_numpy(dtype=float)
+            actual_validation = pd.to_numeric(validation["actual"], errors="coerce").to_numpy()
+            best = None
+            for candidate in (0.0, 0.25, 0.5, 0.75, 1.0):
+                blended = np.clip(candidate * mech_validation + (1 - candidate) * ai_validation, 0.0, 1.0) \
+                    if spec.problem_type in {"binary", "probability"} \
+                    else np.maximum(candidate * mech_validation + (1 - candidate) * ai_validation, 0.0)
+                error = float(np.mean((actual_validation - blended) ** 2))
+                if best is None or error < best[0]:
+                    best = (error, candidate)
+            weight = best[1]
     return ConstrainedBlendCandidateReal(spec, mechanism, ai, weight)
 
 
-def candidate_factories_real(spec: TaskSpecReal, seed: int) -> dict[str, Callable]:
+def candidate_factories_real(
+    spec: TaskSpecReal,
+    seed: int,
+    month_offset: int = 0,
+    climatology_history: pd.DataFrame | None = None,
+) -> dict[str, Callable]:
+    """候选族工厂。
+
+    climatology_history：月气候态的拟合样本。缺省用当前 run 的拟合段——但对 month_offset≥1
+    的中长期 run，拟合段可能只有几十行且目标月高度集中，据此估出的月气候态退化成"几乎全 0
+    的查表"，等于没有基线可比。此时调用方应传入该任务的**历史标签序列**（目标月严格早于
+    留出测试段，无前视），让气候态基线建立在真实季节循环上，再拿去和模型同台比较。
+    """
     def simple(train, validation=None):
         actual = pd.to_numeric(train["actual"], errors="coerce").dropna()
         if spec.problem_type in {"binary", "probability"}:
@@ -546,10 +682,21 @@ def candidate_factories_real(spec: TaskSpecReal, seed: int) -> dict[str, Callabl
     def blend(train, validation=None):
         return _fit_fusion("constrained_blend", spec, train, validation, seed)
 
+    def climatology(train, validation=None):
+        history = climatology_history if climatology_history is not None and len(climatology_history) > len(train) else train
+        return ClimatologyCandidateReal.fit(spec, history)
+
     factories = {
-        "simple_baseline": simple, "random_forest": rf, "xgboost": xgb, "mechanism": mech,
+        "simple_baseline": simple, "climatology_global": climatology,
+        "random_forest": rf, "xgboost": xgb, "mechanism": mech,
         "mechanism_feature": mech_feature, "residual": residual, "constrained_blend": blend,
     }
+    # 持续性基线：特征里存在当月实测 wq_chla 时（month_offset≥1 的 chla/bloom 家族）注册
+    if spec.label_family in {"chla", "bloom"} and spec.problem_type != "ordinal":
+        def persistence(train, validation=None):
+            return PersistenceCandidateReal(spec)
+
+        factories["persistence"] = persistence
     if spec.problem_type == "ordinal":
         factories.pop("residual", None)
     return factories
@@ -615,18 +762,36 @@ def train_run_real(
     *,
     seed: int = DEFAULT_SEED_V3,
     data_manifest: dict | None = None,
+    protocol_tag: str = "",
+    climatology_history: pd.DataFrame | None = None,
 ) -> dict:
-    """训练一个 (task, horizon) run 并落盘全部产物；返回摘要 dict。"""
+    """训练一个 (task, horizon) run 并落盘全部产物；返回摘要 dict。
+
+    protocol_tag：写入 run_id 的协议标记（补训协议传 "cv"），使同一槽位在不同协议下的
+    评估记录可区分。模型仍写固定槽位文件名，保证推理侧一槽一份、不看巧合。
+    climatology_history：月气候态基线的拟合样本（见 candidate_factories_real）。
+    """
     if horizon_days not in HORIZON_MAP_V3.month_map:
         raise ValueError(f"unsupported horizon: {horizon_days}")
     month_offset = HORIZON_MAP_V3.month_offset(horizon_days)
-    run_id = run_id_real(spec.task_id, spec.variant, month_offset, seed)
+    run_id = run_id_real(spec.task_id, spec.variant, month_offset, seed, protocol_tag)
     output = Path(output_dir)
     if (output / "evaluation_manifest.json").is_file():
         return {"run_id": run_id, "status": "skipped_completed"}
     output.mkdir(parents=True, exist_ok=True)
+    # 标签来源必须由监督表逐行 actual_provenance 汇总得出，不能用任务配置的声明值顶替
+    # （T5 的 567 行 T+90 标签全部来自 chla_station_proxy_v1，声明 ground_truth 与事实不符）。
+    from .target_builder import provenance_summary
+
+    provenance = provenance_summary(source.base, spec.label_provenance)
+    protocol = protocol_of_run(protocol_tag)
+    artifact_id = artifact_id_real(
+        spec.task_id, spec.variant, month_offset, horizon_days, seed, protocol
+    )
     run_config = {
         "run_id": run_id,
+        "artifact_id": artifact_id,
+        "protocol": protocol,
         "task_id": spec.task_id,
         "variant": spec.variant,
         "problem_type": spec.problem_type,
@@ -637,7 +802,12 @@ def train_run_real(
         "seed": seed,
         "data_version": CLAIM_BOUNDARY_V3 and data_manifest.get("data_version"),
         "claim_boundary": CLAIM_BOUNDARY_V3,
-        "label_provenance": spec.label_provenance,
+        # 权威口径：逐行 actual_provenance 汇总
+        "label_provenance": provenance["observed"],
+        "label_provenance_declared": provenance["declared"],
+        "label_provenance_breakdown": provenance["breakdown"],
+        "label_provenance_rows": provenance["rows"],
+        "label_provenance_unresolved_rows": provenance["unresolved_rows"],
     }
     _write_json(run_config, output / "run_config.json")
 
@@ -652,7 +822,9 @@ def train_run_real(
     validation_features = preprocessor.transform(validation).assign(actual=validation["actual"].to_numpy())
     validation_features["month_order"] = validation["month_order"].to_numpy()
 
-    factories = candidate_factories_real(spec, seed)
+    factories = candidate_factories_real(
+        spec, seed, month_offset=month_offset, climatology_history=climatology_history,
+    )
     validation_metrics: dict[str, dict] = {}
     candidates: dict[str, object] = {}
     for name, factory in factories.items():
@@ -796,10 +968,19 @@ def train_run_real(
         test_metrics=test_metrics_by_family.get(selected, {}),
         seed=seed,
     )
-    save_bundle(bundle, output.parent.parent / "models")
+    save_bundle(
+        bundle,
+        output.parent.parent / "models",
+        filename=bundle_slot_filename(spec.task_id, spec.variant, month_offset, horizon_days, seed),
+    )
 
     evaluation_manifest = {
         "run_id": run_id,
+        "artifact_id": artifact_id,
+        "protocol": protocol,
+        "label_provenance": provenance["observed"],
+        "label_provenance_declared": provenance["declared"],
+        "label_provenance_breakdown": provenance["breakdown"],
         "selected_family": selected,
         "test_rows": int(len(test)),
         "test_primary_metric": spec.primary_metric,

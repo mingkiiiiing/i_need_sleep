@@ -45,6 +45,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# 口径标签的单一来源：算法层的 compliance 与本文件的站点场合规标记必须同源，
+# 否则同一份快照里两处会给出不同的口径名称。
+from .algorithm_models import (  # noqa: E402
+    LONG_TERM_COMPLIANCE_LABEL,
+    SHORT_TERM_COMPLIANCE_LABEL,
+)
+
 logger = logging.getLogger("uvicorn.error")
 
 PREDICTION_CACHE_ENV = "TAIHU_PREDICTION_CACHE_DIR"
@@ -63,8 +70,20 @@ _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 # v6：2026-09-11 第三轮口径闭环——聚合层升级为页面主结果合同：
 # scope=lake_aggregate、station_total/reported、aggregation_method、快照双 ID、
 # 概率 P90 与高风险站占比、全湖风险等级按冻结风险带对 chla 中位数重新判级。
+# v7：2026-09-11 第四轮——30/60/90 天不再叫"情景推演"：90 天为逐站模型、30/60 天为
+#   季节气候态基线（两者都有真实来源与留出回测）；value_origin_counts 增加
+#   seasonal_climatology_baseline 独立桶；站点场 compliance 标签同源化。
+# v8：2026-09-11 第五轮——可信度缺陷修复后的 payload 合同升级：
+#   ① 标签来源逐行继承（label_provenance / label_provenance_breakdown），
+#   ② 区间三层合同四态（新增 undercovered，empirical_coverage + coverage_acceptance_min），
+#   ③ 中长期路由（long_term_route，评估不足的逐站模型被拒并回退季节基线），
+#   ④ 模型身份一一对应（artifact_id / model_file / model_sha256 / station_resolution）。
+#   旧快照缺这些字段，页面会误显示为空——必须放弃旧快照而不是兼容读取。
+# v9：2026-09-11 第五轮（续）——station_resolution 由"模型族自称"改为"实测站点离散度"判定，
+#   并新增 station_resolution_basis 披露判定依据（declared / measured_station_spread）。
+#   字段语义变化同样属于口径变化，必须递增版本，否则旧快照会继续以旧语义被服务。
 # 教训：版本键只覆盖模型产物，看不见"代码口径"变更——结构/口径变化必须递增此版本。
-CACHE_SCHEMA_VERSION = "prediction_snapshot_v6"
+CACHE_SCHEMA_VERSION = "prediction_snapshot_v9"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 
@@ -1058,6 +1077,7 @@ class PredictionSnapshotService:
                 value_origin = reference.get("value_origin")
                 model_family = reference.get("model_family")
                 model_run_id = reference.get("model_run_id")
+                quality_entry = (model_quality or {}).get(model_run_id or "") or {}
                 # 该 (任务, 时效) 的 10% 提升门禁行：任务/时效从结果项回读，时效键为字符串。
                 try:
                     gate_row = gate_index.get(
@@ -1095,6 +1115,31 @@ class PredictionSnapshotService:
                     "model_run_id": model_run_id,
                     "model_family": model_family,
                     "value_origin": value_origin,
+                    # 产物身份与站点分辨率：让前端能直接说出"这一档用的是哪份文件、
+                    # 能不能看站点差异"，而不是靠 value_origin 猜。
+                    "artifact_id": reference.get("artifact_id"),
+                    "model_file": reference.get("model_file"),
+                    "model_sha256": reference.get("model_sha256"),
+                    "station_resolution": (
+                        # 结果自己声明了分辨率（如季节基线的 station_resolution=False）就以它为准；
+                        # 逐站模型结果不自称——此时按本档实测离散度判定，而不是按"模型族"打包票：
+                        # 只有真的各站算出了不同值，才敢说这档有站点分辨。
+                        reference.get("station_resolution")
+                        if reference.get("station_resolution") is not None
+                        else bool(numeric_variation)
+                    ),
+                    "station_resolution_basis": (
+                        "declared" if reference.get("station_resolution") is not None
+                        else "measured_station_spread"
+                    ),
+                    "label_provenance": reference.get("label_provenance"),
+                    "training_protocol": reference.get("training_protocol"),
+                    "long_term_route": reference.get("long_term_route"),
+                    "calibration_status": (reference.get("uncertainty") or {}).get("calibration_status"),
+                    "empirical_coverage": (reference.get("uncertainty") or {}).get("empirical_coverage"),
+                    "uncertainty_decision_usable": (reference.get("uncertainty") or {}).get("decision_usable"),
+                    # 留出集指标：让页面能说出"这一档精度到底多少"，而不是笼统称"已验证"。
+                    "test_metrics": quality_entry.get("test_metrics"),
                     "gate_status": gate_status,
                     "gate_na_reason": (gate_row or {}).get("na_reason"),
                     "comparison_evidence": evidence,
@@ -1477,7 +1522,9 @@ class PredictionSnapshotService:
             "value_origin": value_origin,
             "comparison_usable": bool(diag.get("comparison_usable")),
             "comparison_blocked_reason": diag.get("comparison_blocked_reason"),
-            "compliance": {"label": "情景推演", "locked": True} if scenario else {"label": "短期预测（月度标签粒度）", "locked": False},
+            "compliance": {"label": LONG_TERM_COMPLIANCE_LABEL, "locked": True} if scenario else {
+                "label": SHORT_TERM_COMPLIANCE_LABEL, "locked": False
+            },
             "points": points,
             "excluded": excluded,
             "coverage": {

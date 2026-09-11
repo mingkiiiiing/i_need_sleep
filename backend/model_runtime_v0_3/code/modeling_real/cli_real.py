@@ -30,7 +30,9 @@ from modeling_real.contracts_real import (  # noqa: E402
     RISK_BANDS_UG_L,
     SCENARIO_HORIZONS_V3,
     SERVING_FEATURE_COLUMNS_V2,
+    SERVING_LAGGED_TARGET_FEATURES,
     TASK_SPECS_REAL,
+    artifact_id_real,
     feature_contract_sha256,
     package_root,
 )
@@ -99,7 +101,7 @@ def cmd_train_all(base: pd.DataFrame, labels: pd.DataFrame) -> list[dict]:
     # 保证选出的模型在服务时对站点输入有响应（冻结契约仍为默认，可对照重训）。
     serving = os.environ.get("TAIHU_FEATURE_CONTRACT", "").strip().lower() == "serving"
     feature_universe = SERVING_FEATURE_COLUMNS_V2 if serving else FEATURE_COLUMNS_V2
-    print(f"[train-all] feature contract: {'serving-7col' if serving else 'frozen-78col'}")
+    print(f"[train-all] feature contract: {'serving-8col' if serving else 'frozen-78col'}")
     out_dir = package_root()
     runs_dir = out_dir / "runs"
     runs_dir.mkdir(parents=True, exist_ok=True)
@@ -116,8 +118,14 @@ def cmd_train_all(base: pd.DataFrame, labels: pd.DataFrame) -> list[dict]:
             if s.task_id == entry["task_id"] and s.variant == entry["variant"]
         )
         table = tables[key]
-        # 任务级特征列：监督表已剔除目标同源特征（防同月泄漏），按交集对齐
+        # 任务级特征列：监督表已剔除目标同源特征（防同月泄漏），按交集对齐。
+        # serving 扩展列（水温/目标滞后列）已并进监督表，此处按同一交集口径取用。
         task_feature_columns = tuple(c for c in feature_universe if c in table.columns)
+        if serving and entry["month_offset"] >= 1:
+            extra = SERVING_LAGGED_TARGET_FEATURES.get(spec.label_family, ())
+            task_feature_columns = tuple(dict.fromkeys((
+                *task_feature_columns, *(c for c in extra if c in table.columns),
+            )))
         source = StationMonthSource(table, task_feature_columns)
         result = train_run_real(
             spec, horizon, source, runs_dir / f"{spec.task_id}-{spec.variant}-{horizon}d-{entry['month_offset']}m",
@@ -149,6 +157,54 @@ def cmd_gate() -> dict:
     return table
 
 
+def _provenance_audit(entries: list[dict]) -> dict:
+    """声明口径 vs 观测口径的对账（门禁式证据，供验收直接引用）。
+
+    mismatch 行的含义：任务配置声明了一种来源，而监督表逐行汇总出来的是另一种。
+    这正是本轮要修的 P0——T5 的 T+90 监督标签 567 行全部是 chla_station_proxy_v1，
+    却被声明成 ground_truth。任何 mismatch 都必须由修复后的配置消除，不允许长期存在。
+    """
+    rows: list[dict] = []
+    mismatches: list[dict] = []
+    for entry in entries:
+        declared = entry.get("label_provenance_declared")
+        observed = entry.get("label_provenance")
+        if declared is None and observed is None:
+            continue
+        row = {
+            "task_id": entry.get("task_id"),
+            "variant": entry.get("variant"),
+            "horizon_days": entry.get("horizon_days"),
+            "month_offset": entry.get("month_offset"),
+            "declared": declared,
+            "observed": observed,
+            "breakdown": entry.get("label_provenance_breakdown") or {},
+            "rows": entry.get("label_provenance_rows"),
+        }
+        rows.append(row)
+        # 监督表为空（如 T5/T6-risk_level 的 offset=1/2：季度面板与月度平移不同余，
+        # 配对为空）时没有任何标签证据可以对账，此时 observed 只是回落到声明值，
+        # 不构成"声明与事实不符"，不得计为 mismatch。
+        if not entry.get("label_provenance_rows"):
+            continue
+        # 混合来源任务的声明值 ground_truth_or_proxy 与观测值不逐字相等是正常的，
+        # 只要观测值落在允许集合内即视为一致。
+        allowed = {declared}
+        if declared == "ground_truth_or_proxy":
+            allowed = {"ground_truth", "chla_station_proxy_v1"}
+            allowed |= {k for k in (entry.get("label_provenance_breakdown") or {})}
+            if str(observed).startswith("mixed("):
+                allowed.add(observed)
+        if observed not in allowed:
+            mismatches.append(row)
+    return {
+        "rule": "label_provenance 一律取逐行 actual_provenance 汇总；与 declared 不一致的必须修复",
+        "rows": rows,
+        "mismatch_count": len(mismatches),
+        "mismatches": mismatches,
+    }
+
+
 def cmd_manifest() -> dict:
     import os
 
@@ -160,14 +216,29 @@ def cmd_manifest() -> dict:
     model_entries = []
     for path in sorted(models_dir.glob("*.joblib")):
         bundle = data_real.load_bundle(path)
+        protocol = (bundle.uncertainty_meta or {}).get("split_protocol") or "frozen_split"
         model_entries.append({
             "run_id": bundle.run_id,
+            # 显式任务身份：运行层按 (task_id, variant, month_offset, horizon_days) 查表取
+            # 真实文件路径与 SHA256，不得再从 run_id 反推文件名（run_id 不含时效）。
+            "task_id": bundle.task_id,
+            "variant": bundle.variant,
+            # artifact_id：唯一产物身份（含 protocol / month_offset / horizon / seed）。
+            # run_id 不含时效，一个 run_id 对应多份模型文件，不能单独定位产物。
+            "artifact_id": artifact_id_real(
+                bundle.task_id, bundle.variant, bundle.month_offset,
+                bundle.horizon_days, bundle.seed, protocol,
+            ),
+            "protocol": protocol,
+            # file 与 sha256 就是产物在交付包里的真实位置与内容指纹；
+            # 运行层必须直接读这两个字段，不得再用 run_id 拼文件名。
             "file": str(path.relative_to(out_dir)).replace("\\", "/"),
             "sha256": _sha256_file(path),
             "selected_family": bundle.selected_family,
             "horizon_days": bundle.horizon_days,
             "month_offset": bundle.month_offset,
             "granularity_tier": bundle.granularity_tier,
+            "seed": bundle.seed,
             "test_metrics": bundle.test_metrics,
             "uncertainty": bundle.uncertainty_meta,
         })
@@ -199,6 +270,20 @@ def cmd_manifest() -> dict:
     availability = (
         json.loads(availability_path.read_text(encoding="utf-8")) if availability_path.is_file() else {"entries": []}
     )
+    # 每个模型条目挂上该 (任务, 变体, 时效) 的权威标签来源，使"模型文件—标签来源"一一对应，
+    # 不必让消费方自己回去查可用性矩阵。
+    prov_by_horizon = {
+        (entry.get("task_id"), entry.get("variant"), entry.get("horizon_days")): entry
+        for entry in availability.get("entries", [])
+    }
+    for entry in model_entries:
+        source = prov_by_horizon.get(
+            (entry.get("task_id"), entry.get("variant"), entry.get("horizon_days"))
+        )
+        if source:
+            entry["label_provenance"] = source.get("label_provenance")
+            entry["label_provenance_declared"] = source.get("label_provenance_declared")
+            entry["label_provenance_breakdown"] = source.get("label_provenance_breakdown")
     features = pd.read_parquet(out_dir / "supervised" / "features_base.parquet")
     from modeling_real.target_builder import load_modis_bloom_months
 
@@ -220,10 +305,12 @@ def cmd_manifest() -> dict:
             "月度标签粒度：1/3/7/15 天映射为当月标签（7/15 为半月近似披露），30/60/90 天映射为 t+1/2/3 月"
         ),
         "serving_contract_note": (
-            "serving 契约（v2.1-7col）：特征=wq_tp/tn/do/nh4_n/ph + 日历正余弦，"
-            "全部为推理时逐站可得的 MEE 实测口径（wq_chla 不在冻结 78 列契约中，"
-            "仅其滞后列在内，防同月同源泄漏）。滞后/遥感/气象/水文/机理/静态列在"
-            "推理时为全湖常量或中位数插补，故不入选。"
+            "serving 契约（v2.1-8col）：特征=wq_tp/tn/do/nh4_n/ph/water_temp + 日历正余弦，"
+            "全部为推理时逐站可得的实测口径（水温：训练=ERA5 湖表温度网格月均/野外实测，"
+            "推理=MEE 本站实测水温）。month_offset≥1 任务追加 wq_chla 当月实测（相对目标月"
+            "为历史量，无同月泄漏）；month_offset=0 不追加（防同月同源泄漏）。"
+            "滞后/遥感/气象/水文/机理/静态列在推理时为全湖常量或中位数插补，故不入选。"
+            "month_offset≥1 的监督表按目标月划分数据集、日历特征取目标月季节。"
         ) if serving else None,
         "split": split_manifest_fragment(features),
         "models": model_entries,
@@ -233,7 +320,17 @@ def cmd_manifest() -> dict:
             name: (">=50" if name == "severe" else f"{low}-{high}")
             for name, (low, high) in RISK_BANDS_UG_L.items()
         },
-        "label_provenance_rule": "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L）一律 provenance=proxy_derived，不得标 ground_truth；仅 T4-biomass（wq_phyto_biomass）与 T5-chla（地面 chla）为 ground_truth",
+        "label_provenance_rule": (
+            "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L）"
+            "一律 provenance=proxy_derived，不得标 ground_truth。"
+            "任务配置的 label_provenance 只是「允许来源」声明；落盘口径一律取监督表逐行 "
+            "actual_provenance 的汇总（target_builder.provenance_summary），"
+            "禁止用任务配置统一顶替。T4-biomass 为 ground_truth；T5-chla 与由其推导的 "
+            "T6-risk_level 为 ground_truth_or_proxy 混合来源：实测航次 42 行 + "
+            "chla_station_proxy_v1 代理，实际以 manifest.availability_matrix[].label_provenance "
+            "与 label_provenance_breakdown 为准。"
+        ),
+        "label_provenance_audit": _provenance_audit(availability.get("entries") or []),
         "proxy_label_rules": {
             "modis_audit": {
                 "positive_months": modis_audit["positive_months"],

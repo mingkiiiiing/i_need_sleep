@@ -1,0 +1,158 @@
+{
+  "climatology_global": {
+    "brier_score": 0.0002439482079189341,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0082,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.008219,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "constrained_blend": {
+    "brier_score": 0.0017361111111111112,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0417,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.041667,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "mechanism": {
+    "brier_score": 0.0017361111111111112,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0417,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.041667,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "mechanism_feature": {
+    "brier_score": 0.0046418191129266664,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.008,
+        "n": 4,
+        "observed_frequency": 0.0
+      },
+      {
+        "bin": 1,
+        "mean_predicted": 0.1504,
+        "n": 1,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.036474,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "persistence": {
+    "brier_score": 0.0,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.0,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "random_forest": {
+    "brier_score": 0.005865787243442763,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0136,
+        "n": 4,
+        "observed_frequency": 0.0
+      },
+      {
+        "bin": 1,
+        "mean_predicted": 0.1675,
+        "n": 1,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.044362,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "simple_baseline": {
+    "brier_score": 0.0017361111111111112,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0417,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.041667,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "xgboost": {
+    "brier_score": 0.0017361112145913987,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0417,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.041667,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  }
+}

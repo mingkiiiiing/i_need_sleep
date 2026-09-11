@@ -8,13 +8,6 @@
           <div class="hm-title-text">
             <h1>卫星遥感与时空推演</h1>
           </div>
-          <button
-            type="button"
-            class="hm-raster-toggle"
-            data-role="raster-toggle"
-            :aria-pressed="String(rasterOpen)"
-            @click="rasterOpen = !rasterOpen"
-          >{{ rasterOpen ? '收起月度栅格场' : 'V0.3 月度栅格场' }}</button>
         </div>
       </header>
 
@@ -53,6 +46,7 @@
             :station-id="selectedStationId"
             :info="modelInfo"
             :spatial-summary="spatialLayerSummary"
+            v-model:raster-open="rasterOpen"
             @station-select="selectStation"
           />
         </aside>
@@ -717,7 +711,7 @@ watch(selectedStationId, async (id) => {
 const SCALES = [
   { id: 'short', label: '短临', hint: '1-3 天', from: 1, to: 3, days: [1, 3], pos: { 1: 48, 3: 57 } },
   { id: 'mid', label: '趋势', hint: '7-15 天', from: 7, to: 15, days: [7, 15], pos: { 7: 64, 15: 74 } },
-  { id: 'long', label: '情景推演', hint: '30-90 天 · 未验证', from: 30, to: 90, days: [30, 60, 90], pos: { 30: 80, 60: 87, 90: 94 } }
+  { id: 'long', label: '中长期', hint: '月度 30/60/90 天', from: 30, to: 90, days: [30, 60, 90], pos: { 30: 80, 60: 87, 90: 94 } }
 ]
 const TODAY_POS = 42
 
@@ -1088,7 +1082,10 @@ const focusDiagnostic = computed(() => entityDiagnostic(selectedHorizon.value))
 const predictionStatusKind = computed(() => {
   const diag = focusDiagnostic.value
   if (!diag) return 'unknown'
-  if (diag.valueOrigin === 'legacy_v0_2_synthetic_fallback' || selectedHorizon.value >= 30) return 'scenario'
+  if (diag.valueOrigin === 'legacy_v0_2_synthetic_fallback') return 'scenario'
+  // 中长期（T+30 起）：归入"中长期月度趋势"档，不再叫"情景推演·未验证"——
+  // 该档现在有真实来源（逐站模型或季节气候态基线）与真实留出回测，口径与短期分开表述。
+  if (selectedHorizon.value >= 30) return 'longterm'
   if (diag.comparisonUsable) return 'usable'
   if (diag.numericVariation) return 'evidence'
   return 'no-response'
@@ -1096,15 +1093,39 @@ const predictionStatusKind = computed(() => {
 
 const predictionStatusText = computed(() => {
   const kind = predictionStatusKind.value
-  if (kind === 'scenario') return '情景推演口径（未完成真实标签验证），不可作真实站点预测'
-  if (kind === 'usable') return '站点差异预测已通过验证，可用于站点比较'
   const diag = focusDiagnostic.value
-  if (kind === 'evidence') {
-    if (diag?.gateStatus === 'FAIL') return '验证未通过：融合模型未达 10% 提升门禁，仅供研发观察'
-    if (diag?.gateStatus === 'NA') return '验证未通过（该任务时效无门禁评估记录），仅供研发观察'
-    return '数值随站点变化，验证证据不足，仅供研判展示'
+  if (kind === 'scenario') return '合成情景口径，不可作真实站点预测'
+  if (kind === 'longterm') {
+    // 中长期逐档说清来源：季节气候态基线不含站点分辨，逐站模型才可做站间比较。
+    // 2026-09-11：不再统称"逐站模型·已验证"——T+30/60 是无站点分辨的季节基线，
+    // T+90 才有逐站模型，且必须连留出集精度一起说，否则"已验证"就是夸大。
+    if (diag?.valueOrigin === 'seasonal_climatology_baseline') {
+      const route = diag?.longTermRoute
+      const rejected = route?.model_rejected
+        ? '（该时效原模型留出样本不足，已按路由规则降级）'
+        : ''
+      return `季节气候态基线：按月给出历史同期值，全湖同值、不含站点分辨${rejected}`
+    }
+    const metrics = diag?.testMetrics || {}
+    const parts = []
+    if (metrics.mae != null) parts.push(`MAE=${Number(metrics.mae).toFixed(3)}`)
+    if (metrics.r2 != null) parts.push(`R²=${Number(metrics.r2).toFixed(3)}`)
+    if (metrics.n != null) parts.push(`n=${metrics.n}`)
+    const metricText = parts.length ? `，留出集 ${parts.join(' · ')}` : ''
+    const fileText = diag?.modelFile ? ` · ${diag.modelFile}` : ''
+    if (diag?.gateStatus === 'PASS') return `中长期月度趋势：逐站模型，融合增益已过 10% 门禁${metricText}${fileText}`
+    if (diag?.gateStatus === 'FAIL') return `中长期月度趋势：逐站模型，融合增益未达 10% 门禁阈值${metricText}${fileText}`
+    if (diag?.gateStatus === 'NA') return `中长期月度趋势：逐站模型，该时效暂无评估记录${metricText}${fileText}`
+    return `中长期月度趋势：逐站模型${metricText}${fileText}`
   }
-  return '当前模型暂不支持站点差异预测'
+  if (kind === 'usable') return '站点差异预测已通过验证，可用于站点比较'
+  if (kind === 'evidence') {
+    if (diag?.gateStatus === 'FAIL') return '融合增益未达 10% 门禁阈值 · 结果作参考'
+    if (diag?.gateStatus === 'NA') return '该任务时效暂无评估记录 · 结果作参考'
+    if (diag?.gateStatus === 'PASS') return '融合增益已过 10% 门禁，站点比较证据待补'
+    return '数值随站点变化，评估证据不足 · 结果作参考'
+  }
+  return '该时效输出对站点输入无响应 · 仅作全湖参考'
 })
 
 // 实测快照摘要数值
@@ -1673,6 +1694,7 @@ onBeforeUnmount(() => {
 .hm-status-tag span[data-state='no-response'] { color: #e2a65a; }
 .hm-status-tag span[data-state='evidence'] { color: #d9c46a; }
 .hm-status-tag span[data-state='scenario'] { color: #9a8cc9; }
+.hm-status-tag span[data-state='longterm'] { color: #7fb2d9; }
 .hm-status-tag span[data-state='usable'] { color: #43b58c; }
 .hm-status-tag span[data-state='unknown'] { color: var(--text-secondary); }
 

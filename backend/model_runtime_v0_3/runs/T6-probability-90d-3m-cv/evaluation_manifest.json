@@ -1,0 +1,186 @@
+{
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-11T05:32:22.545867+00:00",
+  "run_id": "T6-probability-3m-s20260907-cv",
+  "selected_family": "climatology_global",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "brier_score": 0.0017690831983655055,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0226,
+          "n": 26,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1181,
+          "n": 2,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.029446,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "constrained_blend": {
+      "brier_score": 0.002093212012473834,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0458,
+          "n": 28,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.045752,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "mechanism": {
+      "brier_score": 0.002093212012473834,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0458,
+          "n": 28,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.045752,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "mechanism_feature": {
+      "brier_score": 0.006248205691086383,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0346,
+          "n": 21,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1406,
+          "n": 7,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.061107,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "persistence": {
+      "brier_score": 0.0,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0,
+          "n": 28,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.0,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "random_forest": {
+      "brier_score": 0.004702843963672412,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0247,
+          "n": 21,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1266,
+          "n": 7,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.050201,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "simple_baseline": {
+      "brier_score": 0.002093212012473834,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0458,
+          "n": 28,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.045752,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    },
+    "xgboost": {
+      "brier_score": 0.0005535897245586991,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0143,
+          "n": 28,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.014302,
+      "f1": null,
+      "n": 28,
+      "pr_auc": null,
+      "precision": null,
+      "recall": null,
+      "roc_auc": null
+    }
+  },
+  "test_primary_metric": "brier_score",
+  "test_rows": 28,
+  "test_value": 0.0017690831983655055,
+  "uncertainty": {
+    "calibration_n": 261,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 1.0,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 28
+  }
+}

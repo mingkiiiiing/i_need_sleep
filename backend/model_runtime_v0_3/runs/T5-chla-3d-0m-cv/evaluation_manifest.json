@@ -1,23 +1,80 @@
 {
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-10T19:27:23.654613+00:00",
-  "run_id": "T5-chla-0m-s20260907",
-  "selected_family": "random_forest",
-  "test_metrics_by_family": {},
+  "created_at": "2026-09-11T05:32:03.223784+00:00",
+  "run_id": "T5-chla-0m-s20260907-cv",
+  "selected_family": "mechanism_feature",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "log1p_mae": 0.5486823695504724,
+      "mae": 3.730216723484849,
+      "n": 132,
+      "r2": 0.07147939523926405,
+      "rmse": 4.468783532610364
+    },
+    "constrained_blend": {
+      "log1p_mae": 0.4870961294295886,
+      "mae": 3.3314110229546614,
+      "n": 132,
+      "r2": 0.1972568016738483,
+      "rmse": 4.155103655709001
+    },
+    "mechanism": {
+      "log1p_mae": 0.583275254959498,
+      "mae": 4.0096276767676775,
+      "n": 132,
+      "r2": -0.08363233388022384,
+      "rmse": 4.827636062369809
+    },
+    "mechanism_feature": {
+      "log1p_mae": 0.44209682603469086,
+      "mae": 3.094663218804113,
+      "n": 132,
+      "r2": 0.2690556489529474,
+      "rmse": 3.9649316241441888
+    },
+    "random_forest": {
+      "log1p_mae": 0.4437345127461408,
+      "mae": 3.1101071382230048,
+      "n": 132,
+      "r2": 0.25943067718375057,
+      "rmse": 3.990951078402619
+    },
+    "residual": {
+      "log1p_mae": 0.565855275672786,
+      "mae": 3.976802790195106,
+      "n": 132,
+      "r2": -0.00622307807612188,
+      "rmse": 4.652010454974839
+    },
+    "simple_baseline": {
+      "log1p_mae": 0.583275254959498,
+      "mae": 4.0096276767676775,
+      "n": 132,
+      "r2": -0.08363233388022384,
+      "rmse": 4.827636062369809
+    },
+    "xgboost": {
+      "log1p_mae": 0.4762368452190367,
+      "mae": 3.3950142647650745,
+      "n": 132,
+      "r2": 0.08235940977882106,
+      "rmse": 4.442524719061209
+    }
+  },
   "test_primary_metric": "mae",
-  "test_rows": 0,
-  "test_value": null,
+  "test_rows": 132,
+  "test_value": 3.094663218804113,
   "uncertainty": {
-    "calibration_n": 321,
+    "calibration_n": 234,
     "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
     "coverage_target": 0.9,
-    "empirical_coverage_test": null,
+    "empirical_coverage_test": 0.803030303030303,
     "is_calibrated_confidence_interval": true,
     "method": "split_conformal_residual_quantiles",
     "residual_quantile_levels": [
       0.05,
       0.95
     ],
-    "test_n": 0
+    "test_n": 132
   }
 }

@@ -127,21 +127,45 @@
         <div v-if="horizonTrend" class="frp-horizon" data-role="horizon-trend">
           <div class="frp-compare-head">
             <b>{{ horizonTrendTitle }}</b>
-            <span>短期实线 · 情景推演虚线</span>
+            <span>{{ horizonTrend.legend }}</span>
           </div>
-          <svg viewBox="0 0 420 112" width="100%" height="112" preserveAspectRatio="none" role="img" :aria-label="`${metricLabel}七时效趋势`">
+          <svg viewBox="0 0 420 126" width="100%" height="126" preserveAspectRatio="none" role="img" :aria-label="`${metricLabel}七时效趋势`">
             <line x1="18" y1="82" x2="402" y2="82" class="frp-trend-axis" />
             <line :x1="horizonTrend.scenarioX" :x2="horizonTrend.scenarioX" y1="8" y2="88" class="frp-trend-split" />
             <polygon v-if="horizonTrend.band" :points="horizonTrend.band" class="frp-trend-band" />
             <polyline v-if="horizonTrend.lineShort" :points="horizonTrend.lineShort" class="frp-trend-line" />
             <polyline v-if="horizonTrend.lineScenario" :points="horizonTrend.lineScenario" class="frp-trend-line frp-trend-line--scenario" />
-            <g v-for="p in horizonTrend.points" :key="p.horizon">
+            <!-- 短期四档映射同一月标签，数值按定义相同：不画成四个独立点，合并为一段同月区间 -->
+            <template v-if="horizonTrend.shortGroup">
+              <rect
+                :x="horizonTrend.shortGroup.x1" :y="horizonTrend.shortGroup.y - 5"
+                :width="horizonTrend.shortGroup.x2 - horizonTrend.shortGroup.x1" height="10"
+                rx="5" class="frp-trend-group" data-role="short-merged-group"
+              ><title>{{ horizonTrend.shortGroup.title }}</title></rect>
+              <text
+                :x="(horizonTrend.shortGroup.x1 + horizonTrend.shortGroup.x2) / 2" y="113"
+                text-anchor="middle" class="frp-trend-note" data-role="short-merged-label"
+              >同月短期结果 · 四档同值</text>
+            </template>
+            <g v-else v-for="p in horizonTrend.shortPoints" :key="`sh${p.horizon}`">
               <circle :cx="p.x" :cy="p.y" r="4" class="frp-trend-point" :data-origin="p.originKey" :data-scenario="String(p.scenario)"><title>{{ p.title }}</title></circle>
-              <text :x="p.x" y="101" text-anchor="middle" class="frp-trend-label">+{{ p.horizon }}</text>
+            </g>
+            <g v-for="p in horizonTrend.scenarioPoints" :key="`sc${p.horizon}`">
+              <circle :cx="p.x" :cy="p.y" r="4" class="frp-trend-point" :data-origin="p.originKey" :data-scenario="String(p.scenario)" :data-station-resolution="String(p.stationResolution)"><title>{{ p.title }}</title></circle>
+              <text :x="p.x" y="113" text-anchor="middle" class="frp-trend-note" :data-resolution="String(p.stationResolution)">{{ p.shortNote }}</text>
+            </g>
+            <g v-for="p in horizonTrend.points" :key="`l${p.horizon}`">
+              <text :x="p.x" y="97" text-anchor="middle" class="frp-trend-label">+{{ p.horizon }}</text>
             </g>
             <text x="22" y="13" class="frp-trend-caption">短期</text>
-            <text :x="horizonTrend.scenarioX + 6" y="13" class="frp-trend-caption">情景推演</text>
+            <text :x="horizonTrend.scenarioX + 6" y="13" class="frp-trend-caption">中长期</text>
           </svg>
+          <p v-if="horizonTrend.resolutionNote" class="frp-unc-note" data-role="trend-resolution-note">
+            {{ horizonTrend.resolutionNote }}
+          </p>
+          <ul v-if="horizonTrend.stationNotes.length" class="frp-unc-note" data-role="trend-station-notes">
+            <li v-for="note in horizonTrend.stationNotes" :key="note">{{ note }}</li>
+          </ul>
         </div>
         <p v-else-if="lakeAreaNote" class="frp-note" data-role="lake-area-note">{{ lakeAreaNote }}</p>
 
@@ -256,13 +280,21 @@
           <div><b>水华形成驱动</b><span>环境 × 营养盐 × 水动力 × AI 响应</span></div>
           <strong v-if="mechanismNet" :class="mechanismNet.positive ? 'frp-net-up' : 'frp-net-down'">{{ mechanismNet.text }}</strong>
         </div>
+        <p v-if="sourceGroups.note" class="frp-unc-note" data-role="driver-source-groups">{{ sourceGroups.note }}</p>
         <div class="frp-driver-modules" data-role="mechanism-factors">
           <section v-for="group in driverGroups" :key="group.key" class="frp-driver-module" :data-group="group.key">
             <header><i>{{ group.icon }}</i><div><b>{{ group.title }}</b><span>{{ group.subtitle }}</span></div></header>
-            <div v-for="f in group.factors" :key="f.key" class="frp-factor-row">
-              <div class="frp-factor-label"><span>{{ f.shortLabel }}</span><b>{{ f.pctText }}</b></div>
+            <div v-for="f in group.factors" :key="f.key" class="frp-factor-row" :data-factor="f.key">
+              <div class="frp-factor-label">
+                <span>{{ f.shortLabel }}</span>
+                <b>{{ f.pctText }}</b>
+              </div>
               <div class="frp-bar-track"><i class="frp-factor-fill" :style="{ width: `${f.stateOnly ? 4 : Math.max(f.pct, 4)}%`, background: f.color }"></i></div>
-              <small data-role="driver-source">{{ f.stateOnly ? (f.sourceText || '暂无量化') : f.sourceText }}</small>
+              <small data-role="driver-source">
+                <em :data-resolution="f.stationResolution ? 'station' : 'lake'">{{ f.stationResolution ? '逐站' : '全湖' }}</em>
+                {{ f.stateOnly ? (f.sourceText || '暂无量化') : f.sourceText }}
+                <template v-if="f.saturated">（已取到上限，恒为 1.0）</template>
+              </small>
             </div>
           </section>
         </div>
@@ -324,6 +356,48 @@
           <strong :data-status="uncertaintyStatus.key">{{ uncertaintyStatus.shortTitle }}</strong>
         </div>
         <p class="frp-unc-note" data-role="uncertainty-status-detail">{{ uncertaintyStatus.detail }}</p>
+
+        <!-- 等级范围（风险等级由叶绿素 a 区间映射）：不是数值区间，画范围条而非刻度尺。
+             风险等级不是焦点任务（焦点 risk 映射到 probability），它的区间挂在同一次输出的
+             risk_level 兄弟结果上；这里连同焦点区间一起给出，页头同时展示等级与概率时才闭合。 -->
+        <template v-if="bandRangeUncertainty">
+          <div class="frp-driver-head" data-role="risk-band-range-head">
+            <div><b>风险等级范围</b><span>由叶绿素 a 预测区间映射</span></div>
+            <strong :data-status="bandRangeUncertainty.structural_valid ? (bandRangeUncertainty.decision_usable ? 'usable' : 'watch') : 'invalid'">
+              {{ bandRangeStatusText }}
+            </strong>
+          </div>
+          <dl class="frp-unc-stats" data-role="derived-band-range">
+            <div><dt>偏低情景</dt><dd>{{ bandText(bandRangeUncertainty.p05_band) }}</dd></div>
+            <div class="active"><dt>当前等级</dt><dd>{{ bandText(bandRangeUncertainty.point_band) }}</dd></div>
+            <div><dt>偏高情景</dt><dd>{{ bandText(bandRangeUncertainty.p95_band) }}</dd></div>
+          </dl>
+          <p class="frp-unc-note" data-role="derived-band-source">
+            源区间（叶绿素 a）：{{ bandText(bandRangeUncertainty.source_interval?.p05, true) }} —
+            {{ bandText(bandRangeUncertainty.source_interval?.p95, true) }} μg/L，
+            测试样本 n={{ bandRangeUncertainty.source_interval?.test_n ?? '—' }}，
+            校准状态 {{ calibrationText(bandRangeUncertainty.calibration_status) }}。
+          </p>
+        </template>
+
+        <!-- 源区间未达决策可用：不画等级范围条，也不留空态，显式说明原因。 -->
+        <div v-else-if="bandRangeBlocked" data-role="band-range-blocked">
+          <div class="frp-driver-head">
+            <div><b>风险等级范围</b><span>由叶绿素 a 预测区间映射</span></div>
+            <strong data-status="invalid">不给出范围</strong>
+          </div>
+          <p class="frp-unc-note" data-role="band-range-blocked-note">{{ bandRangeBlocked.note }}</p>
+          <p class="frp-unc-note" data-role="band-range-blocked-reason">
+            原因：{{ calibrationBlockText(bandRangeBlocked) }}｜
+            源区间叶绿素 a：{{ bandText(bandRangeBlocked.source_interval?.p05, true) }} —
+            {{ bandText(bandRangeBlocked.source_interval?.p95, true) }} μg/L｜
+            测试样本 n={{ bandRangeBlocked.test_n ?? '—' }}
+            <template v-if="bandRangeBlocked.empirical_coverage != null">
+              ｜经验覆盖率 {{ (Number(bandRangeBlocked.empirical_coverage) * 100).toFixed(2) }}%
+              （验收线 {{ (Number(bandRangeBlocked.coverage_acceptance_min) * 100).toFixed(0) }}%）
+            </template>
+          </p>
+        </div>
 
         <!-- 区间刻度尺：P05—点—P95 落在参考带上。
              结构不自洽（退化 / 点预测越界 / 非有限值）时不得画成正常区间。 -->
@@ -551,16 +625,23 @@ const lakeAreaNote = computed(() => {
   if (!lakeAreaResult.value) return ''
   return `水华面积为最近一期月度遥感反演现值（${lakeAreaResult.value.value_origin_note || '月度反演场边界面积'}），不随时效外推，因此不绘制趋势线。`
 })
-// T+30/60/90 在完成真实标签验证前只能称"情景推演"，主结果上必须带口径徽标
-const isScenarioHorizon = computed(() => Number(props.horizonDays) >= 30)
+// T+30 起为中长期月度趋势档：来源可能是逐站模型（T+90）或季节气候态基线（T+30/60），
+// 主结果上必须带口径徽标说清是哪一种，不能笼统写成"未验证"——两者都有真实来源与回测。
+const isLongTermHorizon = computed(() => Number(props.horizonDays) >= 30)
+const longTermTag = computed(() => {
+  const item = props.modelForecast?.results?.[METRIC_KEYS[props.metric]]
+  if (!item || item.value == null) return '中长期月度趋势'
+  if (item.value_origin === 'seasonal_climatology_baseline') return '中长期 · 季节气候态（全湖同值）'
+  return '中长期月度趋势 · 逐站模型'
+})
 const heroScopeLabel = computed(() => {
   if (props.scope === 'station') {
     if (props.metric === 'area') return '全湖遥感反演值（不随站点变化）'
-    return isScenarioHorizon.value ? '本站模型预测 · 情景推演（未验证）' : '本站模型预测'
+    return isLongTermHorizon.value ? longTermTag.value : '本站模型预测'
   }
   if (props.metric === 'area') return '全湖 · 月度遥感反演现值'
   const base = lakeAggregateReady.value ? '全湖 · 79 站聚合中位数' : '全湖'
-  return isScenarioHorizon.value ? `${base} · 情景推演（未验证）` : base
+  return isLongTermHorizon.value ? `${base} · ${longTermTag.value}` : base
 })
 
 // ---- hero：焦点值 + 参考带刻度条 / 风险环 ----
@@ -657,6 +738,7 @@ function originLabel(item) {
   if (item.value_origin === 'legacy_v0_2_synthetic_fallback') return '合成对照'
   if (item.value_origin === 'derived_from_chla_v0_3_risk_bands') return '叶绿素推导'
   if (item.value_origin === 'derived_from_monthly_retrieval_field') return '遥感反演'
+  if (item.value_origin === 'seasonal_climatology_baseline') return '季节气候态·全湖同值'
   if (item.training_protocol === 'train_internal_time_block_cv_v1') return '真实·补训'
   return ''
 }
@@ -665,6 +747,7 @@ function originKey(item) {
   if (item.value_origin === 'legacy_v0_2_synthetic_fallback') return 'legacy'
   if (item.value_origin === 'derived_from_chla_v0_3_risk_bands') return 'derived'
   if (item.value_origin === 'derived_from_monthly_retrieval_field') return 'rs'
+  if (item.value_origin === 'seasonal_climatology_baseline') return 'climatology'
   if (item.training_protocol === 'train_internal_time_block_cv_v1') return 'cv'
   return 'real'
 }
@@ -834,11 +917,17 @@ const horizonTrend = computed(() => {
     const title = props.scope === 'lake'
       ? `T+${horizon}：79 站中位 ${valueText}${props.metric === 'risk' ? '%' : ''}${bandLow != null ? `（P25–P75：${bandLow.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}—${bandHigh.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}）` : ''}`
       : `T+${horizon}：${valueText}${props.metric === 'risk' ? '%' : ''} · ${originLabel(item) || 'V0.3真实链路'}`
+    // 中长期两点必须逐点标注来源，否则"全湖同值"会被读成"逐站趋势"。
+    const stationResolution = item
+      ? (item.station_resolution != null ? Boolean(item.station_resolution) : item.value_origin !== 'seasonal_climatology_baseline')
+      : null
     return {
       horizon, value, item,
       bandLow, bandHigh,
       scenario: horizon >= SCENARIO_FROM,
       originKey: originKeyValue,
+      stationResolution,
+      shortNote: stationResolution ? '逐站' : '全湖同值',
       title
     }
   })
@@ -852,21 +941,61 @@ const horizonTrend = computed(() => {
   const points = rows.map((row, index) => row ? {
     ...row, x: x(index), y: y(row.value)
   } : null).filter(Boolean)
-  // 带：只用短期（<30 天）各点的区间；情景时效没有可信区间，不画带。
-  const bandRows = points.filter((row) => !row.scenario && row.bandLow != null && row.bandHigh != null)
+  // 带：只画结构自洽的预测区间。中长期点现在也有真实区间（逐站模型 conformal 或
+  // 季节气候态留出残差分位数），不再因为"≥30 天"就被一刀切掉——没有区间的点自然不参与。
+  const bandRows = points.filter((row) => row.bandLow != null && row.bandHigh != null)
   const upper = bandRows.map((row) => `${row.x},${y(row.bandHigh)}`)
   const lower = [...bandRows].reverse().map((row) => `${row.x},${y(row.bandLow)}`)
-  // 线：短期实线；情景段虚线并从最后一个短期点延续，保持视觉连续但口径分明。
+  // 线：短期实线；中长期段虚线并从最后一个短期点延续，保持视觉连续但口径分明。
   const shortPoints = points.filter((row) => !row.scenario)
   const scenarioPoints = points.filter((row) => row.scenario)
   const anchor = shortPoints.length ? shortPoints[shortPoints.length - 1] : null
   const scenarioLine = anchor ? [anchor, ...scenarioPoints] : scenarioPoints
+  // 分辨率披露：1/3/7/15 天在标签上映射到同一个月，四档输出必然相同。
+  // 关键改动（2026-09-11）：数值相同时**不再画四个点**——四个点看起来像四条独立预测，
+  // 会让人误以为模型有日尺度信号。合并成一段"同月短期结果"区间，图上一眼可辨。
+  const shortValues = shortPoints.map((row) => row.value)
+  const shortFlat = shortValues.length >= 2 && shortValues.every((v) => Math.abs(v - shortValues[0]) < 1e-9)
+  const shortGroup = shortFlat
+    ? {
+        x1: shortPoints[0].x - 16,
+        x2: shortPoints[shortPoints.length - 1].x + 16,
+        y: shortPoints[0].y,
+        title: `同月短期结果 T+${shortPoints.map((p) => p.horizon).join('/')}：${shortValues[0].toLocaleString('zh-CN', { maximumFractionDigits: 3 })}（同一月度标签，四档按定义相同）`
+      }
+    : null
+  const longOrigins = new Set(scenarioPoints.map((row) => row.originKey))
+  const notes = []
+  if (shortGroup) {
+    notes.push('短期四档（T+1/3/7/15）共用同一个月度标签，数值按定义相同，图上合并标注为“同月短期结果”——训练面板为站-月粒度，不含日尺度信号。')
+  }
+  if (longOrigins.has('climatology')) {
+    notes.push('中长期虚线含季节气候态基线点：按目标月给出历史同期值，全湖同值、不含站点分辨。')
+  }
+  // 逐点来源说明：让"哪一档能看站点差异"变成一条可核对的清单，而不是靠图例猜。
+  const stationNotes = scenarioPoints.map((p) => {
+    const label = `T+${p.horizon}`
+    if (p.stationResolution === true) {
+      const file = p.item?.model_file
+      return `${label} 逐站月度趋势（${originLabel(p.item) || 'V0.3 模型'}${file ? ` · ${file}` : ''}），可做站间比较`
+    }
+    if (p.stationResolution === false) {
+      return `${label} 全湖季节基线（季节气候态 · 全湖同值），不做站间比较`
+    }
+    return `${label} 来源未标注站点分辨率，按全湖同值对待`
+  })
   return {
     points,
+    shortPoints,
+    scenarioPoints,
+    shortGroup,
     lineShort: shortPoints.length >= 2 ? shortPoints.map((p) => `${p.x},${p.y}`).join(' ') : '',
     lineScenario: scenarioLine.length >= 2 ? scenarioLine.map((p) => `${p.x},${p.y}`).join(' ') : '',
     band: bandRows.length >= 2 ? [...upper, ...lower].join(' ') : '',
-    scenarioX: 28 + 3.5 * 60
+    scenarioX: 28 + 3.5 * 60,
+    legend: shortGroup ? '同月短期（合并）· 中长期虚线（点位标注站点分辨率）' : '短期实线 · 中长期虚线',
+    resolutionNote: notes.join(' '),
+    stationNotes
   }
 })
 
@@ -1032,10 +1161,12 @@ const mechanismFactors = computed(() => {
     const has = f.value != null
     const pct = has ? Math.round(Number(f.value) * 1000) / 10 : 0
     const sourceRaw = f.source_value != null ? `${Number(f.source_value).toLocaleString('zh-CN', { maximumFractionDigits: 3 })} ${f.unit || ''}` : ''
-    // 来源标注（审计口径）：每项驱动必须标明 本站实测 / 代理输入 / 缺少有效数据
+    // 来源标注（审计口径）：优先后端逐项来源文本（本站实测·MEE 水温 / ERA5 网格 /
+    // 气候态代理等），后端未给时回退到粗分类；禁止把代理值标成"本站实测"。
     let sourceLabel
-    if (f.key === 'flow' && f.source_value == null) sourceLabel = '缺少有效数据'
-    else if (f.proxy) sourceLabel = f.key === 'temperature' ? '统一气象代理' : '代理输入'
+    if (f.source) sourceLabel = f.source
+    else if (f.key === 'flow' && f.source_value == null) sourceLabel = '缺少有效数据'
+    else if (f.proxy) sourceLabel = '代理输入'
     else if (f.source_value != null) sourceLabel = '本站实测'
     else sourceLabel = '缺测'
     return {
@@ -1043,18 +1174,34 @@ const mechanismFactors = computed(() => {
       shortLabel: String(f.label || '').replace(/适合度|条件|输入/g, '') || f.label,
       stateOnly: Boolean(f.state_only),
       pct,
-      pctText: f.state_only ? (f.source_value != null ? '仅输入' : '不可用') : (has ? `${pct}%` : '缺测'),
+      // 适合度为 0-1 计算机理因子（与训练特征同式），不是观测百分比
+      pctText: f.state_only ? (f.source_value != null ? '仅输入' : '不可用') : (has ? `适合度 ${pct}%` : '缺测'),
       color: !has ? 'rgba(127,147,168,0.4)' : f.value >= 0.6 ? '#5fd6a4' : f.value >= 0.35 ? '#f5b45d' : '#ef4444',
       sourceRaw,
       sourceLabel,
+      // 逐站 / 全湖：结构化标志，后端未给时按 proxy 兜底（代理一律非逐站）
+      stationResolution: f.station_resolution != null ? Boolean(f.station_resolution) : !f.proxy,
+      saturated: Boolean(f.saturated),
       sourceText: [sourceRaw, sourceLabel].filter(Boolean).join(' · ')
     }
   })
 })
+// 来源分组说明：把"哪些逐站、哪些全湖"一次讲清，避免用户把全湖同值误读成站点数据没更新
+const sourceGroups = computed(() => {
+  const groups = mechanismDrivers.value?.source_groups
+  if (!groups) return { note: '' }
+  const labelOf = (key) => mechanismFactors.value.find((f) => f.key === key)?.shortLabel || key
+  const per = (groups.per_station || []).map(labelOf).filter(Boolean)
+  const wide = (groups.lake_wide || []).map(labelOf).filter(Boolean)
+  const parts = []
+  if (per.length) parts.push(`逐站：${per.join('、')}`)
+  if (wide.length) parts.push(`全湖同值：${wide.join('、')}（单一气象网格，物理上无站间差异）`)
+  return { note: parts.join('；') }
+})
 const driverGroups = computed(() => {
   const byKeys = (keys) => mechanismFactors.value.filter((f) => keys.includes(f.key))
   return [
-    { key: 'environment', icon: '01', title: '环境条件', subtitle: '温度与光照', factors: byKeys(['temperature', 'light']) },
+    { key: 'environment', icon: '01', title: '环境条件', subtitle: '水温、气温与光照', factors: byKeys(['temperature', 'air_temperature', 'light']) },
     { key: 'nutrient', icon: '02', title: '营养盐供给', subtitle: '磷、氮与氨氮', factors: byKeys(['phosphorus', 'nitrogen', 'ammonia']) },
     { key: 'hydrodynamic', icon: '03', title: '水动力输运', subtitle: '流速与扩散条件', factors: byKeys(['flow']) }
   ].filter((group) => group.factors.length)
@@ -1116,11 +1263,60 @@ function conformalValue(value) {
   if (!Number.isFinite(num)) return '—'
   return num.toLocaleString('zh-CN', { maximumFractionDigits: 3 })
 }
+// 风险带标签 → 中文；带数值时按 μg/L 渲染
+const RISK_BAND_TEXT = { none: '无风险', low: '低', medium: '中', high: '高', severe: '严重' }
+const CALIBRATION_TEXT = {
+  validated: '已核算', undercovered: '覆盖率未达标', no_test_evidence: '无测试证据',
+  insufficient_test_evidence: '样本不足', unavailable: '不适用'
+}
+function bandText(band, numeric = false) {
+  if (band == null) return '—'
+  if (numeric) return conformalValue(band)
+  return RISK_BAND_TEXT[band] || String(band)
+}
+function calibrationText(status) {
+  return CALIBRATION_TEXT[status] || status || '—'
+}
+// 等级范围的承载对象：焦点任务自身带 band_range 时优先，否则取同一次输出的 risk_level 兄弟结果
+const bandRangeUncertainty = computed(() => {
+  if (v3Uncertainty.value?.band_range) return v3Uncertainty.value
+  const sibling = props.modelForecast?.results?.risk_level?.uncertainty
+  return sibling && sibling.band_range ? sibling : null
+})
+const bandRangeStatusText = computed(() => {
+  const u = bandRangeUncertainty.value
+  if (!u) return ''
+  if (!u.structural_valid) return '区间无效'
+  if (u.calibration_status !== 'validated') return '校准证据不足'
+  return u.decision_usable ? '范围可用' : '谨慎参考'
+})
+// 源区间未达决策可用时，后端不给等级范围，只给原因（band_range_blocked）。
+// 页面必须如实说明"为什么不给范围"，而不是留一个空态让人猜。
+const bandRangeBlocked = computed(() => {
+  const sibling = props.modelForecast?.results?.risk_level
+  if (!sibling || sibling.uncertainty?.band_range) return null
+  return sibling.band_range_blocked || null
+})
+const BLOCKED_REASON_TEXT = {
+  source_interval_unavailable: '源区间不可用：叶绿素 a 在该时效没有预测区间',
+  source_interval_structurally_invalid: '源区间结构不自洽（区间退化或点预测越界）',
+  source_interval_band_mapping_failed: '源区间无法映射到冻结风险带'
+}
+function calibrationBlockText(blocked) {
+  if (!blocked) return '—'
+  const reason = blocked.reason || ''
+  if (BLOCKED_REASON_TEXT[reason]) return BLOCKED_REASON_TEXT[reason]
+  if (reason.startsWith('source_interval_')) {
+    return `源区间校准证据不足：${calibrationText(reason.slice('source_interval_'.length))}`
+  }
+  return reason || '源区间未达决策可用'
+}
 // 状态判定严格镜像后端三层合同：①结构自洽 ②校准证据 ③决策可用。
 // 顺序不可颠倒——结构不自洽时谈校准无意义；校准未 validated 时不得显示"区间可用"。
 const UNCERTAINTY_STATUS_LABELS = {
   no_test_evidence: '冻结测试集无该任务标签，覆盖率无法核算，不构成校准证据。',
   insufficient_test_evidence: '冻结测试集样本过少，覆盖率不具统计意义，不构成校准证据。',
+  undercovered: '冻结测试集经验覆盖率低于验收线，区间实际覆盖不足，不构成校准证据。',
   unavailable: '该任务未提供 conformal 预测区间。'
 }
 const uncertaintyStatus = computed(() => {
@@ -1128,7 +1324,24 @@ const uncertaintyStatus = computed(() => {
   if (!u) return { key: 'none', title: '当前任务未提供预测区间', shortTitle: '无可用区间', detail: '不可用，不据此作决策。' }
   const structuralValid = Boolean(u.structural_valid)
   const calibStatus = u.calibration_status || 'unavailable'
-  const testN = Number(u.test_n ?? u.coverage?.test_n ?? 0)
+  const testN = Number(u.test_n ?? u.coverage?.test_n ?? u.source_interval?.test_n ?? 0)
+  // 等级范围（风险等级由叶绿素 a 区间映射）：没有数值区间可画，直接给范围结论。
+  if (u.band_range) {
+    if (!structuralValid) {
+      return { key: 'invalid', shortTitle: '区间无效', title: '源区间结构不自洽，等级范围已停止解读',
+        detail: u.decision_reason || '源区间结构层校验未通过，不据此作决策。' }
+    }
+    if (calibStatus !== 'validated') {
+      return { key: 'insufficient', shortTitle: '校准证据不足', title: '等级范围可读，但源区间校准证据不足',
+        detail: `${UNCERTAINTY_STATUS_LABELS[calibStatus] || '校准证据未通过'}（test_n=${testN}）` }
+    }
+    return {
+      key: u.decision_usable ? 'usable' : 'watch',
+      shortTitle: u.decision_usable ? '范围可用' : '谨慎参考',
+      title: `等级范围：${bandText(u.p05_band)} — ${bandText(u.p95_band)}`,
+      detail: u.note || '由叶绿素 a 预测区间按冻结风险带映射得到。'
+    }
+  }
   const p05 = Number(u.p05)
   const p95 = Number(u.p95)
   const point = Math.abs(Number(focusResult.value?.value))
@@ -1206,7 +1419,8 @@ const intervalScale = computed(() => {
 // 那个数字描述的是校准器在留出集上的名义表现，不代表当前这条退化区间可用。
 const coverageRing = computed(() => {
   const u = v3Uncertainty.value
-  const cov = u?.coverage?.empirical_coverage_test ?? u?.empirical_coverage
+  // 等级范围没有自己的覆盖率，继承源区间（叶绿素 a）的经验覆盖率——它才是被核算的那个量。
+  const cov = u?.coverage?.empirical_coverage_test ?? u?.empirical_coverage ?? u?.source_interval?.empirical_coverage
   const target = u?.coverage?.target || 0.9
   const calibStatus = u?.calibration_status || 'unavailable'
   const structuralValid = Boolean(u?.structural_valid)
@@ -1230,10 +1444,11 @@ const uncertaintyMatrix = computed(() => {
   return Object.entries(results).map(([key, item]) => {
     const u = item?.uncertainty
     const isPredictionInterval = Boolean(u) && u.is_prediction_interval !== false
+    const isBandRange = isPredictionInterval && Boolean(u?.band_range)
     const hasInterval = isPredictionInterval && u.p05 != null && u.p95 != null
     const structuralValid = Boolean(u?.structural_valid)
     const calibStatus = u?.calibration_status || 'unavailable'
-    const testN = Number(u?.test_n ?? u?.coverage?.test_n ?? 0)
+    const testN = Number(u?.test_n ?? u?.coverage?.test_n ?? u?.source_interval?.test_n ?? 0)
     const point = Number(item?.value)
     const width0 = hasInterval ? Number(u.p95) - Number(u.p05) : NaN
     let width = null
@@ -1246,26 +1461,32 @@ const uncertaintyMatrix = computed(() => {
       biomass: '生物量', risk_level: '风险等级', probability: '风险概率', spatial: '空间'
     }
     // 与后端三层合同同序：结构 → 校准 → 决策。任一未过即不得标"可用"。
-    const statusText = !hasInterval
-      ? '无'
-      : !structuralValid
-        ? '结构不自洽'
-        : calibStatus !== 'validated'
-          ? `校准证据不足`
-          : Math.abs(width0) < 1e-12
-            ? '退化'
-            : (point && width0 / Math.abs(point) > 1.5
-                ? '过宽'
-                : (u.decision_usable ? '可用' : '参考'))
+    // 等级范围（band_range）没有数值区间，按同一三层合同在其自身口径上判定。
+    const statusText = isBandRange
+      ? (!structuralValid ? '结构不自洽' : calibStatus !== 'validated' ? '校准证据不足' : (u.decision_usable ? '范围可用' : '参考'))
+      : !hasInterval
+        ? '无'
+        : !structuralValid
+          ? '结构不自洽'
+          : calibStatus !== 'validated'
+            ? `校准证据不足`
+            : Math.abs(width0) < 1e-12
+              ? '退化'
+              : (point && width0 / Math.abs(point) > 1.5
+                  ? '过宽'
+                  : (u.decision_usable ? '可用' : '参考'))
+    const title = isBandRange
+      ? `${item.label}：等级范围 ${bandText(u.p05_band)} — ${bandText(u.p95_band)}（由叶绿素 a 区间映射）｜结构${structuralValid ? '自洽' : '不自洽'}｜校准 ${calibStatus}（test_n=${testN}）`
+      : hasInterval
+        ? `${item.label}：P05 ${Number(u.p05).toFixed(3)} ~ P95 ${Number(u.p95).toFixed(3)}｜结构${structuralValid ? '自洽' : '不自洽'}｜校准 ${calibStatus}（test_n=${testN}）｜决策可用 ${u.decision_usable ? '是' : '否'}（${item.value_origin || ''}）`
+        : `${item.label}：未提供预测区间（${item.value_origin || 'not_applicable'}）`
     return {
       key,
       label: LABELS[key] || key,
       originKey: originKey(item),
       width,
       statusText,
-      title: hasInterval
-        ? `${item.label}：P05 ${Number(u.p05).toFixed(3)} ~ P95 ${Number(u.p95).toFixed(3)}｜结构${structuralValid ? '自洽' : '不自洽'}｜校准 ${calibStatus}（test_n=${testN}）｜决策可用 ${u.decision_usable ? '是' : '否'}（${item.value_origin || ''}）`
-        : `${item.label}：未提供预测区间（${item.value_origin || 'not_applicable'}）`
+      title
     }
   })
 })
@@ -1695,8 +1916,24 @@ const stationObservedAt = computed(() => {
 .frp-trend-point[data-origin='cv'] { fill: #a78bfa; }
 .frp-trend-point[data-origin='legacy'] { fill: var(--risk-medium, #f5b45d); }
 .frp-trend-point[data-origin='derived'] { fill: #38bdf8; }
+.frp-trend-point[data-origin='climatology'] { fill: #e2a65a; }
+/* 合并后的短期段：一段同月区间，而不是四个看起来独立的预测点 */
+.frp-trend-group {
+  fill: color-mix(in srgb, #5fd6a4 22%, transparent);
+  stroke: #5fd6a4;
+  stroke-width: 1;
+}
 .frp-trend-label,
 .frp-trend-caption { fill: var(--text-muted); font-family: var(--font-mono); font-size: 9px; }
+.frp-trend-note { fill: var(--text-muted); font-family: var(--font-mono); font-size: 8px; }
+.frp-trend-note[data-resolution='false'] { fill: #d9a55e; }
+.frp-trend-note[data-resolution='true'] { fill: #57b98d; }
+ul.frp-unc-note {
+  margin: 2px 0 0;
+  padding-left: 14px;
+  list-style: disc;
+}
+ul.frp-unc-note li { margin: 1px 0; }
 .frp-gate-row {
   display: grid;
   grid-template-columns: minmax(86px, 1.2fr) repeat(3, minmax(58px, 1fr)) minmax(78px, 1fr);
@@ -2037,6 +2274,16 @@ const stationObservedAt = computed(() => {
 .frp-factor-label span { font-size: 12px; color: var(--text-secondary); }
 .frp-factor-label b { font: 700 13px/1 var(--font-mono); color: var(--text-primary); }
 .frp-factor-row > small { font: 9px/1.2 var(--font-mono); color: var(--text-muted); }
+/* 逐站 / 全湖 来源徽标：让"这个值是不是本站的"一眼可判，不必读来源长句 */
+.frp-factor-row > small em {
+  font-style: normal;
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  border: 1px solid var(--border-subtle);
+}
+.frp-factor-row > small em[data-resolution='station'] { color: #5fd6a4; border-color: rgba(95,214,164,0.4); }
+.frp-factor-row > small em[data-resolution='lake'] { color: #f5b45d; border-color: rgba(245,180,93,0.4); }
 .frp-ai-module { display: grid; gap: 9px; padding: 11px 12px; border: 1px solid var(--border-subtle); border-radius: 12px; }
 .frp-ai-empty { padding: 16px; border-radius: 9px; text-align: center; background: var(--surface-panel-soft); color: var(--text-muted); font-size: 12px; }
 
@@ -2353,6 +2600,20 @@ const stationObservedAt = computed(() => {
   line-height: 1.65;
   color: var(--text-muted, #7d93a8);
 }
+
+/* 源区间未达决策可用：整块以警示边框呈现，明确"不给范围"是判定结果而非渲染缺陷。 */
+[data-role='band-range-blocked'] {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  margin: 4px 0 8px;
+  border: 1px solid color-mix(in srgb, #fb7185 38%, transparent);
+  border-left-width: 3px;
+  border-radius: 10px;
+  background: color-mix(in srgb, #fb7185 6%, var(--surface-panel-soft));
+}
+[data-role='band-range-blocked'] .frp-driver-head { margin: 0; }
+[data-role='band-range-blocked-reason'] { font-family: var(--font-mono); }
 
 .frp-inline-btn {
   display: inline-flex;

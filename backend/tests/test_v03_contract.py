@@ -62,15 +62,49 @@ def test_supervised_base_split_frozen_matches_month_bounds():
 
 
 def test_proxy_labels_never_claim_ground_truth():
+    """任务配置只能声明"允许的来源"；任何含代理行的任务都不得声明为 ground_truth。
+
+    2026-09-11 修正：T5-chla 此前声明 ground_truth，而 T+90 监督表 567 行的标签
+    全部来自 chla_station_proxy_v1——声明与事实不符，还会一路传到风险等级与季节基线。
+    """
     provenance = {(spec.task_id, spec.variant): spec.label_provenance for spec in TASK_SPECS_REAL}
     assert provenance[("T1", "bloom")] == "proxy_derived"
     assert provenance[("T6", "probability")] == "proxy_derived"
-    assert provenance[("T5", "chla")] == "ground_truth"
+    # T5 的 chla 标签来自「4 个航次月实测 + chla_station_proxy_v1 代理」两个来源
+    assert provenance[("T5", "chla")] == "ground_truth_or_proxy"
+    assert provenance[("T5", "chla")] != "ground_truth"
+    # 风险等级由叶绿素值经冻结风险带推导，来源必须继承 T5，不得单独声称实测
+    assert provenance[("T6", "risk_level")] == "ground_truth_or_proxy"
     # 第二轮：T4 直接以 wq_phyto_biomass 作目标（ground_truth）；T2/T3 代理目标
     assert provenance[("T4", "biomass")] == "ground_truth"
     assert provenance[("T3", "density")] == "proxy_derived"
     assert provenance[("T2", "coverage")] == "proxy_derived"
     assert BLOOM_THRESHOLD_UG_L == 20.0
+
+
+def test_manifest_provenance_is_rowwise_not_task_declaration():
+    """落盘口径必须是逐行 actual_provenance 汇总，且声明与观测的对账无 mismatch。"""
+    import json
+
+    from backend.app.algorithm_models import V3_PACKAGE_DIR
+
+    manifest = json.loads((V3_PACKAGE_DIR / "manifest.json").read_text(encoding="utf-8"))
+    by_key = {
+        (entry["task_id"], entry["variant"], entry["horizon_days"]): entry
+        for entry in manifest["availability_matrix"]
+    }
+    # 审阅结论 P0-1 的具体事实：T+90 的 567 行标签全部来自代理
+    t5_90 = by_key[("T5", "chla", 90)]
+    assert t5_90["label_provenance"] == "chla_station_proxy_v1"
+    assert t5_90["label_provenance_breakdown"] == {"chla_station_proxy_v1": 567}
+    assert t5_90["label_provenance_declared"] == "ground_truth_or_proxy"
+    # 短时效两来源并存，必须如实标成 mixed，而不是塌缩成 ground_truth
+    t5_1 = by_key[("T5", "chla", 1)]
+    assert t5_1["label_provenance"].startswith("mixed(")
+    assert t5_1["label_provenance_breakdown"]["ground_truth"] == 42
+    audit = manifest.get("label_provenance_audit") or {}
+    assert audit, "清单必须携带标签来源对账段"
+    assert audit["mismatch_count"] == 0, audit.get("mismatches")
 
 
 def test_task_level_feature_exclusions_prevent_same_month_leakage():

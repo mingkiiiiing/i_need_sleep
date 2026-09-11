@@ -1,0 +1,475 @@
+{
+  "artifact_version": "seasonal_climatology_v2",
+  "generated_at": "2026-09-11T10:50:23.955447+00:00",
+  "method": "per_target_month_climatology_with_time_block_holdout_backtest",
+  "disclosure": "季节气候态基线：由该任务历史标签序列按目标月聚合成均值（分类任务取众数概率）得到，反映真实季节循环。它不含站点分辨——同一目标月全湖同值，不得据此做站间比较。留出回测把时间上最后 20% 的目标月完全排除在拟合之外，指标、经验残差区间与经验覆盖率都在该段核算。仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。",
+  "station_resolution_note": "同一目标月全湖同值；站间比较请改用有逐站模型支撑的时效。",
+  "coverage_target": 0.9,
+  "coverage_tolerance": 0.02,
+  "coverage_acceptance_min": 0.88,
+  "tasks": [
+    {
+      "task_id": "T1",
+      "variant": "bloom",
+      "label_family": "bloom",
+      "task_label": "T1",
+      "problem_type": "binary",
+      "primary_metric": "brier_score",
+      "metric_direction": "min",
+      "label_provenance": "proxy_derived",
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "station_resolution": false,
+      "horizons": [
+        30,
+        60,
+        90
+      ],
+      "fallback_horizons": [
+        30,
+        60
+      ],
+      "slot_evidence": {
+        "30": {
+          "artifact_exists": true,
+          "test_n": 5,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": false,
+          "reason": "insufficient_test_evidence(n_test=5<15)"
+        },
+        "60": {
+          "artifact_exists": true,
+          "test_n": 5,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": false,
+          "reason": "insufficient_test_evidence(n_test=5<15)"
+        },
+        "90": {
+          "artifact_exists": true,
+          "test_n": 28,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": true,
+          "reason": null
+        }
+      },
+      "history": {
+        "rows": 657,
+        "months": 90,
+        "window": [
+          "2005-02",
+          "2026-08"
+        ]
+      },
+      "by_month": {
+        "2": 0.0,
+        "5": 0.0,
+        "8": 0.0,
+        "11": 0.0,
+        "12": 0.5,
+        "10": 0.0,
+        "9": 0.0,
+        "1": 0.0
+      },
+      "fallback": 0.038338658146964855,
+      "backtest": {
+        "protocol": "time_block_holdout_tail_months",
+        "holdout_fraction": 0.2,
+        "train_max_month": "2025-01",
+        "test_min_month": "2025-02",
+        "n": 31,
+        "metrics": {
+          "brier_score": 0.01665059289656801,
+          "roc_auc": null,
+          "pr_auc": null,
+          "recall": null,
+          "precision": null,
+          "f1": null,
+          "n": 31,
+          "expected_calibration_error": 0.045862,
+          "calibration_bins": [
+            {
+              "bin": 0,
+              "mean_predicted": 0.0145,
+              "observed_frequency": 0.0,
+              "n": 29
+            },
+            {
+              "bin": 5,
+              "mean_predicted": 0.5,
+              "observed_frequency": 0.0,
+              "n": 2
+            }
+          ]
+        },
+        "residual_quantiles": {
+          "p05": -0.26916932907348246,
+          "p95": 0.0
+        },
+        "empirical_coverage": 0.9354838709677419,
+        "coverage_n": 31,
+        "coverage_target": 0.9,
+        "coverage_acceptance_min": 0.88
+      }
+    },
+    {
+      "task_id": "T3",
+      "variant": "density",
+      "label_family": "density",
+      "task_label": "T3",
+      "problem_type": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "label_provenance": "proxy_derived",
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "station_resolution": false,
+      "horizons": [
+        30,
+        60,
+        90
+      ],
+      "fallback_horizons": [
+        30,
+        60
+      ],
+      "slot_evidence": {
+        "30": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "60": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "90": {
+          "artifact_exists": true,
+          "test_n": 117,
+          "empirical_coverage": 0.7948717948717948,
+          "evidence_sufficient": true,
+          "reason": null
+        }
+      },
+      "history": {
+        "rows": 576,
+        "months": 64,
+        "window": [
+          "2005-02",
+          "2020-11"
+        ]
+      },
+      "by_month": {
+        "2": 0.8360339506172839,
+        "5": 0.7912808641975309,
+        "8": 0.9492669753086419,
+        "11": 0.5372299382716048
+      },
+      "fallback": 0.4888003812636166,
+      "backtest": {
+        "protocol": "time_block_holdout_tail_months",
+        "holdout_fraction": 0.2,
+        "train_max_month": "2017-08",
+        "test_min_month": "2017-11",
+        "n": 117,
+        "metrics": {
+          "mae": 0.32009074601667187,
+          "rmse": 0.380841756859853,
+          "r2": -1.2293078014715508,
+          "log1p_mae": 0.20010984381792174,
+          "n": 117
+        },
+        "residual_quantiles": {
+          "p05": -0.7086419753086419,
+          "p95": 0.3415895061728396
+        },
+        "empirical_coverage": 0.8974358974358975,
+        "coverage_n": 117,
+        "coverage_target": 0.9,
+        "coverage_acceptance_min": 0.88
+      }
+    },
+    {
+      "task_id": "T4",
+      "variant": "biomass",
+      "label_family": "biomass",
+      "task_label": "T4",
+      "problem_type": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "label_provenance": "ground_truth",
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "station_resolution": false,
+      "horizons": [
+        30,
+        60,
+        90
+      ],
+      "fallback_horizons": [
+        30,
+        60
+      ],
+      "slot_evidence": {
+        "30": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "60": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "90": {
+          "artifact_exists": true,
+          "test_n": 117,
+          "empirical_coverage": 0.811965811965812,
+          "evidence_sufficient": true,
+          "reason": null
+        }
+      },
+      "history": {
+        "rows": 576,
+        "months": 64,
+        "window": [
+          "2005-02",
+          "2020-11"
+        ]
+      },
+      "by_month": {
+        "2": 13.264995143549354,
+        "5": 18.13033016240367,
+        "8": 23.508487792935966,
+        "11": 4.972356071428571
+      },
+      "fallback": 5.116815873575554,
+      "backtest": {
+        "protocol": "time_block_holdout_tail_months",
+        "holdout_fraction": 0.2,
+        "train_max_month": "2017-08",
+        "test_min_month": "2017-11",
+        "n": 117,
+        "metrics": {
+          "mae": 10.976086030177745,
+          "rmse": 13.155369874722453,
+          "r2": -2.43332795944923,
+          "log1p_mae": 1.2653780566930606,
+          "n": 117
+        },
+        "residual_quantiles": {
+          "p05": -22.703830387221682,
+          "p95": 6.926483300107045
+        },
+        "empirical_coverage": 0.8974358974358975,
+        "coverage_n": 117,
+        "coverage_target": 0.9,
+        "coverage_acceptance_min": 0.88
+      }
+    },
+    {
+      "task_id": "T5",
+      "variant": "chla",
+      "label_family": "chla",
+      "task_label": "T5",
+      "problem_type": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "station_resolution": false,
+      "horizons": [
+        30,
+        60,
+        90
+      ],
+      "fallback_horizons": [
+        30,
+        60
+      ],
+      "slot_evidence": {
+        "30": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "60": {
+          "artifact_exists": false,
+          "test_n": 0,
+          "empirical_coverage": null,
+          "evidence_sufficient": false,
+          "reason": "model_artifact_missing"
+        },
+        "90": {
+          "artifact_exists": true,
+          "test_n": 117,
+          "empirical_coverage": 0.8547008547008547,
+          "evidence_sufficient": true,
+          "reason": null
+        }
+      },
+      "history": {
+        "rows": 618,
+        "months": 68,
+        "window": [
+          "2005-02",
+          "2026-08"
+        ]
+      },
+      "by_month": {
+        "2": 4.409255555555556,
+        "5": 4.702022222222222,
+        "8": 10.027044444444446,
+        "11": 6.935977777777778
+      },
+      "fallback": 7.472985390946502,
+      "backtest": {
+        "protocol": "time_block_holdout_tail_months",
+        "holdout_fraction": 0.2,
+        "train_max_month": "2018-05",
+        "test_min_month": "2018-08",
+        "n": 132,
+        "metrics": {
+          "mae": 3.7063192460094774,
+          "rmse": 4.6201993857597765,
+          "r2": 0.007491246632270188,
+          "log1p_mae": 0.5444537180362332,
+          "n": 132
+        },
+        "residual_quantiles": {
+          "p05": -6.347630390946502,
+          "p95": 7.899667777777767
+        },
+        "empirical_coverage": 0.9242424242424242,
+        "coverage_n": 132,
+        "coverage_target": 0.9,
+        "coverage_acceptance_min": 0.88
+      }
+    },
+    {
+      "task_id": "T6",
+      "variant": "probability",
+      "label_family": "bloom",
+      "task_label": "T6",
+      "problem_type": "probability",
+      "primary_metric": "brier_score",
+      "metric_direction": "min",
+      "label_provenance": "proxy_derived",
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "station_resolution": false,
+      "horizons": [
+        30,
+        60,
+        90
+      ],
+      "fallback_horizons": [
+        30,
+        60
+      ],
+      "slot_evidence": {
+        "30": {
+          "artifact_exists": true,
+          "test_n": 5,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": false,
+          "reason": "insufficient_test_evidence(n_test=5<15)"
+        },
+        "60": {
+          "artifact_exists": true,
+          "test_n": 5,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": false,
+          "reason": "insufficient_test_evidence(n_test=5<15)"
+        },
+        "90": {
+          "artifact_exists": true,
+          "test_n": 28,
+          "empirical_coverage": 1.0,
+          "evidence_sufficient": true,
+          "reason": null
+        }
+      },
+      "history": {
+        "rows": 657,
+        "months": 90,
+        "window": [
+          "2005-02",
+          "2026-08"
+        ]
+      },
+      "by_month": {
+        "2": 0.0,
+        "5": 0.0,
+        "8": 0.0,
+        "11": 0.0,
+        "12": 0.5,
+        "10": 0.0,
+        "9": 0.0,
+        "1": 0.0
+      },
+      "fallback": 0.038338658146964855,
+      "backtest": {
+        "protocol": "time_block_holdout_tail_months",
+        "holdout_fraction": 0.2,
+        "train_max_month": "2025-01",
+        "test_min_month": "2025-02",
+        "n": 31,
+        "metrics": {
+          "brier_score": 0.01665059289656801,
+          "roc_auc": null,
+          "pr_auc": null,
+          "recall": null,
+          "precision": null,
+          "f1": null,
+          "n": 31,
+          "expected_calibration_error": 0.045862,
+          "calibration_bins": [
+            {
+              "bin": 0,
+              "mean_predicted": 0.0145,
+              "observed_frequency": 0.0,
+              "n": 29
+            },
+            {
+              "bin": 5,
+              "mean_predicted": 0.5,
+              "observed_frequency": 0.0,
+              "n": 2
+            }
+          ]
+        },
+        "residual_quantiles": {
+          "p05": -0.26916932907348246,
+          "p95": 0.0
+        },
+        "empirical_coverage": 0.9354838709677419,
+        "coverage_n": 31,
+        "coverage_target": 0.9,
+        "coverage_acceptance_min": 0.88
+      }
+    }
+  ]
+}

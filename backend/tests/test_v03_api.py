@@ -90,12 +90,18 @@ def test_v03_predictions_month_granularity_and_uncertainty(fake_v3_realtime):
         assert data["transformed_model_input_fingerprints"]
 
 
-def test_v03_predictions_scenario_lock_on_30_60_90(fake_v3_realtime):
+def test_v03_predictions_longterm_lock_on_30_60_90(fake_v3_realtime):
+    """30/60/90 天的合规边界语义不变（locked=true），表述已与事实对齐。
+
+    2026-09-11：这三档此前统称"情景推演"，现在有真实来源与留出回测——90 天为逐站模型，
+    30/60 天为季节气候态基线。沿用旧称会低报证据强度；但"不得当作逐站实测预测"的边界
+    依旧成立，故 label 改为"中长期月度趋势"、locked 保持 True、granularity_tier 不变。
+    """
     data = _suite(30)
     assert data["month_offset"] == 1
     for key, result in data["results"].items():
         expected = {
-            "label": "情景推演", "locked": True, "granularity_tier": "multi_month",
+            "label": "中长期月度趋势", "locked": True, "granularity_tier": "multi_month",
         }
         if key == "area":
             # 2026-09-11 起水华面积来自月度反演基底边界面积，粒度口径如实标注
@@ -166,7 +172,8 @@ def test_acceptance_overview_lists_p0_items():
     assert response.status_code == 200
     data = response.json()["data"]
     ids = [item["id"] for item in data["items"]]
-    assert ids == [f"P0-{index}" for index in range(1, 7)]
+    # P0-7/P0-8 为 2026-09-11 复审新增：标签来源逐行继承、模型身份一一对应
+    assert ids == [f"P0-{index}" for index in range(1, 9)]
     for item in data["items"]:
         assert item["status"] in {"达标", "未达标", "部分达标"}
         assert item["evidence"]

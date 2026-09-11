@@ -882,6 +882,25 @@ def get_algorithm_calibration_coverage(request: Request):
     )
 
 
+@router.get("/model/artifacts", response_model=schemas.Envelope[dict])
+def get_algorithm_model_artifacts(request: Request):
+    """V0.3 模型产物核查：artifact_id 唯一性 + 宣言路径存在性 + SHA256 一致性。
+
+    这是"门禁—模型文件—线上预测"一一对应的验证入口：API 返回的 model_file /
+    model_sha256 全部取自本接口所依据的同一份清单，不再是运行期拼出来的名字。
+    """
+    data = _v3_algorithm_call(service.algorithm_model_artifacts)
+    return envelope(
+        request,
+        data,
+        dataset_version=ALGORITHM_DATA_VERSION_V3,
+        prediction_run_id=None,
+        data_mode="hybrid",
+        as_of=_observed_as_of(),
+        claim_boundary=ALGORITHM_CLAIM_BOUNDARY_V3,
+    )
+
+
 @router.get("/rs/retrieval/validation", response_model=schemas.Envelope[dict])
 def get_rs_retrieval_validation(request: Request):
     """V0.3 遥感反演地面配对校准的留出验证证据（R²/RMSE 可为负，如实披露）。"""

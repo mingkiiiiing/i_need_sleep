@@ -1,12 +1,21 @@
 {
+  "artifact_id": "T6:risk_level:frozen_split:off0:h1:s20260907",
   "claim_boundary": "real_data_monthly_station_v0_3",
   "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
   "granularity_tier": "month_granularity",
   "horizon_days": 1,
-  "label_provenance": "proxy_derived",
+  "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+  "label_provenance_breakdown": {
+    "chla_station_proxy_v1": 576,
+    "ground_truth": 42
+  },
+  "label_provenance_declared": "ground_truth_or_proxy",
+  "label_provenance_rows": 618,
+  "label_provenance_unresolved_rows": 0,
   "month_offset": 0,
   "primary_metric": "macro_f1",
   "problem_type": "ordinal",
+  "protocol": "frozen_split",
   "run_id": "T6-risk_level-0m-s20260907",
   "seed": 20260907,
   "task_id": "T6",

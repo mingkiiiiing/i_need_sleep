@@ -117,14 +117,23 @@ assert len(FEATURE_COLUMNS_V2) == 78, f"feature contract v2 must hold 78 fields,
 # transformed 指纹互不相同、输出却完全同值）。本子契约只含「训练面板真实变化
 # ∩ 推理时逐站可得」的特征。注意 wq_chla 不在冻结 78 列契约中（仅其滞后列在内，
 # 防同月同源泄漏），因此它不出现在任何监督表里，训练交集自然为 7 列。
+# 2026-09-11 对齐：wq_water_temp 入约（训练面板=ERA5 湖表温度网格月均/野外实测，
+# 推理=MEE 本站实测水温），驱动展示与模型输入同源；wq_chla 仅对 month_offset≥1
+# 任务入约（目标月在未来，当月实测为历史量，无同月泄漏），由训练管线按时效追加。
 SERVING_OBSERVED_WQ_V2: tuple[str, ...] = (
-    "wq_tp", "wq_tn", "wq_do", "wq_nh4_n", "wq_ph",
+    "wq_tp", "wq_tn", "wq_do", "wq_nh4_n", "wq_ph", "wq_water_temp",
 )
 SERVING_CALENDAR_V2: tuple[str, ...] = CALENDAR_V2
 SERVING_FEATURE_COLUMNS_V2: tuple[str, ...] = tuple(dict.fromkeys((
     *SERVING_OBSERVED_WQ_V2, *SERVING_CALENDAR_V2,
 )))
-assert len(SERVING_FEATURE_COLUMNS_V2) == 7
+assert len(SERVING_FEATURE_COLUMNS_V2) == 8
+
+# month_offset≥1 任务追加的历史观测特征（当月实测相对目标月为过去量，无泄漏）
+SERVING_LAGGED_TARGET_FEATURES: dict[str, tuple[str, ...]] = {
+    "chla": ("wq_chla",),
+    "bloom": ("wq_chla",),
+}
 
 FEATURE_CONTRACT_FROZEN = "v2.0-78col-frozen"
 FEATURE_CONTRACT_SERVING = "v2.1-serving-8col"
@@ -205,6 +214,17 @@ class HorizonMap:
 HORIZON_MAP_V3 = HorizonMap()
 
 
+# ---------- 标签来源口径（2026-09-11 修正） ----------
+# 声明口径（spec.label_provenance）只表达「该任务允许出现哪些标签来源」；
+# 真正落盘的权威口径是监督表逐行的 actual_provenance 汇总（见 target_builder.provenance_summary）。
+# 此前把 T5-chla 一律声明为 ground_truth 是错的：T5 的 567 行 T+90 监督标签全部来自
+# chla_station_proxy_v1 代理，声明与事实不符，会一路传到风险等级与季节基线的披露文本。
+PROVENANCE_GROUND_TRUTH = "ground_truth"
+PROVENANCE_PROXY_DERIVED = "proxy_derived"
+# 混合来源任务的声明口径：具体以逐行 actual_provenance 汇总为准，禁止统一写成 ground_truth。
+PROVENANCE_GROUND_TRUTH_OR_PROXY = "ground_truth_or_proxy"
+
+
 # ---------- 任务规格（真实标签映射） ----------
 @dataclass(frozen=True)
 class TaskSpecReal:
@@ -213,7 +233,7 @@ class TaskSpecReal:
     label_family: str  # chla | bloom | none
     problem_type: str  # binary | regression | probability | ordinal | none
     primary_metric: str
-    label_provenance: str  # ground_truth | proxy_derived | none
+    label_provenance: str  # ground_truth | proxy_derived | ground_truth_or_proxy | none
     label_columns: tuple[str, ...] = ()
 
 
@@ -222,8 +242,11 @@ TASK_SPECS_REAL: tuple[TaskSpecReal, ...] = (
     TaskSpecReal("T2", "coverage", "coverage", "regression", "mae", "proxy_derived", ("label_coverage_fcb_prob",)),
     TaskSpecReal("T3", "density", "density", "regression", "log1p_mae", "proxy_derived", ("label_density_rank_proxy",)),
     TaskSpecReal("T4", "biomass", "biomass", "regression", "mae", "ground_truth", ("label_phyto_biomass_mg_l",)),
-    TaskSpecReal("T5", "chla", "chla", "regression", "mae", "ground_truth"),
-    TaskSpecReal("T6", "risk_level", "chla", "ordinal", "macro_f1", "proxy_derived"),
+    # T5-chla：地面实测 chla 仅 4 个航次月（42 行），其余靠 chla_station_proxy_v1 代理回填；
+    # 两来源并存 → 声明为混合，逐行 actual_provenance 才是权威口径。
+    TaskSpecReal("T5", "chla", "chla", "regression", "mae", "ground_truth_or_proxy"),
+    # 风险等级由 T5 叶绿素值经冻结风险带推导，来源继承 T5（同样混合），不是独立标签。
+    TaskSpecReal("T6", "risk_level", "chla", "ordinal", "macro_f1", "ground_truth_or_proxy"),
     TaskSpecReal("T6", "probability", "bloom", "probability", "brier_score", "proxy_derived"),
     TaskSpecReal("T7", "spatial", "none", "none", "area_weighted_iou", "none"),
 )
@@ -241,8 +264,40 @@ def task_spec_real(task_id: str, variant: str) -> TaskSpecReal:
     raise ValueError(f"unknown task/variant: {task_id}/{variant}")
 
 
-def run_id_real(task_id: str, variant: str, month_offset: int, seed: int) -> str:
-    return f"{task_id}-{variant}-{month_offset}m-s{seed}"
+def run_id_real(task_id: str, variant: str, month_offset: int, seed: int, protocol_tag: str = "") -> str:
+    """run_id = 任务产物身份。
+
+    protocol_tag（2026-09-11 加）：同一 (task, variant, month_offset) 在冻结划分协议与
+    训练期内时间分块协议下会各产出一份评估记录。两者此前共用同一 run_id，导致门禁表
+    无法区分记录归属、后写的评估覆盖先写的语义。补训协议记为 "cv"，与冻结划分互不混淆；
+    模型产物槽位文件名仍由 horizon 决定（见 data_real.save_bundle filename），不随标记变化。
+    """
+    base = f"{task_id}-{variant}-{month_offset}m-s{seed}"
+    return f"{base}-{protocol_tag}" if protocol_tag else base
+
+
+def artifact_id_real(
+    task_id: str, variant: str, month_offset: int, horizon_days: int, seed: int,
+    protocol: str = "frozen_split",
+) -> str:
+    """模型产物的唯一身份（2026-09-11 新增）。
+
+    为什么必须有它：run_id 只含 (task, variant, month_offset, seed, protocol)，不含时效——
+    T5-chla-0m-s20260907-cv 同时对应 T+1/3/7/15 四份不同模型文件，无法唯一定位产物；
+    而接口原先又用 run_id 自己去拼文件名，就拼出了不存在的
+    "T5-chla-0m-s20260907-cv-1d.joblib"（真实文件是 T5-chla-0m-s20260907-1d.joblib）。
+
+    artifact_id 至少包含 task / variant / protocol / month_offset / horizon / seed。
+    交付包里由 manifest 的 models[].artifact_id 落盘，运行层只读取、不再拼接。
+    """
+    return (
+        f"{task_id}:{variant}:{protocol}:off{int(month_offset)}:h{int(horizon_days)}:s{int(seed)}"
+    )
+
+
+def protocol_of_run(protocol_tag: str) -> str:
+    """协议标记 → 协议 ID（与 run_config.split_protocol.protocol_id 同构）。"""
+    return "train_internal_time_block_cv_v1" if protocol_tag else "frozen_split"
 
 
 # ---------- 路径约定 ----------

@@ -145,6 +145,20 @@
       </div>
     </section>
 
+    <!-- 月度栅格场（V0.3 连续栅格 + 20 μg/L 边界） -->
+    <section v-if="mode !== 'rs'" class="fcp-sec" aria-label="月度栅格场">
+      <h3 class="fcp-h">月度栅格场</h3>
+      <div class="fcp-modes" role="group" aria-label="月度栅格场开关">
+        <button
+          type="button"
+          :class="{ active: rasterOpen }"
+          :aria-pressed="String(rasterOpen)"
+          data-role="raster-toggle"
+          @click="$emit('update:rasterOpen', !rasterOpen)"
+        >V0.3 月度栅格场<small>{{ rasterOpen ? '收起图层' : '连续栅格 + 20 μg/L 边界' }}</small></button>
+      </div>
+    </section>
+
     <!-- 底图（遥感模式） -->
     <section class="fcp-sec" aria-label="底图">
       <h3 class="fcp-h">底图</h3>
@@ -188,8 +202,8 @@
 </template>
 
 <script setup>
-// 时空推演左侧预测控制：分析模式 / 空间范围 / 预测指标 / 时间尺度 / 图层 / 底图 / 模型信息。
-// 四类核心指标均由算法交付包 V0.2 提供情景推演结果。
+// 时空推演左侧预测控制：分析模式 / 空间范围 / 预测指标 / 时间尺度 / 图层 / 月度栅格场 / 底图 / 模型信息。
+// 四类核心指标由算法交付包 V0.3 提供：短临与趋势为逐站模型口径，中长期为月度趋势口径。
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -206,6 +220,8 @@ const props = defineProps({
   fieldEnabled: { type: Boolean, default: true },
   boundaryEnabled: { type: Boolean, default: false },
   basemap: { type: String, default: 'satellite' },
+  // V0.3 月度栅格场图层开关：图层属于左侧控制栏，与"模型空间场/相对高值区"同级
+  rasterOpen: { type: Boolean, default: false },
   // { runStatus, modelVersion, issuedAt, dataTime }
   info: { type: Object, default: () => ({}) },
   spatialSummary: { type: Object, default: () => ({ state: 'loading', covered: 0, total: 0, highCount: 0 }) },
@@ -215,7 +231,7 @@ const props = defineProps({
 defineEmits([
   'update:mode', 'update:scope', 'update:metric', 'update:scale', 'update:stationQuery',
   'station-select', 'update:realtimeVisible', 'update:diffEnabled', 'update:polygonEnabled',
-  'update:fieldEnabled', 'update:boundaryEnabled', 'update:basemap'
+  'update:fieldEnabled', 'update:boundaryEnabled', 'update:basemap', 'update:rasterOpen'
 ])
 
 const MODES = [
@@ -234,7 +250,7 @@ const METRICS = [
 const SCALES = [
   { key: 'short', label: '短临', hint: '未来 1-3 天' },
   { key: 'mid', label: '趋势', hint: '未来 7-15 天' },
-  { key: 'long', label: '情景推演', hint: '30-90 天 · 未验证' }
+  { key: 'long', label: '中长期', hint: '月度 30/60/90 天' }
 ]
 
 const stationOptions = computed(() => {

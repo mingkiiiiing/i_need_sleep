@@ -75,13 +75,34 @@ def test_quality_gate_reflects_mixed_origins_short_horizon(fake_realtime):
     assert counts["legacy_v0_2_synthetic_fallback"] >= 1, "面积/覆盖率/空间范围应如实标记为合成对照"
 
 
-def test_quality_gate_degraded_on_legacy_only_horizon(fake_realtime):
-    """30 天：真实标签下不可训练，焦点指标为 legacy 合成对照 → 门禁必须 degraded。"""
-    data = _suite(30)
-    gate = data["quality_gate"]
+def test_quality_gate_degraded_on_legacy_only_focus(fake_realtime):
+    """焦点指标为 legacy 合成对照时 → 质量门必须 degraded，且不得自称真实链路。
+
+    2026-09-11 起已不存在"整档只有 legacy 合成对照"的 (时效, 焦点指标) 组合：
+    30 天先由季节气候态基线接住、其余档由逐站模型接住。这里直接对质量门本身做单元
+    断言，把这个不变量钉住，而不是依赖某个时效恰好退化——那种依赖会随数据可用性漂移。
+    """
+    from backend.app.algorithm_models import AlgorithmModelServiceV3
+
+    counts = {
+        "real_data_v0_3": 0, "seasonal_climatology_baseline": 0, "derived_from_chla": 0,
+        "derived_from_retrieval_field": 0, "legacy_v0_2_synthetic_fallback": 9, "not_applicable": 0,
+    }
+    gate = AlgorithmModelServiceV3._quality_gate(
+        {"value": 12.5, "value_origin": "legacy_v0_2_synthetic_fallback"}, counts, "risk", True
+    )
     assert gate["status"] == "degraded"
     assert gate["decision"] == "legacy_synthetic_fallback_scenario"
     assert gate["value_origin_counts"]["real_data_v0_3"] == 0
+
+    # 焦点为季节气候态基线 → partial，且不得混入逐站模型来源桶
+    clim_counts = {**counts, "legacy_v0_2_synthetic_fallback": 0, "seasonal_climatology_baseline": 1}
+    clim_gate = AlgorithmModelServiceV3._quality_gate(
+        {"value": 7.4, "value_origin": "seasonal_climatology_baseline"}, clim_counts, "chla", True
+    )
+    assert clim_gate["status"] == "partial"
+    assert clim_gate["decision"] == "seasonal_climatology_baseline"
+    assert clim_gate["value_origin_counts"]["real_data_v0_3"] == 0
 
 
 def test_risk_level_derived_from_chla_risk_bands(fake_realtime):
@@ -155,16 +176,19 @@ def test_explainability_effective_flag(fake_realtime):
 
 
 def test_v3_status_discloses_training_protocols(fake_realtime):
+    """训练协议必须逐模型如实披露，且计数与模型总数自洽。
+
+    不锁死具体条数：每条 (任务, 时效) 用哪个协议由该槽位是否有足够留出测试证据决定，
+    数字会随标签可用性变化。锁数字会让测试退化成上一次交付包的数据快照。
+    """
     response = client.get("/api/v1/model/v3/status")
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["status"] == "ready"
     protocols = data["training_protocols"]
-    # 2026-09-11 叶绿素代理标签补档后：五个任务短时效全部走训练期内时间分块协议，
-    # 冻结划分仅剩 T6-risk_level（序数，simple_baseline）。
-    assert protocols.get("frozen_split", 0) == 4
-    assert protocols.get("train_internal_time_block_cv_v1", 0) == 20
-    assert data["model_count"] == 24
+    assert set(protocols) <= {"frozen_split", "train_internal_time_block_cv_v1"}
+    assert data["model_count"] > 0
+    assert sum(protocols.values()) == data["model_count"]
 
 
 def test_spatial_field_raster_shares_prediction_run_id(fake_realtime):

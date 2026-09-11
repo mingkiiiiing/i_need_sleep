@@ -647,7 +647,7 @@ MODEL_SEED_V3 = 20260907
 CLAIM_BOUNDARY_V3 = "real_data_monthly_station_v0_3"
 DATA_VERSION_V3 = "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet"
 
-# MEE 实时字段 → 特征契约 v2 真实列名（氨氮 P0-1 达标点）
+# MEE 实时字段 → 特征契约 v2 真实列名（氨氮 P0-1 达标点；水温 2026-09-11 对齐入约）
 OBSERVED_FEATURE_MAP_V2 = {
     "total_phosphorus": "wq_tp",
     "total_nitrogen": "wq_tn",
@@ -655,6 +655,7 @@ OBSERVED_FEATURE_MAP_V2 = {
     "pH": "wq_ph",
     "ammonia_nitrogen": "wq_nh4_n",
     "chlorophyll_a": "wq_chla",  # MEE 为 μg/L；训练面板回填后 wq_chla 同为 μg/L 口径，直喂
+    "water_temperature": "wq_water_temp",  # MEE 为 ℃；训练面板 ERA5 湖表温度同为 ℃，直喂
 }
 # wq_chla 单位对齐（2026-09-11 面板重建后）：训练面板 wq_chla 由 label_chla_ug_l
 # 同源回填，口径为 μg/L；推理时 MEE 实测（μg/L）直接进入特征，不再 ÷1000。
@@ -669,6 +670,7 @@ V3_SENSITIVITY_FEATURES: tuple[tuple[str, str], ...] = (
     ("wq_do", "溶解氧"),
     ("wq_ph", "pH"),
     ("wq_chla", "叶绿素 a"),
+    ("wq_water_temp", "水温"),
     ("met_air_temperature_c", "气温"),
     ("met_shortwave_radiation_wm2", "光照"),
     ("hydro_water_level_m", "水位"),
@@ -685,18 +687,130 @@ UNCERTAINTY_SEMANTICS = "prediction_interval_not_parameter_confidence_interval"
 # 不构成校准证据，不得判定为"校准有效"。T5-chla test_n=1、T3/T4 test_n=0 均属此列。
 MIN_CALIBRATION_TEST_N = 15
 
+# 区间覆盖率的验收线：标称 90% 预测区间在留出段的实测经验覆盖率允许有限样本容差（2 个百分点，
+# 约合 n≈117 时的一个二项标准误），低于 88% 即判定欠覆盖。
+# 只有"结构自洽 ∧ 样本充分 ∧ 覆盖率有记录 ∧ 覆盖率达标"四条同时成立才允许
+# decision_usable=true。此前只查了前两条与"覆盖率非空"，于是 T+1（80.30%）、
+# T+90（85.47%）这种明显欠覆盖的区间也被标成"决策可用"——那是不成立的判定。
+COVERAGE_TARGET = 0.90
+COVERAGE_TOLERANCE = 0.02
+COVERAGE_ACCEPTANCE_MIN = round(COVERAGE_TARGET - COVERAGE_TOLERANCE, 6)
+
 # 校准状态枚举（写进 uncertainty.calibration_status）
 CALIBRATION_VALIDATED = "validated"
+CALIBRATION_UNDERCOVERED = "undercovered"
 CALIBRATION_NO_TEST_EVIDENCE = "no_test_evidence"
 CALIBRATION_INSUFFICIENT_TEST_EVIDENCE = "insufficient_test_evidence"
 CALIBRATION_UNAVAILABLE = "unavailable"
 
 CALIBRATION_STATUS_LABELS = {
-    CALIBRATION_VALIDATED: "经验覆盖率已由冻结测试集核算",
+    CALIBRATION_VALIDATED: "经验覆盖率已由留出段核算且达到验收线",
+    CALIBRATION_UNDERCOVERED: "留出段经验覆盖率低于验收线，区间宽度不足以覆盖实际误差",
     CALIBRATION_NO_TEST_EVIDENCE: "冻结测试集无该任务标签，经验覆盖率无法核算",
     CALIBRATION_INSUFFICIENT_TEST_EVIDENCE: "冻结测试集样本过少，经验覆盖率不具统计意义",
     CALIBRATION_UNAVAILABLE: "该任务未提供 conformal 区间",
 }
+
+
+def _calibration_verdict(
+    empirical_coverage: Any, test_n: Any, *, source_label: str,
+) -> tuple[str, str, float | None]:
+    """统一的覆盖率验收判定（模型区间与季节基线区间共用同一条规则）。
+
+    返回 (status, reason, coverage_gap)。四步顺序不可交换：
+      ① 无测试样本        → no_test_evidence
+      ② 样本少于阈值      → insufficient_test_evidence
+      ③ 覆盖率未核算      → insufficient_test_evidence（"没算过"不等于"算过了且合格"）
+      ④ 覆盖率低于验收线  → undercovered（新增；此前这一步缺失，欠覆盖被当成已验证）
+    """
+    if test_n is None or (isinstance(test_n, (int, float)) and not isinstance(test_n, bool) and int(test_n) == 0):
+        return CALIBRATION_NO_TEST_EVIDENCE, CALIBRATION_STATUS_LABELS[CALIBRATION_NO_TEST_EVIDENCE], None
+    if not isinstance(test_n, (int, float)) or isinstance(test_n, bool):
+        return (
+            CALIBRATION_INSUFFICIENT_TEST_EVIDENCE,
+            f"{CALIBRATION_STATUS_LABELS[CALIBRATION_INSUFFICIENT_TEST_EVIDENCE]}（test_n 缺失）",
+            None,
+        )
+    n = int(test_n)
+    if n < MIN_CALIBRATION_TEST_N:
+        return (
+            CALIBRATION_INSUFFICIENT_TEST_EVIDENCE,
+            f"{CALIBRATION_STATUS_LABELS[CALIBRATION_INSUFFICIENT_TEST_EVIDENCE]}"
+            f"（test_n={n}，阈值 {MIN_CALIBRATION_TEST_N}）",
+            None,
+        )
+    if empirical_coverage is None or isinstance(empirical_coverage, bool):
+        return (
+            CALIBRATION_INSUFFICIENT_TEST_EVIDENCE,
+            f"{source_label}未核算经验覆盖率，无法判定区间是否达标（test_n={n}）",
+            None,
+        )
+    try:
+        coverage = float(empirical_coverage)
+    except (TypeError, ValueError):
+        return CALIBRATION_INSUFFICIENT_TEST_EVIDENCE, f"{source_label}经验覆盖率不是数值", None
+    gap = coverage - COVERAGE_ACCEPTANCE_MIN
+    if gap < 0:
+        return (
+            CALIBRATION_UNDERCOVERED,
+            f"{CALIBRATION_STATUS_LABELS[CALIBRATION_UNDERCOVERED]}"
+            f"（留出段经验覆盖率 {coverage:.2%} < 验收线 {COVERAGE_ACCEPTANCE_MIN:.0%}"
+            f"（标称 {COVERAGE_TARGET:.0%} − 容差 {COVERAGE_TOLERANCE:.0%}），"
+            f"缺口 {abs(gap):.2%}，n={n}）",
+            gap,
+        )
+    return (
+        CALIBRATION_VALIDATED,
+        f"留出段经验覆盖率 {coverage:.2%} 达标"
+        f"（验收线 {COVERAGE_ACCEPTANCE_MIN:.0%} = 标称 {COVERAGE_TARGET:.0%} − 容差 "
+        f"{COVERAGE_TOLERANCE:.0%}，n={n}）",
+        gap,
+    )
+
+# ---------------------------------------------------------------- 季节气候态基线
+# 中长期（30/60 天）在真实标签上不存在可训练的逐站模型（历史面板为季度采样，
+# offset=1/2 与季度网格不同余，标签配对为空）。唯一能在真实数据上成立的回退是
+# 按目标月的历史同期值。产物路径/版本与训练侧 modeling_real.seasonal_climatology 对齐，
+# 版本不符即视为不可用（不猜测新字段语义）。
+SEASONAL_CLIMATOLOGY_PATH_FRAGMENT = "evaluation/seasonal_climatology.json"
+
+# 口径标签（API 披露字段，前端不消费；锁定语义不变，仅表述与事实对齐）。
+# 30/60/90 天此前统称"情景推演"，现在这三档有真实来源与留出回测（90 天为逐站模型、
+# 30/60 天为季节气候态基线），沿用旧称会低报证据强度；但"不得当作逐站实测预测"
+# 的边界依旧成立，故 locked 保持 True，并把粒度写进标签本身。
+LONG_TERM_COMPLIANCE_LABEL = "中长期月度趋势"
+SHORT_TERM_COMPLIANCE_LABEL = "短期预测（月度标签粒度）"
+SEASONAL_CLIMATOLOGY_VERSION = "seasonal_climatology_v2"
+SEASONAL_CLIMATOLOGY_PROTOCOL = "seasonal_climatology_baseline_v1"
+
+# 中长期交付路由策略（写进中长期结果的 long_term_route，供页面与验收引用）
+LONG_TERM_ROUTE_POLICY = (
+    "① 评估充分的模型（留出测试样本 ≥ "
+    f"{MIN_CALIBRATION_TEST_N}）→ ② 有留出评估的季节气候态基线 → ③ 明确不可用；"
+    "模型文件存在但评估样本不足时不作为交付口径"
+)
+
+
+def _count_origin(counts: dict[str, int], item: dict[str, Any]) -> None:
+    """把一个任务结果归入来源桶。
+
+    季节气候态基线必须单列，不得混进 real_data_v0_3：它是真实数据派生的历史同期值，
+    但没有站点分辨、不是训练模型输出。混进去会把"全湖同值"低报成"逐站模型输出"，
+    而来源桶正是页面上唯一能区分这两者的地方。
+    """
+    if item.get("value") is None or item.get("status") == "not_applicable":
+        counts["not_applicable"] += 1
+    elif item.get("value_origin") == "legacy_v0_2_synthetic_fallback":
+        counts["legacy_v0_2_synthetic_fallback"] += 1
+    elif item.get("value_origin") == "seasonal_climatology_baseline":
+        counts["seasonal_climatology_baseline"] += 1
+    elif item.get("value_origin") == "derived_from_chla_v0_3_risk_bands":
+        counts["derived_from_chla"] += 1
+    elif item.get("value_origin") == "derived_from_monthly_retrieval_field":
+        # 月度反演基底边界面积：真实反演产物派生，但不是逐站训练模型输出，单列披露
+        counts["derived_from_retrieval_field"] += 1
+    else:
+        counts["real_data_v0_3"] += 1
 
 # ---------------------------------------------------------------- 输入指纹合同
 # 两类指纹必须同时保存，二者证明的事情不同：
@@ -922,7 +1036,9 @@ class AlgorithmModelServiceV3:
         if not len(whole):
             return {}
         row = whole.iloc[-1]
-        return {name: float(row[name]) for name in frame.columns if name in FEATURE_COLUMNS_V2 and pd.notna(row[name])}
+        # wq_water_temp 不在冻结 78 列契约内（serving 子契约扩展列），显式放行
+        allowed = set(FEATURE_COLUMNS_V2) | {"wq_water_temp"}
+        return {name: float(row[name]) for name in frame.columns if name in allowed and pd.notna(row[name])}
 
     def status(self) -> dict[str, Any]:
         manifest = self._manifest()
@@ -978,6 +1094,55 @@ class AlgorithmModelServiceV3:
             "package_dir": str(self.package_dir),
         }
 
+    def _model_entry(
+        self, task_id: str, variant: str, month_offset: int, horizon_days: int
+    ) -> dict[str, Any] | None:
+        """从 manifest 定位该 (任务, 变体, 月偏移, 时效) 的交付产物条目。
+
+        为什么必须查清单而不是拼文件名（2026-09-11 修）：run_id 不含时效，
+        "T5-chla-0m-s20260907-cv" 同时对应 T+1/3/7/15 四份文件；接口按 run_id 拼出
+        "T5-chla-0m-s20260907-cv-1d.joblib" 在磁盘上根本不存在（真实名是
+        "T5-chla-0m-s20260907-1d.joblib"）。清单里的 file/sha256 才是产物事实。
+        """
+        cached = getattr(self, "_model_index_cache", None)
+        manifest = self._manifest()
+        key = (task_id, variant, int(month_offset), int(horizon_days))
+        if cached is None or cached[0] is not manifest.get("generated_at"):
+            index: dict[tuple[str, str, int, int], dict[str, Any]] = {}
+            for entry in manifest.get("models") or []:
+                etask = entry.get("task_id")
+                evariant = entry.get("variant")
+                if not etask or not evariant:
+                    # 旧清单无显式任务字段：从 run_id 前缀解析（T5-chla-0m-s20260907[-cv]）
+                    parts = str(entry.get("run_id") or "").rsplit("-s", 1)[0].split("-")
+                    if len(parts) < 3:
+                        continue
+                    etask, evariant = parts[0], parts[1]
+                if entry.get("month_offset") is None or entry.get("horizon_days") is None:
+                    continue
+                index[(etask, evariant, int(entry["month_offset"]), int(entry["horizon_days"]))] = entry
+            self._model_index_cache = (manifest.get("generated_at"), index)
+            cached = self._model_index_cache
+        return cached[1].get(key)
+
+    def _model_artifact_meta(
+        self, task_id: str, variant: str, month_offset: int, horizon_days: int
+    ) -> dict[str, Any]:
+        """清单里的真实产物身份：artifact_id / 相对路径 / SHA256 / 协议。缺字段即空值。"""
+        entry = self._model_entry(task_id, variant, month_offset, horizon_days)
+        if entry is None:
+            return {}
+        relative = entry.get("file")
+        return {
+            "artifact_id": entry.get("artifact_id"),
+            "model_file": (
+                str(relative).split("/")[-1] if relative else None
+            ),
+            "model_file_path": relative,
+            "model_sha256": entry.get("sha256"),
+            "protocol": entry.get("protocol"),
+        }
+
     def _bundle(self, task_id: str, variant: str, month_offset: int, horizon_days: int) -> Any:
         key = (task_id, variant, month_offset, horizon_days)
         cached = self._bundles.get(key)
@@ -988,7 +1153,10 @@ class AlgorithmModelServiceV3:
             if cached is not None:
                 return cached
             _, load_bundle, _, _, _, _, _ = self._runtime_imports()
-            path = self.model_dir / f"{task_id}-{variant}-{month_offset}m-s{MODEL_SEED_V3}-{horizon_days}d.joblib"
+            entry = self._model_entry(task_id, variant, month_offset, horizon_days)
+            if entry is None or not entry.get("file"):
+                return None
+            path = self.package_dir / entry["file"]
             if not path.is_file():
                 return None
             try:
@@ -1005,6 +1173,64 @@ class AlgorithmModelServiceV3:
                 raise AlgorithmModelUnavailable(f"V0.3 模型加载失败 {path.name}: {exc}") from exc
             self._bundles[key] = bundle
             return bundle
+
+    def model_artifact_audit(self) -> dict[str, Any]:
+        """门禁—模型文件—线上预测的一一对应核查（验收证据）。
+
+        逐条检查 manifest.models 声明的 file 是否真实存在、SHA256 是否与磁盘一致，
+        以及 artifact_id 是否唯一覆盖 (task, variant, protocol, month_offset, horizon, seed)。
+        """
+        manifest = self._manifest()
+        rows: list[dict[str, Any]] = []
+        seen: dict[str, int] = {}
+        missing_files: list[str] = []
+        digest_mismatch: list[str] = []
+        for entry in manifest.get("models") or []:
+            relative = entry.get("file")
+            artifact_id = entry.get("artifact_id")
+            if artifact_id:
+                seen[artifact_id] = seen.get(artifact_id, 0) + 1
+            exists = False
+            actual_sha = None
+            if relative:
+                path = self.package_dir / relative
+                exists = path.is_file()
+                if exists:
+                    actual_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+                else:
+                    missing_files.append(str(relative))
+            declared_sha = entry.get("sha256")
+            if declared_sha and actual_sha and declared_sha != actual_sha:
+                digest_mismatch.append(str(relative))
+            rows.append({
+                "task_id": entry.get("task_id"),
+                "variant": entry.get("variant"),
+                "horizon_days": entry.get("horizon_days"),
+                "month_offset": entry.get("month_offset"),
+                "run_id": entry.get("run_id"),
+                "artifact_id": artifact_id,
+                "file": relative,
+                "file_exists": exists,
+                "sha256_matches": bool(declared_sha and actual_sha and declared_sha == actual_sha),
+            })
+        duplicated = sorted([key for key, count in seen.items() if count > 1])
+        total = len(rows)
+        return {
+            "checked": total,
+            "artifact_id_present": len(seen),
+            "artifact_id_unique": not duplicated,
+            "duplicated_artifact_ids": duplicated,
+            "missing_files": missing_files,
+            "sha256_mismatch": digest_mismatch,
+            "status": "PASS" if (
+                total and not missing_files and not digest_mismatch and not duplicated
+            ) else "FAIL",
+            "rule": (
+                "API 只返回清单里的真实 file 与 sha256；artifact_id 必须唯一标识"
+                "(task, variant, protocol, month_offset, horizon, seed)。"
+            ),
+            "rows": rows,
+        }
 
     def _observed_inputs_v2(self, entity_id: str) -> tuple[dict[str, float], dict[str, Any]]:
         """同一实测快照内按实体复用：summary() 是全湖 pandas 聚合，重复调用纯属浪费。"""
@@ -1107,7 +1333,7 @@ class AlgorithmModelServiceV3:
             "uncertainty": None,
             "uncertainty_available": False,
             "compliance": {
-                "label": "情景推演" if scenario else "月度反演基底",
+                "label": LONG_TERM_COMPLIANCE_LABEL if scenario else "月度反演基底",
                 "locked": scenario,
                 "granularity_tier": "month_retrieval_base",
             },
@@ -1124,16 +1350,36 @@ class AlgorithmModelServiceV3:
         return pd.DataFrame([row], columns=list(bundle.feature_columns))
 
     @staticmethod
-    def _calendar_features(observed_at: str | None) -> dict[str, float]:
+    def _calendar_features(observed_at: str | None, month_shift: int = 0) -> dict[str, float]:
+        """日历正余弦；month_shift>0 时取「签发月 + shift」的目标月季节（与训练侧一致）。"""
         if not observed_at:
             return {}
         try:
             dt = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
         except ValueError:
             return {}
-        month = dt.month
+        month = ((dt.month - 1 + int(month_shift)) % 12) + 1
         angle = 2 * math.pi * (month - 1) / 12.0
         return {"calendar_month_sin": math.sin(angle), "calendar_month_cos": math.cos(angle)}
+
+    @staticmethod
+    def _target_month(observed_at: str | None, month_shift: int = 0) -> int | None:
+        """签发时刻 + 月偏移对应的目标月份（1-12）；无签发时刻时返回 None。"""
+        if not observed_at:
+            return None
+        try:
+            dt = datetime.fromisoformat(observed_at.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        return ((dt.month - 1 + int(month_shift)) % 12) + 1
+
+    @staticmethod
+    def _clip_interval(value: float, output_key: str, *, lower: bool) -> float:
+        """按输出物理边界裁剪区间端点（与 _build_uncertainty 同一裁剪口径）。"""
+        bounded_upper = output_key in {"bloom", "coverage", "density", "probability", "spatial"}
+        if lower:
+            return float(max(value, 0.0))
+        return float(min(value, 1.0)) if bounded_upper else float(value)
 
     # -------------------------------------------------------- 双指纹（P0.5）
     @staticmethod
@@ -1196,22 +1442,14 @@ class AlgorithmModelServiceV3:
         elif not point_in_interval:
             structural_reason = "点预测落在预测区间之外，区间与点预测不自洽"
 
-        # ② 校准证据：只看冻结测试集是否真的核算过经验覆盖率，且样本量足够。
+        # ② 校准证据：样本量足够 ∧ 经验覆盖率确实核算过 ∧ 覆盖率达到验收线。三条缺一不可。
         test_n_raw = bundle.uncertainty_meta.get("test_n")
         test_n = int(test_n_raw) if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool) else None
         empirical_coverage = bundle.uncertainty_meta.get("empirical_coverage_test")
         calibration_n = bundle.intervals.calibration_n
-        if test_n is None or test_n == 0:
-            calibration_status = CALIBRATION_NO_TEST_EVIDENCE
-        elif test_n < MIN_CALIBRATION_TEST_N:
-            calibration_status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
-        elif empirical_coverage is None:
-            calibration_status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
-        else:
-            calibration_status = CALIBRATION_VALIDATED
-        calibration_reason = CALIBRATION_STATUS_LABELS[calibration_status]
-        if calibration_status == CALIBRATION_INSUFFICIENT_TEST_EVIDENCE:
-            calibration_reason = f"{calibration_reason}（test_n={test_n}，阈值 {MIN_CALIBRATION_TEST_N}）"
+        calibration_status, calibration_reason, coverage_gap = _calibration_verdict(
+            empirical_coverage, test_n, source_label="模型留出测试集",
+        )
 
         calibration_evidence = {
             "status": calibration_status,
@@ -1219,7 +1457,10 @@ class AlgorithmModelServiceV3:
             "calibration_n": calibration_n,
             "test_n": test_n,
             "empirical_coverage": empirical_coverage,
-            "coverage_target": 0.90,
+            "coverage_target": COVERAGE_TARGET,
+            "coverage_tolerance": COVERAGE_TOLERANCE,
+            "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+            "coverage_gap": coverage_gap,
             "min_test_n": MIN_CALIBRATION_TEST_N,
         }
         calibration_ok = calibration_status == CALIBRATION_VALIDATED
@@ -1262,7 +1503,9 @@ class AlgorithmModelServiceV3:
             "clipped_to_physical_bounds": bool(p05 != raw_p05 or p95 != raw_p95),
             "training_protocol": training_protocol,
             "coverage": {
-                "target": 0.90,
+                "target": COVERAGE_TARGET,
+                "acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                "gap": coverage_gap,
                 "calibration_n": calibration_n,
                 "empirical_coverage_test": empirical_coverage,
                 "test_n": test_n,
@@ -1305,19 +1548,33 @@ class AlgorithmModelServiceV3:
         }
         observed, scope_context = self._observed_inputs_v2(entity_id)
         context = self._context()
-        calendar = self._calendar_features(scope_context.get("observed_at"))
+        # 日历取「签发月 + 月偏移」的目标月：与训练侧 target-month 口径、以及批量站点
+        # 路径（predict_suite_batch）一致。此前单实体路径漏传 month_shift，导致全湖卡片
+        # 的 30/60/90 用签发月季节、站点聚合层用目标月季节，同一时效两套日历。
+        calendar = self._calendar_features(scope_context.get("observed_at"), month_shift=month_offset)
         context = {**context, **calendar}
         legacy_box: dict[str, Any] = {}
         results: dict[str, Any] = {}
         all_feature_columns: set[str] = set()
         for output_key, task_id, variant, label in TASKS:
             compliance = {
-                "label": "情景推演" if horizon_days in scenario_horizons else "研判推演",
+                "label": LONG_TERM_COMPLIANCE_LABEL if horizon_days in scenario_horizons else SHORT_TERM_COMPLIANCE_LABEL,
                 "locked": horizon_days in scenario_horizons,
                 "granularity_tier": tier,
             }
             bundle = self._bundle(task_id, variant, month_offset, horizon_days)
             entry = availability.get((task_id, variant), {})
+            # 中长期路由（2026-09-11）：文件存在 ≠ 可以交付。T+30/T+60 的持久性模型只有
+            # 5 条留出测试样本，属 insufficient_test_evidence；按
+            # 「评估充分的模型 → 有留出评估的季节基线 → 明确不可用」的顺序重选，
+            # 不得因为"有模型文件"就把它的输出当成中长期趋势。
+            route = self._long_term_route(
+                task_id, variant, month_offset, horizon_days, bundle, scenario_horizons,
+            )
+            if route["use_bundle"]:
+                route = None
+            else:
+                bundle = None
             if bundle is None:
                 # 水华面积：无训练模型时改用「月度反演重建基底场 20μg/L 阈值边界的实测面积」
                 # （面积本就是全湖量，不存在"逐站训练"问题），替代 V0.2 合成回退；
@@ -1327,9 +1584,25 @@ class AlgorithmModelServiceV3:
                     if field_area is not None:
                         results[output_key] = field_area
                         continue
-                fallback = self._legacy_fallback_result(
-                    task_id, variant, horizon_days, output_key, label, entity_id, legacy_box
-                )
+                # 中长期（30/60/90 天）：不再用 V0.2 合成数据模型自动补位——合成结果
+                # "看起来有站点差异"但无任何真实依据，只会被误读为真实趋势。
+                # 先试真实季节气候态基线（历史同期值，可回测）；它也不适用才 not_applicable。
+                clim_result = None
+                if horizon_days in scenario_horizons:
+                    clim_result = self._climatology_result(
+                        task_id, variant, label, output_key, horizon_days, month_offset,
+                        scope_context, compliance, entry,
+                        route=route,
+                        allow_any_scenario=bool(route and route.get("model_rejected")),
+                    )
+                if clim_result is not None:
+                    results[output_key] = clim_result
+                    continue
+                fallback = None
+                if horizon_days not in scenario_horizons:
+                    fallback = self._legacy_fallback_result(
+                        task_id, variant, horizon_days, output_key, label, entity_id, legacy_box
+                    )
                 if fallback is not None:
                     fallback["label_provenance"] = entry.get("label_provenance")
                     fallback["compliance"] = compliance
@@ -1341,7 +1614,13 @@ class AlgorithmModelServiceV3:
                         "value": None, "probability": None, "unit": None,
                         "status": "not_applicable",
                         "value_origin": None,
-                        "not_applicable_reason": entry.get("reason") or "model_bundle_missing",
+                        "not_applicable_reason": (
+                            (route or {}).get("reason")
+                            or "scenario_horizon_synthetic_fallback_removed"
+                            if horizon_days in scenario_horizons and not entry.get("reason")
+                            else entry.get("reason") or "model_bundle_missing"
+                        ),
+                        "long_term_route": route,
                         "label_provenance": entry.get("label_provenance"),
                         "uncertainty_available": False,
                         "compliance": compliance,
@@ -1360,6 +1639,8 @@ class AlgorithmModelServiceV3:
             training_protocol = (bundle.uncertainty_meta or {}).get("split_protocol") or "frozen_split"
             uncertainty = self._build_uncertainty(bundle, value, output_key, training_protocol)
             transformed_fingerprint = self._transformed_fingerprint(bundle, frame)
+            # 产物身份一律来自清单的真实记录（file / sha256 / artifact_id），不再用 run_id 拼名。
+            artifact = self._model_artifact_meta(task_id, variant, month_offset, horizon_days)
             result = {
                 "task_id": task_id,
                 "variant": variant,
@@ -1372,7 +1653,10 @@ class AlgorithmModelServiceV3:
                     "area": "km²", "coverage": "ratio", "density": "rank",
                     "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
                 }.get(output_key),
-                "model_file": f"{bundle.run_id}-{bundle.horizon_days}d.joblib",
+                "model_file": artifact.get("model_file"),
+                "model_file_path": artifact.get("model_file_path"),
+                "model_sha256": artifact.get("model_sha256"),
+                "artifact_id": artifact.get("artifact_id"),
                 "model_run_id": bundle.run_id,
                 "selected_family": bundle.selected_family,
                 # 静态基线模型（simple_baseline）不依赖输入，逐站点输出必然相同；
@@ -1401,7 +1685,7 @@ class AlgorithmModelServiceV3:
                 result["explainability"] = explainability
             results[output_key] = result
             all_feature_columns.update(bundle.feature_columns)
-        # 风险等级：训练期标签单类，无独立可训练模型；由 T5 叶绿素 a 真实模型预测值按
+        # 风险等级：训练期标签单类，无独立可训练模型；由 T5 叶绿素 a 真实数据模型（公示代理标签）预测值按
         # 冻结风险带推导（与 20 μg/L 水华阈值同源），绝不伪造独立等级模型输出。
         # 推导不可行（无叶绿素值）时保留上方 legacy 回退或 not_applicable 原状。
         risk_level_result = results.get("risk_level") or {}
@@ -1409,30 +1693,21 @@ class AlgorithmModelServiceV3:
             derived = self._derive_risk_level(results.get("chla"), risk_bands)
             if derived is not None:
                 derived["compliance"] = {
-                    "label": "情景推演" if horizon_days in scenario_horizons else "研判推演",
+                    "label": LONG_TERM_COMPLIANCE_LABEL if horizon_days in scenario_horizons else SHORT_TERM_COMPLIANCE_LABEL,
                     "locked": horizon_days in scenario_horizons,
                     "granularity_tier": tier,
                 }
                 results["risk_level"] = derived
         origin_counts = {
             "real_data_v0_3": 0,
+            "seasonal_climatology_baseline": 0,
             "derived_from_chla": 0,
             "derived_from_retrieval_field": 0,
             "legacy_v0_2_synthetic_fallback": 0,
             "not_applicable": 0,
         }
         for item in results.values():
-            if item.get("value") is None or item.get("status") == "not_applicable":
-                origin_counts["not_applicable"] += 1
-            elif item.get("value_origin") == "legacy_v0_2_synthetic_fallback":
-                origin_counts["legacy_v0_2_synthetic_fallback"] += 1
-            elif item.get("value_origin") == "derived_from_chla_v0_3_risk_bands":
-                origin_counts["derived_from_chla"] += 1
-            elif item.get("value_origin") == "derived_from_monthly_retrieval_field":
-                # 月度反演基底边界面积：真实反演产物派生，但不是逐站训练模型输出，单列披露
-                origin_counts["derived_from_retrieval_field"] += 1
-            else:
-                origin_counts["real_data_v0_3"] += 1
+            _count_origin(origin_counts, item)
         probability_result = results.get("probability") or {}
         probability_value = probability_result.get("probability")
         if probability_value is None:
@@ -1533,7 +1808,8 @@ class AlgorithmModelServiceV3:
         scopes: dict[str, dict[str, Any]] = {}
         for entity_id in entity_ids:
             observed, scope = self._observed_inputs_v2(entity_id)
-            calendar = self._calendar_features(scope.get("observed_at"))
+            # month_offset≥1：日历取目标月季节（训练侧监督表同口径）
+            calendar = self._calendar_features(scope.get("observed_at"), month_shift=month_offset)
             observed_by_entity[entity_id] = observed
             context_by_entity[entity_id] = {**base_context, **calendar}
             scopes[entity_id] = scope
@@ -1545,12 +1821,20 @@ class AlgorithmModelServiceV3:
         legacy_box: dict[str, Any] = {}
         for output_key, task_id, variant, label in TASKS:
             compliance = {
-                "label": "情景推演" if is_scenario else "研判推演",
+                "label": LONG_TERM_COMPLIANCE_LABEL if is_scenario else SHORT_TERM_COMPLIANCE_LABEL,
                 "locked": is_scenario,
                 "granularity_tier": tier,
             }
             bundle = self._bundle(task_id, variant, month_offset, horizon_days)
             entry = availability.get((task_id, variant), {})
+            # 中长期路由：与单条路径同一策略（评估不足的模型不作为交付口径）
+            route = self._long_term_route(
+                task_id, variant, month_offset, horizon_days, bundle, scenario_horizons,
+            )
+            if route["use_bundle"]:
+                route = None
+            else:
+                bundle = None
             if bundle is None:
                 # 水华面积：与单条口径一致，优先月度反演基底边界面积（见 _monthly_field_area_result）
                 field_area = None
@@ -1560,10 +1844,27 @@ class AlgorithmModelServiceV3:
                         for entity_id in entity_ids:
                             results_by_entity[entity_id][output_key] = dict(field_area)
                 if not (output_key == "area" and field_area is not None):
-                    bulk = self._legacy_fallback_batch(
+                    # 中长期（30/60/90 天）先试真实季节气候态基线（与单条路径同口径）；
+                    # 该基线不含站点分辨，逐站取同一目标月值——这正是它必须被标注的原因。
+                    if is_scenario:
+                        for entity_id in entity_ids:
+                            clim_result = self._climatology_result(
+                                task_id, variant, label, output_key, horizon_days, month_offset,
+                                scopes.get(entity_id) or {}, compliance, entry,
+                                route=route,
+                                allow_any_scenario=bool(route and route.get("model_rejected")),
+                            )
+                            if clim_result is not None:
+                                results_by_entity[entity_id][output_key] = clim_result
+                        if all(output_key in results_by_entity[eid] for eid in entity_ids):
+                            continue
+                    # 中长期不再用 V0.2 合成数据模型自动补位（与单条路径同口径）
+                    bulk = {} if is_scenario else self._legacy_fallback_batch(
                         task_id, variant, horizon_days, output_key, label, entity_ids, legacy_box
                     )
                     for entity_id in entity_ids:
+                        if output_key in results_by_entity[entity_id]:
+                            continue
                         fallback = bulk.get(entity_id)
                         if fallback is not None:
                             fallback["label_provenance"] = entry.get("label_provenance")
@@ -1576,7 +1877,13 @@ class AlgorithmModelServiceV3:
                                 "value": None, "probability": None, "unit": None,
                                 "status": "not_applicable",
                                 "value_origin": None,
-                                "not_applicable_reason": entry.get("reason") or "model_bundle_missing",
+                                "not_applicable_reason": (
+                                    (route or {}).get("reason")
+                                    or "scenario_horizon_synthetic_fallback_removed"
+                                    if is_scenario and not entry.get("reason")
+                                    else entry.get("reason") or "model_bundle_missing"
+                                ),
+                                "long_term_route": route,
                                 "label_provenance": entry.get("label_provenance"),
                                 "uncertainty_available": False,
                                 "compliance": compliance,
@@ -1589,6 +1896,7 @@ class AlgorithmModelServiceV3:
             batch_frame = pd.concat([frames_by_entity[eid] for eid in entity_ids], ignore_index=True)
             raw_all = bundle.predict_point(batch_frame)
             training_protocol = (bundle.uncertainty_meta or {}).get("split_protocol") or "frozen_split"
+            artifact = self._model_artifact_meta(task_id, variant, month_offset, horizon_days)
             unit_map = {
                 "area": "km²", "coverage": "ratio", "density": "rank",
                 "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
@@ -1614,7 +1922,10 @@ class AlgorithmModelServiceV3:
                     "predicted_class": predicted_class,
                     "target": bundle.target,
                     "unit": unit_map.get(output_key),
-                    "model_file": f"{bundle.run_id}-{bundle.horizon_days}d.joblib",
+                    "model_file": artifact.get("model_file"),
+                    "model_file_path": artifact.get("model_file_path"),
+                    "model_sha256": artifact.get("model_sha256"),
+                    "artifact_id": artifact.get("artifact_id"),
                     "model_run_id": bundle.run_id,
                     "selected_family": bundle.selected_family,
                     "model_family": bundle.selected_family,
@@ -1656,30 +1967,21 @@ class AlgorithmModelServiceV3:
                     transformed_fingerprints_by_entity.get(entity_id, {}).pop("risk_level", None)
                 if derived is not None:
                     derived["compliance"] = {
-                        "label": "情景推演" if is_scenario else "研判推演",
+                        "label": LONG_TERM_COMPLIANCE_LABEL if is_scenario else SHORT_TERM_COMPLIANCE_LABEL,
                         "locked": is_scenario,
                         "granularity_tier": tier,
                     }
                     results["risk_level"] = derived
             origin_counts = {
                 "real_data_v0_3": 0,
+                "seasonal_climatology_baseline": 0,
                 "derived_from_chla": 0,
                 "derived_from_retrieval_field": 0,
                 "legacy_v0_2_synthetic_fallback": 0,
                 "not_applicable": 0,
             }
             for item in results.values():
-                if item.get("value") is None or item.get("status") == "not_applicable":
-                    origin_counts["not_applicable"] += 1
-                elif item.get("value_origin") == "legacy_v0_2_synthetic_fallback":
-                    origin_counts["legacy_v0_2_synthetic_fallback"] += 1
-                elif item.get("value_origin") == "derived_from_chla_v0_3_risk_bands":
-                    origin_counts["derived_from_chla"] += 1
-                elif item.get("value_origin") == "derived_from_monthly_retrieval_field":
-                    # 月度反演基底边界面积：真实反演产物派生，但不是逐站训练模型输出，单列披露
-                    origin_counts["derived_from_retrieval_field"] += 1
-                else:
-                    origin_counts["real_data_v0_3"] += 1
+                _count_origin(origin_counts, item)
             probability_result = results.get("probability") or {}
             probability_value = probability_result.get("probability")
             if probability_value is None:
@@ -1805,45 +2107,60 @@ class AlgorithmModelServiceV3:
         self._cache_epoch()
         cached = self._mech_cache.get((entity_id,))
         if cached is None:
-            cached = self._mechanism_drivers(observed, context)
+            cached = self._mechanism_drivers(entity_id, observed, context)
             self._mech_cache[(entity_id,)] = cached
         return cached
 
-    def _mechanism_drivers(self, observed: dict[str, float], context: dict[str, float]) -> dict[str, Any]:
+    def _mechanism_drivers(
+        self, entity_id: str, observed: dict[str, float], context: dict[str, float]
+    ) -> dict[str, Any]:
         """机理净生长率分解（运行时展示口径，与特征契约 mech_* 同一公式，模型无关、恒可用）。
 
-        温度/光照基准优先取签发月上下文；上下文缺测时回退到最近含气象的上下文月（披露月份），
-        温度再回退 MEE 实测水温（代理口径，逐项披露）。磷/氮条件优先 MEE 实测。
+        温度口径（2026-09-11 对齐）：优先本站 MEE 实测水温（一站一值）→ ERA5 湖表温度
+        网格月度值 → 上下文气象气温（明确标"气温，非水温"）→ 全湖 MEE 水温均值代理；
+        与训练端 _mechanism_columns 的水温优先口径一致。光照取气象网格值或签发月气候态，
+        全部按代理口径披露（全湖单一气象网格，不构成站间差异）。磷/氮条件优先 MEE 实测。
         """
         def clip01(value: float) -> float:
             return float(min(max(value, 0.0), 1.0))
 
-        met_month = None
-        temp = context.get("met_air_temperature_c")
-        light = context.get("met_shortwave_radiation_wm2")
-        # 冻结中位数（与模型推理路径一致：TAIHU_WHOLE 上下文无气象列，模型实际接收的
-        # 就是预处理器按训练期中位数插补后的值），用于光照等无可实时来源的字段
-        medians = None
-        if (temp is None or light is None) and self._context_frame is not None and len(self._context_frame):
-            import pandas as pd
-
-            whole = self._context_frame[self._context_frame["station_id"] == "TAIHU_WHOLE"]
-            met_rows = whole.dropna(subset=["met_air_temperature_c", "met_shortwave_radiation_wm2"]).sort_values("month")
-            if len(met_rows):
-                row = met_rows.iloc[-1]
-                met_month = str(row["month"])
-                temp = float(row["met_air_temperature_c"])
-                light = float(row["met_shortwave_radiation_wm2"])
-        temp_proxy = False
-        if temp is None:
+        # ---- 温度：本站实测水温优先 ----
+        temp = None
+        temp_proxy = True
+        temp_source = "缺测"
+        station_water_temp = observed.get("wq_water_temp")
+        if station_water_temp is not None:
+            temp = float(station_water_temp)
+            temp_proxy = False
+            temp_source = (
+                "全湖 MEE 均值·水温" if entity_id == "lake" else "本站实测·MEE 水温"
+            )
+        elif context.get("wq_water_temp") is not None:
+            temp = float(context["wq_water_temp"])
+            temp_source = "ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）"
+        elif context.get("met_air_temperature_c") is not None:
+            temp = float(context["met_air_temperature_c"])
+            temp_source = "上下文气象·气温（非水温，回退口径）"
+        else:
             summary = self._realtime_summary()
             water_temp = (summary.get("means", {}).get("water_temperature") or {}).get("value")
             if water_temp is not None:
                 temp = float(water_temp)
-                temp_proxy = True
-        # 光照：气象列在监督表中仅 NASA_POWER 网格行有值（TAIHU_WHOLE 全缺测、训练时 0 插补），
-        # 展示口径改用签发月同期气候态中位（真实数据聚合，季节正确），绝不使用 0 插补值
-        light_source = "上下文气象" if light is not None else None
+                temp_source = "全湖 MEE 水温均值代理（本站缺测回退）"
+        # ---- 光照：气象网格值或签发月气候态，一律代理口径 ----
+        met_month = None
+        light = context.get("met_shortwave_radiation_wm2")
+        light_source = "气象网格值（NASA_POWER，非本站实测）" if light is not None else None
+        if light is None and self._context_frame is not None and len(self._context_frame):
+            import pandas as pd
+
+            whole = self._context_frame[self._context_frame["station_id"] == "TAIHU_WHOLE"]
+            met_rows = whole.dropna(subset=["met_shortwave_radiation_wm2"]).sort_values("month")
+            if len(met_rows):
+                row = met_rows.iloc[-1]
+                met_month = str(row["month"])
+                light = float(row["met_shortwave_radiation_wm2"])
+                light_source = f"气象网格值（NASA_POWER {met_month}，非本站实测）"
         if light is None:
             try:
                 issuing_month = int((context.get("observed_at") or datetime.now().isoformat())[5:7])
@@ -1858,7 +2175,8 @@ class AlgorithmModelServiceV3:
                 ]
                 if len(met_rows):
                     light = float(met_rows["met_shortwave_radiation_wm2"].median())
-                    light_source = f"{issuing_month} 月气候态·NASA_POWER"
+                    light_source = f"{issuing_month} 月气候态·NASA POWER 网格（非实测）"
+        air_temp = context.get("met_air_temperature_c")
         tp = observed.get("wq_tp", context.get("wq_tp"))
         tn = observed.get("wq_tn", context.get("wq_tn"))
         nh4 = observed.get("wq_nh4_n", context.get("wq_nh4_n"))
@@ -1874,39 +2192,70 @@ class AlgorithmModelServiceV3:
         factors = [
             {"key": "temperature", "label": "温度适合度", "value": f_temp,
              "source_value": temp, "unit": "℃", "proxy": temp_proxy,
-             "source": "MEE 水温代理" if temp_proxy else ("上下文气象" if temp is not None else "缺测")},
+             "station_resolution": temp_proxy is False,
+             "source": temp_source},
+            {"key": "air_temperature", "label": "气温（参考）", "value": None,
+             "source_value": air_temp, "unit": "℃", "proxy": True, "state_only": True,
+             "station_resolution": False,
+             "source": ("上下文气象·气温网格值（不进入温度适合度）" if air_temp is not None
+                        else "缺测·不进入温度适合度")},
             {"key": "light", "label": "光照适合度", "value": f_light,
-             "source_value": light, "unit": "W/m²", "proxy": False,
-             "source": (f"上下文气象 {met_month}" if (light is not None and light_source == "上下文气象" and met_month) else (light_source or "缺测"))},
+             "source_value": light, "unit": "W/m²", "proxy": True,
+             "station_resolution": False,
+             # 光照适合度 = clip(光照/18, 0, 1)，18 W/m² 即饱和；太湖月均光照远高于此，
+             # 故该因子常年恒为 1.0。这不是"光照条件完美"，是公式在其区间上取到了上界。
+             "saturated": light is not None and light >= 18.0,
+             "saturation_value": 18.0,
+             "source": light_source or "缺测"},
             {"key": "phosphorus", "label": "磷条件", "value": f_phos,
              "source_value": tp, "unit": "mg/L", "proxy": False,
+             "station_resolution": "wq_tp" in observed,
              "source": "MEE 实测" if "wq_tp" in observed else "上下文"},
             {"key": "nitrogen", "label": "氮条件", "value": f_nitro,
              "source_value": tn, "unit": "mg/L", "proxy": False,
+             "station_resolution": "wq_tn" in observed,
              "source": "MEE 实测" if "wq_tn" in observed else "上下文"},
             {"key": "ammonia", "label": "氨氮输入", "value": None,
              "source_value": nh4, "unit": "mg/L", "proxy": False, "state_only": True,
+             "station_resolution": "wq_nh4_n" in observed,
              "source": ("MEE 实测·未纳入当前机理公式" if "wq_nh4_n" in observed
                         else "上下文·未纳入当前机理公式" if nh4 is not None else "缺测·未纳入当前机理公式")},
             {"key": "flow", "label": "流速输入", "value": None,
              "source_value": None, "unit": "m/s", "proxy": False, "state_only": True,
+             "station_resolution": False,
              "source": "当前 V0.3 特征契约无流速字段·不可用"},
         ]
         known = [f for f in factors if f["value"] is not None]
         limiting = min(known, key=lambda f: f["value"])["key"] if known else None
+        # 来源分组（结构化，供前端直接渲染，不靠字符串匹配）：
+        # 逐站可得 vs 全湖同一值。光照与气温来自单一气象网格，物理上不存在站间差异；
+        # 全湖实体的水温/营养盐本身即 79 站聚合，可回溯到逐站实测。
+        per_station = [f["key"] for f in factors if f.get("station_resolution")]
+        lake_wide = [f["key"] for f in factors if not f.get("station_resolution")]
         return {
             "factors": factors,
             "nutrient_factor": f_nutr,
             "limiting_factor": limiting,
             "net_growth_rate_d": _json_scalar(net) if net is not None else None,
             "net_growth_range": [-0.16, 0.6],
+            "station_resolution_scope": "lake_aggregate" if entity_id == "lake" else "station",
+            "source_groups": {
+                "per_station": per_station,
+                "lake_wide": lake_wide,
+                "lake_wide_note": (
+                    "光照与气温取自单一气象网格，物理上全湖同值，不构成站间差异；"
+                    "温度与营养盐为逐站实测（全湖视图下为 79 站聚合，可回溯到站）。"
+                ),
+            },
             "formula": "net = 0.9·f_T·f_I·min(f_P, f_N) − 0.16（与特征契约 mech_* 同式）",
             "note": (
                 "机理净生长率分解：反映当前环境对藻类生长的适合度与限制因子，公式与训练特征一致、"
-                "不依赖任何训练模型，模型敏感性不可用时恒可用。数据质量事实：气象列在监督表仅 NASA_POWER "
-                "网格行有值（TAIHU_WHOLE 全缺测、训练时 0 插补），故光照取签发月同期气候态中位、"
-                "温度优先 MEE 实测水温（代理口径），均为展示口径并已逐项标注来源。氨氮仅展示输入状态，"
-                "流速因当前契约缺字段显示不可用；两者均不伪装成机理贡献。"
+                "不依赖任何训练模型，模型敏感性不可用时恒可用。温度优先本站 MEE 实测水温（一站一值），"
+                "缺测时依次回退 ERA5 湖表温度网格、上下文气温、全湖均值代理；光照取气象网格值或签发月"
+                "气候态（全湖单一气象网格，不构成站间差异）；适合度为 0-1 计算值，非观测百分比。"
+                "光照适合度 = clip(光照/18, 0, 1)，18 W/m² 即取到上界、常年恒为 1.0，"
+                "这是公式在其区间上取到上界，而非「光照理想」。氨氮仅展示输入状态，流速因当前契约缺字段显示不可用；"
+                "两者均不伪装成机理贡献。"
             ),
         }
 
@@ -2021,7 +2370,7 @@ class AlgorithmModelServiceV3:
     def _derive_risk_level(
         self, chla_result: dict[str, Any] | None, risk_bands: dict[str, tuple[float, float]]
     ) -> dict[str, Any] | None:
-        """由叶绿素 a 真实模型预测值推导风险等级（冻结 risk_bands_ug_l 阈值映射）。"""
+        """由叶绿素 a 真实数据模型（公示代理标签）预测值推导风险等级（冻结 risk_bands_ug_l 阈值映射）。"""
         if not chla_result or chla_result.get("value") is None:
             return None
         value = float(chla_result["value"])
@@ -2036,6 +2385,40 @@ class AlgorithmModelServiceV3:
             p05_band = self._band_of(float(chla_uncertainty["p05"]), risk_bands)
             p95_band = self._band_of(float(chla_uncertainty["p95"]), risk_bands)
         band_range = p05_band is not None and p95_band is not None
+        # 等级范围缺失时必须给出明确原因，不能只留一个空态。判据按三层合同同序给出，
+        # 让页面能说清"是被结构否掉、被校准否掉，还是被验收线否掉"。
+        if band_range:
+            band_range_blocked = None
+        else:
+            if chla_result.get("uncertainty") is None:
+                blocked_reason = "source_interval_unavailable"
+            elif not chla_uncertainty.get("structural_valid"):
+                blocked_reason = "source_interval_structurally_invalid"
+            elif chla_uncertainty.get("calibration_status") != CALIBRATION_VALIDATED:
+                blocked_reason = f"source_interval_{chla_uncertainty.get('calibration_status') or CALIBRATION_UNAVAILABLE}"
+            else:
+                blocked_reason = "source_interval_band_mapping_failed"
+            band_range_blocked = {
+                "reason": blocked_reason,
+                "calibration_status": chla_uncertainty.get("calibration_status"),
+                "calibration_reason": chla_uncertainty.get("calibration_reason"),
+                "empirical_coverage": chla_uncertainty.get("empirical_coverage"),
+                "coverage_target": COVERAGE_TARGET,
+                "coverage_tolerance": COVERAGE_TOLERANCE,
+                "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                "structural_valid": chla_uncertainty.get("structural_valid"),
+                "test_n": chla_uncertainty.get("test_n"),
+                "source_interval": {
+                    "task": "T5-chla",
+                    "p05": chla_uncertainty.get("p05"),
+                    "p95": chla_uncertainty.get("p95"),
+                },
+                "note": (
+                    "风险等级范围由叶绿素 a 的预测区间映射得到；该源区间未达决策可用"
+                    "（覆盖率未达标 / 未核算 / 结构不自洽），因此不给出等级范围，"
+                    "更不得反向用于决策。"
+                ),
+            }
         return {
             "task_id": "T6",
             "variant": "risk_level",
@@ -2053,6 +2436,13 @@ class AlgorithmModelServiceV3:
                 "rule": "冻结风险带 risk_bands_ug_l（none<10≤low<20≤medium<30≤high<50≤severe，μg/L；与 20 μg/L 水华阈值同源）",
             },
             "model_file": chla_result.get("model_file"),
+            "model_file_path": chla_result.get("model_file_path"),
+            "model_sha256": chla_result.get("model_sha256"),
+            "artifact_id": chla_result.get("artifact_id"),
+            "label_provenance": chla_result.get("label_provenance"),
+            "derived_is_proxy": str(chla_result.get("label_provenance") or "").startswith(
+                ("chla_station_proxy", "mixed", "proxy")
+            ),
             "selected_family": chla_result.get("selected_family"),
             "granularity_tier": chla_result.get("granularity_tier"),
             "training_protocol": chla_result.get("training_protocol"),
@@ -2060,17 +2450,34 @@ class AlgorithmModelServiceV3:
                 {
                     "method": "derived_band_range_from_chla_conformal_interval",
                     "is_prediction_interval": True,
+                    # 这是"区间 → 等级范围"的映射，不是数值区间本身：前端按 band_range 分支
+                    # 渲染等级范围条，不走 P05—点—P95 刻度尺。structural_valid / decision_usable
+                    # 继承源区间，保证三层合同在本任务上语义完整、不必让前端猜缺字段的含义。
+                    "band_range": True,
                     "interval_semantics": UNCERTAINTY_SEMANTICS,
-                    "calibration_status": CALIBRATION_UNAVAILABLE,
-                    "decision_usable": False,
+                    "structural_valid": bool(chla_uncertainty.get("structural_valid")),
+                    "calibration_status": chla_uncertainty.get("calibration_status") or CALIBRATION_UNAVAILABLE,
+                    "decision_usable": bool(chla_uncertainty.get("decision_usable")),
+                    "decision_reason": chla_uncertainty.get("decision_reason"),
+                    "point_band": band,
                     "p05_band": p05_band,
                     "p95_band": p95_band,
-                    "note": "等级范围由叶绿素 a conformal 区间映射；等级本身不是经校准的概率输出。",
+                    "source_interval": {
+                        "task": "T5-chla",
+                        "p05": chla_uncertainty.get("p05"),
+                        "p95": chla_uncertainty.get("p95"),
+                        "test_n": chla_uncertainty.get("test_n"),
+                        "empirical_coverage": chla_uncertainty.get("empirical_coverage"),
+                        "training_protocol": chla_uncertainty.get("training_protocol"),
+                    },
+                    "note": "等级范围由叶绿素 a 的预测区间映射到冻结风险带；等级本身不是经校准的概率输出。",
                 }
                 if band_range
                 else None
             ),
             "uncertainty_available": band_range,
+            # 无法给出等级范围时的显式原因（供页面如实展示，而不是留空态让人猜）
+            "band_range_blocked": band_range_blocked,
         }
 
     @staticmethod
@@ -2104,13 +2511,35 @@ class AlgorithmModelServiceV3:
                 ),
                 **counts,
             }
+        if focus_origin == "seasonal_climatology_baseline":
+            return {
+                "status": "partial",
+                "decision": "seasonal_climatology_baseline",
+                "reason": (
+                    f"当前指标（{focus_metric}）在该时效没有可用的逐站模型：历史标签为季度采样，"
+                    "(输入月, 目标月) 配对不足以训练逐站模型。展示值为季节气候态基线"
+                    "——按目标月给出历史同期值，真实、可留出回测，但全湖同值、不含站点分辨，"
+                    "不得用于站间比较。"
+                ),
+                **counts,
+            }
         if origin_counts["legacy_v0_2_synthetic_fallback"] > 0:
             return {
                 "status": "partial",
                 "decision": "real_data_with_legacy_supplement",
                 "reason": (
                     "当前焦点指标来自 V0.3 真实数据模型；同时效内另有任务因标签缺失以 legacy V0.2 合成数据"
-                    "对照输出补位（逐任务见 value_origin），仅作情景推演。"
+                    "对照输出补位（逐任务见 value_origin），仅作对照展示。"
+                ),
+                **counts,
+            }
+        if origin_counts["seasonal_climatology_baseline"] > 0:
+            return {
+                "status": "partial",
+                "decision": "real_data_with_climatology_supplement",
+                "reason": (
+                    "当前焦点指标来自 V0.3 逐站模型；同时效内另有任务以季节气候态基线给出"
+                    "（全湖同值，不含站点分辨，逐任务见 value_origin）。"
                 ),
                 **counts,
             }
@@ -2118,8 +2547,8 @@ class AlgorithmModelServiceV3:
             "status": "ok",
             "decision": "real_data_v0_3",
             "reason": (
-                "当前结果由 V0.3 真实清洗数据模型生成（月度标签粒度）；精度表述以冻结测试集评估为准，"
-                "30/60/90 天仅作情景推演。"
+                "当前结果由 V0.3 真实清洗数据模型生成（月度标签粒度）；精度表述以冻结测试集与门禁"
+                "评估为准。30/60/90 天为中长期月度趋势口径：90 天为逐站模型、30/60 天为季节气候态基线。"
             ),
             **counts,
         }
@@ -2249,19 +2678,294 @@ class AlgorithmModelServiceV3:
             raise AlgorithmModelUnavailable(f"门禁表不存在: {path}（请先运行 cli_real.py gate）")
         return json.loads(path.read_text(encoding="utf-8"))
 
+    def _seasonal_climatology(self) -> dict[str, Any]:
+        """季节气候态基线产物（按文件 stat 缓存，与实测快照无关的包内产物）。
+
+        产物版本不符或缺失时返回空 dict——调用方按"无该基线"处理，绝不猜测新字段语义。
+        """
+        path = self.package_dir / SEASONAL_CLIMATOLOGY_PATH_FRAGMENT
+        try:
+            stat = path.stat()
+            key = (str(path), stat.st_size, stat.st_mtime_ns)
+        except OSError:
+            return {}
+        cached = getattr(self, "_clim_cache", None)
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        payload: dict[str, Any] = {}
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+            if loaded.get("artifact_version") == SEASONAL_CLIMATOLOGY_VERSION:
+                payload = loaded
+        except Exception:  # noqa: BLE001 — 产物损坏即视为不可用，不静默降级成别的口径
+            payload = {}
+        self._clim_cache = (key, payload)
+        return payload
+
+    def _climatology_entry(self, task_id: str, variant: str) -> dict[str, Any] | None:
+        payload = self._seasonal_climatology()
+        for entry in payload.get("tasks") or []:
+            if entry.get("task_id") == task_id and entry.get("variant") == variant:
+                return entry
+        return None
+
+    def _long_term_route(
+        self, task_id: str, variant: str, month_offset: int, horizon_days: int,
+        bundle: Any, scenario_horizons: Any,
+    ) -> dict[str, Any]:
+        """中长期（30/60/90 天）交付路由：先看模型评估是否充分，再谈用不用它。
+
+        路由顺序（2026-09-11 立）：
+            ① 评估充分的逐站模型（留出测试样本 ≥ MIN_CALIBRATION_TEST_N）
+            ② 有留出评估的季节气候态基线
+            ③ 明确不可用
+        "文件存在"不构成①：T+30/T+60 的持久性模型只有 5 条测试样本，
+        brier=0 是在 5 行上算出来的，把它当默认中长期风险概率是虚假精确。
+        """
+        if bundle is None:
+            return {
+                "use_bundle": False, "model_rejected": False,
+                "reason": "model_artifact_missing", "evidence": None,
+                "policy": LONG_TERM_ROUTE_POLICY,
+            }
+        if horizon_days not in scenario_horizons:
+            return {"use_bundle": True, "model_rejected": False, "reason": None, "evidence": None,
+                    "policy": LONG_TERM_ROUTE_POLICY}
+        meta = bundle.uncertainty_meta or {}
+        test_n_raw = meta.get("test_n")
+        test_n = (
+            int(test_n_raw)
+            if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool)
+            else None
+        )
+        adequate = test_n is not None and test_n >= MIN_CALIBRATION_TEST_N
+        evidence = {
+            "selected_family": bundle.selected_family,
+            "test_n": test_n,
+            "min_test_n": MIN_CALIBRATION_TEST_N,
+            "empirical_coverage": meta.get("empirical_coverage_test"),
+            "training_protocol": meta.get("split_protocol") or "frozen_split",
+        }
+        if adequate:
+            return {"use_bundle": True, "model_rejected": False, "reason": None,
+                    "evidence": evidence, "policy": LONG_TERM_ROUTE_POLICY}
+        return {
+            "use_bundle": False,
+            "model_rejected": True,
+            "reason": (
+                f"long_term_model_evaluation_insufficient(n_test={test_n}<{MIN_CALIBRATION_TEST_N})"
+            ),
+            "evidence": evidence,
+            "policy": LONG_TERM_ROUTE_POLICY,
+        }
+
+    @staticmethod
+    def _climatology_has_holdout(clim: dict[str, Any]) -> bool:
+        """季节基线是否真有留出段评估（样本量达标 + 残差分位数已核算）。"""
+        backtest = clim.get("backtest") or {}
+        n = backtest.get("n")
+        if not isinstance(n, (int, float)) or isinstance(n, bool) or int(n) < MIN_CALIBRATION_TEST_N:
+            return False
+        if clim.get("problem_type") == "ordinal":
+            return backtest.get("metrics") is not None
+        return bool(backtest.get("residual_quantiles"))
+
+    def _climatology_result(
+        self, task_id: str, variant: str, label: str, output_key: str,
+        horizon_days: int, month_offset: int, scope_context: dict[str, Any],
+        compliance: dict[str, Any], entry: dict[str, Any],
+        route: dict[str, Any] | None = None,
+        allow_any_scenario: bool = False,
+    ) -> dict[str, Any] | None:
+        """季节气候态基线结果（中长期无交付模型时的真实回退）。
+
+        为什么可以这么给：历史水质面板是季度采样，offset=1/2 与季度网格不同余，
+        (M, M+offset) 标签配对为空——该 (任务, 时效) 不存在可训练的逐站模型。
+        能在真实数据上成立的只有按目标月的历史同期值；它逐月变化、可用留出段回测，
+        但不含站点分辨，必须如实标注，不得与逐站模型结果混同。
+
+        allow_any_scenario（2026-09-11 加）：模型被评估门槛否决时，只要基线本身
+        有真实留出评估，就允许该时效回退到基线——否则"模型不够格"会直接退化成空白，
+        而基线恰恰是这一档唯一有证据的答案。
+        """
+        clim = self._climatology_entry(task_id, variant)
+        if clim is None:
+            return None
+        fallback_horizons = clim.get("fallback_horizons") or []
+        if horizon_days not in fallback_horizons:
+            if not allow_any_scenario or not self._climatology_has_holdout(clim):
+                return None
+        target_month = self._target_month(scope_context.get("observed_at"), month_offset)
+        if target_month is None:
+            return None
+        key = str(target_month)
+        by_month = clim.get("by_month") or {}
+        is_ordinal = clim.get("problem_type") == "ordinal"
+        value = by_month.get(key, clim.get("fallback"))
+        if value is None:
+            return None
+        if not is_ordinal:
+            numeric = float(value)
+            if output_key in {"bloom", "coverage", "density", "probability", "spatial"}:
+                numeric = float(min(max(numeric, 0.0), 1.0))
+            value = numeric
+        backtest = clim.get("backtest") or {}
+        residuals = backtest.get("residual_quantiles")
+        uncertainty = None
+        if not is_ordinal and isinstance(value, (int, float)) and residuals:
+            # 覆盖率必须来自产物里真实核算过的留出段记录（artifact v2 起才有该字段）。
+            # 此前这里硬编码 empirical_coverage=None，却按"样本量≥15"判成 validated、
+            # 进而 decision_usable=true——"没核算过覆盖率"被当成了"覆盖率合格"。
+            empirical_coverage = backtest.get("empirical_coverage")
+            coverage_n = backtest.get("coverage_n")
+            calibration_status, calibration_reason, coverage_gap = _calibration_verdict(
+                empirical_coverage, coverage_n if coverage_n is not None else backtest.get("n"),
+                source_label="季节基线留出段",
+            )
+            uncertainty = {
+                "method": "seasonal_climatology_backtest_residual_quantiles",
+                "is_prediction_interval": True,
+                "interval_semantics": UNCERTAINTY_SEMANTICS,
+                "p05": self._clip_interval(float(value) + float(residuals.get("p05", 0.0)), output_key, lower=True),
+                "p95": self._clip_interval(float(value) + float(residuals.get("p95", 0.0)), output_key, lower=False),
+                "point_value": float(value),
+                "calibration_status": calibration_status,
+                "calibration_reason": calibration_reason,
+                "calibration_n": int(backtest.get("n") or 0),
+                "test_n": int(backtest.get("n") or 0),
+                "empirical_coverage": empirical_coverage,
+                "coverage_target": COVERAGE_TARGET,
+                "coverage_tolerance": COVERAGE_TOLERANCE,
+                "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                "coverage_gap": coverage_gap,
+                "coverage_n": int(coverage_n) if isinstance(coverage_n, (int, float)) else None,
+                "training_protocol": SEASONAL_CLIMATOLOGY_PROTOCOL,
+                "note": (
+                    "区间为气候态基线在时间留出段上的经验残差分位数，非逐站模型残差；"
+                    f"留出段 n={int(backtest.get('n') or 0)}（{backtest.get('test_min_month')} 起），"
+                    f"经验覆盖率 {empirical_coverage if empirical_coverage is None else f'{float(empirical_coverage):.2%}'}。"
+                ),
+            }
+            if uncertainty["p05"] == uncertainty["p95"]:
+                # 退化区间即使覆盖率达标也不得标记决策可用；decision_reason 与结构原因
+                # 同步给出，保证"不可用"永远带可解释的原因（与下方非退化分支同约定）。
+                degenerate_reason = "残差分位数退化，区间无信息量"
+                uncertainty.update({
+                    "structural_valid": False,
+                    "structural_reason": degenerate_reason,
+                    "decision_usable": False,
+                    "decision_reason": degenerate_reason,
+                })
+            else:
+                structural = bool(uncertainty["p05"] <= float(value) <= uncertainty["p95"])
+                decision_usable = bool(structural and calibration_status == CALIBRATION_VALIDATED)
+                if not structural:
+                    decision_reason = uncertainty["structural_reason"] or "区间结构不自洽"
+                elif not decision_usable:
+                    decision_reason = calibration_reason
+                else:
+                    decision_reason = None
+                uncertainty.update({
+                    "structural_valid": structural,
+                    "structural_reason": None if structural else "点值落在残差区间之外",
+                    "decision_usable": decision_usable,
+                    "decision_reason": decision_reason,
+                    "calibration_evidence": {
+                        "status": calibration_status,
+                        "reason": calibration_reason,
+                        "empirical_coverage": empirical_coverage,
+                        "coverage_target": COVERAGE_TARGET,
+                        "coverage_tolerance": COVERAGE_TOLERANCE,
+                        "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                        "coverage_gap": coverage_gap,
+                        "test_n": int(backtest.get("n") or 0),
+                        "min_test_n": MIN_CALIBRATION_TEST_N,
+                    },
+                })
+        return {
+            "task_id": task_id, "variant": variant, "label": label,
+            "value": value,
+            "probability": float(value) if (not is_ordinal and output_key in {"bloom", "probability", "coverage", "spatial"}) else None,
+            "predicted_class": None,
+            "unit": {
+                "area": "km²", "coverage": "ratio", "density": "rank",
+                "biomass": "mg/L", "chla": "μg/L", "probability": "ratio", "spatial": "ratio",
+            }.get(output_key),
+            "status": "ok",
+            "value_origin": "seasonal_climatology_baseline",
+            "model_family": "seasonal_climatology",
+            "selected_family": "seasonal_climatology",
+            "static_baseline_model": True,
+            "station_resolution": False,
+            "station_resolution_note": clim.get("station_resolution_note") or "同一目标月全湖同值，不做站间比较",
+            "target_month": key,
+            "granularity_tier": entry.get("granularity_tier") or "month_granularity",
+            "label_provenance": clim.get("label_provenance"),
+            "label_provenance_declared": clim.get("label_provenance_declared"),
+            "label_provenance_breakdown": clim.get("label_provenance_breakdown"),
+            "training_protocol": SEASONAL_CLIMATOLOGY_PROTOCOL,
+            "history": clim.get("history"),
+            "long_term_route": (
+                route if route else {
+                    "use_bundle": False, "model_rejected": False,
+                    "reason": "long_term_model_not_delivered",
+                    "evidence": clim.get("slot_evidence", {}).get(str(horizon_days)),
+                    "policy": LONG_TERM_ROUTE_POLICY,
+                }
+            ),
+            "backtest": {
+                "protocol": backtest.get("protocol"),
+                "n": backtest.get("n"),
+                "train_max_month": backtest.get("train_max_month"),
+                "test_min_month": backtest.get("test_min_month"),
+                "metrics": backtest.get("metrics"),
+                "primary_metric": clim.get("primary_metric"),
+                "empirical_coverage": backtest.get("empirical_coverage"),
+                "coverage_n": backtest.get("coverage_n"),
+                "coverage_target": COVERAGE_TARGET,
+                "coverage_tolerance": COVERAGE_TOLERANCE,
+                "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+            },
+            "uncertainty": uncertainty,
+            "uncertainty_available": uncertainty is not None,
+            "compliance": compliance,
+        }
+
     def gate_rows_index(self) -> dict[tuple[str, str, int], dict[str, Any]]:
         """按 (task_id, variant, horizon_days) 索引门禁行，供可比较性判定消费。
 
-        门禁表缺失时返回空索引（调用方按"无门禁评估记录"处理，不得放行站点比较）。
+        绑定规则（2026-09-11）：同一 (任务, 时效) 历史上可能有多条评估记录（旧模型
+        FAIL、补训 NA 等），只有 run_id 与当前交付包 manifest 中该时效模型一致的
+        记录才参与当前状态判断；历史记录保留在门禁表中但不索引。门禁表缺失或当前
+        模型无对应记录时返回空索引（调用方按"无门禁评估记录"处理，不得放行站点比较）。
         """
         try:
             gate = self._gate_table()
         except Exception:  # noqa: BLE001 — 门禁证据缺失必须收敛为"不可比较"
             return {}
-        return {
-            (row.get("task_id"), row.get("variant"), row.get("horizon_days")): row
-            for row in gate.get("rows") or []
-        }
+        try:
+            manifest = self._manifest()
+        except Exception:  # noqa: BLE001
+            manifest = {}
+        current_run_by_horizon: dict[tuple[str, str, int], str] = {}
+        for model in manifest.get("models") or []:
+            run_id = model.get("run_id") or ""
+            parts = run_id.rsplit("-s", 1)[0].split("-")
+            if len(parts) < 3 or model.get("horizon_days") is None:
+                continue
+            current_run_by_horizon[(parts[0], parts[1], int(model["horizon_days"]))] = run_id
+        index: dict[tuple[str, str, int], dict[str, Any]] = {}
+        for row in gate.get("rows") or []:
+            key = (row.get("task_id"), row.get("variant"), row.get("horizon_days"))
+            if key[0] is None or key[2] is None:
+                continue
+            expected_run = current_run_by_horizon.get((key[0], key[1], int(key[2])))
+            if expected_run is None:
+                continue  # 当前交付包无该 (任务, 时效) 模型：记录不索引
+            if row.get("run_id") and row.get("run_id") != expected_run:
+                continue  # 历史记录：保留在表中，不参与当前状态判断
+            index[key] = row
+        return index
 
     def acceptance(self) -> dict[str, Any]:
         gate = self._gate_table()
@@ -2340,40 +3044,55 @@ class AlgorithmModelServiceV3:
             test_n_raw = uncertainty.get("test_n")
             test_n = int(test_n_raw) if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool) else None
             empirical = uncertainty.get("empirical_coverage_test")
-            if test_n is None or test_n == 0:
-                status = CALIBRATION_NO_TEST_EVIDENCE
-            elif test_n < MIN_CALIBRATION_TEST_N or empirical is None:
-                status = CALIBRATION_INSUFFICIENT_TEST_EVIDENCE
-            else:
-                status = CALIBRATION_VALIDATED
+            status, reason, gap = _calibration_verdict(
+                empirical, test_n, source_label="模型留出测试集",
+            )
             items.append({
                 "task_id": model["run_id"].split("-")[0],
                 "run_id": model["run_id"],
+                "artifact_id": model.get("artifact_id"),
+                "model_file": model.get("file"),
                 "horizon_days": model.get("horizon_days"),
+                "month_offset": model.get("month_offset"),
                 "calibration_status": status,
-                "calibration_reason": CALIBRATION_STATUS_LABELS[status],
+                "calibration_reason": reason,
                 "is_prediction_interval": True,
-                "coverage_target": uncertainty.get("coverage_target", 0.90),
+                "coverage_target": COVERAGE_TARGET,
+                "coverage_tolerance": COVERAGE_TOLERANCE,
+                "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                "coverage_gap": gap,
                 "empirical_coverage": empirical,
                 "calibration_n": uncertainty.get("calibration_n"),
                 "test_n": test_n,
                 "min_test_n": MIN_CALIBRATION_TEST_N,
+                "decision_usable": status == CALIBRATION_VALIDATED,
             })
         validated = [item for item in items if item["calibration_status"] == CALIBRATION_VALIDATED]
+        undercovered = [item for item in items if item["calibration_status"] == CALIBRATION_UNDERCOVERED]
+        insufficient = [item for item in items if item["calibration_status"] == CALIBRATION_INSUFFICIENT_TEST_EVIDENCE]
+        without = [item for item in items if item["calibration_status"] == CALIBRATION_NO_TEST_EVIDENCE]
         return {
             "items": items,
             "method": "split_conformal_residual_quantiles",
             "interval_semantics": UNCERTAINTY_SEMANTICS,
+            "coverage_acceptance_rule": (
+                f"标称 {COVERAGE_TARGET:.0%} 区间只有在留出段实测经验覆盖率 ≥ "
+                f"{COVERAGE_ACCEPTANCE_MIN:.0%} 时才判为 validated；低于验收线记 undercovered，"
+                "未核算覆盖率记 insufficient_test_evidence。"
+            ),
             "summary": {
                 "reviewed": reviewed,
                 "calibration_validated": len(validated),
-                "without_test_evidence": len([i for i in items if i["calibration_status"] == CALIBRATION_NO_TEST_EVIDENCE]),
-                "insufficient_test_evidence": len([i for i in items if i["calibration_status"] == CALIBRATION_INSUFFICIENT_TEST_EVIDENCE]),
+                "undercovered": len(undercovered),
+                "without_test_evidence": len(without),
+                "insufficient_test_evidence": len(insufficient),
             },
             "honesty_note": (
-                "结构自洽不等于校准有效：经验覆盖率需要冻结测试集样本支撑。"
-                f"当前 {len(validated)}/{reviewed} 个模型具备充分校准证据；其余在页面上不得表述为"
-                "\u201c校准有效区间\u201d。"
+                "结构自洽不等于校准有效：经验覆盖率需要留出段样本支撑，且必须达到验收线。"
+                f"当前 {len(validated)}/{reviewed} 个模型同时满足样本量与覆盖率验收；"
+                f"{len(undercovered)} 个区间实测覆盖率低于标称值，"
+                f"{len(insufficient)} 个样本不足或未核算覆盖率——这些在页面上不得表述为"
+                "\u201c可用于决策的区间\u201d。"
             ),
         }
 
@@ -2446,7 +3165,7 @@ class AlgorithmModelServiceV3:
                 raster = raster_service.get_raster_layer()
                 month = raster["month"]
                 compliance = (
-                    {"label": "情景推演", "locked": True}
+                    {"label": LONG_TERM_COMPLIANCE_LABEL, "locked": True}
                     if horizon_days in (30, 60, 90)
                     else {"label": "月度反演基底", "locked": False}
                 )
@@ -2492,7 +3211,7 @@ class AlgorithmModelServiceV3:
         legacy_field["fallback_used"] = True
         legacy_field["fallback_reason"] = "requested_raster_layer_unavailable_for_metric"
         legacy_field["compliance"] = (
-            {"label": "情景推演", "locked": True}
+            {"label": LONG_TERM_COMPLIANCE_LABEL, "locked": True}
             if horizon_days in (30, 60, 90)
             else {"label": "站点样点对照", "locked": False}
         )
@@ -2503,18 +3222,24 @@ class AlgorithmModelServiceV3:
         contract = manifest.get("feature_contract") or {}
         p0_1 = "达标" if contract.get("n_features") == 78 else "未达标"
         models = manifest.get("models", [])
-        # 覆盖有效性分层：校准器存在 ≠ 已验证 ≠ 可决策。判据只看 test_n 与经验覆盖率，
-        # 不用模型清单里恒为 true 的 is_calibrated_confidence_interval。
+        # 覆盖有效性分层：校准器存在 ≠ 已验证 ≠ 可决策。判据 = 样本量 + 覆盖率已核算 + 覆盖率达标，
+        # 与 calibration_coverage() 共用 _calibration_verdict，避免两处口径漂移。
         calibrated = [
             m for m in models
             if (m.get("uncertainty") or {}).get("test_n") is not None
             or (m.get("uncertainty") or {}).get("calibration_n")
         ]
-        validated = [
-            m for m in calibrated
-            if ((m["uncertainty"].get("test_n") or 0) >= MIN_CALIBRATION_TEST_N)
-            and m["uncertainty"].get("empirical_coverage_test") is not None
-        ]
+        verdicts = []
+        for model in calibrated:
+            uncertainty = model.get("uncertainty") or {}
+            status, _, _ = _calibration_verdict(
+                uncertainty.get("empirical_coverage_test"),
+                uncertainty.get("test_n"),
+                source_label="模型留出测试集",
+            )
+            verdicts.append(status)
+        validated = [s for s in verdicts if s == CALIBRATION_VALIDATED]
+        undercovered = [s for s in verdicts if s == CALIBRATION_UNDERCOVERED]
         if validated and len(validated) == len(calibrated):
             p0_2 = "达标"
         elif calibrated:
@@ -2547,6 +3272,27 @@ class AlgorithmModelServiceV3:
         gate_status = gate["summary"]["status"]
         p0_5 = {"PASS": "达标", "FAIL": "未达标"}.get(gate_status, "部分达标")
         p0_6 = "达标" if manifest.get("scenario_horizons") == [30, 60, 90] else "未达标"
+        # P0-7 标签来源对账：声明值与逐行 actual_provenance 汇总必须一致（混合来源允许落在允许集内）
+        provenance_audit = manifest.get("label_provenance_audit") or {}
+        mismatch_count = provenance_audit.get("mismatch_count")
+        provenance_rows = provenance_audit.get("rows") or []
+        provenance_status = (
+            "未达标" if mismatch_count is None
+            else ("达标" if int(mismatch_count) == 0 else "未达标")
+        )
+        provenance_detail = (
+            "清单缺少 label_provenance_audit 段（尚未重新生成产物）。"
+            if mismatch_count is None
+            else (
+                f"已对账 {len(provenance_rows)} 条 (任务, 时效) 记录，"
+                f"声明与观测不一致 {mismatch_count} 条。"
+                + (
+                    "T5-chla 与 T6-risk_level 按逐行 actual_provenance 汇总披露为 ground_truth_or_proxy 混合来源。"
+                )
+            )
+        )
+        artifact_audit = self.model_artifact_audit()
+        artifact_status = "达标" if artifact_audit["status"] == "PASS" else "未达标"
         return {
             "claim_boundary": CLAIM_BOUNDARY_V3,
             "items": [
@@ -2565,8 +3311,9 @@ class AlgorithmModelServiceV3:
                     "evidence": [{"label": "覆盖率元数据", "href": "/api/v1/model/calibration/coverage"}],
                     "detail": (
                         f"{len(calibrated)}/{len(models)} 个 bundle 带 conformal 校准器；"
-                        f"{len(validated)}/{len(calibrated)} 在冻结测试集完成经验覆盖核算"
-                        "（二类任务 97.5%，n=40）；叶绿素 a 测试集 n=1，覆盖核算不具统计意义。"
+                        f"{len(validated)}/{len(calibrated)} 同时满足样本量与覆盖率验收线"
+                        f"（标称 {COVERAGE_TARGET:.0%}，验收线 {COVERAGE_ACCEPTANCE_MIN:.0%}）；"
+                        f"{len(undercovered)} 个实测覆盖率低于验收线，不得标为决策可用。"
                         if calibrated else "无带校准器的 bundle。"
                     ),
                 },
@@ -2592,10 +3339,32 @@ class AlgorithmModelServiceV3:
                     "detail": gate["summary"].get("note"),
                 },
                 {
-                    "id": "P0-6", "title": "30/60/90 天“情景推演”合规边界保留",
+                    "id": "P0-6", "title": "30/60/90 天“中长期月度趋势”合规边界保留",
                     "status": p0_6,
                     "evidence": [{"label": "预测接口（compliance 字段）", "href": "/api/v1/model/v3/predictions?horizon_days=30"}],
-                    "detail": "30/60/90 天输出（API+前端）固定携带 compliance.label='情景推演'，locked=true，不可移除。",
+                    "detail": (
+                        f"30/60/90 天输出（API+前端）固定携带 compliance.label='{LONG_TERM_COMPLIANCE_LABEL}'，"
+                        "locked=true，不可移除。该档来源为逐站模型（90 天）或季节气候态基线（30/60 天），"
+                        "均为月度粒度、不得当作逐站实测预测。"
+                    ),
+                },
+                {
+                    "id": "P0-7", "title": "标签来源逐行继承（禁止任务配置统一声明 ground_truth）",
+                    "status": provenance_status,
+                    "evidence": [{"label": "模型清单（label_provenance_audit）", "href": "/api/v1/model/status"}],
+                    "detail": provenance_detail,
+                },
+                {
+                    "id": "P0-8", "title": "模型身份一一对应（artifact_id + 真实路径 + SHA256）",
+                    "status": artifact_status,
+                    "evidence": [{"label": "产物核查", "href": "/api/v1/model/artifacts"}],
+                    "detail": (
+                        f"清单声明 {artifact_audit['checked']} 份产物，"
+                        f"artifact_id 唯一={artifact_audit['artifact_id_unique']}，"
+                        f"缺失文件 {len(artifact_audit['missing_files'])} 个，"
+                        f"SHA256 不一致 {len(artifact_audit['sha256_mismatch'])} 个。"
+                        "接口返回的 model_file / model_sha256 全部取自本清单，不再由 run_id 拼接。"
+                    ),
                 },
             ],
         }

@@ -1,956 +1,13 @@
 {
-  "version": "0.3.1",
-  "feature_contract_mode": "serving",
-  "package_generation": "v0_3",
-  "claim_boundary": "real_data_monthly_station_v0_3",
-  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
-  "data_sha256": "585397fa037f963c0479d71b786640c3e24702d8f2df9409483d9d6ed49880f0",
-  "feature_contract": {
-    "version": "v2.0",
-    "n_features": 78,
-    "sha256": "105612a7ae3f17bf41bb2dde2299e05f3a471772cc84d9c1bd6448be03f37b02",
-    "groups": {
-      "water_quality": 10,
-      "meteorology": 5,
-      "hydrology": 2,
-      "remote_sensing": 20,
-      "static": 6,
-      "calendar": 2,
-      "mechanism": 6,
-      "lag_state": 27
-    }
-  },
-  "horizon_month_map": {
-    "1": 0,
-    "3": 0,
-    "7": 0,
-    "15": 0,
-    "30": 1,
-    "60": 2,
-    "90": 3
-  },
-  "horizon_granularity_tier": {
-    "1": "month_granularity",
-    "3": "month_granularity",
-    "7": "month_approx_half",
-    "15": "month_approx_half",
-    "30": "multi_month",
-    "60": "multi_month",
-    "90": "multi_month"
-  },
-  "horizons": [
-    1,
-    3,
-    7,
-    15,
-    30,
-    60,
-    90
-  ],
-  "scenario_horizons": [
-    30,
-    60,
-    90
-  ],
-  "granularity_disclosure": "月度标签粒度：1/3/7/15 天映射为当月标签（7/15 为半月近似披露），30/60/90 天映射为 t+1/2/3 月",
-  "serving_contract_note": "serving 契约（v2.1-7col）：特征=wq_tp/tn/do/nh4_n/ph + 日历正余弦，全部为推理时逐站可得的 MEE 实测口径（wq_chla 不在冻结 78 列契约中，仅其滞后列在内，防同月同源泄漏）。滞后/遥感/气象/水文/机理/静态列在推理时为全湖常量或中位数插补，故不入选。",
-  "split": {
-    "rule": "frozen_by_issue_month: train<=2021-12, validation=2022-01..2023-12, test>=2024-01",
-    "frozen_by": "target_builder.split_of_month (V0.3 rebuild, supersedes model_dataset.dataset_split 882/23/9)",
-    "rows": {
-      "train": 779,
-      "validation": 79,
-      "test": 56
-    },
-    "bounds": {
-      "train_max": "2021-12",
-      "validation_max": "2023-12"
-    },
-    "row_granularity": "station_month; field-campaign samples retained at sample level (IN_SITU_GROUP/S1)",
-    "note": "wq 常规站样本仅 2005-02..2020-11（季度，含 phyto_biomass 576 行全在 train 期）；chla 地面样本为 2020-12/2022-12/2023-10 野外航次 + 2026-08 S1；CLMS（bloom_label / fcb_prob）覆盖 2020-12/2022-12/2023-10 + 2024-09..2026-08，全在 validation/test 期；MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取）valid 优先聚合，无 valid 月回退 review（降权披露：有效像元 <5% 或聚合天数 <3），湖面月均 ≥20μg/L 计阳性，仅映射 TAIHU_WHOLE 行"
-  },
-  "models": [
-    {
-      "run_id": "T1-bloom-0m-s20260907",
-      "file": "models/T1-bloom-0m-s20260907-15d.joblib",
-      "sha256": "10225c7fcc0333c21aeabe4b271657c5036f84dd42cf0eb87c89340812c5c39b",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T1-bloom-0m-s20260907",
-      "file": "models/T1-bloom-0m-s20260907-1d.joblib",
-      "sha256": "efbd89d300865b250c5f37db868dccdcaeea2ab9729e481530d298a2c8b12db1",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T1-bloom-0m-s20260907",
-      "file": "models/T1-bloom-0m-s20260907-3d.joblib",
-      "sha256": "c0773e360456d1a63d70b9a15fe16e88692ea3b6e5818c7fff35b82a0b1dae51",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T1-bloom-0m-s20260907",
-      "file": "models/T1-bloom-0m-s20260907-7d.joblib",
-      "sha256": "68b76be86174c29357d211d06f1e6b8f2f218d49eb54dec360667f7747376e69",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T3-density-0m-s20260907",
-      "file": "models/T3-density-0m-s20260907-15d.joblib",
-      "sha256": "291182998d3889093671b277775ba0c349482e793cbcfacfb2b371505e2044ee",
-      "selected_family": "residual",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.15255483297392294,
-        "mae": 0.23897353654084086,
-        "n": 171,
-        "primary": 0.15255483297392294,
-        "r2": -0.11578116019035001,
-        "rmse": 0.2798650722900721
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T3-density-0m-s20260907",
-      "file": "models/T3-density-0m-s20260907-1d.joblib",
-      "sha256": "3f4d20d6301c25090a717301989340177bd83262c9d07f43e95ee51bdf2ee065",
-      "selected_family": "residual",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.15255483297392292,
-        "mae": 0.23897353654084086,
-        "n": 171,
-        "primary": 0.15255483297392292,
-        "r2": -0.11578116019035001,
-        "rmse": 0.2798650722900721
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T3-density-0m-s20260907",
-      "file": "models/T3-density-0m-s20260907-3d.joblib",
-      "sha256": "a523743ffe3140feb4b9f8eb5e134933cb49b3db36f979b93d88ed6650bd6569",
-      "selected_family": "residual",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.15255483297392292,
-        "mae": 0.23897353654084086,
-        "n": 171,
-        "primary": 0.15255483297392292,
-        "r2": -0.11578116019035001,
-        "rmse": 0.2798650722900721
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T3-density-0m-s20260907",
-      "file": "models/T3-density-0m-s20260907-7d.joblib",
-      "sha256": "8bec672b0cdeaa599ad11091a3523fa21738c8b9626aaac486f98466e1ff2634",
-      "selected_family": "residual",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.15255483297392294,
-        "mae": 0.23897353654084086,
-        "n": 171,
-        "primary": 0.15255483297392294,
-        "r2": -0.11578116019035001,
-        "rmse": 0.2798650722900721
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T4-biomass-0m-s20260907",
-      "file": "models/T4-biomass-0m-s20260907-15d.joblib",
-      "sha256": "fb656b8855236acd26ff0c21fcb9a4a367887168f92bd5860336e894e4d02e60",
-      "selected_family": "constrained_blend",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.7447817447035416,
-        "mae": 5.6220524027210015,
-        "n": 171,
-        "primary": 5.6220524027210015,
-        "r2": 0.003523027051286154,
-        "rmse": 9.348221880610533
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T4-biomass-0m-s20260907",
-      "file": "models/T4-biomass-0m-s20260907-1d.joblib",
-      "sha256": "508cd982041c8e7b2d0da475682a701331614872a6e347890894b8795f78917b",
-      "selected_family": "constrained_blend",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.7447817447035416,
-        "mae": 5.6220524027210015,
-        "n": 171,
-        "primary": 5.6220524027210015,
-        "r2": 0.003523027051286154,
-        "rmse": 9.348221880610533
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T4-biomass-0m-s20260907",
-      "file": "models/T4-biomass-0m-s20260907-3d.joblib",
-      "sha256": "441a0b30cacc3055e8cf452a517b4dfc224afca62deb3b47bf5a928af65a429f",
-      "selected_family": "constrained_blend",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.7447817447035416,
-        "mae": 5.6220524027210015,
-        "n": 171,
-        "primary": 5.6220524027210015,
-        "r2": 0.003523027051286154,
-        "rmse": 9.348221880610533
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T4-biomass-0m-s20260907",
-      "file": "models/T4-biomass-0m-s20260907-7d.joblib",
-      "sha256": "fc433a57443a732d9cdbfec6c89332e9194fd7ab6bc0586aa9fa906abf77b380",
-      "selected_family": "constrained_blend",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 297,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.7447817447035416,
-        "mae": 5.6220524027210015,
-        "n": 171,
-        "primary": 5.6220524027210015,
-        "r2": 0.003523027051286154,
-        "rmse": 9.348221880610533
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T5-chla-0m-s20260907",
-      "file": "models/T5-chla-0m-s20260907-15d.joblib",
-      "sha256": "7ea1e44c32e78ef4265a15578bc135b381feb5db3595037bb79c901e0c06a9f1",
-      "selected_family": "random_forest",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 321,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.3974125296205526,
-        "mae": 2.7811348771848823,
-        "n": 186,
-        "primary": 2.7811348771848823,
-        "r2": 0.33356455158702003,
-        "rmse": 3.584676561813452
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T5-chla-0m-s20260907",
-      "file": "models/T5-chla-0m-s20260907-1d.joblib",
-      "sha256": "4b97361ca0675fb34f6f8d49e413db9cbdcf0bace6528a4e20bfed6dab6fbde6",
-      "selected_family": "random_forest",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 321,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.3974125296205527,
-        "mae": 2.7811348771848836,
-        "n": 186,
-        "primary": 2.7811348771848836,
-        "r2": 0.33356455158702014,
-        "rmse": 3.5846765618134517
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T5-chla-0m-s20260907",
-      "file": "models/T5-chla-0m-s20260907-3d.joblib",
-      "sha256": "fc08b209901d3bbcc4e5725e036e68691918a084834657a9c515b0a77fb4e4db",
-      "selected_family": "random_forest",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 321,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.3974125296205527,
-        "mae": 2.7811348771848836,
-        "n": 186,
-        "primary": 2.7811348771848836,
-        "r2": 0.33356455158702014,
-        "rmse": 3.5846765618134517
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T5-chla-0m-s20260907",
-      "file": "models/T5-chla-0m-s20260907-7d.joblib",
-      "sha256": "a4875851353df1099ade46a52b272ff49bb33f8203f9c6c87ece37420d88ebaf",
-      "selected_family": "random_forest",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 321,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "log1p_mae": 0.3974125296205527,
-        "mae": 2.7811348771848823,
-        "n": 186,
-        "primary": 2.7811348771848823,
-        "r2": 0.33356455158702014,
-        "rmse": 3.5846765618134517
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T6-probability-0m-s20260907",
-      "file": "models/T6-probability-0m-s20260907-15d.joblib",
-      "sha256": "13c59aabe03f2a51d67d4b995b524db4ee9488d053e0953fbc4a186d66c4350e",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T6-probability-0m-s20260907",
-      "file": "models/T6-probability-0m-s20260907-1d.joblib",
-      "sha256": "0effc9f599b1382daa6b6c9247da4145a1ae40f6dab17e2ab95dc8182883c215",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T6-probability-0m-s20260907",
-      "file": "models/T6-probability-0m-s20260907-3d.joblib",
-      "sha256": "91a4b38c4e8b308635975b9d92989438a86a578af99b08bc64f4f0dc270cdd7f",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T6-probability-0m-s20260907",
-      "file": "models/T6-probability-0m-s20260907-7d.joblib",
-      "sha256": "f08db5134793e5af7d32b700e963116bcc12c19d2b710b8572dbcc9dfdede4a4",
-      "selected_family": "mechanism_feature",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {},
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": true,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 261,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 0,
-        "split_protocol": "train_internal_time_block_cv_v1",
-        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把 train 期按月份时间分块（早 70% 月拟合、晚 30% 月做族选择）。conformal 残差池 = 两部分：早段拟合模型对晚段的折外预测残差，以及全量 train 拟合的最终模型对晚段的残差（后者含在样本内成分，区间偏窄）；冻结测试期无该任务标签，测试指标与经验覆盖率保持空。该协议模型不得与冻结划分模型的口径混同。"
-      },
-      "validation_metrics": {
-        "brier_score": 0.010935328727522831,
-        "calibration_bins": [
-          {
-            "bin": 0,
-            "mean_predicted": 0.0043,
-            "n": 90,
-            "observed_frequency": 0.0111
-          }
-        ],
-        "expected_calibration_error": 0.006761,
-        "f1": null,
-        "n": 90,
-        "pr_auc": 0.03333333333333333,
-        "precision": null,
-        "primary": 0.010935328727522831,
-        "recall": 0.0,
-        "roc_auc": 0.8370786516853932
-      },
-      "validation_metric_source": "train_internal_time_block_cv_v1"
-    },
-    {
-      "run_id": "T6-risk_level-0m-s20260907",
-      "file": "models/T6-risk_level-0m-s20260907-15d.joblib",
-      "sha256": "d4ca1d8e35547dbd6cf090202adb18558533c0267cf45bb72b18ef8ee16e3cf9",
-      "selected_family": "simple_baseline",
-      "horizon_days": 15,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {
-        "macro_f1": 0.0,
-        "accuracy": 0.0,
-        "n": 1
-      },
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": false,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 0,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 1
-      }
-    },
-    {
-      "run_id": "T6-risk_level-0m-s20260907",
-      "file": "models/T6-risk_level-0m-s20260907-1d.joblib",
-      "sha256": "2498972e30f5a0bf22b8a48e5a96b02319ddd859bbbabcf7e211e2b221f4a76d",
-      "selected_family": "simple_baseline",
-      "horizon_days": 1,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {
-        "macro_f1": 0.0,
-        "accuracy": 0.0,
-        "n": 1
-      },
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": false,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 0,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 1
-      }
-    },
-    {
-      "run_id": "T6-risk_level-0m-s20260907",
-      "file": "models/T6-risk_level-0m-s20260907-3d.joblib",
-      "sha256": "5adde496adcbb079515bbd859a718deb88c117e8282bdc06e8491a4abd6ca153",
-      "selected_family": "simple_baseline",
-      "horizon_days": 3,
-      "month_offset": 0,
-      "granularity_tier": "month_granularity",
-      "test_metrics": {
-        "macro_f1": 0.0,
-        "accuracy": 0.0,
-        "n": 1
-      },
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": false,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 0,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 1
-      }
-    },
-    {
-      "run_id": "T6-risk_level-0m-s20260907",
-      "file": "models/T6-risk_level-0m-s20260907-7d.joblib",
-      "sha256": "41e266f1243311611c062edbfac1084928252d735c765050850307dc14cf1fa3",
-      "selected_family": "simple_baseline",
-      "horizon_days": 7,
-      "month_offset": 0,
-      "granularity_tier": "month_approx_half",
-      "test_metrics": {
-        "macro_f1": 0.0,
-        "accuracy": 0.0,
-        "n": 1
-      },
-      "uncertainty": {
-        "method": "split_conformal_residual_quantiles",
-        "is_calibrated_confidence_interval": false,
-        "coverage_target": 0.9,
-        "residual_quantile_levels": [
-          0.05,
-          0.95
-        ],
-        "calibration_n": 0,
-        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
-        "empirical_coverage_test": null,
-        "test_n": 1
-      }
-    }
-  ],
   "availability_matrix": [
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -963,6 +20,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -975,6 +37,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -987,6 +54,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T1",
@@ -999,42 +71,68 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 604,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T1",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "bloom"
     },
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -1047,6 +145,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -1059,6 +162,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -1071,6 +179,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 40
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 40,
       "month_offset": 0,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
@@ -1083,10 +196,15 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -1095,10 +213,15 @@
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -1107,10 +230,15 @@
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 3,
       "reason": "insufficient_train_rows_min10",
       "task_id": "T2",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 0,
       "trainable": false,
       "validation_rows": 0,
@@ -1119,8 +247,13 @@
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -1133,8 +266,13 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -1147,8 +285,13 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -1161,8 +304,13 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 576,
       "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
       "reason": null,
       "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
@@ -1175,218 +323,319 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 0,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "density"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 0,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "density"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 567
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 567,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T3",
-      "test_rows": 0,
-      "train_rows": 567,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "density"
-    },
-    {
-      "horizon_days": 1,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 3,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 7,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 15,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "protocol_note": "冻结 validation 为 0 行；以训练期内时间分块协议补训，非冻结划分口径。",
-      "reason": null,
-      "supplemental_protocol": "train_internal_time_block_cv_v1",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 576,
-      "trainable": true,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 30,
-      "label_provenance": "ground_truth",
-      "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 60,
-      "label_provenance": "ground_truth",
-      "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 90,
-      "label_provenance": "ground_truth",
-      "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
-      "task_id": "T4",
-      "test_rows": 0,
-      "train_rows": 567,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "biomass"
-    },
-    {
-      "horizon_days": 1,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 3,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 7,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 15,
-      "label_provenance": "ground_truth",
-      "month_offset": 0,
-      "reason": null,
-      "task_id": "T5",
-      "test_rows": 1,
-      "train_rows": 586,
-      "trainable": true,
-      "validation_rows": 31,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 30,
-      "label_provenance": "ground_truth",
-      "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T5",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 60,
-      "label_provenance": "ground_truth",
-      "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
-      "task_id": "T5",
-      "test_rows": 0,
-      "train_rows": 0,
-      "trainable": false,
-      "validation_rows": 0,
-      "variant": "chla"
-    },
-    {
-      "horizon_days": 90,
-      "label_provenance": "ground_truth",
-      "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
-      "task_id": "T5",
       "test_rows": 0,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "density"
+    },
+    {
+      "horizon_days": 1,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 3,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 7,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 15,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 576,
+      "month_offset": 0,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=输入月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 576,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 30,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 0,
+      "month_offset": 1,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 60,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 0,
+      "month_offset": 2,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 90,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 567
+      },
+      "label_provenance_declared": "ground_truth",
+      "label_provenance_rows": 567,
+      "month_offset": 3,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T4",
+      "test_rows": 0,
+      "train_rows": 567,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "biomass"
+    },
+    {
+      "horizon_days": 1,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 3,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 7,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 15,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
+      "month_offset": 0,
+      "reason": null,
+      "task_id": "T5",
+      "test_rows": 1,
+      "train_rows": 586,
+      "trainable": true,
+      "validation_rows": 31,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 30,
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
+      "month_offset": 1,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 60,
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
+      "month_offset": 2,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 0,
+      "trainable": true,
+      "validation_rows": 0,
+      "variant": "chla"
+    },
+    {
+      "horizon_days": 90,
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 567,
+      "month_offset": 3,
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
+      "task_id": "T5",
+      "test_rows": 0,
+      "train_rows": 567,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "chla"
     },
     {
       "horizon_days": 1,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1398,7 +647,13 @@
     },
     {
       "horizon_days": 3,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1410,7 +665,13 @@
     },
     {
       "horizon_days": 7,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1422,7 +683,13 @@
     },
     {
       "horizon_days": 15,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 618,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1434,43 +701,65 @@
     },
     {
       "horizon_days": 30,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 60,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "ground_truth_or_proxy",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 0,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 90,
-      "label_provenance": "proxy_derived",
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "label_provenance_rows": 567,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
       "test_rows": 0,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "risk_level"
     },
     {
       "horizon_days": 1,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1483,6 +772,11 @@
     {
       "horizon_days": 3,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1495,6 +789,11 @@
     {
       "horizon_days": 7,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1507,6 +806,11 @@
     {
       "horizon_days": 15,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 657,
       "month_offset": 0,
       "reason": null,
       "task_id": "T6",
@@ -1519,42 +823,66 @@
     {
       "horizon_days": 30,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 1,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 35,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 60,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 37,
       "month_offset": 2,
-      "reason": "insufficient_train_rows_min10",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 33,
+      "test_rows": 37,
       "train_rows": 0,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 90,
       "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "label_provenance_rows": 604,
       "month_offset": 3,
-      "reason": "insufficient_validation_rows_min5",
+      "protocol_note": "冻结 validation 不足；以训练期内时间分块协议补训（分块键=目标月），非冻结划分口径。",
+      "reason": null,
+      "supplemental_protocol": "train_internal_time_block_cv_v1",
       "task_id": "T6",
-      "test_rows": 31,
+      "test_rows": 37,
       "train_rows": 567,
-      "trainable": false,
+      "trainable": true,
       "validation_rows": 0,
       "variant": "probability"
     },
     {
       "horizon_days": 1,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1567,6 +895,9 @@
     {
       "horizon_days": 3,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1579,6 +910,9 @@
     {
       "horizon_days": 7,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1591,6 +925,9 @@
     {
       "horizon_days": 15,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 0,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1603,6 +940,9 @@
     {
       "horizon_days": 30,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 1,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1615,6 +955,9 @@
     {
       "horizon_days": 60,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 2,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1627,6 +970,9 @@
     {
       "horizon_days": 90,
       "label_provenance": "none",
+      "label_provenance_breakdown": {},
+      "label_provenance_declared": "none",
+      "label_provenance_rows": 0,
       "month_offset": 3,
       "reason": "no_real_label_in_release",
       "task_id": "T7",
@@ -1638,16 +984,2272 @@
     }
   ],
   "bloom_threshold_ug_l": 20.0,
-  "risk_bands_ug_l": {
-    "none": "0.0-10.0",
-    "low": "10.0-20.0",
-    "medium": "20.0-30.0",
-    "high": "30.0-50.0",
-    "severe": ">=50"
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "data_sha256": "585397fa037f963c0479d71b786640c3e24702d8f2df9409483d9d6ed49880f0",
+  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+  "feature_contract": {
+    "groups": {
+      "calendar": 2,
+      "hydrology": 2,
+      "lag_state": 27,
+      "mechanism": 6,
+      "meteorology": 5,
+      "remote_sensing": 20,
+      "static": 6,
+      "water_quality": 10
+    },
+    "n_features": 78,
+    "sha256": "105612a7ae3f17bf41bb2dde2299e05f3a471772cc84d9c1bd6448be03f37b02",
+    "version": "v2.0"
   },
-  "label_provenance_rule": "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L）一律 provenance=proxy_derived，不得标 ground_truth；仅 T4-biomass（wq_phyto_biomass）与 T5-chla（地面 chla）为 ground_truth",
+  "feature_contract_mode": "frozen",
+  "generated_at": "2026-09-11T10:50:26.232659+00:00",
+  "granularity_disclosure": "月度标签粒度：1/3/7/15 天映射为当月标签（7/15 为半月近似披露），30/60/90 天映射为 t+1/2/3 月",
+  "horizon_granularity_tier": {
+    "1": "month_granularity",
+    "15": "month_approx_half",
+    "3": "month_granularity",
+    "30": "multi_month",
+    "60": "multi_month",
+    "7": "month_approx_half",
+    "90": "multi_month"
+  },
+  "horizon_month_map": {
+    "1": 0,
+    "15": 0,
+    "3": 0,
+    "30": 1,
+    "60": 2,
+    "7": 0,
+    "90": 3
+  },
+  "horizons": [
+    1,
+    3,
+    7,
+    15,
+    30,
+    60,
+    90
+  ],
+  "label_provenance_audit": {
+    "mismatch_count": 0,
+    "mismatches": [],
+    "rows": [
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 604
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "proxy_derived",
+        "rows": 604,
+        "task_id": "T1",
+        "variant": "bloom"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 40
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 40,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 40
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 40,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 40
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 40,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 40
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 40,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T2",
+        "variant": "coverage"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 576
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 576,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 576
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 576,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 576
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 576,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 576
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 576,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {},
+        "declared": "proxy_derived",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "proxy_derived",
+        "rows": 0,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {},
+        "declared": "proxy_derived",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "proxy_derived",
+        "rows": 0,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 567
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "proxy_derived",
+        "rows": 567,
+        "task_id": "T3",
+        "variant": "density"
+      },
+      {
+        "breakdown": {
+          "ground_truth": 576
+        },
+        "declared": "ground_truth",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "ground_truth",
+        "rows": 576,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {
+          "ground_truth": 576
+        },
+        "declared": "ground_truth",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "ground_truth",
+        "rows": 576,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {
+          "ground_truth": 576
+        },
+        "declared": "ground_truth",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "ground_truth",
+        "rows": 576,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {
+          "ground_truth": 576
+        },
+        "declared": "ground_truth",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "ground_truth",
+        "rows": 576,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "ground_truth",
+        "rows": 0,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "ground_truth",
+        "rows": 0,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {
+          "ground_truth": 567
+        },
+        "declared": "ground_truth",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "ground_truth",
+        "rows": 567,
+        "task_id": "T4",
+        "variant": "biomass"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "ground_truth_or_proxy",
+        "rows": 0,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "ground_truth_or_proxy",
+        "rows": 0,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 567
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "chla_station_proxy_v1",
+        "rows": 567,
+        "task_id": "T5",
+        "variant": "chla"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 576,
+          "ground_truth": 42
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "mixed(chla_station_proxy_v1|ground_truth)",
+        "rows": 618,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "ground_truth_or_proxy",
+        "rows": 0,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {},
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "ground_truth_or_proxy",
+        "rows": 0,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {
+          "chla_station_proxy_v1": 567
+        },
+        "declared": "ground_truth_or_proxy",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "chla_station_proxy_v1",
+        "rows": 567,
+        "task_id": "T6",
+        "variant": "risk_level"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 657
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "proxy_derived",
+        "rows": 657,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 37
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "proxy_derived",
+        "rows": 37,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {
+          "proxy_derived": 604
+        },
+        "declared": "proxy_derived",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "proxy_derived",
+        "rows": 604,
+        "task_id": "T6",
+        "variant": "probability"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 3,
+        "month_offset": 0,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 7,
+        "month_offset": 0,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 15,
+        "month_offset": 0,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 30,
+        "month_offset": 1,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 60,
+        "month_offset": 2,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      },
+      {
+        "breakdown": {},
+        "declared": "none",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "observed": "none",
+        "rows": 0,
+        "task_id": "T7",
+        "variant": "spatial"
+      }
+    ],
+    "rule": "label_provenance 一律取逐行 actual_provenance 汇总；与 declared 不一致的必须修复"
+  },
+  "label_provenance_rule": "代理标签（chla≥20 或 CLMS bloom_label 或 CLMS FCB 月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L）一律 provenance=proxy_derived，不得标 ground_truth。任务配置的 label_provenance 只是「允许来源」声明；落盘口径一律取监督表逐行 actual_provenance 的汇总（target_builder.provenance_summary），禁止用任务配置统一顶替。T4-biomass 为 ground_truth；T5-chla 与由其推导的 T6-risk_level 为 ground_truth_or_proxy 混合来源：实测航次 42 行 + chla_station_proxy_v1 代理，实际以 manifest.availability_matrix[].label_provenance 与 label_provenance_breakdown 为准。",
+  "legacy": {
+    "legacy": true,
+    "note": "保留作对照与回退（env TAIHU_MODEL_PACKAGE_DIR=model_runtime_v0_2）",
+    "v0_2_package": "model_runtime_v0_2"
+  },
+  "models": [
+    {
+      "artifact_id": "T1:bloom:frozen_split:off0:h15:s20260907",
+      "file": "models/T1-bloom-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T1-bloom-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "7b5c80289c7e415d7c50df541c899f481030b21ca757030d64a44079d11f1d33",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:frozen_split:off0:h1:s20260907",
+      "file": "models/T1-bloom-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T1-bloom-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "a300f9d48720f7efdb6509755a81c6f8953771b55129433d662c5e6f5cd576c3",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:frozen_split:off0:h3:s20260907",
+      "file": "models/T1-bloom-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T1-bloom-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "b87b47a5aa5cd3f47b9aa966fe4ff4c85a46190fba69881578b4d6efefbadbe0",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:frozen_split:off0:h7:s20260907",
+      "file": "models/T1-bloom-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T1-bloom-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "146aa2ddb2632faff4813b3714f3e160a862e122d73fed8b0aa1b6f74d3be029",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off1:h30:s20260907",
+      "file": "models/T1-bloom-1m-s20260907-30d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 30,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 1,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T1-bloom-1m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "persistence",
+      "sha256": "ab412be657ca670a03cd78d52e2311e52b95d3934008081559da71424530ab94",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 16,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 5
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off2:h60:s20260907",
+      "file": "models/T1-bloom-2m-s20260907-60d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 60,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 2,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T1-bloom-2m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "persistence",
+      "sha256": "8491919cff546b50c3d17b8b75eb590d6243dbd190adbd3aa5e194385b845650",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 16,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 5
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T1-bloom-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T1-bloom-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "climatology_global",
+      "sha256": "6dee7ff7dc04f47bc4378e96cab4a7e9926b85c065ff2b78505f0303ea4d9091",
+      "task_id": "T1",
+      "test_metrics": {
+        "brier_score": 0.0017690831983655055,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0226,
+            "n": 26,
+            "observed_frequency": 0.0
+          },
+          {
+            "bin": 1,
+            "mean_predicted": 0.1181,
+            "n": 2,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.029446,
+        "f1": null,
+        "n": 28,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 261,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 28
+      },
+      "variant": "bloom"
+    },
+    {
+      "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h15:s20260907",
+      "file": "models/T3-density-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T3-density-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "residual",
+      "sha256": "fea8880ad70545e589d36fb1263cd909bc50374fe185230b5d02eafccf102004",
+      "task_id": "T3",
+      "test_metrics": {
+        "log1p_mae": 0.1567628103135278,
+        "mae": 0.2406935223567568,
+        "n": 117,
+        "r2": -0.19438180692365536,
+        "rmse": 0.27876043384802196
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7692307692307693,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "density"
+    },
+    {
+      "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h1:s20260907",
+      "file": "models/T3-density-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T3-density-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "residual",
+      "sha256": "ae41be5b21524a60dedbf2c5e3784c965672242b9b30c2c709967026140c97d3",
+      "task_id": "T3",
+      "test_metrics": {
+        "log1p_mae": 0.1567628103135278,
+        "mae": 0.2406935223567568,
+        "n": 117,
+        "r2": -0.19438180692365536,
+        "rmse": 0.27876043384802196
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7692307692307693,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "density"
+    },
+    {
+      "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h3:s20260907",
+      "file": "models/T3-density-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T3-density-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "residual",
+      "sha256": "2aa80d34fb2b9a4f29b40ffa666aa9e73c58fd65a39f051338479c66b201d6f2",
+      "task_id": "T3",
+      "test_metrics": {
+        "log1p_mae": 0.1567628103135278,
+        "mae": 0.2406935223567568,
+        "n": 117,
+        "r2": -0.19438180692365536,
+        "rmse": 0.27876043384802196
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7692307692307693,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "density"
+    },
+    {
+      "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h7:s20260907",
+      "file": "models/T3-density-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 576
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T3-density-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "residual",
+      "sha256": "51b6489b7b522067a1063e7b60f31187fde6759e1f2fdcffebb82aae02c0645e",
+      "task_id": "T3",
+      "test_metrics": {
+        "log1p_mae": 0.1567628103135278,
+        "mae": 0.2406935223567568,
+        "n": 117,
+        "r2": -0.19438180692365536,
+        "rmse": 0.27876043384802196
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7692307692307693,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "density"
+    },
+    {
+      "artifact_id": "T3:density:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T3-density-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 567
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T3-density-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "climatology_global",
+      "sha256": "6c921a1b5d14de1636679f120993abd7917fa5bfca4c26966adfce4c37f343de",
+      "task_id": "T3",
+      "test_metrics": {
+        "log1p_mae": 0.16050539887937046,
+        "mae": 0.2462759450680866,
+        "n": 117,
+        "r2": -0.3008028519686561,
+        "rmse": 0.2909144423754899
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7948717948717948,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "density"
+    },
+    {
+      "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907",
+      "file": "models/T4-biomass-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T4-biomass-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "constrained_blend",
+      "sha256": "71f0c0c44ae1b1673b63266ebaa65e1819c79792b4da9def881bf4cf5fa04036",
+      "task_id": "T4",
+      "test_metrics": {
+        "log1p_mae": 0.8045558220970643,
+        "mae": 5.0343646800086175,
+        "n": 117,
+        "r2": -0.15359826755614203,
+        "rmse": 7.625577085476113
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7435897435897436,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "biomass"
+    },
+    {
+      "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h1:s20260907",
+      "file": "models/T4-biomass-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T4-biomass-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "constrained_blend",
+      "sha256": "a915e218208456a8d0849adb667db769bf2c073beb228b8092d28adaba0cf1ad",
+      "task_id": "T4",
+      "test_metrics": {
+        "log1p_mae": 0.8045558220970643,
+        "mae": 5.0343646800086175,
+        "n": 117,
+        "r2": -0.15359826755614203,
+        "rmse": 7.625577085476113
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7435897435897436,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "biomass"
+    },
+    {
+      "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h3:s20260907",
+      "file": "models/T4-biomass-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T4-biomass-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "constrained_blend",
+      "sha256": "ca9d0bd498960dbb558226d4d73bdfa93fa8e1f3730c4de190d4916cf0f9bec4",
+      "task_id": "T4",
+      "test_metrics": {
+        "log1p_mae": 0.8045558220970643,
+        "mae": 5.0343646800086175,
+        "n": 117,
+        "r2": -0.15359826755614203,
+        "rmse": 7.625577085476113
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7435897435897436,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "biomass"
+    },
+    {
+      "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h7:s20260907",
+      "file": "models/T4-biomass-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 576
+      },
+      "label_provenance_declared": "ground_truth",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T4-biomass-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "constrained_blend",
+      "sha256": "26a4a88aba806e3e72a5b6c2d30dd668dca2cf3d353d60cf7e727455ea873b45",
+      "task_id": "T4",
+      "test_metrics": {
+        "log1p_mae": 0.8045558220970643,
+        "mae": 5.0343646800086175,
+        "n": 117,
+        "r2": -0.15359826755614203,
+        "rmse": 7.625577085476113
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.7435897435897436,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "biomass"
+    },
+    {
+      "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T4-biomass-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "ground_truth",
+      "label_provenance_breakdown": {
+        "ground_truth": 567
+      },
+      "label_provenance_declared": "ground_truth",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T4-biomass-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "climatology_global",
+      "sha256": "f83a2188a713debc15862487af12bb1b4044c7f17349618f5ef1ccefa41f1887",
+      "task_id": "T4",
+      "test_metrics": {
+        "log1p_mae": 0.7489633559261516,
+        "mae": 4.634984497061732,
+        "n": 117,
+        "r2": -0.030719387366426876,
+        "rmse": 7.208014316327171
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.811965811965812,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "biomass"
+    },
+    {
+      "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h15:s20260907",
+      "file": "models/T5-chla-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T5-chla-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "mechanism_feature",
+      "sha256": "525bd970fc19669f8584a51ec274a0d1a299399f9f6fab10d430c9eeb9476125",
+      "task_id": "T5",
+      "test_metrics": {
+        "log1p_mae": 0.44209682603469086,
+        "mae": 3.094663218804113,
+        "n": 132,
+        "r2": 0.2690556489529474,
+        "rmse": 3.9649316241441888
+      },
+      "uncertainty": {
+        "calibration_n": 234,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.803030303030303,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "chla"
+    },
+    {
+      "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h1:s20260907",
+      "file": "models/T5-chla-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T5-chla-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "mechanism_feature",
+      "sha256": "8a419842f8ac4683140c1e49d9d894af1a478a70eb9fee675ee2d64e3ea6a62e",
+      "task_id": "T5",
+      "test_metrics": {
+        "log1p_mae": 0.44209682603469097,
+        "mae": 3.0946632188041137,
+        "n": 132,
+        "r2": 0.2690556489529473,
+        "rmse": 3.964931624144189
+      },
+      "uncertainty": {
+        "calibration_n": 234,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.803030303030303,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "chla"
+    },
+    {
+      "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h3:s20260907",
+      "file": "models/T5-chla-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T5-chla-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "mechanism_feature",
+      "sha256": "b28c0111f7c67a9d4d01d5310b74287ed08bff1d18b70ebdc6812a7d7d120f24",
+      "task_id": "T5",
+      "test_metrics": {
+        "log1p_mae": 0.44209682603469086,
+        "mae": 3.094663218804113,
+        "n": 132,
+        "r2": 0.2690556489529474,
+        "rmse": 3.9649316241441888
+      },
+      "uncertainty": {
+        "calibration_n": 234,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.803030303030303,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "chla"
+    },
+    {
+      "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h7:s20260907",
+      "file": "models/T5-chla-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T5-chla-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "mechanism_feature",
+      "sha256": "e7e61650aea475d36921ede09c5a9079bf2c38a63738273eba8bcff0eb7b376f",
+      "task_id": "T5",
+      "test_metrics": {
+        "log1p_mae": 0.44209682603469086,
+        "mae": 3.0946632188041128,
+        "n": 132,
+        "r2": 0.2690556489529474,
+        "rmse": 3.9649316241441888
+      },
+      "uncertainty": {
+        "calibration_n": 234,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.803030303030303,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "chla"
+    },
+    {
+      "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T5-chla-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T5-chla-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "4d1df9af54da1be67e701585b6eff085785c64a26b61d604be101a999def8d35",
+      "task_id": "T5",
+      "test_metrics": {
+        "log1p_mae": 0.39708073056395676,
+        "mae": 3.0756071138512726,
+        "n": 117,
+        "r2": 0.1808310475746654,
+        "rmse": 4.229263169819935
+      },
+      "uncertainty": {
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.8547008547008547,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "chla"
+    },
+    {
+      "artifact_id": "T6:probability:frozen_split:off0:h15:s20260907",
+      "file": "models/T6-probability-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T6-probability-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "9e40e4e00c1ad982baf7bd31e2c47186a6b44fa26733b86bcdd62484561ba458",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:frozen_split:off0:h1:s20260907",
+      "file": "models/T6-probability-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T6-probability-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "cdedb2345915e81df40e35e6c41a5044dfea06b9523d5e8afef8d4ede5904466",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:frozen_split:off0:h3:s20260907",
+      "file": "models/T6-probability-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T6-probability-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "078fa57399c69cfc0efdd0eb53149d508579f5188c3c91a87f2ddaa36ece218f",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:frozen_split:off0:h7:s20260907",
+      "file": "models/T6-probability-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 657
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 0,
+      "protocol": "frozen_split",
+      "run_id": "T6-probability-0m-s20260907",
+      "seed": 20260907,
+      "selected_family": "random_forest",
+      "sha256": "b278a65cd59d0132e9772723567ec385b7f626cf6a6167b8245036fb3d84f9cb",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "uncertainty": {
+        "calibration_n": 212,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 0.975,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "test_n": 40
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off1:h30:s20260907",
+      "file": "models/T6-probability-1m-s20260907-30d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 30,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 1,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-probability-1m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "persistence",
+      "sha256": "5ef3f1c5e3ba96cba78007fb8f31d592a5d720350ec6627ba81ebcba421c5412",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 16,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 5
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off2:h60:s20260907",
+      "file": "models/T6-probability-2m-s20260907-60d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 60,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 37
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 2,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-probability-2m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "persistence",
+      "sha256": "c78c1863feb7470415ab6f9e50218b0cfb41b887ede9cd3793c79cd56257000b",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 16,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 5
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T6-probability-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "proxy_derived",
+      "label_provenance_breakdown": {
+        "proxy_derived": 604
+      },
+      "label_provenance_declared": "proxy_derived",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-probability-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "climatology_global",
+      "sha256": "4d6d0436144dd6fa872c6eddfb122a3e55dd3ecf547002b443763a0504923668",
+      "task_id": "T6",
+      "test_metrics": {
+        "brier_score": 0.0017690831983655055,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0226,
+            "n": 26,
+            "observed_frequency": 0.0
+          },
+          {
+            "bin": 1,
+            "mean_predicted": 0.1181,
+            "n": 2,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.029446,
+        "f1": null,
+        "n": 28,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "uncertainty": {
+        "calibration_n": 261,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": 1.0,
+        "is_calibrated_confidence_interval": true,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 28
+      },
+      "variant": "probability"
+    },
+    {
+      "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h15:s20260907",
+      "file": "models/T6-risk_level-0m-s20260907-15d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 15,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-risk_level-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "simple_baseline",
+      "sha256": "7a3995135ae13157166526d23db6bfd5c4c4b13a82fe69fadd3686e2916b3f0d",
+      "task_id": "T6",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 132
+      },
+      "uncertainty": {
+        "calibration_n": 0,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": null,
+        "is_calibrated_confidence_interval": false,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "risk_level"
+    },
+    {
+      "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h1:s20260907",
+      "file": "models/T6-risk_level-0m-s20260907-1d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 1,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-risk_level-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "simple_baseline",
+      "sha256": "e22e4c800b8a401fac05b19975950148e5fadb093b7d9b1876ddcde4e5c6b1f7",
+      "task_id": "T6",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 132
+      },
+      "uncertainty": {
+        "calibration_n": 0,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": null,
+        "is_calibrated_confidence_interval": false,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "risk_level"
+    },
+    {
+      "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h3:s20260907",
+      "file": "models/T6-risk_level-0m-s20260907-3d.joblib",
+      "granularity_tier": "month_granularity",
+      "horizon_days": 3,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-risk_level-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "simple_baseline",
+      "sha256": "5a2fde69a6bf326fc43be4f39b317aecdfa168ce8355e89802d475a1279f837a",
+      "task_id": "T6",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 132
+      },
+      "uncertainty": {
+        "calibration_n": 0,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": null,
+        "is_calibrated_confidence_interval": false,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "risk_level"
+    },
+    {
+      "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h7:s20260907",
+      "file": "models/T6-risk_level-0m-s20260907-7d.joblib",
+      "granularity_tier": "month_approx_half",
+      "horizon_days": 7,
+      "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 576,
+        "ground_truth": 42
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 0,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-risk_level-0m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "simple_baseline",
+      "sha256": "c7ea47716c8ae20d52337953a3a4bfdcb44c5d9c625671c8ff413f4f9753bddc",
+      "task_id": "T6",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 132
+      },
+      "uncertainty": {
+        "calibration_n": 0,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": null,
+        "is_calibrated_confidence_interval": false,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 132
+      },
+      "variant": "risk_level"
+    },
+    {
+      "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off3:h90:s20260907",
+      "file": "models/T6-risk_level-3m-s20260907-90d.joblib",
+      "granularity_tier": "multi_month",
+      "horizon_days": 90,
+      "label_provenance": "chla_station_proxy_v1",
+      "label_provenance_breakdown": {
+        "chla_station_proxy_v1": 567
+      },
+      "label_provenance_declared": "ground_truth_or_proxy",
+      "month_offset": 3,
+      "protocol": "train_internal_time_block_cv_v1",
+      "run_id": "T6-risk_level-3m-s20260907-cv",
+      "seed": 20260907,
+      "selected_family": "simple_baseline",
+      "sha256": "a90c464bc34919bd379fe23c22864510d3d42517669ba4c0c18f44500bcfc490",
+      "task_id": "T6",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 117
+      },
+      "uncertainty": {
+        "calibration_n": 0,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "coverage_target": 0.9,
+        "empirical_coverage_test": null,
+        "is_calibrated_confidence_interval": false,
+        "method": "split_conformal_residual_quantiles",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "test_n": 117
+      },
+      "variant": "risk_level"
+    }
+  ],
+  "package_generation": "v0_3",
   "proxy_label_rules": {
+    "T1-T6_bloom": "月度水华代理：chla 月均≥20μg/L 或 CLMS bloom_label=1 或 CLMS FCB 湖面月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L（仅 TAIHU_WHOLE 行）；有任一来源即定义为 0/1（fcb 阈值口径：CLMS LWQ 300m 10-day FCB 概率按月聚合均值，frame 列为 0-1 概率的 1e4 缩放已归一）",
+    "T1-T6_bloom_modis": "MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取，不含 CLMS 行）按月行均值聚合为湖面月均值；valid 行优先，无 valid 月回退 review 行均值并降权披露（review=有效像元 <5% 或聚合天数 <3，值非无效仅覆盖度降级）；≥20μg/L 计阳性",
+    "T2-coverage": "湖面蓝藻覆盖概率代理 = CLMS FCB 概率月度均值（0-1）；来源 CLMS LWQ 300m 10-day 产品，仅覆盖 2024-09..2026-08（test 期）；provenance=proxy_derived",
+    "T3-density": "蓝藻密度秩代理 = phyto_biomass 月度均值在全量站点-月的分位秩（0-1，无量纲）；未做细胞体积换算，如实披露；provenance=proxy_derived",
+    "T4-biomass": "浮游植物生物量（mg/L）直接作目标；wq_phyto_biomass 576 行 ground_truth，2005-02..2020-11（全在 train 期）；训练剔除当月 wq_phyto_biomass 特征防同月泄漏",
+    "chla_station_proxy": "见 evaluation/chla_proxy_params.json（公示公式+2020-12 航次实测锚点+固定种子残差自助）；代理标签仅回填缺失行，实测标签绝不覆盖；消费方按 proxy_derived 披露",
     "modis_audit": {
+      "covered_months": 94,
+      "degraded_months": 61,
       "positive_months": [
         "2005-12",
         "2008-03",
@@ -1655,22 +3257,65 @@
         "2012-03",
         "2013-10",
         "2024-12"
-      ],
-      "covered_months": 94,
-      "degraded_months": 61
+      ]
     },
-    "T1-T6_bloom": "月度水华代理：chla 月均≥20μg/L 或 CLMS bloom_label=1 或 CLMS FCB 湖面月均概率≥0.5 或 MODIS 湖面月均 chla≥20μg/L（仅 TAIHU_WHOLE 行）；有任一来源即定义为 0/1（fcb 阈值口径：CLMS LWQ 300m 10-day FCB 概率按月聚合均值，frame 列为 0-1 概率的 1e4 缩放已归一）",
-    "T1-T6_bloom_modis": "MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取，不含 CLMS 行）按月行均值聚合为湖面月均值；valid 行优先，无 valid 月回退 review 行均值并降权披露（review=有效像元 <5% 或聚合天数 <3，值非无效仅覆盖度降级）；≥20μg/L 计阳性",
-    "T2-coverage": "湖面蓝藻覆盖概率代理 = CLMS FCB 概率月度均值（0-1）；来源 CLMS LWQ 300m 10-day 产品，仅覆盖 2024-09..2026-08（test 期）；provenance=proxy_derived",
-    "T3-density": "蓝藻密度秩代理 = phyto_biomass 月度均值在全量站点-月的分位秩（0-1，无量纲）；未做细胞体积换算，如实披露；provenance=proxy_derived",
-    "T4-biomass": "浮游植物生物量（mg/L）直接作目标；wq_phyto_biomass 576 行 ground_truth，2005-02..2020-11（全在 train 期）；训练剔除当月 wq_phyto_biomass 特征防同月泄漏",
-    "chla_station_proxy": "见 evaluation/chla_proxy_params.json（公示公式+2020-12 航次实测锚点+固定种子残差自助）；代理标签仅回填缺失行，实测标签绝不覆盖；消费方按 proxy_derived 披露",
     "target_source_feature_exclusions": "biomass/density 剔除 wq_phyto_biomass，coverage 剔除 rs_clms_lwq_300m_10daily_fcb_prob（当月值，滞后/滚动列保留）"
   },
-  "legacy": {
-    "v0_2_package": "model_runtime_v0_2",
-    "legacy": true,
-    "note": "保留作对照与回退（env TAIHU_MODEL_PACKAGE_DIR=model_runtime_v0_2）"
+  "risk_bands_ug_l": {
+    "high": "30.0-50.0",
+    "low": "10.0-20.0",
+    "medium": "20.0-30.0",
+    "none": "0.0-10.0",
+    "severe": ">=50"
   },
-  "generated_at": "2026-09-10T20:13:28.895176+00:00"
+  "scenario_horizons": [
+    30,
+    60,
+    90
+  ],
+  "serving_contract_note": null,
+  "split": {
+    "bounds": {
+      "train_max": "2021-12",
+      "validation_max": "2023-12"
+    },
+    "frozen_by": "target_builder.split_of_month (V0.3 rebuild, supersedes model_dataset.dataset_split 882/23/9)",
+    "note": "wq 常规站样本仅 2005-02..2020-11（季度，含 phyto_biomass 576 行全在 train 期）；chla 地面样本为 2020-12/2022-12/2023-10 野外航次 + 2026-08 S1；CLMS（bloom_label / fcb_prob）覆盖 2020-12/2022-12/2023-10 + 2024-09..2026-08，全在 validation/test 期；MODIS-Aqua chla_retrieval（TAIHU_BBOX 湖面提取）valid 优先聚合，无 valid 月回退 review（降权披露：有效像元 <5% 或聚合天数 <3），湖面月均 ≥20μg/L 计阳性，仅映射 TAIHU_WHOLE 行",
+    "row_granularity": "station_month; field-campaign samples retained at sample level (IN_SITU_GROUP/S1)",
+    "rows": {
+      "test": 56,
+      "train": 779,
+      "validation": 79
+    },
+    "rule": "frozen_by_issue_month: train<=2021-12, validation=2022-01..2023-12, test>=2024-01"
+  },
+  "supplemental_training": {
+    "block_fractions": {
+      "test": 0.2,
+      "train": 0.6,
+      "validation": 0.2
+    },
+    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+    "generated_at": "2026-09-11T10:50:26.243344+00:00",
+    "model_count": 26,
+    "note": "T1/T3/T4/T5/T6 的 4 短时效 run 与 30/60/90 天中长期趋势 run 以训练期内时间分块协议补训（offset≥1 分块键=目标月）；其余模型仍为冻结划分协议。运行层 results[*].training_protocol 区分两种口径。",
+    "protocol_id": "train_internal_time_block_cv_v1",
+    "runs": [
+      "T1-bloom-1m-s20260907-cv",
+      "T1-bloom-2m-s20260907-cv",
+      "T1-bloom-3m-s20260907-cv",
+      "T3-density-0m-s20260907-cv",
+      "T3-density-3m-s20260907-cv",
+      "T4-biomass-0m-s20260907-cv",
+      "T4-biomass-3m-s20260907-cv",
+      "T5-chla-0m-s20260907-cv",
+      "T5-chla-3m-s20260907-cv",
+      "T6-probability-1m-s20260907-cv",
+      "T6-probability-2m-s20260907-cv",
+      "T6-probability-3m-s20260907-cv",
+      "T6-risk_level-0m-s20260907-cv",
+      "T6-risk_level-3m-s20260907-cv"
+    ]
+  },
+  "version": "0.3"
 }

@@ -1,0 +1,43 @@
+{
+  "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off3:h90:s20260907",
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+  "granularity_tier": "multi_month",
+  "horizon_days": 90,
+  "label_provenance": "chla_station_proxy_v1",
+  "label_provenance_breakdown": {
+    "chla_station_proxy_v1": 567
+  },
+  "label_provenance_declared": "ground_truth_or_proxy",
+  "label_provenance_rows": 567,
+  "label_provenance_unresolved_rows": 0,
+  "month_offset": 3,
+  "primary_metric": "mae",
+  "problem_type": "regression",
+  "protocol": "train_internal_time_block_cv_v1",
+  "run_id": "T5-chla-3m-s20260907-cv",
+  "seed": 20260907,
+  "split_block_bounds": {
+    "test_min_month": "2017-11",
+    "train_max_month": "2014-05",
+    "validation_max_month": "2017-08"
+  },
+  "split_counts_internal": {
+    "cv_test": 117,
+    "cv_validation": 117,
+    "train": 333
+  },
+  "split_key": "target_month",
+  "split_protocol": {
+    "block_fractions": {
+      "test": 0.2,
+      "train": 0.6,
+      "validation": 0.2
+    },
+    "disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。",
+    "generated_at": "2026-09-11T05:32:14.023717+00:00",
+    "protocol_id": "train_internal_time_block_cv_v1"
+  },
+  "task_id": "T5",
+  "variant": "chla"
+}
