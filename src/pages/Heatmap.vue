@@ -178,10 +178,13 @@
             :playing="ftlPlaying"
             :show-scales="pageMode === 'forecast'"
             :scales="timelineScales"
+            :speed-ms="playInterval"
+            :stop-values="timelineStopValues"
             data-role="forecast-timeline"
             @toggle-play="togglePlay"
             @refresh="refreshRealtime"
             @select-scale="selectScale"
+            @speed-change="onSpeedChange"
           />
         </section>
 
@@ -748,7 +751,9 @@ const observedStops = computed(() => {
       // 刻度文案保持短小，避免与未来段 T+n 刻度交叠；完整日期见悬停/右栏
       tick: isLast && isToday ? '今日' : d.slice(5),
       title: isLast ? `${d.slice(5)} · ${isToday ? '今日' : '最新'}` : d.slice(5),
-      snapshotId: snap.snapshot_id
+      snapshotId: snap.snapshot_id,
+      // 时间轴下方数值分布条的真实观测输入（缺测为 null，不造值）
+      chlaMean: snap.chla_mean != null ? Number(snap.chla_mean) : null
     })
   })
   return stops
@@ -786,6 +791,29 @@ const timelineStops = computed(() => {
 const timelineScales = computed(() =>
   SCALES.map((sc) => ({ id: sc.id, label: sc.label, hint: sc.hint, first: `t${sc.days[0]}`, last: `t${sc.days[sc.days.length - 1]}` }))
 )
+
+// 时间轴数值分布条（kepler.gl 式）：每个停靠点一根细条，高度=该时刻真实数值的相对高低。
+// 观测段用快照 chla 均值；未来段用同一份预测快照的全湖聚合中位数（station_aggregate）。
+// 指标映射：risk→probability、chla→chla、biomass→biomass；area 无聚合口径→无值。
+// 观测段只有叶绿素 a 有真实观测均值，其余指标不与预测值混标；缺值停靠点不出条，
+// 整条无值时组件自动隐藏，绝不造占位值。
+const AGGREGATE_KEY_BY_METRIC = { risk: 'probability', chla: 'chla', biomass: 'biomass' }
+const timelineStopValues = computed(() => {
+  if (pageMode.value === 'rs') return []
+  const aggKey = AGGREGATE_KEY_BY_METRIC[metric.value] || ''
+  const rows = []
+  timelineStops.value.forEach((stop) => {
+    if (stop.kind === 'observed' || stop.kind === 'today') {
+      if (aggKey === 'chla' && stop.chlaMean != null) rows.push({ id: stop.id, value: stop.chlaMean })
+      return
+    }
+    const m = String(stop.id || '').match(/^t(\d+)$/)
+    if (!m || !aggKey) return
+    const stats = predictionSnapshot.horizons?.[m[1]]?.station_aggregate?.metrics?.[aggKey]
+    if (stats && stats.median != null) rows.push({ id: stop.id, value: Number(stats.median) })
+  })
+  return rows
+})
 
 const selectedStopId = ref('')
 const selectedStop = computed(() => timelineStops.value.find((s) => s.id === selectedStopId.value) || null)
@@ -994,9 +1022,28 @@ watch([pageMode, scale, metric, selectedStationId, selectedStopId], () => {
   navigate.call(router, { query }).catch(() => {})
 })
 
-// 播放：沿停靠点推进，到末端自动停
+// 播放：沿停靠点推进，到末端自动停；速度档由时间轴组件回传（0.5×=3600ms … 4×=450ms）
 const ftlPlaying = ref(false)
+const playInterval = ref(1800)
 let ftlTimer = null
+function stepPlay() {
+  const stops = timelineStops.value
+  const at = stops.findIndex((s) => s.id === selectedStopId.value)
+  if (at < 0 || at >= stops.length - 1) {
+    stopPlay()
+    return
+  }
+  selectedStopId.value = stops[at + 1].id
+}
+function onSpeedChange(ms) {
+  const next = Number(ms)
+  if (!Number.isFinite(next) || next <= 0) return
+  playInterval.value = next
+  if (ftlPlaying.value) {
+    if (ftlTimer) clearInterval(ftlTimer)
+    ftlTimer = setInterval(stepPlay, playInterval.value)
+  }
+}
 function togglePlay() {
   if (ftlPlaying.value) {
     stopPlay()
@@ -1004,15 +1051,7 @@ function togglePlay() {
   }
   if (timelineStops.value.length < 2) return
   ftlPlaying.value = true
-  ftlTimer = setInterval(() => {
-    const stops = timelineStops.value
-    const at = stops.findIndex((s) => s.id === selectedStopId.value)
-    if (at < 0 || at >= stops.length - 1) {
-      stopPlay()
-      return
-    }
-    selectedStopId.value = stops[at + 1].id
-  }, 1800)
+  ftlTimer = setInterval(stepPlay, playInterval.value)
 }
 function stopPlay() {
   ftlPlaying.value = false

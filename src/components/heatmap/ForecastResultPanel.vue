@@ -88,7 +88,8 @@
         <div v-else class="frp-hero" data-role="model-primary-result">
           <div class="frp-hero-main">
             <div class="frp-hero-value">
-              <b>{{ primaryPrediction }}</b>
+              <!-- hero 数字翻牌：count-up 只对真实数值做视觉滚动，终帧严格等于数据值 -->
+              <b>{{ heroDisplay }}</b>
             </div>
             <div class="frp-hero-label">{{ metricLabel }}</div>
             <div class="frp-hero-scope" data-role="hero-scope-label">{{ heroScopeLabel }}</div>
@@ -113,13 +114,15 @@
           <div v-if="riskRing" class="frp-ring" role="img" :aria-label="`风险概率 ${riskRing.pct}%`">
             <svg viewBox="0 0 72 72" width="72" height="72">
               <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(127,147,168,0.18)" stroke-width="7" />
+              <!-- 风险环扫光：圆弧 dasharray 以 500ms 缓动过渡到目标弧长；reduced-motion 直接到位 -->
               <circle
                 cx="36" cy="36" r="30" fill="none"
+                class="frp-ring-arc"
                 :stroke="riskRing.color" stroke-width="7" stroke-linecap="round"
-                :stroke-dasharray="`${riskRing.dash} 999`"
+                :style="{ strokeDasharray: ringArcDash }"
                 transform="rotate(-90 36 36)"
               />
-              <text x="36" y="41" text-anchor="middle" class="frp-ring-text">{{ riskRing.pct }}%</text>
+              <text x="36" y="41" text-anchor="middle" class="frp-ring-text">{{ ringPctDisplay }}</text>
             </svg>
             <span class="frp-ring-label">{{ scope === 'lake' ? '全湖中位风险概率' : '水华风险概率' }}</span>
           </div>
@@ -129,37 +132,19 @@
             <b>{{ horizonTrendTitle }}</b>
             <span>{{ horizonTrend.legend }}</span>
           </div>
-          <svg viewBox="0 0 420 126" width="100%" height="126" preserveAspectRatio="none" role="img" :aria-label="`${metricLabel}七时效趋势`">
-            <line x1="18" y1="82" x2="402" y2="82" class="frp-trend-axis" />
-            <line :x1="horizonTrend.scenarioX" :x2="horizonTrend.scenarioX" y1="8" y2="88" class="frp-trend-split" />
-            <polygon v-if="horizonTrend.band" :points="horizonTrend.band" class="frp-trend-band" />
-            <polyline v-if="horizonTrend.lineShort" :points="horizonTrend.lineShort" class="frp-trend-line" />
-            <polyline v-if="horizonTrend.lineScenario" :points="horizonTrend.lineScenario" class="frp-trend-line frp-trend-line--scenario" />
-            <!-- 短期四档映射同一月标签，数值按定义相同：不画成四个独立点，合并为一段同月区间 -->
-            <template v-if="horizonTrend.shortGroup">
-              <rect
-                :x="horizonTrend.shortGroup.x1" :y="horizonTrend.shortGroup.y - 5"
-                :width="horizonTrend.shortGroup.x2 - horizonTrend.shortGroup.x1" height="10"
-                rx="5" class="frp-trend-group" data-role="short-merged-group"
-              ><title>{{ horizonTrend.shortGroup.title }}</title></rect>
-              <text
-                :x="(horizonTrend.shortGroup.x1 + horizonTrend.shortGroup.x2) / 2" y="113"
-                text-anchor="middle" class="frp-trend-note" data-role="short-merged-label"
-              >同月短期结果 · 四档同值</text>
-            </template>
-            <g v-else v-for="p in horizonTrend.shortPoints" :key="`sh${p.horizon}`">
-              <circle :cx="p.x" :cy="p.y" r="4" class="frp-trend-point" :data-origin="p.originKey" :data-scenario="String(p.scenario)"><title>{{ p.title }}</title></circle>
-            </g>
-            <g v-for="p in horizonTrend.scenarioPoints" :key="`sc${p.horizon}`">
-              <circle :cx="p.x" :cy="p.y" r="4" class="frp-trend-point" :data-origin="p.originKey" :data-scenario="String(p.scenario)" :data-station-resolution="String(p.stationResolution)"><title>{{ p.title }}</title></circle>
-              <text :x="p.x" y="113" text-anchor="middle" class="frp-trend-note" :data-resolution="String(p.stationResolution)">{{ p.shortNote }}</text>
-            </g>
-            <g v-for="p in horizonTrend.points" :key="`l${p.horizon}`">
-              <text :x="p.x" y="97" text-anchor="middle" class="frp-trend-label">+{{ p.horizon }}</text>
-            </g>
-            <text x="22" y="13" class="frp-trend-caption">短期</text>
-            <text :x="horizonTrend.scenarioX + 6" y="13" class="frp-trend-caption">中长期</text>
-          </svg>
+          <HorizonFanChart
+            :points="horizonTrend.points"
+            :intervals="horizonTrend.intervals"
+            :short-points="horizonTrend.shortPoints"
+            :scenario-points="horizonTrend.scenarioPoints"
+            :short-group="horizonTrend.shortGroup"
+            :line-short="horizonTrend.lineShort"
+            :line-scenario="horizonTrend.lineScenario"
+            :scenario-x="horizonTrend.scenarioX"
+            :active-horizon="horizonDays"
+            :band-caption="horizonTrend.bandCaption"
+            :aria-label="`${metricLabel}七时效趋势`"
+          />
           <p v-if="horizonTrend.resolutionNote" class="frp-unc-note" data-role="trend-resolution-note">
             {{ horizonTrend.resolutionNote }}
           </p>
@@ -498,9 +483,10 @@
 // 时空推演右侧预测结果面板：结果总览 / 驱动因素 / 不确定性 三标签。
 // 总览=焦点 hero + 六宫格卡 + 预测/实测对照；驱动=机理净生长率分解（恒可用）+ 模型敏感性；
 // 不确定性=conformal 区间刻度尺 + 覆盖率环 + 9 任务区间矩阵。
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, ref, watch } from 'vue'
 import StatePanel from '../common/StatePanel.vue'
 import LakeDriverDistribution from './LakeDriverDistribution.vue'
+import HorizonFanChart from './HorizonFanChart.vue'
 import { predictionSnapshot } from '../../stores/predictionSnapshot.js'
 
 const props = defineProps({
@@ -915,6 +901,125 @@ const primaryPrediction = computed(() => {
   return resultValue(props.metric, digits)
 })
 
+// ---------- hero 数字翻牌 / 风险环扫光 ----------
+// count-up 只对文本中的真实数值做 rAF 视觉滚动（600ms ease-out）：等级字、单位、
+// 分隔符等非数值文本不参与；终帧严格显示原始字符串，最终数值与数据完全一致。
+// prefers-reduced-motion 时直接显示终值，不滚动。
+const REDUCED_MOTION = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+  && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const NUMERIC_PATTERN = '-?\\d[\\d,]*(?:\\.\\d+)?'
+const COUNT_UP_MS = 600
+
+function parseNumericTokens(text) {
+  const tokens = []
+  const re = new RegExp(NUMERIC_PATTERN, 'g')
+  let last = 0
+  let m
+  while ((m = re.exec(text))) {
+    if (m.index > last) tokens.push({ num: false, text: text.slice(last, m.index) })
+    tokens.push({ num: true, value: Number(m[0].replace(/,/g, '')), text: m[0] })
+    last = m.index + m[0].length
+  }
+  if (last < text.length) tokens.push({ num: false, text: text.slice(last) })
+  return tokens
+}
+
+// 首帧占位：把文本中的数值替换为 0（保留原有小数位），数字翻牌从 0 起滚
+function zeroedNumericText(text) {
+  return text.replace(new RegExp(NUMERIC_PATTERN, 'g'), (m) => (0).toFixed((m.split('.')[1] || '').length))
+}
+
+function useCountUpText(source) {
+  const initial = String(source.value ?? '')
+  const hasNums = parseNumericTokens(initial).some((t) => t.num)
+  const display = ref(REDUCED_MOTION || !hasNums ? initial : zeroedNumericText(initial))
+  let rafId = 0
+  let prevNums = []
+  const stop = () => {
+    if (rafId) {
+      cancelAnimationFrame(rafId)
+      rafId = 0
+    }
+  }
+  watch(source, (next) => {
+    const nextText = String(next ?? '')
+    stop()
+    const tokens = parseNumericTokens(nextText)
+    const nextNums = tokens.filter((t) => t.num).map((t) => t.value)
+    // 结构一致 → 从旧值滚到新值；结构变化或首次出现数值 → 从 0 滚到新值
+    const fromNums = prevNums.length === nextNums.length && prevNums.length > 0
+      ? prevNums
+      : nextNums.map(() => 0)
+    const animatable =
+      !REDUCED_MOTION &&
+      nextNums.length > 0 &&
+      fromNums.every(Number.isFinite) &&
+      nextNums.every(Number.isFinite) &&
+      fromNums.some((v, i) => v !== nextNums[i])
+    prevNums = nextNums
+    if (!animatable) {
+      display.value = nextText
+      return
+    }
+    const formatters = tokens
+      .filter((t) => t.num)
+      .map((t) => {
+        const decimals = (t.text.split('.')[1] || '').length
+        return (v) => v.toLocaleString('zh-CN', { maximumFractionDigits: decimals })
+      })
+    const startedAt = performance.now()
+    const tick = (now) => {
+      const t = Math.min(1, (now - startedAt) / COUNT_UP_MS)
+      if (t >= 1) {
+        display.value = nextText // 终帧严格回到原始字符串，最终显示值不被动画改变
+        rafId = 0
+        return
+      }
+      const eased = 1 - Math.pow(1 - t, 3) // ease-out cubic
+      let i = 0
+      display.value = tokens.map((token) => {
+        if (!token.num) return token.text
+        const k = i++
+        const v = fromNums[k] + (nextNums[k] - fromNums[k]) * eased
+        return formatters[k](v)
+      }).join('')
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+  }, { immediate: true })
+  onScopeDispose(stop)
+  return display
+}
+
+const heroDisplay = useCountUpText(primaryPrediction)
+const ringPctText = computed(() => (riskRing.value ? `${riskRing.value.pct}%` : ''))
+const ringPctDisplay = useCountUpText(ringPctText)
+
+// 风险环扫光：首次出现从 0 起弧（先渲染 0，下一帧置目标值触发 CSS 过渡）；
+// 之后数据变化保持 primed，由 stroke-dasharray 的 500ms CSS transition 平滑过渡。
+const ringPrimed = ref(false)
+watch(() => Boolean(riskRing.value), (present) => {
+  if (!present) {
+    ringPrimed.value = false
+    return
+  }
+  if (REDUCED_MOTION) {
+    ringPrimed.value = true
+    return
+  }
+  ringPrimed.value = false
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      ringPrimed.value = true
+    })
+  })
+}, { immediate: true })
+const ringArcDash = computed(() => {
+  const ring = riskRing.value
+  if (!ring) return '0 999'
+  return `${ringPrimed.value ? ring.dash : '0'} 999`
+})
+
 const HORIZONS = [1, 3, 7, 15, 30, 60, 90]
 const SCENARIO_FROM = 30
 const horizonTrendTitle = computed(() =>
@@ -985,11 +1090,25 @@ const horizonTrend = computed(() => {
   const points = rows.map((row, index) => row ? {
     ...row, x: x(index), y: y(row.value)
   } : null).filter(Boolean)
-  // 带：只画结构自洽的预测区间。中长期点现在也有真实区间（逐站模型 conformal 或
-  // 季节气候态留出残差分位数），不再因为"≥30 天"就被一刀切掉——没有区间的点自然不参与。
-  const bandRows = points.filter((row) => row.bandLow != null && row.bandHigh != null)
-  const upper = bandRows.map((row) => `${row.x},${y(row.bandHigh)}`)
-  const lower = [...bandRows].reverse().map((row) => `${row.x},${y(row.bandLow)}`)
+  // 分位带锚点（与 points 等长对齐）：只收真实存在的分位数据，缺 → null，
+  // 由扇形图组件（HorizonFanChart）按时效连续性断带绘制，绝不跨缺口内插造区间。
+  const intervals = points.map((row) => {
+    if (row.bandLow == null || row.bandHigh == null) return null
+    const low = Number(row.bandLow)
+    const high = Number(row.bandHigh)
+    if (!Number.isFinite(low) || !Number.isFinite(high)) return null
+    return {
+      horizon: row.horizon,
+      slot: HORIZONS.indexOf(Number(row.horizon)),
+      x: row.x,
+      yLow: y(low),
+      yHigh: y(high)
+    }
+  })
+  // 图注（事实性中性小字）：写清带的真实分位口径；带未渲染时组件不会显示它
+  const bandCaption = props.scope === 'lake'
+    ? '带 = P25–P75（站间分布）'
+    : '带 = P05–P95（预测区间）'
   // 线：短期实线；中长期段虚线并从最后一个短期点延续，保持视觉连续但口径分明。
   const shortPoints = points.filter((row) => !row.scenario)
   const scenarioPoints = points.filter((row) => row.scenario)
@@ -1045,7 +1164,8 @@ const horizonTrend = computed(() => {
     shortGroup,
     lineShort: shortPoints.length >= 2 ? shortPoints.map((p) => `${p.x},${p.y}`).join(' ') : '',
     lineScenario: scenarioLine.length >= 2 ? scenarioLine.map((p) => `${p.x},${p.y}`).join(' ') : '',
-    band: bandRows.length >= 2 ? [...upper, ...lower].join(' ') : '',
+    intervals,
+    bandCaption,
     scenarioX: 28 + 3.5 * 60,
     legend: shortGroup ? '同月短期（合并）· 中长期虚线（点位标注站点分辨率）' : '短期实线 · 中长期虚线',
     resolutionNote: notes.join(' '),
@@ -1956,32 +2076,17 @@ const stationObservedAt = computed(() => {
   min-width: 0;
   overflow-x: auto;
 }
-.frp-trend-axis { stroke: rgba(127, 147, 168, 0.35); stroke-width: 1; }
-.frp-trend-split { stroke: var(--risk-medium, #f5b45d); stroke-width: 1; stroke-dasharray: 4 3; }
-.frp-trend-band { fill: rgba(56, 189, 248, 0.14); stroke: rgba(56, 189, 248, 0.35); stroke-width: 1; }
-.frp-trend-line { fill: none; stroke: var(--color-primary); stroke-width: 2; }
-/* 情景推演段（T+30 起）：虚线 + 警示色，与短期真实预测在视觉上明确分口 */
-.frp-trend-line--scenario {
-  stroke: #e2a65a;
-  stroke-dasharray: 5 4;
-  stroke-opacity: 0.85;
+/* 七时效扇形图的 SVG 样式已随内联 SVG 迁入 HorizonFanChart.vue（scoped 自持）。
+   风险环扫光：圆弧 dasharray（inline style）以 500ms 缓动过渡；
+   prefers-reduced-motion 时直接到位，不做扫光动画。 */
+.frp-ring-arc {
+  transition: stroke-dasharray 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-.frp-trend-point { fill: #5fd6a4; stroke: var(--surface-panel); stroke-width: 1.5; }
-.frp-trend-point[data-origin='cv'] { fill: #a78bfa; }
-.frp-trend-point[data-origin='legacy'] { fill: var(--risk-medium, #f5b45d); }
-.frp-trend-point[data-origin='derived'] { fill: #38bdf8; }
-.frp-trend-point[data-origin='climatology'] { fill: #e2a65a; }
-/* 合并后的短期段：一段同月区间，而不是四个看起来独立的预测点 */
-.frp-trend-group {
-  fill: color-mix(in srgb, #5fd6a4 22%, transparent);
-  stroke: #5fd6a4;
-  stroke-width: 1;
+@media (prefers-reduced-motion: reduce) {
+  .frp-ring-arc {
+    transition: none;
+  }
 }
-.frp-trend-label,
-.frp-trend-caption { fill: var(--text-muted); font-family: var(--font-mono); font-size: 9px; }
-.frp-trend-note { fill: var(--text-muted); font-family: var(--font-mono); font-size: 8px; }
-.frp-trend-note[data-resolution='false'] { fill: #d9a55e; }
-.frp-trend-note[data-resolution='true'] { fill: #57b98d; }
 ul.frp-unc-note {
   margin: 2px 0 0;
   padding-left: 14px;

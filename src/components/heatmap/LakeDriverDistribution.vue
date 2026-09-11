@@ -184,7 +184,7 @@ const dataNotes = computed(() => {
     </StatePanel>
 
     <template v-else>
-      <div v-for="f in factorRows" :key="f.key" class="ldd-row" data-role="ldd-factor">
+      <div v-for="f in factorRows" :key="f.key" class="ldd-row" :class="{ 'ldd-row--proxy': f.proxyCount > 0 }" data-role="ldd-factor">
         <div class="ldd-row-label">
           <span>{{ f.label }}</span>
           <small v-if="f.proxyCount">{{ f.proxyCount }}/{{ f.total }} 站为代理值</small>
@@ -259,57 +259,308 @@ const dataNotes = computed(() => {
 </template>
 
 <style scoped>
-.ldd { display: flex; flex-direction: column; gap: 10px; }
-.ldd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.ldd-head b { font-size: 13px; }
-.ldd-head span { display: block; font-size: 11px; color: var(--ink-3, #7d93a8); }
-.ldd-n { font-size: 11px; color: var(--ink-3, #7d93a8); white-space: nowrap; }
-.ldd-retry { border: 1px solid rgba(127,147,168,0.4); background: transparent; color: inherit; border-radius: 6px; padding: 2px 10px; cursor: pointer; font-size: 12px; }
-.ldd-row { display: grid; grid-template-columns: 92px 1fr 96px; align-items: center; gap: 8px; }
-.ldd-row-label span { font-size: 12px; font-weight: 600; }
-.ldd-row-label small { display: block; font-size: 10px; color: #d08b3c; }
-.ldd-box-track { position: relative; height: 14px; border-radius: 7px; background: rgba(127,147,168,0.14); overflow: hidden; }
-.ldd-box { position: absolute; top: 2px; bottom: 2px; background: rgba(64,186,180,0.35); border-radius: 4px; }
-.ldd-median { position: absolute; top: 0; bottom: 0; width: 2px; background: #2aa8a0; }
-.ldd-row-val { text-align: right; }
-.ldd-row-val b { font-size: 12px; }
-.ldd-row-val small { display: block; font-size: 10px; color: var(--ink-3, #7d93a8); }
-.ldd-sub { font-size: 11px; color: var(--ink-3, #7d93a8); }
-.ldd-limiting { display: flex; flex-direction: column; gap: 4px; }
-.ldd-limiting-row { display: flex; height: 10px; border-radius: 5px; overflow: hidden; }
-.ldd-limiting-seg { background: #2aa8a0; }
-.ldd-limiting-seg:nth-child(2n) { background: #d08b3c; }
-.ldd-limiting-seg:nth-child(3n) { background: #7d93a8; }
-.ldd-limiting-legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10px; color: var(--ink-3, #7d93a8); }
-.ldd-net { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.ldd-net b { font-size: 13px; }
-.ldd-net small { font-size: 10px; color: var(--ink-3, #7d93a8); }
-.ldd-note { font-size: 10px; color: var(--ink-3, #7d93a8); margin: 0; }
+/* 全部配色走语义令牌；数值右对齐等宽；条形 240ms 宽度过渡（reduced-motion 关闭）。 */
+.ldd {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ldd-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ldd-head b {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.ldd-head span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ldd-n {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  white-space: nowrap;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.ldd-retry {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 45%, transparent);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-item, 8px);
+  padding: 8px 16px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.ldd-retry:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* —— 站间分布行（P25—中位—P75 简易箱线） —— */
+.ldd-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 96px;
+  align-items: center;
+  gap: 10px;
+}
+.ldd-row-label span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ldd-row-label small {
+  display: block;
+  font-size: 10px;
+  color: var(--c-watch, #f5b45d);
+}
+.ldd-box-track {
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--text-muted) 16%, transparent);
+  overflow: hidden;
+}
+.ldd-box {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-primary) 38%, transparent);
+}
+.ldd-median {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-primary);
+}
+/* 代理输入行：条形弱化，与实测行视觉区分（不改变任何文案） */
+.ldd-row--proxy .ldd-box,
+.ldd-row--proxy .ldd-median {
+  opacity: 0.62;
+}
+.ldd-row-val {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.ldd-row-val b {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.ldd-row-val small {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.ldd-sub {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* —— 限制因子构成堆叠条 —— */
+.ldd-limiting {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ldd-limiting-row {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text-muted) 16%, transparent);
+}
+.ldd-limiting-seg {
+  background: var(--color-primary);
+}
+.ldd-limiting-seg:nth-child(2n) {
+  background: var(--c-watch, #f5b45d);
+}
+.ldd-limiting-seg:nth-child(3n) {
+  background: color-mix(in srgb, var(--text-muted) 78%, transparent);
+}
+.ldd-limiting-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+/* 图例色点与堆叠条同源序同色（同 nth 口径），纯装饰不承载语义 */
+.ldd-limiting-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ldd-limiting-legend span::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-primary);
+}
+.ldd-limiting-legend span:nth-child(2n)::before {
+  background: var(--c-watch, #f5b45d);
+}
+.ldd-limiting-legend span:nth-child(3n)::before {
+  background: color-mix(in srgb, var(--text-muted) 78%, transparent);
+}
+
+/* —— 净生长率 —— */
+.ldd-net {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ldd-net b {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+.ldd-net small {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.ldd-note {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* —— 数据口径（缺测/代理/无差异）：与有值行明确区分 —— */
 .ldd-data-notes {
   display: grid;
   gap: 4px;
-  padding: 8px 10px;
-  border: 1px dashed var(--border-subtle, rgba(127, 147, 168, 0.4));
-  border-radius: 8px;
+  padding: 9px 12px;
+  border: 1px dashed var(--border-subtle, rgba(34, 211, 238, 0.18));
+  border-radius: var(--radius-sm, 10px);
+  background: color-mix(in srgb, var(--text-muted) 7%, transparent);
 }
 .ldd-data-notes ul {
   margin: 0;
   padding-left: 16px;
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 .ldd-data-notes li {
   font-size: 11px;
   line-height: 1.5;
-  color: var(--text-secondary, #9fb3c8);
+  color: var(--text-muted);
 }
-.ldd-zones, .ldd-highrisk { display: flex; flex-direction: column; gap: 5px; }
-.ldd-zone-table { display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
-.ldd-zone-row { display: grid; grid-template-columns: 64px 32px 1fr 1fr 76px; gap: 6px; }
-.ldd-zone-head { color: var(--ink-3, #7d93a8); font-size: 10px; }
-.ldd-duo { display: grid; grid-template-columns: 64px 1fr 96px; gap: 8px; align-items: center; font-size: 11px; }
-.ldd-duo-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: rgba(127,147,168,0.14); }
-.ldd-duo-high { background: #d08b3c; }
-.ldd-duo-rest { background: #7d93a8; }
-.ldd-duo small { font-size: 10px; color: var(--ink-3, #7d93a8); text-align: right; }
+.ldd-data-notes li::marker {
+  color: var(--c-watch, #f5b45d);
+}
+
+/* —— 湖区分组表 —— */
+.ldd-zones,
+.ldd-highrisk {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ldd-zone-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+}
+.ldd-zone-row {
+  display: grid;
+  grid-template-columns: 64px 32px 1fr 1fr 76px;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  align-items: baseline;
+}
+.ldd-zone-head {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.ldd-zone-row span:nth-child(2),
+.ldd-zone-row span:nth-child(3),
+.ldd-zone-row span:nth-child(4) {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.ldd-zone-row:not(.ldd-zone-head):nth-child(2n) {
+  background: color-mix(in srgb, var(--text-muted) 8%, transparent);
+}
+
+/* —— 高风险 vs 其他（橙=高风险组，灰=其他站） —— */
+.ldd-duo {
+  display: grid;
+  grid-template-columns: 64px 1fr 96px;
+  gap: 10px;
+  align-items: center;
+  font-size: 11px;
+}
+.ldd-duo-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.ldd-duo-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text-muted) 16%, transparent);
+}
+.ldd-duo-high {
+  background: var(--c-watch, #f5b45d);
+}
+.ldd-duo-rest {
+  background: color-mix(in srgb, var(--text-muted) 72%, transparent);
+}
+.ldd-duo small {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* hover / 过渡：仅 reduced-motion: no-preference 下启用 */
+@media (prefers-reduced-motion: no-preference) {
+  .ldd-box {
+    transition: width 240ms var(--ease-out, ease-out),
+      left 240ms var(--ease-out, ease-out);
+  }
+  .ldd-median {
+    transition: left 240ms var(--ease-out, ease-out);
+  }
+  .ldd-limiting-seg,
+  .ldd-duo-high,
+  .ldd-duo-rest {
+    transition: width 240ms var(--ease-out, ease-out);
+  }
+  .ldd-retry {
+    transition: background-color 180ms var(--ease-out, ease-out),
+      border-color 180ms var(--ease-out, ease-out),
+      color 180ms var(--ease-out, ease-out);
+  }
+  .ldd-retry:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+    color: var(--color-primary);
+  }
+}
+
+@media (max-width: 759px) {
+  .ldd-retry {
+    min-height: 44px;
+  }
+}
 </style>

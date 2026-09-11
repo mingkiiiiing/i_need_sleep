@@ -180,29 +180,54 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* 间距节奏统一为 8 / 12 / 16 阶；圆角对齐 --radius-md。 */
 .rl {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  min-width: 0;
 }
+
+/* —— 头部：负边距出血 + 毛玻璃强化 + 底部虚线 —— */
 .rl-head {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  margin: -14px -14px 0;
+  padding: 12px 14px;
+  background: var(--glass-bg-strong, rgba(20, 36, 56, 0.52));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 22px)) saturate(var(--glass-saturate, 150%));
+  backdrop-filter: blur(var(--glass-blur, 22px)) saturate(var(--glass-saturate, 150%));
+  border-bottom: 1px dashed var(--border-subtle, rgba(34, 211, 238, 0.18));
+  border-radius: calc(var(--radius-md, 14px) - 1px) calc(var(--radius-md, 14px) - 1px) 0 0;
 }
 .rl-head-text {
   flex: 1;
   min-width: 0;
 }
 .rl-head h3 {
+  position: relative;
   margin: 0;
+  padding-left: 11px;
   font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.rl-head h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-primary, #22d3ee);
 }
 .rl-head p {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   font-size: 11px;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 .rl-month {
   display: flex;
@@ -210,29 +235,51 @@ onBeforeUnmount(() => {
   gap: 6px;
   font-size: 11px;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 .rl-month select {
-  background: var(--surface-panel-soft, rgba(255, 255, 255, 0.06));
+  min-height: 30px;
+  background: var(--surface-panel-soft, rgba(122, 172, 205, 0.08));
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
-  border-radius: 6px;
+  border-radius: var(--radius-item, 8px);
   padding: 4px 8px;
   font-size: 12px;
+  cursor: pointer;
 }
+.rl-month select:focus {
+  outline: none;
+  border-color: var(--color-primary, #22d3ee);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary, #22d3ee) 32%, transparent);
+}
+
+/* —— 关闭钮：44px 触摸目标，hover 主色描边 —— */
 .rl-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -7px -7px -7px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-secondary);
-  border-radius: 6px;
-  width: 26px;
-  height: 26px;
+  border-radius: var(--radius-item, 8px);
+  font-size: 15px;
+  line-height: 1;
   cursor: pointer;
 }
+.rl-close:focus-visible {
+  outline: 2px solid var(--color-primary, #22d3ee);
+  outline-offset: 1px;
+}
+
 .rl-map-wrap {
   position: relative;
   height: 300px;
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: var(--radius-sm, 10px);
   overflow: hidden;
 }
 .rl-map {
@@ -244,23 +291,37 @@ onBeforeUnmount(() => {
   top: 10px;
   left: 10px;
   z-index: 500;
+  max-width: calc(100% - 20px);
   padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(8, 16, 28, 0.82);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-item, 8px);
+  background: color-mix(in srgb, var(--surface-panel-raised, rgba(9, 28, 48, 0.94)) 90%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 22px));
+  backdrop-filter: blur(var(--glass-blur, 22px));
   color: var(--text-primary);
   font-size: 11px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.rl-flag--warn { color: #fbbf24; }
+.rl-flag--warn {
+  color: var(--c-watch, #f5b45d);
+}
 .rl-retry {
-  border: none;
-  background: transparent;
-  color: #38bdf8;
+  border: 1px solid color-mix(in srgb, var(--color-primary, #22d3ee) 45%, transparent);
+  background: color-mix(in srgb, var(--color-primary, #22d3ee) 10%, transparent);
+  color: var(--color-primary, #22d3ee);
+  border-radius: var(--radius-item, 8px);
+  padding: 3px 10px;
+  min-height: 26px;
   cursor: pointer;
   font-size: 11px;
 }
+.rl-retry:focus-visible {
+  outline: 2px solid var(--color-primary, #22d3ee);
+  outline-offset: 1px;
+}
+
 .rl-legend {
   display: flex;
   align-items: center;
@@ -269,17 +330,72 @@ onBeforeUnmount(() => {
   color: var(--text-secondary);
   flex-wrap: wrap;
 }
+.rl-legend-min,
+.rl-legend-max,
+.rl-legend-meta {
+  font-family: var(--font-mono);
+}
 .rl-legend-bar {
   width: 120px;
   height: 8px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #1d4ed8, #10b981, #fde047, #f97316, #dc2626);
+  /* 固定色标与栅格产物色带对应；--data-observed / --risk-* 均为主题无关令牌，三主题下不漂移 */
+  background: linear-gradient(90deg,
+    var(--data-observed, #3b82f6),
+    var(--risk-low, #22c55e),
+    var(--risk-medium, #facc15),
+    var(--risk-high, #f97316),
+    var(--risk-critical, #ef4444));
+  border: 1px solid color-mix(in srgb, var(--text-primary) 18%, transparent);
 }
-.rl-legend-meta { margin-left: auto; }
+.rl-legend-meta {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
 .rl-calibration {
   margin: 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle, rgba(34, 211, 238, 0.18));
   font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.55;
+}
+
+/* hover / 过渡：仅 reduced-motion: no-preference 下启用 */
+@media (prefers-reduced-motion: no-preference) {
+  .rl-month select,
+  .rl-retry {
+    transition: background-color 180ms var(--ease-out, ease-out),
+      border-color 180ms var(--ease-out, ease-out),
+      color 180ms var(--ease-out, ease-out),
+      box-shadow 180ms var(--ease-out, ease-out);
+  }
+  .rl-close {
+    transition: background-color 180ms var(--ease-out, ease-out),
+      border-color 180ms var(--ease-out, ease-out),
+      color 180ms var(--ease-out, ease-out);
+  }
+  .rl-close:hover {
+    border-color: color-mix(in srgb, var(--color-primary, #22d3ee) 58%, transparent);
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 10%, transparent);
+    color: var(--color-primary, #22d3ee);
+  }
+  .rl-retry:hover {
+    background: color-mix(in srgb, var(--color-primary, #22d3ee) 18%, transparent);
+  }
+  .rl-month select:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in srgb, var(--color-primary, #22d3ee) 40%, transparent);
+  }
+}
+
+@media (max-width: 759px) {
+  .rl-month select,
+  .rl-retry {
+    min-height: 44px;
+  }
+  .rl-head {
+    flex-wrap: wrap;
+  }
 }
 </style>
