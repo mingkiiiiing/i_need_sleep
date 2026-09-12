@@ -1,0 +1,1822 @@
+{
+  "T+1": {
+    "primary_K12": {
+      "candidates": {
+        "BASE_inner_pooled": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 10.035702057628956,
+          "width_mean": 9.608886399016196,
+          "low_breaks": 2,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A1_oof_only": {
+          "n": 36,
+          "covered": 32,
+          "coverage": 0.8888888888888888,
+          "width_median": 8.86216898190476,
+          "width_mean": 8.681675771040561,
+          "low_breaks": 2,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A2_val_inner_only": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 10.490383027738094,
+          "width_mean": 9.838933928620209,
+          "low_breaks": 2,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A3_time_weighted": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 10.273691098151602,
+          "width_mean": 9.762960298025355,
+          "low_breaks": 2,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "B1_pooled_fs": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 10.841298288690483,
+          "width_mean": 10.345231173737883,
+          "low_breaks": 2,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "B2_val_inner_fs": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 11.52477200634921,
+          "width_mean": 10.728084742228843,
+          "low_breaks": 2,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "C_location_scale": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 8.554293420331906,
+          "width_mean": 10.033903640874378,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "D1_season_layered": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 10.274198318849207,
+          "width_mean": 11.074953515856485,
+          "low_breaks": 3,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "fallback_rows": 0
+        },
+        "D2_zone_layered": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 10.841298288690483,
+          "width_mean": 10.345231173737883,
+          "low_breaks": 2,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "fallback_rows": 9
+        },
+        "BUNDLE_reference_leaky": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 9.981951104742055,
+          "width_mean": 9.53884098581404,
+          "low_breaks": 2,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "note": "现行模型内嵌分位（全 validation 估出，含回测段信息）——仅参考，不作选型"
+        },
+        "X115_manual_widening": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 12.450141699791672,
+          "width_mean": 11.587197097482372,
+          "low_breaks": 2,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.15：宽度换覆盖，业务信息损失，红线5禁止接入"
+        },
+        "X130_manual_widening": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 13.449584541031754,
+          "width_mean": 12.761319986650143,
+          "low_breaks": 2,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.3：宽度换覆盖，业务信息损失，红线5禁止接入"
+        }
+      },
+      "meta": {
+        "D1_layers": {
+          "冬(2月)": {
+            "p05": -3.272118455753973,
+            "p95": 4.471871464682539,
+            "n": 54
+          },
+          "夏(8月)": {
+            "p05": -5.109409428571424,
+            "p95": 9.585481263888896,
+            "n": 45
+          },
+          "春(5月)": {
+            "p05": -6.406713980357142,
+            "p95": 3.3986748898809545,
+            "n": 54
+          },
+          "秋(11月)": {
+            "p05": -6.318515854761904,
+            "p95": 7.371530226984126,
+            "n": 45
+          }
+        },
+        "D2_layers": {
+          "TAIHU_CT": null,
+          "TAIHU_ET": null,
+          "TAIHU_GH": null,
+          "TAIHU_ML": null,
+          "TAIHU_ST": null,
+          "TAIHU_WT": null,
+          "TAIHU_XK": null,
+          "TAIHU_ZS": null,
+          "全湖": null
+        },
+        "C_sigma_fit": {
+          "intercept": 0.16839662826976262,
+          "slope": 0.2871373089877808,
+          "z_q05_q95": [
+            -1.7856780097880787,
+            2.249721801815162
+          ]
+        }
+      },
+      "protocol": {
+        "backtest_k_months": 12,
+        "backtest_target_month_span": [
+          "2017-08",
+          "2018-05"
+        ],
+        "inner_target_month_span": [
+          "2012-02",
+          "2017-05"
+        ],
+        "n_inner": 198,
+        "n_inner_oof": 108,
+        "n_inner_validation": 90,
+        "n_backtest": 36,
+        "min_layer_n": 40,
+        "half_life_months": 24,
+        "physical_trim": "lower bound clipped to 0 (chla), consistent with serving",
+        "leakage_note": "回测段属 validation 块（曾参与族选择与现行池化），属弱外层验证；BUNDLE 行含回测段自身信息，仅参考"
+      },
+      "selection": {
+        "rule": "回测段覆盖率≥88% 中宽度中位最小",
+        "best": "C_location_scale",
+        "passing": [
+          "A1_oof_only",
+          "A2_val_inner_only",
+          "A3_time_weighted",
+          "B1_pooled_fs",
+          "B2_val_inner_fs",
+          "BASE_inner_pooled",
+          "C_location_scale",
+          "D1_season_layered",
+          "D2_zone_layered"
+        ],
+        "verdict": "有候选通过"
+      }
+    },
+    "sensitivity_K24": {
+      "candidates": {
+        "BASE_inner_pooled": {
+          "n": 72,
+          "covered": 65,
+          "coverage": 0.9027777777777778,
+          "width_median": 9.934259892738085,
+          "width_mean": 9.598805163527052,
+          "low_breaks": 4,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A1_oof_only": {
+          "n": 72,
+          "covered": 64,
+          "coverage": 0.8888888888888888,
+          "width_median": 8.86216898190476,
+          "width_mean": 8.736130929682538,
+          "low_breaks": 4,
+          "high_breaks": 4,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A2_val_inner_only": {
+          "n": 72,
+          "covered": 64,
+          "coverage": 0.8888888888888888,
+          "width_median": 10.221956489801585,
+          "width_mean": 9.72387972043251,
+          "low_breaks": 4,
+          "high_breaks": 4,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A3_time_weighted": {
+          "n": 72,
+          "covered": 65,
+          "coverage": 0.9027777777777778,
+          "width_median": 10.24260871296649,
+          "width_mean": 9.822102114560725,
+          "low_breaks": 4,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "B1_pooled_fs": {
+          "n": 72,
+          "covered": 65,
+          "coverage": 0.9027777777777778,
+          "width_median": 10.185253416071426,
+          "width_mean": 9.843906619124775,
+          "low_breaks": 4,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "B2_val_inner_fs": {
+          "n": 72,
+          "covered": 66,
+          "coverage": 0.9166666666666666,
+          "width_median": 11.524772006349213,
+          "width_mean": 10.844737677190814,
+          "low_breaks": 4,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          }
+        },
+        "C_location_scale": {
+          "n": 72,
+          "covered": 67,
+          "coverage": 0.9305555555555556,
+          "width_median": 9.00604393301545,
+          "width_mean": 10.439754161559316,
+          "low_breaks": 3,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          }
+        },
+        "D1_season_layered": {
+          "n": 72,
+          "covered": 64,
+          "coverage": 0.8888888888888888,
+          "width_median": 9.121915152579367,
+          "width_mean": 9.089819833438051,
+          "low_breaks": 5,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "fallback_rows": 2
+        },
+        "D2_zone_layered": {
+          "n": 72,
+          "covered": 65,
+          "coverage": 0.9027777777777778,
+          "width_median": 10.185253416071426,
+          "width_mean": 9.843906619124775,
+          "low_breaks": 4,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "fallback_rows": 9
+        },
+        "BUNDLE_reference_leaky": {
+          "n": 72,
+          "covered": 65,
+          "coverage": 0.9027777777777778,
+          "width_median": 9.981951104742057,
+          "width_mean": 9.61575027105241,
+          "low_breaks": 4,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "note": "现行模型内嵌分位（全 validation 估出，含回测段信息）——仅参考，不作选型"
+        },
+        "X115_manual_widening": {
+          "n": 72,
+          "covered": 66,
+          "coverage": 0.9166666666666666,
+          "width_median": 11.713041428482137,
+          "width_mean": 11.06819277568783,
+          "low_breaks": 4,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 14,
+              "coverage": 0.7777777777777778
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          },
+          "note": "手工放大对照 ×1.15：宽度换覆盖，业务信息损失，红线5禁止接入"
+        },
+        "X130_manual_widening": {
+          "n": 72,
+          "covered": 67,
+          "coverage": 0.9305555555555556,
+          "width_median": 13.24082944089285,
+          "width_mean": 12.219323721960977,
+          "low_breaks": 4,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 15,
+              "coverage": 0.8333333333333334
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          },
+          "note": "手工放大对照 ×1.3：宽度换覆盖，业务信息损失，红线5禁止接入"
+        }
+      },
+      "meta": {
+        "D1_layers": {
+          "冬(2月)": {
+            "p05": -3.272118455753973,
+            "p95": 4.471871464682539,
+            "n": 45
+          },
+          "夏(8月)": null,
+          "春(5月)": {
+            "p05": -5.723240262698413,
+            "p95": 3.3986748898809545,
+            "n": 45
+          },
+          "秋(11月)": null
+        },
+        "D2_layers": {
+          "TAIHU_CT": null,
+          "TAIHU_ET": null,
+          "TAIHU_GH": null,
+          "TAIHU_ML": null,
+          "TAIHU_ST": null,
+          "TAIHU_WT": null,
+          "TAIHU_XK": null,
+          "TAIHU_ZS": null,
+          "全湖": null
+        },
+        "C_sigma_fit": {
+          "intercept": 0.23894387073390186,
+          "slope": 0.2763299043495779,
+          "z_q05_q95": [
+            -1.7900060542624667,
+            2.2378760038596517
+          ]
+        }
+      },
+      "protocol": {
+        "backtest_k_months": 24,
+        "backtest_target_month_span": [
+          "2016-08",
+          "2018-05"
+        ],
+        "inner_target_month_span": [
+          "2012-02",
+          "2016-05"
+        ],
+        "n_inner": 162,
+        "n_inner_oof": 108,
+        "n_inner_validation": 54,
+        "n_backtest": 72,
+        "min_layer_n": 40,
+        "half_life_months": 24,
+        "physical_trim": "lower bound clipped to 0 (chla), consistent with serving",
+        "leakage_note": "回测段属 validation 块（曾参与族选择与现行池化），属弱外层验证；BUNDLE 行含回测段自身信息，仅参考"
+      },
+      "selection": {
+        "rule": "回测段覆盖率≥88% 中宽度中位最小",
+        "best": "A1_oof_only",
+        "passing": [
+          "A1_oof_only",
+          "A2_val_inner_only",
+          "A3_time_weighted",
+          "B1_pooled_fs",
+          "B2_val_inner_fs",
+          "BASE_inner_pooled",
+          "C_location_scale",
+          "D1_season_layered",
+          "D2_zone_layered"
+        ],
+        "verdict": "有候选通过"
+      }
+    }
+  },
+  "T+90": {
+    "primary_K12": {
+      "candidates": {
+        "BASE_inner_pooled": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 14.431501259761898,
+          "width_mean": 14.386858876386977,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "A1_oof_only": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 15.291086411914671,
+          "width_mean": 15.274238435648986,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "A2_val_inner_only": {
+          "n": 36,
+          "covered": 33,
+          "coverage": 0.9166666666666666,
+          "width_median": 11.299384885173158,
+          "width_mean": 11.190050930931834,
+          "low_breaks": 1,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A3_time_weighted": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 14.098430558629513,
+          "width_mean": 13.995719624558989,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "B1_pooled_fs": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 15.004109177579366,
+          "width_mean": 14.942196482927992,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "B2_val_inner_fs": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 14.361982757738092,
+          "width_mean": 14.25264880349677,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "C_location_scale": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 13.039708168019247,
+          "width_mean": 13.763830031547583,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          }
+        },
+        "D1_season_layered": {
+          "n": 36,
+          "covered": 32,
+          "coverage": 0.8888888888888888,
+          "width_median": 10.06058650234488,
+          "width_mean": 14.630136412252988,
+          "low_breaks": 2,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 7,
+              "coverage": 0.7777777777777778
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "fallback_rows": 0
+        },
+        "D2_zone_layered": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 15.004109177579366,
+          "width_mean": 14.942196482927992,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "fallback_rows": 9
+        },
+        "BUNDLE_reference_leaky": {
+          "n": 36,
+          "covered": 34,
+          "coverage": 0.9444444444444444,
+          "width_median": 11.166778861017322,
+          "width_mean": 11.141163104185614,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "note": "现行模型内嵌分位（全 validation 估出，含回测段信息）——仅参考，不作选型"
+        },
+        "X115_manual_widening": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 17.25472555421627,
+          "width_mean": 17.09627042075978,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.15：宽度换覆盖，业务信息损失，红线5禁止接入"
+        },
+        "X130_manual_widening": {
+          "n": 36,
+          "covered": 35,
+          "coverage": 0.9722222222222222,
+          "width_median": 19.505341930853177,
+          "width_mean": 19.18441720675586,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 9,
+              "covered": 8,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 9,
+              "covered": 9,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.3：宽度换覆盖，业务信息损失，红线5禁止接入"
+        }
+      },
+      "meta": {
+        "D1_layers": {
+          "冬(2月)": {
+            "p05": -3.030537191071428,
+            "p95": 6.637993808982683,
+            "n": 45
+          },
+          "夏(8月)": {
+            "p05": -4.661391076190474,
+            "p95": 23.78216039166667,
+            "n": 54
+          },
+          "春(5月)": {
+            "p05": -3.9151241361111087,
+            "p95": 5.1809091428571445,
+            "n": 45
+          },
+          "秋(11月)": {
+            "p05": -4.622501732341268,
+            "p95": 6.988955043524538,
+            "n": 45
+          }
+        },
+        "D2_layers": {
+          "TAIHU_CT": null,
+          "TAIHU_ET": null,
+          "TAIHU_GH": null,
+          "TAIHU_ML": null,
+          "TAIHU_ST": null,
+          "TAIHU_WT": null,
+          "TAIHU_XK": null,
+          "TAIHU_ZS": null,
+          "全湖": null
+        },
+        "C_sigma_fit": {
+          "intercept": 0.5731804036869262,
+          "slope": 0.36957371542378886,
+          "z_q05_q95": [
+            -1.3242502909351046,
+            3.2359593800119852
+          ]
+        }
+      },
+      "protocol": {
+        "backtest_k_months": 12,
+        "backtest_target_month_span": [
+          "2016-11",
+          "2017-08"
+        ],
+        "inner_target_month_span": [
+          "2011-08",
+          "2016-08"
+        ],
+        "n_inner": 189,
+        "n_inner_oof": 108,
+        "n_inner_validation": 81,
+        "n_backtest": 36,
+        "min_layer_n": 40,
+        "half_life_months": 24,
+        "physical_trim": "lower bound clipped to 0 (chla), consistent with serving",
+        "leakage_note": "回测段属 validation 块（曾参与族选择与现行池化），属弱外层验证；BUNDLE 行含回测段自身信息，仅参考"
+      },
+      "selection": {
+        "rule": "回测段覆盖率≥88% 中宽度中位最小",
+        "best": "D1_season_layered",
+        "passing": [
+          "A1_oof_only",
+          "A2_val_inner_only",
+          "A3_time_weighted",
+          "B1_pooled_fs",
+          "B2_val_inner_fs",
+          "BASE_inner_pooled",
+          "C_location_scale",
+          "D1_season_layered",
+          "D2_zone_layered"
+        ],
+        "verdict": "有候选通过"
+      }
+    },
+    "sensitivity_K24": {
+      "candidates": {
+        "BASE_inner_pooled": {
+          "n": 72,
+          "covered": 69,
+          "coverage": 0.9583333333333334,
+          "width_median": 15.089338813253969,
+          "width_mean": 14.985320301720732,
+          "low_breaks": 2,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          }
+        },
+        "A1_oof_only": {
+          "n": 72,
+          "covered": 67,
+          "coverage": 0.9305555555555556,
+          "width_median": 15.291086411914671,
+          "width_mean": 15.260786857044492,
+          "low_breaks": 4,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          }
+        },
+        "A2_val_inner_only": {
+          "n": 72,
+          "covered": 66,
+          "coverage": 0.9166666666666666,
+          "width_median": 12.178458937067099,
+          "width_mean": 11.83043746406355,
+          "low_breaks": 1,
+          "high_breaks": 5,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 15,
+              "coverage": 0.8333333333333334
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          }
+        },
+        "A3_time_weighted": {
+          "n": 72,
+          "covered": 69,
+          "coverage": 0.9583333333333334,
+          "width_median": 13.915024358329653,
+          "width_mean": 13.65418475543311,
+          "low_breaks": 1,
+          "high_breaks": 2,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          }
+        },
+        "B1_pooled_fs": {
+          "n": 72,
+          "covered": 70,
+          "coverage": 0.9722222222222222,
+          "width_median": 15.582438620887443,
+          "width_mean": 15.450686934544349,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          }
+        },
+        "B2_val_inner_fs": {
+          "n": 72,
+          "covered": 70,
+          "coverage": 0.9722222222222222,
+          "width_median": 16.34562021924603,
+          "width_mean": 15.971899728838732,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          }
+        },
+        "C_location_scale": {
+          "n": 72,
+          "covered": 68,
+          "coverage": 0.9444444444444444,
+          "width_median": 13.784873930368017,
+          "width_mean": 14.264141265135985,
+          "low_breaks": 3,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            }
+          }
+        },
+        "D1_season_layered": {
+          "n": 72,
+          "covered": 71,
+          "coverage": 0.9861111111111112,
+          "width_median": 15.582438620887443,
+          "width_mean": 18.663804627184035,
+          "low_breaks": 1,
+          "high_breaks": 0,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          },
+          "fallback_rows": 3
+        },
+        "D2_zone_layered": {
+          "n": 72,
+          "covered": 70,
+          "coverage": 0.9722222222222222,
+          "width_median": 15.582438620887443,
+          "width_mean": 15.450686934544349,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          },
+          "fallback_rows": 9
+        },
+        "BUNDLE_reference_leaky": {
+          "n": 72,
+          "covered": 66,
+          "coverage": 0.9166666666666666,
+          "width_median": 11.166778861017322,
+          "width_mean": 11.126454741029747,
+          "low_breaks": 3,
+          "high_breaks": 3,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 15,
+              "coverage": 0.8333333333333334
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 16,
+              "coverage": 0.8888888888888888
+            }
+          },
+          "note": "现行模型内嵌分位（全 validation 估出，含回测段信息）——仅参考，不作选型"
+        },
+        "X115_manual_widening": {
+          "n": 72,
+          "covered": 70,
+          "coverage": 0.9722222222222222,
+          "width_median": 17.919804414020557,
+          "width_mean": 17.648839575920135,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.15：宽度换覆盖，业务信息损失，红线5禁止接入"
+        },
+        "X130_manual_widening": {
+          "n": 72,
+          "covered": 70,
+          "coverage": 0.9722222222222222,
+          "width_median": 20.257170207153674,
+          "width_mean": 19.754954357031824,
+          "low_breaks": 1,
+          "high_breaks": 1,
+          "coverage_by_season": {
+            "冬(2月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            },
+            "夏(8月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "春(5月)": {
+              "n": 18,
+              "covered": 17,
+              "coverage": 0.9444444444444444
+            },
+            "秋(11月)": {
+              "n": 18,
+              "covered": 18,
+              "coverage": 1.0
+            }
+          },
+          "note": "手工放大对照 ×1.3：宽度换覆盖，业务信息损失，红线5禁止接入"
+        }
+      },
+      "meta": {
+        "D1_layers": {
+          "冬(2月)": null,
+          "夏(8月)": {
+            "p05": -4.661391076190474,
+            "p95": 23.78216039166667,
+            "n": 45
+          },
+          "春(5月)": null,
+          "秋(11月)": null
+        },
+        "D2_layers": {
+          "TAIHU_CT": null,
+          "TAIHU_ET": null,
+          "TAIHU_GH": null,
+          "TAIHU_ML": null,
+          "TAIHU_ST": null,
+          "TAIHU_WT": null,
+          "TAIHU_XK": null,
+          "TAIHU_ZS": null,
+          "全湖": null
+        },
+        "C_sigma_fit": {
+          "intercept": 0.41796725818547503,
+          "slope": 0.3865904748565162,
+          "z_q05_q95": [
+            -1.324837450095465,
+            3.3965766552501777
+          ]
+        }
+      },
+      "protocol": {
+        "backtest_k_months": 24,
+        "backtest_target_month_span": [
+          "2015-11",
+          "2017-08"
+        ],
+        "inner_target_month_span": [
+          "2011-08",
+          "2015-08"
+        ],
+        "n_inner": 153,
+        "n_inner_oof": 108,
+        "n_inner_validation": 45,
+        "n_backtest": 72,
+        "min_layer_n": 40,
+        "half_life_months": 24,
+        "physical_trim": "lower bound clipped to 0 (chla), consistent with serving",
+        "leakage_note": "回测段属 validation 块（曾参与族选择与现行池化），属弱外层验证；BUNDLE 行含回测段自身信息，仅参考"
+      },
+      "selection": {
+        "rule": "回测段覆盖率≥88% 中宽度中位最小",
+        "best": "A2_val_inner_only",
+        "passing": [
+          "A1_oof_only",
+          "A2_val_inner_only",
+          "A3_time_weighted",
+          "B1_pooled_fs",
+          "B2_val_inner_fs",
+          "BASE_inner_pooled",
+          "C_location_scale",
+          "D1_season_layered",
+          "D2_zone_layered"
+        ],
+        "verdict": "有候选通过"
+      }
+    }
+  }
+}
