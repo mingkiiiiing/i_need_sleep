@@ -507,8 +507,13 @@ def run_ablation_on_table(
             prob_t = (test_pred["probability"].to_numpy(dtype=float)
                       if spec.problem_type in {"binary", "probability"} else None)
             test_metrics[name] = evaluate_real(spec, test_actual, test_pred["prediction"].to_numpy(), prob_t)
-            col = "probability" if "probability" in test_pred.columns else "prediction"
-            prediction_unique[name] = int(test_pred[col].nunique())
+            # 退化诊断取列：概率任务看 probability；其余（含 ordinal 字符串标签）看
+            # prediction——ordinal 的 prediction 列经 _predict_output 也会补出全 NaN
+            # 的 probability 列，取它会得到 nunique=0 的假诊断。
+            uniq_col = ("probability"
+                        if spec.problem_type in {"binary", "probability"} and "probability" in test_pred.columns
+                        else "prediction")
+            prediction_unique[name] = int(test_pred[uniq_col].nunique())
         except Exception as exc:  # noqa: BLE001 — 单族失败不阻断其它族
             validation_metrics[name] = {"error": str(exc)}
             test_metrics[name] = {"error": str(exc)}
@@ -757,7 +762,20 @@ def cmd_retrain(task: str, variant: str, horizons: list[int], split_source: Path
         feats = _task_feature_columns(table, spec)
         probe = candidate_factories_real(spec, seed)
         fams = families or tuple(f for f in (*ABLATION_ARMS, *OPTIONAL_FUSION, *REFERENCE_BASELINES) if f in probe)
-        history = None  # T3b：offset>=1 时按 cli_real_cv._climatology_history 口径传入
+        history = None
+        if offset >= 1:
+            # climatology_history 与 cli_real_cv._climatology_history 同口径：用同一任务
+            # mo=0 监督表的真实标签序列估月气候态，截断到本 run 测试段最早目标月之前
+            # （无前视）。缺省 None 会让 mo>=1 的气候态退化为拟合段"几乎全 0 查表"。
+            mo0_table = tables.get(f"{task}-{variant}-0m")
+            test_months = table.loc[table["dataset_split_frozen"] == "test", "target_month"] \
+                if "target_month" in table.columns else pd.Series(dtype=object)
+            if mo0_table is not None and len(mo0_table) and len(test_months):
+                cutoff = str(test_months.min())
+                hist_frame = mo0_table.loc[mo0_table["target_month"] < cutoff]
+                keep = [c for c in ("actual", *feats) if c in hist_frame.columns]
+                if "actual" in keep and len(hist_frame):
+                    history = hist_frame.loc[:, keep].reset_index(drop=True)
         result = run_ablation_on_table(spec, table, feats, seed, fams, horizon,
                                        evidence_source="retrain_draft", climatology_history=history)
         result["meta"].update(split_info)

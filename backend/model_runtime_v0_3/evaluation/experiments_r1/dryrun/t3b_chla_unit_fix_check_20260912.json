@@ -1,0 +1,120 @@
+{
+  "check": "T3b bug3 chla unit normalization before/after (L-data-05)",
+  "generated_at": "2026-09-12T12:10:08.710361+00:00",
+  "old_labels_field_rows": {
+    "IN_SITU_GROUP|2020-12": 3.065062,
+    "IN_SITU_GROUP|2022-12": 1.125355,
+    "IN_SITU_GROUP|2023-10": 5.114554,
+    "S1|2026-08": 0.03
+  },
+  "new_labels_field_rows": {
+    "IN_SITU_GROUP|2020-12": 6.124,
+    "IN_SITU_GROUP|2022-12": 2.248462,
+    "IN_SITU_GROUP|2023-10": 10.218889,
+    "S1|2026-08": 30.0
+  },
+  "chla_proxy_anchor": {
+    "old": {
+      "chla_month": "2020-12",
+      "chla_mean_ug_l": 3.0651,
+      "chla_n_samples": 1,
+      "nutrient_month": "2020-11",
+      "tp_mg_l": 0.067083,
+      "tn_mg_l": 1.012067,
+      "nutrient_lag_note": "航次为 2020-12 混合样，水质取相邻 2020-11 月，1 个月滞后口径"
+    },
+    "new": {
+      "chla_month": "2020-12",
+      "chla_mean_ug_l": 6.124,
+      "chla_n_samples": 1,
+      "nutrient_month": "2020-11",
+      "tp_mg_l": 0.067083,
+      "tn_mg_l": 1.012067,
+      "nutrient_lag_note": "航次为 2020-12 混合样，水质取相邻 2020-11 月，1 个月滞后口径"
+    },
+    "old_a": 1.295068,
+    "new_a": 1.987215,
+    "old_sigma_ln": 0.35,
+    "new_sigma_ln": 0.35
+  },
+  "panel_old": {
+    "t1_bloom_mo0_positives_by_split": {
+      "train": {
+        "rows": 586,
+        "positives": 23
+      },
+      "validation": {
+        "rows": 31,
+        "positives": 0
+      },
+      "test": {
+        "rows": 40,
+        "positives": 1
+      }
+    },
+    "t5_chla_mo0_actual": {
+      "rows": 618,
+      "min": 0.03,
+      "mean": 7.208291270226537,
+      "max": 42.1483,
+      "nunique": 577,
+      "validation_values": [
+        1.125355,
+        5.114553888888889
+      ]
+    },
+    "t6_risk_band_counts": {
+      "none": 486,
+      "low": 110,
+      "medium": 17,
+      "high": 5
+    },
+    "t6_train_band_counts": {
+      "none": 454,
+      "low": 110,
+      "medium": 17,
+      "high": 5
+    }
+  },
+  "panel_new": {
+    "t1_bloom_mo0_positives_by_split": {
+      "train": {
+        "rows": 586,
+        "positives": 133
+      },
+      "validation": {
+        "rows": 31,
+        "positives": 0
+      },
+      "test": {
+        "rows": 40,
+        "positives": 2
+      }
+    },
+    "t5_chla_mo0_actual": {
+      "rows": 618,
+      "min": 1.7291,
+      "mean": 14.450621844660194,
+      "max": 84.2124,
+      "nunique": 579,
+      "validation_values": [
+        2.2484615384615347,
+        10.218888888888882
+      ]
+    },
+    "t6_risk_band_counts": {
+      "none": 257,
+      "low": 228,
+      "medium": 83,
+      "high": 44,
+      "severe": 6
+    },
+    "t6_train_band_counts": {
+      "none": 244,
+      "low": 210,
+      "medium": 83,
+      "high": 43,
+      "severe": 6
+    }
+  }
+}

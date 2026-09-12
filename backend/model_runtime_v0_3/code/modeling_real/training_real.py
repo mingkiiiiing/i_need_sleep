@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import math
 from datetime import datetime, timezone
@@ -29,6 +30,7 @@ from .contracts_real import (
     DATA_VERSION_V3,
     DEFAULT_SEED_V3,
     HORIZON_MAP_V3,
+    TARGET_SOURCE_FEATURE_EXCLUSIONS,
     TaskSpecReal,
     artifact_id_real,
     protocol_of_run,
@@ -160,6 +162,17 @@ def evaluate_real(spec: TaskSpecReal, actual, prediction, probability=None) -> d
     if spec.problem_type == "ordinal":
         return ordinal_metrics(actual, prediction)
     return regression_metrics(actual, prediction)
+
+
+def eval_actual_values(frame: pd.DataFrame, spec: TaskSpecReal) -> np.ndarray:
+    """评估用真值（L-diag-02 修复）：序数任务的标签是等级字符串（none/low/…），
+    必须原样进入 ordinal_metrics——旧评估循环统一 pd.to_numeric(errors="coerce")
+    会把整列转成 NaN，ordinal_metrics 再 str() 出幻影类 'nan'，与任何预测类不相交，
+    macro_f1=accuracy=0（L-gate-35/37/39/41/42 假 FAIL 的根因）。数值任务口径不变。
+    """
+    if spec.problem_type == "ordinal":
+        return frame["actual"].astype(str).to_numpy(dtype=object)
+    return pd.to_numeric(frame["actual"], errors="coerce").to_numpy()
 
 
 def _metric_direction(primary: str) -> str:
@@ -330,13 +343,26 @@ MECH_DESIGN_BASE = (
 )
 
 
-def _mechanism_design(frame: pd.DataFrame) -> pd.DataFrame:
+def _mechanism_design(frame: pd.DataFrame, spec: TaskSpecReal | None = None) -> pd.DataFrame:
+    """机理设计矩阵；任务级目标同源剔除列直接收缩出列集（L-data-02 修复）。
+
+    剔除契约 TARGET_SOURCE_FEATURE_EXCLUSIONS（如 biomass/density 任务的
+    wq_phyto_biomass）防止的是"目标本身当特征"的同月泄漏——它约束的是特征侧，
+    不应该连坐机理设计矩阵：旧实现把缺席列置 NaN，而 _fit_mechanism 的行有效性门
+    要求全部列逐行有限，于是 T3/T4 全部 576 行被判无效（valid=0）→ 机理支路必然
+    常数回退（台账 L-diag-01 的退化路径）。正确口径：剔除列从设计矩阵收缩掉，
+    行有效性按剩余机理列判定；机理列本身在目标任务里照常可用。
+    spec=None 时保持旧口径（缺席列置 NaN），兼容无任务上下文的调用。
+    """
+    excluded = set(TARGET_SOURCE_FEATURE_EXCLUSIONS.get(spec.label_family, ())) if spec is not None else set()
     design = pd.DataFrame(index=frame.index)
     for column in MECH_DESIGN_BASE:
+        if column in excluded:
+            continue
         if column in frame.columns:
             design[column] = pd.to_numeric(frame[column], errors="coerce")
         else:
-            # 任务级剔除列（如 biomass 任务的 wq_phyto_biomass）：置 NaN，HistGB 原生支持
+            # 非任务级剔除、仅是本帧未携带的列：置 NaN，HistGB 原生支持
             design[column] = np.nan
     chla = (
         pd.to_numeric(frame["wq_chla"], errors="coerce")
@@ -359,7 +385,7 @@ class MechanismCandidateReal:
         self.constant = constant
 
     def predict_frame(self, frame: pd.DataFrame) -> pd.DataFrame:
-        design = _mechanism_design(frame)
+        design = _mechanism_design(frame, self.spec)
         if self.constant is not None:
             size = len(frame)
             if self.spec.problem_type in {"binary", "probability"}:
@@ -516,7 +542,7 @@ def _fit_ai(spec: TaskSpecReal, algorithm: str, features: pd.DataFrame, columns,
 
 
 def _fit_mechanism(spec: TaskSpecReal, features: pd.DataFrame, seed: int) -> MechanismCandidateReal:
-    design = _mechanism_design(features)
+    design = _mechanism_design(features, spec)
     x = design.to_numpy(dtype=float)
     valid = np.isfinite(x).all(axis=1)
     if valid.sum() < 10:
@@ -604,7 +630,16 @@ def _fit_fusion(name: str, spec: TaskSpecReal, train: pd.DataFrame, validation: 
         residual = actual - mech_value
         augmented = _augmented(train, mechanism).assign(actual=residual)
         columns = tuple(c for c in augmented.columns if c not in _NON_FEATURE_COLUMNS)
-        ai = _fit_ai(spec, "random_forest", augmented, columns, seed)
+        if spec.problem_type in {"binary", "probability"}:
+            # 残差是连续量：二阶段必须用回归器拟合（2026-09-12 修复）。此前把
+            # binary spec 原样传给 _fit_ai，classifier.fit 收到连续残差直接抛
+            # "Unknown label type: continuous"——binary 任务的 residual 融合族
+            # 因此从未成功过。predict 侧同样用回归口径输出，再由
+            # ResidualCandidateReal 截断回 [0,1]。
+            regression_spec = dataclasses.replace(spec, problem_type="regression")
+            ai = _fit_ai(regression_spec, "random_forest", augmented, columns, seed)
+        else:
+            ai = _fit_ai(spec, "random_forest", augmented, columns, seed)
         return ResidualCandidateReal(spec, mechanism, ai)
     # constrained_blend
     columns = tuple(c for c in train.columns if c not in _NON_FEATURE_COLUMNS)
@@ -654,12 +689,14 @@ def candidate_factories_real(
     留出测试段，无前视），让气候态基线建立在真实季节循环上，再拿去和模型同台比较。
     """
     def simple(train, validation=None):
+        if spec.problem_type == "ordinal":
+            # 序数标签是字符串，不能走 to_numeric（全 NaN → 众数兜底成 "none" 的假口径）
+            labels = train["actual"].astype(str)
+            mode = str(labels.mode().iloc[0]) if len(labels) else "none"
+            return ConstantCandidateReal(spec, 0.0, label=mode)
         actual = pd.to_numeric(train["actual"], errors="coerce").dropna()
         if spec.problem_type in {"binary", "probability"}:
             return ConstantCandidateReal(spec, float(actual.mean()) if len(actual) else 0.0)
-        if spec.problem_type == "ordinal":
-            mode = str(actual.astype(str).mode().iloc[0]) if len(actual) else "none"
-            return ConstantCandidateReal(spec, 0.0, label=mode)
         return ConstantCandidateReal(spec, float(actual.mean()) if len(actual) else 0.0)
 
     def rf(train, validation=None):
@@ -691,8 +728,10 @@ def candidate_factories_real(
         "random_forest": rf, "xgboost": xgb, "mechanism": mech,
         "mechanism_feature": mech_feature, "residual": residual, "constrained_blend": blend,
     }
-    # 持续性基线：特征里存在当月实测 wq_chla 时（month_offset≥1 的 chla/bloom 家族）注册
-    if spec.label_family in {"chla", "bloom"} and spec.problem_type != "ordinal":
+    # 持续性基线：仅 month_offset≥1（当月实测相对目标月为历史量，特征契约此时
+    # 才并入 wq_chla）且 chla/bloom 家族注册。month_offset=0 时预测帧没有
+    # wq_chla 列，注册必然后 predict 阶段 KeyError（2026-09-12 补上漏查的条件）。
+    if spec.label_family in {"chla", "bloom"} and spec.problem_type != "ordinal" and month_offset >= 1:
         def persistence(train, validation=None):
             return PersistenceCandidateReal(spec)
 
@@ -728,6 +767,9 @@ def _fit_oof_residuals(
 ) -> np.ndarray:
     """时间递增 2 折折外残差（仅用 train，防测试集信息泄漏）。"""
     residuals = np.empty(0)
+    if spec.problem_type == "ordinal":
+        # 序数任务的预测是等级标签，无数值残差可池化（conformal 对 ordinal 不适用）
+        return residuals
     months = np.sort(train["month"].unique())
     if len(months) < 3:
         return residuals
@@ -836,7 +878,7 @@ def train_run_real(
         except Exception as exc:  # noqa: BLE001 — 单候选失败不阻断其它候选
             validation_metrics[name] = {"error": str(exc), "primary": None}
             continue
-        actual = pd.to_numeric(validation["actual"], errors="coerce").to_numpy()
+        actual = eval_actual_values(validation, spec)
         prob = predicted["probability"].to_numpy(dtype=float) if spec.problem_type in {"binary", "probability"} else None
         pred = predicted["prediction"].to_numpy()
         metrics = evaluate_real(spec, actual, pred, prob)
@@ -906,7 +948,7 @@ def train_run_real(
             except Exception as exc:  # noqa: BLE001
                 test_metrics_by_family[name] = {"error": str(exc)}
                 continue
-            actual = pd.to_numeric(test["actual"], errors="coerce").to_numpy()
+            actual = eval_actual_values(test, spec)
             prob = predicted["probability"].to_numpy(dtype=float) if spec.problem_type in {"binary", "probability"} else None
             metrics = evaluate_real(spec, actual, predicted["prediction"].to_numpy(), prob)
             test_metrics_by_family[name] = metrics

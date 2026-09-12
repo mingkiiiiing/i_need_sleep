@@ -1,0 +1,99 @@
+{
+  "selftest": "T3b bugfix unit selftest (bug1 mechanism shrink + bug2 ordinal actual passthrough)",
+  "generated_at": "2026-09-12T12:15:47.297942+00:00",
+  "seed": 20260907,
+  "evidence_source": "retrain_draft_unit_selftest",
+  "bug1_mechanism": [
+    {
+      "task_id": "T3",
+      "variant": "density",
+      "train_rows": 576,
+      "design_columns_new": [
+        "mech_temperature_factor",
+        "mech_light_factor",
+        "mech_phosphorus_factor",
+        "mech_nitrogen_factor",
+        "mech_nutrient_factor",
+        "mech_net_growth_rate_d",
+        "wq_tp",
+        "wq_tn",
+        "wq_do",
+        "wq_nh4_n",
+        "met_air_temperature_c",
+        "met_shortwave_radiation_wm2",
+        "hydro_water_level_m",
+        "calendar_month_sin",
+        "calendar_month_cos",
+        "log1p_wq_chla"
+      ],
+      "design_columns_new_n": 16,
+      "excluded_column_shrunk": "wq_phyto_biomass",
+      "valid_rows_new": 576,
+      "valid_rows_old_spec_none": 0,
+      "old_path_valid_rows_all_lost": true,
+      "fit_mechanism_constant_is_none": true,
+      "fit_mechanism_model_loaded": true,
+      "prediction_unique_values": 566
+    },
+    {
+      "task_id": "T4",
+      "variant": "biomass",
+      "train_rows": 576,
+      "design_columns_new": [
+        "mech_temperature_factor",
+        "mech_light_factor",
+        "mech_phosphorus_factor",
+        "mech_nitrogen_factor",
+        "mech_nutrient_factor",
+        "mech_net_growth_rate_d",
+        "wq_tp",
+        "wq_tn",
+        "wq_do",
+        "wq_nh4_n",
+        "met_air_temperature_c",
+        "met_shortwave_radiation_wm2",
+        "hydro_water_level_m",
+        "calendar_month_sin",
+        "calendar_month_cos",
+        "log1p_wq_chla"
+      ],
+      "design_columns_new_n": 16,
+      "excluded_column_shrunk": "wq_phyto_biomass",
+      "valid_rows_new": 576,
+      "valid_rows_old_spec_none": 0,
+      "old_path_valid_rows_all_lost": true,
+      "fit_mechanism_constant_is_none": true,
+      "fit_mechanism_model_loaded": true,
+      "prediction_unique_values": 556
+    }
+  ],
+  "bug2_ordinal": {
+    "task_id": "T6",
+    "variant": "risk_level",
+    "panel_rows": 618,
+    "split_counts": {
+      "train": 360,
+      "validation": 126,
+      "test": 132
+    },
+    "block_bounds": {
+      "train_max_month": "2014-11",
+      "validation_max_month": "2018-05"
+    },
+    "actual_value_counts": {
+      "none": 257,
+      "low": 228,
+      "medium": 83,
+      "high": 44,
+      "severe": 6
+    },
+    "old_path_numeric_nan_ratio_validation": 1.0,
+    "new_path_actual_all_str": true,
+    "rf_macro_f1_validation_fixed": 0.4015102481121898,
+    "rf_macro_f1_test_fixed": 0.2968564267812388,
+    "rf_accuracy_test_fixed": 0.5303030303030303,
+    "old_path_macro_f1_test": 0.0,
+    "sanity_self_macro_f1": 1.0,
+    "macro_f1_recovered": true
+  }
+}

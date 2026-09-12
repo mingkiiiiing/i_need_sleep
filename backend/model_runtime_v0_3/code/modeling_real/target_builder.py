@@ -81,8 +81,53 @@ def _aux_station(aux_value) -> str | None:
     return None
 
 
+def _normalize_chla_units(wq: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """chla 双单位归一（L-data-05 修复）：mg/L 行 ×1000 统一到 μg/L，其余指标不动。
+
+    依据（T1 审计 §5.5 缺陷 B）：water_quality.parquet 的 chla 行自带权威 unit 列
+    （taihu_field_samples：mg/L 41 行 + ug/L 41 行，同 (station, month) 成对且严格
+    ×1000 同值；taihu_water_quality：mg/L 1 行 S1 0.03 mg/L = 30 μg/L）。此前
+    load_label_wide / load_field_chla_samples 直接取 value 聚合，把 mg/L 量纲数值
+    当 μg/L 混入月度均值（38 对同值异单位被平均成"半个量纲"）→ 野外月标签系统性
+    偏低 → chla 代理锚点（2020-12 航次）被拉低 → 全部代理标签系统性偏低 →
+    bloom 阈值 20 μg/L 下阳性稀缺（T1/T6p test 1/40 的根因）。
+
+    选择「单位统一换算」而非「同值异单位去重」的理由：
+    1) unit 是清洗层显式标注，可编程判定，不依赖值域启发式；
+    2) 换算对全部 chla 行成立——去重只能处理严格成对行，孤行（如 S1 0.03 mg/L）
+       的量纲错误仍会漏网；
+    3) 统一后口径与 BLOOM_THRESHOLD_UG_L / RISK_BANDS_UG_L（μg/L）一致。
+    换算后 unit 统一改写为 "ug/L"；unit 缺失行按原值保留并计数（当前数据无此情形）。
+    """
+    out = wq.copy()
+    stats = {"chla_rows": 0, "converted_from_mg_l": 0, "kept_as_is": 0, "unit_missing_kept": 0}
+    if "unit" not in out.columns:
+        stats["unit_missing_kept"] = int((out["variable_code"] == "chla").sum())
+        return out, stats
+    mask = out["variable_code"] == "chla"
+    stats["chla_rows"] = int(mask.sum())
+    if not mask.any():
+        return out, stats
+    target = out.loc[mask]
+    unit = target["unit"].astype("string").str.strip().str.lower()
+    values = pd.to_numeric(target["value"], errors="coerce")
+    is_mg_l = unit == "mg/l"
+    converted = values * np.where(is_mg_l, 1000.0, 1.0)
+    stats["converted_from_mg_l"] = int(is_mg_l.sum())
+    stats["unit_missing_kept"] = int(unit.isna().sum())
+    stats["kept_as_is"] = int((~is_mg_l & unit.notna()).sum())
+    out.loc[mask, "value"] = converted
+    out.loc[mask, "unit"] = "ug/L"
+    return out, stats
+
+
 def load_label_wide(tables_dir: Path | None = None) -> pd.DataFrame:
-    """把 water_quality 长表 + labels.parquet 透视为 (station_id, month) 月度标签宽表。"""
+    """把 water_quality 长表 + labels.parquet 透视为 (station_id, month) 月度标签宽表。
+
+    chla 行先经 _normalize_chla_units 统一到 μg/L（L-data-05），统计挂 attrs
+    ["chla_unit_normalization"]；下游 merge 会丢 attrs，消费方如需披露请在透视图
+    之后、merge 之前读取。
+    """
     tables = Path(tables_dir) if tables_dir else clean_tables_dir()
     wq = pd.read_parquet(tables / "water_quality.parquet")
     wq = wq[wq["is_ground_truth"] == True]  # noqa: E712
@@ -90,6 +135,7 @@ def load_label_wide(tables_dir: Path | None = None) -> pd.DataFrame:
     wq = wq[wq["station_id"].isin(LAKE_STATIONS + FIELD_STATIONS)]
     wq["month"] = pd.to_datetime(wq["observed_at"]).dt.strftime("%Y-%m")
     wq = wq[wq["variable_code"].isin(WQ_LABEL_CODES)]
+    wq, chla_unit_stats = _normalize_chla_units(wq)
     wide = (
         wq.pivot_table(
             index=["station_id", "month"],
@@ -112,6 +158,8 @@ def load_label_wide(tables_dir: Path | None = None) -> pd.DataFrame:
         if col not in wide.columns:
             wide[col] = np.nan
         wide[col] = pd.to_numeric(wide[col], errors="coerce").astype(float)
+    # merge 会重建 DataFrame 丢 attrs：归一统计在返回前最后挂载（见 §build_supervised_base 同注）
+    wide.attrs["chla_unit_normalization"] = chla_unit_stats
     return wide
 
 
@@ -296,10 +344,15 @@ def _lag_columns(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_field_chla_samples(tables_dir: Path | None = None) -> pd.DataFrame:
-    """野外航次/S1 的逐样本 chla（μg/L，ground_truth），用于逐样本标签回填。"""
+    """野外航次/S1 的逐样本 chla（μg/L，ground_truth），用于逐样本标签回填。
+
+    chla 行经 _normalize_chla_units 统一到 μg/L（L-data-05）：否则 mg/L 行
+    （0.00113~0.01803）被当 μg/L 混入逐样本标签与 2020-12 代理锚点。
+    """
     tables = Path(tables_dir) if tables_dir else clean_tables_dir()
     wq = pd.read_parquet(tables / "water_quality.parquet")
     wq = wq[(wq["is_ground_truth"] == True) & (wq["variable_code"] == "chla")]  # noqa: E712
+    wq, _chla_unit_stats = _normalize_chla_units(wq)
     wq = wq[wq["aux"].map(_aux_station).isin(FIELD_STATIONS)]
     out = pd.DataFrame({
         "station_id": wq["aux"].map(_aux_station),
