@@ -227,8 +227,9 @@ async function main() {
   check('T4 hero 显示 μg/L 口径', (st.heroFirstLine || '').includes('μg/L'), `hero=${st.heroFirstLine}`)
 
   // ---------- T5 长期时效：中长期月度趋势分口 ----------
-  // 口径已从"情景推演（未验证）"改为按真实来源命名：90 天为逐站模型、
-  // 30/60 天为季节气候态基线。两者都有真实来源与留出回测，不得再笼统写成"未验证"。
+  // 口径（2026-09-12 范围标签改版）：主视图状态标签改为四态范围标签
+  // （预测范围/参考范围/情景范围/暂无范围），门禁与来源披露移入「模型评估」详情与
+  // 标签 tooltip——主视图不再出现门禁字样。
   await page.click('[data-role="metric-risk"]')
   await settle(1000)
   await page.click('[data-role="scale-long"]')
@@ -236,8 +237,10 @@ async function main() {
   st = await readPage(page)
   check('T5 hero 口径为"中长期"', (st.heroScope || '').includes('中长期'), `heroScope=${st.heroScope}`)
   check('T5 hero 口径不再出现"未验证"', !(st.heroScope || '').includes('未验证'), `heroScope=${st.heroScope}`)
-  check('T5 状态标签为 longterm 态', st.statusTagState === 'longterm', `state=${st.statusTagState} 文本=${st.statusTagText}`)
-  check('T5 中长期口径标签说明来源', /逐站模型|季节气候态|全湖常量模型/.test(st.statusTagText || ''), st.statusTagText)
+  check('T5 状态标签为四态范围标签', ['forecast', 'reference', 'scenario', 'none'].includes(st.statusTagState || ''),
+    `state=${st.statusTagState} 文本=${st.statusTagText}`)
+  check('T5 状态标签文案为范围性质', /预测范围|参考范围|情景范围|暂无范围/.test(st.statusTagText || ''), st.statusTagText)
+  check('T5 主视图无门禁字样', !(st.statusTagText || '').includes('门禁'), st.statusTagText)
   check('T5 趋势图虚线分口仍在', st.trendScenarioLine, `scenarioLine=${st.trendScenarioLine}`)
   check('T5 趋势图短期/中长期双标注', st.trendCaptions.includes('短期') && st.trendCaptions.includes('中长期'),
     JSON.stringify(st.trendCaptions))

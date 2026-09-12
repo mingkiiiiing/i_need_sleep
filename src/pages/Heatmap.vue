@@ -190,13 +190,13 @@
 
         <!-- 右栏：预测结果 / 实测摘要 / 年度统计 -->
         <aside class="hm-panel hm-right" aria-label="推演结果">
-        <!-- 站点预测能力小标签：业务页只保留一行诚实状态 -->
+        <!-- 站点预测范围标签：主视图只给「范围性质」四态，门禁细节移入结果面板评估详情 -->
         <div
           v-if="pageMode === 'forecast' && modelState === 'ok'"
           class="hm-status-tag"
           data-role="prediction-status-tag"
         >
-          <span :data-state="predictionStatusKind">{{ predictionStatusText }}</span>
+          <RangeBadge :kind="rangeBadgeKind" :evidence="rangeBadgeEvidence" />
         </div>
 
           <!-- 预测推演：三标签结果面板 -->
@@ -388,8 +388,9 @@ import RasterLayer from '../components/heatmap/RasterLayer.vue'
 import ForecastControlPanel from '../components/heatmap/ForecastControlPanel.vue'
 import ForecastResultPanel from '../components/heatmap/ForecastResultPanel.vue'
 import ForecastTimeline from '../components/heatmap/ForecastTimeline.vue'
+import RangeBadge from '../components/heatmap/RangeBadge.vue'
 import { chlaColor, fetchRealtimeStations, fetchRealtimeSummary, fetchRealtimeTimeline, fetchStationObservations, fmtMeasure, formatStamp, stationMapPoints } from '../services/realtime.js'
-import { currentHorizonData, entityDiagnostic, loadPredictionSnapshot, predictionSnapshot, refreshPredictionStatus } from '../stores/predictionSnapshot.js'
+import { currentHorizonData, entityDiagnostic, focusResult, intervalState, loadPredictionSnapshot, predictionSnapshot, refreshPredictionStatus } from '../stores/predictionSnapshot.js'
 import { assessShortTerm, assessMidTerm, assessLongTerm, assessStationFactors } from '../components/heatmap/riskAssessment.js'
 
 const route = useRoute()
@@ -1114,65 +1115,102 @@ const modelInfo = computed(() => ({
   dataTime: modelForecast.value?.scope?.observed_at ? formatStamp(modelForecast.value.scope.observed_at) : '—'
 }))
 
-// ---------- 站点预测能力小标签 ----------
-// 只用后端实测诊断，不在前端做任何数值修饰；诊断缺失时不臆断。
+// ---------- 站点预测范围标签（范围性质四态） ----------
+// 主视图只给「范围性质」：预测/参考/情景/暂无，按后端区间证据判定；
+// 门禁（融合增益 10%）细节不在主视图出现，由结果面板的评估详情承载。
 const focusDiagnostic = computed(() => entityDiagnostic(selectedHorizon.value))
+// 焦点任务结果框与区间状态：intervalState 把后端「结构自洽 / 校准证据 / 决策可用」
+// 三层结论翻译成页面口径（见 stores/predictionSnapshot.js）。
+const focusResultBox = computed(() => focusResult(selectedHorizon.value))
+const focusInterval = computed(() => intervalState(focusResultBox.value))
 
-const predictionStatusKind = computed(() => {
-  const diag = focusDiagnostic.value
-  if (!diag) return 'unknown'
-  if (diag.valueOrigin === 'legacy_v0_2_synthetic_fallback') return 'scenario'
-  // 中长期（T+30 起）：归入"中长期月度趋势"档，不再叫"情景推演·未验证"——
-  // 该档现在有真实来源（逐站模型或季节气候态基线）与真实留出回测，口径与短期分开表述。
-  if (selectedHorizon.value >= 30) return 'longterm'
-  if (diag.comparisonUsable) return 'usable'
-  if (diag.numericVariation) return 'evidence'
-  return 'no-response'
+// risk 指标的等级范围由源区间（叶绿素 a 预测区间）映射到冻结风险带得到；源区间未达
+// 决策可用时后端不给等级范围、只给 band_range_blocked（取数路径与
+// ForecastResultPanel 的 bandRangeBlocked 一致）。此时主视图没有范围可展示，
+// 必须落「暂无范围」，不得表述成「参考范围」。
+const riskBandRangeBlocked = computed(() => {
+  if (predictionSnapshot.focusMetric !== 'risk') return null
+  const sibling = currentHorizonData(selectedHorizon.value)?.results?.risk_level
+  if (!sibling) return null
+  if (focusResultBox.value?.uncertainty?.band_range) return null
+  if (sibling.uncertainty?.band_range) return null
+  return sibling.band_range_blocked || null
 })
 
-const predictionStatusText = computed(() => {
-  const kind = predictionStatusKind.value
+const rangeBadgeKind = computed(() => {
+  const box = focusResultBox.value
+  const st = focusInterval.value
+  // ① 无结果框，或该任务未提供预测区间
+  if (!box || !st.available) return 'none'
+  // ② risk 等级范围被后端阻断：无范围可展示，不得伪装成「参考范围」
+  if (riskBandRangeBlocked.value) return 'none'
+  // ③ 非预测区间（情景口径）
+  if (st.isPredictionInterval === false) return 'scenario'
+  // 退化区间（P05=P95）不构成可用范围
+  if (st.degenerate) return 'none'
+  // ④ 结构自洽且后端判定决策可用（decisionUsable 为真实判定值，前端不放宽）
+  if (st.valid && st.decisionUsable) return 'forecast'
+  // ⑤ 结构自洽但未达决策可用：区间可看，只作参考
+  if (st.valid && !st.decisionUsable) return 'reference'
+  // ⑥ 其余（结构不自洽等）
+  return 'none'
+})
+
+// 来源披露：逐字保留原状态句的来源部分（季节气候态基线 / 全湖常量模型 / 逐站模型
+// + 留出集精度摘要 + 模型文件），仅去掉「融合增益…门禁…」子句——门禁细节由结果
+// 面板的评估详情承载。
+const sourceDisclosureText = computed(() => {
   const diag = focusDiagnostic.value
-  if (kind === 'scenario') return '合成情景口径，不可作真实站点预测'
-  if (kind === 'longterm') {
-    // 中长期逐档说清来源：季节气候态基线不含站点分辨，逐站模型才可做站间比较。
-    // 2026-09-11：不再统称"逐站模型·已验证"——T+30/60 是无站点分辨的季节基线，
-    // T+90 才有逐站模型，且必须连留出集精度一起说，否则"已验证"就是夸大。
-    if (diag?.valueOrigin === 'seasonal_climatology_baseline') {
-      const route = diag?.longTermRoute
-      const rejected = route?.model_rejected
-        ? '（该时效原模型留出样本不足，已按路由规则降级）'
-        : ''
-      const fallback = diag?.seasonalLookupMode === 'global_fallback'
-        ? '（目标月无同期样本，使用全期均值基线）'
-        : ''
-      return `季节气候态基线：按月给出历史同期值，全湖同值、不含站点分辨${fallback}${rejected}`
-    }
-    const metrics = diag?.testMetrics || {}
-    const parts = []
-    if (metrics.mae != null) parts.push(`MAE=${Number(metrics.mae).toFixed(3)}`)
-    if (metrics.r2 != null) parts.push(`R²=${Number(metrics.r2).toFixed(3)}`)
-    if (metrics.n != null) parts.push(`n=${metrics.n}`)
-    const metricText = parts.length ? `，留出集 ${parts.join(' · ')}` : ''
-    const fileText = diag?.modelFile ? ` · ${diag.modelFile}` : ''
-    // 2026-09-12 复审整改：T+90 只有逐站响应的指标可称"逐站模型"；概率/生物量/密度
-    // 在补训中选中 climatology_global 全局常量模型，对站点输入无响应，不得沿用该措辞。
-    if (diag && (diag.modelEntityResponse === false || diag.numericVariation === false)) {
-      return `中长期 · 全湖常量模型（读模型文件但无站点响应），不做站间比较${fileText}`
-    }
-    if (diag?.gateStatus === 'PASS') return `中长期月度趋势：逐站模型，融合增益已过 10% 门禁${metricText}${fileText}`
-    if (diag?.gateStatus === 'FAIL') return `中长期月度趋势：逐站模型，融合增益未达 10% 门禁阈值${metricText}${fileText}`
-    if (diag?.gateStatus === 'NA') return `中长期月度趋势：逐站模型，该时效暂无评估记录${metricText}${fileText}`
-    return `中长期月度趋势：逐站模型${metricText}${fileText}`
+  if (!diag) return ''
+  if (diag.valueOrigin === 'legacy_v0_2_synthetic_fallback') {
+    return '合成情景口径，不可作真实站点预测'
   }
-  if (kind === 'usable') return '站点差异预测已通过验证，可用于站点比较'
-  if (kind === 'evidence') {
-    if (diag?.gateStatus === 'FAIL') return '融合增益未达 10% 门禁阈值 · 结果作参考'
-    if (diag?.gateStatus === 'NA') return '该任务时效暂无评估记录 · 结果作参考'
-    if (diag?.gateStatus === 'PASS') return '融合增益已过 10% 门禁，站点比较证据待补'
-    return '数值随站点变化，评估证据不足 · 结果作参考'
+  // 中长期（T+30 起）逐档说清来源：季节气候态基线不含站点分辨，逐站模型才可做站间比较。
+  // 2026-09-11：不再统称"逐站模型·已验证"——T+30/60 是无站点分辨的季节基线，
+  // T+90 才有逐站模型，且必须连留出集精度一起说，否则"已验证"就是夸大。
+  if (selectedHorizon.value < 30) return ''
+  if (diag.valueOrigin === 'seasonal_climatology_baseline') {
+    const route = diag?.longTermRoute
+    const rejected = route?.model_rejected
+      ? '（该时效原模型留出样本不足，已按路由规则降级）'
+      : ''
+    const fallback = diag?.seasonalLookupMode === 'global_fallback'
+      ? '（目标月无同期样本，使用全期均值基线）'
+      : ''
+    return `季节气候态基线：按月给出历史同期值，全湖同值、不含站点分辨${fallback}${rejected}`
   }
-  return '该时效输出对站点输入无响应 · 仅作全湖参考'
+  const metrics = diag?.testMetrics || {}
+  const parts = []
+  if (metrics.mae != null) parts.push(`MAE=${Number(metrics.mae).toFixed(3)}`)
+  if (metrics.r2 != null) parts.push(`R²=${Number(metrics.r2).toFixed(3)}`)
+  if (metrics.n != null) parts.push(`n=${metrics.n}`)
+  const metricText = parts.length ? `，留出集 ${parts.join(' · ')}` : ''
+  const fileText = diag?.modelFile ? ` · ${diag.modelFile}` : ''
+  // 2026-09-12 复审整改：T+90 只有逐站响应的指标可称"逐站模型"；概率/生物量/密度
+  // 在补训中选中 climatology_global 全局常量模型，对站点输入无响应，不得沿用该措辞。
+  if (diag && (diag.modelEntityResponse === false || diag.numericVariation === false)) {
+    return `中长期 · 全湖常量模型（读模型文件但无站点响应），不做站间比较${fileText}`
+  }
+  // 门禁状态（PASS/FAIL/NA）的表述整体移入结果面板评估详情，这里只披露来源与留出集精度。
+  return `中长期月度趋势：逐站模型${metricText}${fileText}`
+})
+
+// 悬浮证据（title）：区间三层证据 + 来源披露。只陈述事实（校准状态 / 经验覆盖率 /
+// 样本量），不声称"已验证/达标"——能否用于决策由 kind 按 st.decisionUsable 真实判定。
+const rangeBadgeEvidence = computed(() => {
+  const st = focusInterval.value
+  const parts = []
+  if (st.available) {
+    parts.push(
+      `校准状态 ${st.calibrationStatus}`,
+      `经验覆盖率 ${st.empiricalCoverage != null ? (st.empiricalCoverage * 100).toFixed(1) + '%' : '—'}`,
+      `测试样本 n=${st.testN ?? '—'}`,
+      `校准样本 n=${st.calibrationN ?? '—'}`
+    )
+  }
+  const disclosure = sourceDisclosureText.value
+  if (disclosure) parts.push(disclosure)
+  return parts.join('；')
 })
 
 // 实测快照摘要数值
@@ -1727,7 +1765,8 @@ onBeforeUnmount(() => {
 }
 
 /* V0.3 月度栅格场：标题切换按钮 + 地图上方浮动面板 */
-/* 站点预测能力小标签：业务页只保留一行诚实状态 */
+/* 站点预测范围标签：外框容器保留（data-role=prediction-status-tag）；
+   颜色语义已移入 RangeBadge 四态（--c-stable / --c-watch / --c-ai / --text-muted） */
 .hm-status-tag {
   display: flex;
   align-items: center;
@@ -1738,12 +1777,6 @@ onBeforeUnmount(() => {
   background: rgba(127, 147, 168, 0.08);
   font-size: 12px;
 }
-.hm-status-tag span[data-state='no-response'] { color: #e2a65a; }
-.hm-status-tag span[data-state='evidence'] { color: #d9c46a; }
-.hm-status-tag span[data-state='scenario'] { color: #9a8cc9; }
-.hm-status-tag span[data-state='longterm'] { color: #7fb2d9; }
-.hm-status-tag span[data-state='usable'] { color: #43b58c; }
-.hm-status-tag span[data-state='unknown'] { color: var(--text-secondary); }
 
 .hm-raster-toggle {
   margin-left: 12px;

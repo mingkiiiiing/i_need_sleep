@@ -291,6 +291,51 @@ export function intervalState(resultBox) {
 }
 
 /**
+ * 「模型评估」面板只读导出（2026-09-12 W2 新增，不改任何既有导出与行为）：
+ * 返回当前焦点时效的完整模型评估诊断。
+ *   - entityDiagnostic 原样透传（含 gate_status / gate_na_reason / comparison_evidence /
+ *     test_metrics / calibration_status / empirical_coverage / uncertainty_decision_usable）；
+ *   - 另补焦点任务 box uncertainty 的校准证据（test_n / calibration_n / 验收线 /
+ *     标称覆盖率）——这些字段只挂在结果 box 上，entity_diagnostic 不含。
+ * 只读聚合：不加工、不放宽、不编造字段；无数据时返回 null。
+ */
+export function focusEvaluation(horizonDays) {
+  const data = currentHorizonData(horizonDays)
+  if (!data) return null
+  const diag = data.entity_diagnostic || null
+  const key =
+    (data.analysis_focus && data.analysis_focus.result_key) ||
+    focusResultKey(predictionSnapshot.focusMetric)
+  const box = (data.results || {})[key] || null
+  const uncertainty = box?.uncertainty || null
+  const evidence = uncertainty?.calibration_evidence || {}
+  return {
+    // 实体级诊断原样透传（字段名与 envelope 一致；全湖聚合口径为 null）
+    entityDiagnostic: diag,
+    gateStatus: diag?.gate_status ?? null,
+    gateNaReason: diag?.gate_na_reason ?? null,
+    comparisonEvidence: diag?.comparison_evidence ?? null,
+    testMetrics: diag?.test_metrics ?? null,
+    calibrationStatus: diag?.calibration_status ?? null,
+    empiricalCoverage: diag?.empirical_coverage ?? null,
+    uncertaintyDecisionUsable: diag?.uncertainty_decision_usable ?? null,
+    // 焦点任务 box 的校准证据（entity_diagnostic 不含 test_n / 验收线，仅在 box 上）
+    focusResultKey: key,
+    testN: uncertainty?.test_n ?? evidence.test_n ?? null,
+    calibrationN: uncertainty?.calibration_n ?? evidence.calibration_n ?? null,
+    coverageAcceptanceMin:
+      uncertainty?.calibration_evidence?.coverage_acceptance_min ??
+      evidence.coverage_acceptance_min ??
+      null,
+    coverageTarget:
+      uncertainty?.calibration_evidence?.coverage_target ?? evidence.coverage_target ?? null,
+    coverageTolerance:
+      uncertainty?.calibration_evidence?.coverage_tolerance ?? evidence.coverage_tolerance ?? null,
+    boxDecisionUsable: uncertainty?.decision_usable ?? null
+  }
+}
+
+/**
  * 读取预测快照。同一世代内、同一实体与指标已有结果时直接复用内存结果，不产生请求。
  */
 export async function loadPredictionSnapshot(entityId, focusMetric, { force = false } = {}) {

@@ -94,6 +94,11 @@ CACHE_SCHEMA_VERSION = "prediction_snapshot_v11"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 
+# 视图载荷缓存的 TTL（秒）：只约束状态字段（state/进度）的新鲜度，
+# 快照内容本身由世代键（prediction_snapshot_id）保证一致性。
+# 15s 覆盖页面一轮交互突发；状态横幅最大可见延迟 15s，远小于 60s 轮询周期。
+_VIEW_PAYLOAD_CACHE_TTL_S = 15.0
+
 # 站点比较可用性的最小留出测试样本量：低于该值时模型判别力无统计意义，
 # 即使数值随实体变化也只能用于研判展示。
 MIN_COMPARISON_TEST_ROWS = 15
@@ -234,6 +239,14 @@ class PredictionSnapshotService:
         self._explain_warmed_for: str | None = None
         # 当前实测源对应的 prediction_snapshot_id 缓存：(source_id, 产物指纹, pred_id)
         self._live_key_cache: tuple[str, str, str] | None = None
+        # 视图载荷缓存：(entity_id, focus_metric, 快照世代) → (写入时刻, payload)。
+        # 并发压测实测：单次组装 ~150ms 且为 CPU 密集，20 并发下 GIL 串行把 p95 推到 3.6s；
+        # 组装结果在一个快照世代内不变，短 TTL 缓存把并发突发收敛为一次组装。
+        # TTL 5s 远小于页面 60s 轮询，状态字段（state/进度）的可见延迟以 5s 为界。
+        self._view_payload_cache: dict[tuple[str, str, str], tuple[float, dict[str, Any]]] = {}
+        # single-flight：同键并发未命中时只放一个建造者，其余线程等待其落缓存，
+        # 避免突发首轮 20 个请求各自重复组装（惊群）。
+        self._view_payload_inflight: dict[tuple[str, str, str], threading.Event] = {}
         # 算法包状态短时缓存：(monotonic 时间, status)
         self._algorithm_status_cache: tuple[float, dict[str, Any]] | None = None
         self.ALGORITHM_STATUS_TTL_S = 2.0
@@ -569,12 +582,48 @@ class PredictionSnapshotService:
         return self._cached_explainability(entity_id, horizon_days, result_key)
 
     def snapshot_payload(self, entity_id: str = "lake", focus_metric: str = "risk") -> dict[str, Any] | None:
-        """一次返回全部时效结果 + 趋势摘要 + 版本与状态，供前端一次读取。"""
+        """一次返回全部时效结果 + 趋势摘要 + 版本与状态，供前端一次读取。
+
+        带 (entity, metric, 世代) 键的短 TTL 视图缓存：同一世代内组装结果不变，
+        并发重复请求直接复用；世代翻转为新键天然失效，TTL 只约束状态字段的新鲜度。
+        """
         if not self._serving_is_current():
             return None
         entity = self._published_entity(entity_id)
         if not entity:
             return None
+        cache_key = (entity_id, focus_metric, str((self._published or {}).get("id")))
+        now = time.monotonic()
+        is_builder = False
+        while True:
+            with self._lock:
+                hit = self._view_payload_cache.get(cache_key)
+                if hit is not None and now - hit[0] < _VIEW_PAYLOAD_CACHE_TTL_S:
+                    return hit[1]
+                event = self._view_payload_inflight.get(cache_key)
+                if event is None:
+                    event = threading.Event()
+                    self._view_payload_inflight[cache_key] = event
+                    is_builder = True
+                    break
+            # 已有同键建造者在组装：等它落缓存后重查（超时兜底防悬挂）
+            event.wait(timeout=15.0)
+            now = time.monotonic()
+        if is_builder:
+            try:
+                payload = self._build_snapshot_payload(entity_id, focus_metric)
+                with self._lock:
+                    if len(self._view_payload_cache) >= 256:
+                        self._view_payload_cache.clear()
+                    if payload is not None:
+                        self._view_payload_cache[cache_key] = (time.monotonic(), payload)
+            finally:
+                with self._lock:
+                    self._view_payload_inflight.pop(cache_key, None)
+                event.set()
+        return payload
+
+    def _build_snapshot_payload(self, entity_id: str, focus_metric: str) -> dict[str, Any]:
         horizons: dict[str, Any] = {}
         for horizon in self.horizons:
             assembled = self.assemble(entity_id, horizon, focus_metric)

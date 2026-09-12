@@ -783,7 +783,11 @@ def get_prediction_snapshot(
     entity_id: str = "lake",
     focus_metric: Literal["risk", "chla", "area", "biomass", "density"] = "risk",
 ):
-    """一次读取全部时效结果与版本状态：页面打开即有结果，切换时效不再运行模型。"""
+    """一次读取全部时效结果与版本状态：页面打开即有结果，切换时效不再运行模型。
+
+    并发性能：视图载荷在 prediction_snapshot 服务层带 (entity, metric, 世代) 键
+    短 TTL 缓存 + single-flight（见该模块），并发突发收敛为一次组装。
+    """
     data = _v3_algorithm_call(lambda: service.prediction_snapshot_view(entity_id, focus_metric))
     return envelope(
         request,

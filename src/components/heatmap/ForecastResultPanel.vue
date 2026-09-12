@@ -91,6 +91,25 @@
               <!-- hero 数字翻牌：count-up 只对真实数值做视觉滚动，终帧严格等于数据值 -->
               <b>{{ heroDisplay }}</b>
             </div>
+            <!-- 范围带：仅站点口径渲染。全湖聚合的 P25–P75 是站间分布不是预测区间，
+                 不在此渲染（保持聚合区「站间分布」图注语义）；区间结构不自洽 /
+                 风险等级映射被阻断（bandRangeBlocked）时不渲染，不造带。 -->
+            <div v-if="heroRange" class="frp-range" :data-state="heroRange.state" data-role="hero-range-band">
+              <div class="frp-range-row">
+                <template v-if="heroRange.values">
+                  <span class="frp-range-num">{{ heroRange.values.p05 }}</span>
+                  <span class="frp-range-dash" aria-hidden="true">——</span>
+                  <b class="frp-range-point">{{ heroRange.values.point }}</b>
+                  <span class="frp-range-dash" aria-hidden="true">——</span>
+                  <span class="frp-range-num">{{ heroRange.values.p95 }}</span>
+                </template>
+                <i class="frp-range-tag" :data-state="heroRange.state">{{ heroRange.label }}</i>
+              </div>
+              <div v-if="heroRange.cursorPct != null" class="frp-range-tick" aria-hidden="true">
+                <i class="frp-range-tick-line"></i>
+                <i class="frp-range-tick-cursor" :style="{ left: heroRange.cursorPct }"></i>
+              </div>
+            </div>
             <div class="frp-hero-label">{{ metricLabel }}</div>
             <div class="frp-hero-scope" data-role="hero-scope-label">{{ heroScopeLabel }}</div>
             <div v-if="heroBar" class="frp-bandbar" :title="heroBar.title">
@@ -252,6 +271,15 @@
           <div><dt>总磷 / 总氮</dt><dd>{{ inputs.nutrientText }}</dd></div>
         </dl>
       </template>
+
+      <!-- 模型评估（可展开，默认收起）：承接从主视图移出的门禁证据——
+           融合门禁 / 留出集指标 / 校准证据；仅在有模型结果时挂载 -->
+      <EvaluationPanel
+        v-if="modelForecast"
+        :diagnostics="evaluationDiagnostics"
+        :horizon-days="horizonDays"
+        :metric-label="metricLabel"
+      />
 
     </div>
 
@@ -487,7 +515,8 @@ import { computed, nextTick, onScopeDispose, ref, watch } from 'vue'
 import StatePanel from '../common/StatePanel.vue'
 import LakeDriverDistribution from './LakeDriverDistribution.vue'
 import HorizonFanChart from './HorizonFanChart.vue'
-import { predictionSnapshot } from '../../stores/predictionSnapshot.js'
+import EvaluationPanel from './EvaluationPanel.vue'
+import { focusEvaluation, predictionSnapshot } from '../../stores/predictionSnapshot.js'
 
 const props = defineProps({
   scope: { type: String, default: 'lake' }, // lake | station
@@ -1485,6 +1514,67 @@ function calibrationBlockText(blocked) {
   }
   return reason || '源区间未达决策可用'
 }
+
+// ---------- hero 范围带（P05 — 点值 — P95，2026-09-12 W2） ----------
+// 口径（诚实第一）：
+//   ① 全湖 scope 不渲染：全湖聚合的 P25–P75 是站间分布不是预测区间，
+//      保持聚合区「站间分布」图注语义（见 horizonTrend.bandCaption）。
+//   ② 仅当 is_prediction_interval !== false 且 structural_valid 才画刻度条
+//      （与 horizonTrend 的结构口径一致）；风险等级映射被阻断
+//      （bandRangeBlocked）时整块不渲染，不借数值区间暗示等级范围。
+//   ③ is_prediction_interval === false：数值存在但属情景口径 → 只标
+//      「情景范围」、不画刻度条；无区间 → 「暂无范围」，不造带。
+//   ④ 刻度条为纯 CSS 静态元素，无过渡动画（reduced-motion 无需降级）。
+const heroRange = computed(() => {
+  if (props.scope !== 'station') return null
+  // 风险等级被阻断（band_range_blocked）只应约束 risk 指标本身；
+  // chla/density/biomass 的区间与该阻断无关，不得被误伤隐藏。
+  if (props.metric === 'risk' && bandRangeBlocked.value) return null
+  const item = focusResult.value
+  const u = item?.uncertainty
+  if (!u) return { state: 'none', label: '暂无范围', values: null, cursorPct: null }
+  const rawUnit = props.metric === 'risk' ? '%' : (UNIT_TEXT[item.unit] ?? item.unit ?? '')
+  const fmt = (v) => {
+    const n = Number(v) * (props.metric === 'risk' ? 100 : 1)
+    if (!Number.isFinite(n)) return '—'
+    const text = n.toLocaleString('zh-CN', { maximumFractionDigits: props.metric === 'risk' ? 2 : 3 })
+    if (!rawUnit) return text
+    return props.metric === 'risk' ? `${text}%` : `${text} ${rawUnit}`
+  }
+  const p05 = Number(u.p05)
+  const p95 = Number(u.p95)
+  const point = Number(item?.value)
+  const hasQuantiles = Number.isFinite(p05) && Number.isFinite(p95) && Number.isFinite(point)
+  // 情景口径（非预测区间）：可展示数值但必须标明语义，不画刻度条
+  if (u.is_prediction_interval === false) {
+    if (!hasQuantiles) return { state: 'none', label: '暂无范围', values: null, cursorPct: null }
+    return {
+      state: 'scenario',
+      label: '情景范围',
+      values: { p05: fmt(p05), point: fmt(point), p95: fmt(p95) },
+      cursorPct: null
+    }
+  }
+  // 结构不自洽（零宽退化 / 点预测越界 / 非有限值）→ 不画范围
+  if (!u.structural_valid || !hasQuantiles) {
+    return { state: 'none', label: '暂无范围', values: null, cursorPct: null }
+  }
+  const usable = Boolean(u.decision_usable)
+  const width = p95 - p05
+  // 零宽防御：宽度非正时不画游标（正常情况下零宽已被 structural_valid 拦截）
+  const cursorPct = width > 0
+    ? `${Math.min(100, Math.max(0, ((point - p05) / width) * 100)).toFixed(1)}%`
+    : null
+  return {
+    state: usable ? 'usable' : 'watch',
+    label: usable ? '预测范围' : '参考范围',
+    values: { p05: fmt(p05), point: fmt(point), p95: fmt(p95) },
+    cursorPct
+  }
+})
+
+// 「模型评估」块数据源：store 新增只读导出（不改既有导出），取当前时效完整诊断
+const evaluationDiagnostics = computed(() => focusEvaluation(props.horizonDays))
 // 状态判定严格镜像后端三层合同：①结构自洽 ②校准证据 ③决策可用。
 // 顺序不可颠倒——结构不自洽时谈校准无意义；校准未 validated 时不得显示"区间可用"。
 const UNCERTAINTY_STATUS_LABELS = {
@@ -1932,6 +2022,102 @@ const stationObservedAt = computed(() => {
 .frp-bandbar-scale span {
   position: absolute;
   transform: translateX(-50%);
+}
+/* ---------- hero 范围带：P05—点值—P95 + 120px 静态刻度条 ---------- */
+/* 四态标签：usable=预测范围(stable) / watch=参考范围(watch) /
+   scenario=情景范围(ai) / none=暂无范围(muted)。纯静态、无过渡动画。 */
+.frp-range {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+}
+.frp-range-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.frp-range-num {
+  color: var(--text-secondary);
+}
+.frp-range-point {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.frp-range-dash {
+  color: var(--text-muted);
+  opacity: 0.55;
+  font-size: 10px;
+  letter-spacing: -1px;
+}
+.frp-range-tag {
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 6px;
+  margin-left: 2px;
+}
+.frp-range-tag[data-state='usable'] {
+  color: var(--c-stable);
+}
+.frp-range-tag[data-state='watch'] {
+  color: var(--c-watch);
+}
+.frp-range-tag[data-state='scenario'] {
+  color: var(--c-ai);
+}
+.frp-range-tag[data-state='none'] {
+  color: var(--text-muted);
+  border-style: dashed;
+}
+/* 120px 水平细刻度条：CSS 渐变底线 + 两端刻度 + 点值游标三角（自上而下指向底线） */
+.frp-range-tick {
+  position: relative;
+  width: 120px;
+  height: 10px;
+}
+.frp-range-tick-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text-muted) 22%, transparent),
+    color-mix(in srgb, var(--text-muted) 58%, transparent)
+  );
+}
+.frp-range-tick::before,
+.frp-range-tick::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 1px;
+  height: 8px;
+  background: color-mix(in srgb, var(--text-muted) 55%, transparent);
+}
+.frp-range-tick::before {
+  left: 0;
+}
+.frp-range-tick::after {
+  right: 0;
+}
+.frp-range-tick-cursor {
+  position: absolute;
+  top: 1px;
+  width: 0;
+  height: 0;
+  transform: translateX(-4.5px);
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-top: 6px solid var(--text-primary);
 }
 .frp-ring {
   display: grid;

@@ -1,0 +1,9 @@
+﻿run_dir,run_config_artifact_id,in_manifest,protocol,horizon_days,test_n,empirical_coverage_test,note
+T5-chla-15d-0m,T5:chla:frozen_split:off0:h15:s20260907,NO,frozen_split,15,1,0.0000,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T5-chla-1d-0m,T5:chla:frozen_split:off0:h1:s20260907,NO,frozen_split,1,1,0.0000,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T5-chla-3d-0m,T5:chla:frozen_split:off0:h3:s20260907,NO,frozen_split,3,1,0.0000,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T5-chla-7d-0m,T5:chla:frozen_split:off0:h7:s20260907,NO,frozen_split,7,1,0.0000,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T6-risk_level-15d-0m,T6:risk_level:frozen_split:off0:h15:s20260907,NO,frozen_split,15,1,NA,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T6-risk_level-1d-0m,T6:risk_level:frozen_split:off0:h1:s20260907,NO,frozen_split,1,1,NA,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T6-risk_level-3d-0m,T6:risk_level:frozen_split:off0:h3:s20260907,NO,frozen_split,3,1,NA,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED
+T6-risk_level-7d-0m,T6:risk_level:frozen_split:off0:h7:s20260907,NO,frozen_split,7,1,NA,run 目录存在但 manifest 无此 artifact_id → 无模型文件映射，如实标 UNMAPPED

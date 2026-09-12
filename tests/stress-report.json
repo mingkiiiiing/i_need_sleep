@@ -1,0 +1,941 @@
+{
+  "started_at": "2026-09-12T07:48:10.707Z",
+  "finished_at": "2026-09-12T07:49:03.021Z",
+  "duration_ms": 52312,
+  "env": {
+    "base": "http://127.0.0.1:5173",
+    "api": "http://127.0.0.1:8000/api/v1",
+    "browser": "Edge headless (puppeteer-core)"
+  },
+  "frontend": {
+    "s1": {
+      "name": "指标轮换 ×6 轮（24 次切换）",
+      "switches": 24,
+      "timeouts": 0,
+      "avgMs": 180.3,
+      "p95": 258.4,
+      "max": 266,
+      "steps": [
+        {
+          "round": 1,
+          "metric": "risk",
+          "ms": 183.5,
+          "timedOut": false
+        },
+        {
+          "round": 1,
+          "metric": "chla",
+          "ms": 160.7,
+          "timedOut": false
+        },
+        {
+          "round": 1,
+          "metric": "area",
+          "ms": 151.4,
+          "timedOut": false
+        },
+        {
+          "round": 1,
+          "metric": "biomass",
+          "ms": 194.7,
+          "timedOut": false
+        },
+        {
+          "round": 2,
+          "metric": "risk",
+          "ms": 111.6,
+          "timedOut": false
+        },
+        {
+          "round": 2,
+          "metric": "chla",
+          "ms": 134.2,
+          "timedOut": false
+        },
+        {
+          "round": 2,
+          "metric": "area",
+          "ms": 204.3,
+          "timedOut": false
+        },
+        {
+          "round": 2,
+          "metric": "biomass",
+          "ms": 172.6,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "risk",
+          "ms": 126.5,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "chla",
+          "ms": 196.9,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "area",
+          "ms": 120.3,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "biomass",
+          "ms": 167.9,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "risk",
+          "ms": 179.1,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "chla",
+          "ms": 258.4,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "area",
+          "ms": 196.2,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "biomass",
+          "ms": 250.4,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "risk",
+          "ms": 266,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "chla",
+          "ms": 138.5,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "area",
+          "ms": 243.1,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "biomass",
+          "ms": 193.7,
+          "timedOut": false
+        },
+        {
+          "round": 6,
+          "metric": "risk",
+          "ms": 204.1,
+          "timedOut": false
+        },
+        {
+          "round": 6,
+          "metric": "chla",
+          "ms": 187.2,
+          "timedOut": false
+        },
+        {
+          "round": 6,
+          "metric": "area",
+          "ms": 141.1,
+          "timedOut": false
+        },
+        {
+          "round": 6,
+          "metric": "biomass",
+          "ms": 144.2,
+          "timedOut": false
+        }
+      ]
+    },
+    "s2": {
+      "name": "时间轴 7 个 T+ 刻度键盘快切 ×4 轮（每步 250ms）",
+      "rounds": 4,
+      "keyPresses": 28,
+      "intervalMs": 250,
+      "roundEndValues": [
+        {
+          "round": 1,
+          "endValue": {
+            "now": "8",
+            "text": "+1 未来 T+1 · 短临"
+          }
+        },
+        {
+          "round": 2,
+          "endValue": {
+            "now": "8",
+            "text": "+1 未来 T+1 · 短临"
+          }
+        },
+        {
+          "round": 3,
+          "endValue": {
+            "now": "8",
+            "text": "+1 未来 T+1 · 短临"
+          }
+        },
+        {
+          "round": 4,
+          "endValue": {
+            "now": "8",
+            "text": "+1 未来 T+1 · 短临"
+          }
+        }
+      ]
+    },
+    "s3": {
+      "name": "8 站点 hash 深链快切",
+      "stationIds": [
+        "mee-0145cdb7",
+        "mee-077b367a",
+        "mee-0e770fb5",
+        "mee-1c5c6f47",
+        "mee-1d96cbf3",
+        "mee-1eeede89",
+        "mee-1fb5ae3c",
+        "mee-200076ad"
+      ],
+      "stations": [
+        {
+          "id": "mee-0145cdb7",
+          "ms": 95.5,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-077b367a",
+          "ms": 67.8,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-0e770fb5",
+          "ms": 44.1,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-1c5c6f47",
+          "ms": 47.7,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-1d96cbf3",
+          "ms": 46.8,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-1eeede89",
+          "ms": 63.5,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-1fb5ae3c",
+          "ms": 54.9,
+          "waited": true,
+          "hashMatched": true
+        },
+        {
+          "id": "mee-200076ad",
+          "ms": 59.8,
+          "waited": true,
+          "hashMatched": true
+        }
+      ],
+      "allHashMatched": true
+    },
+    "s4": {
+      "name": "模式切换 forecast→replay→rs ×5 轮（每模式停留 800ms）",
+      "cycles": 5,
+      "switches": [
+        {
+          "round": 1,
+          "mode": "replay",
+          "dwellMs": 964.2,
+          "white": false
+        },
+        {
+          "round": 1,
+          "mode": "rs",
+          "dwellMs": 945.4,
+          "white": false
+        },
+        {
+          "round": 1,
+          "mode": "forecast",
+          "dwellMs": 992.2,
+          "white": false
+        },
+        {
+          "round": 2,
+          "mode": "replay",
+          "dwellMs": 934.7,
+          "white": false
+        },
+        {
+          "round": 2,
+          "mode": "rs",
+          "dwellMs": 930.5,
+          "white": false
+        },
+        {
+          "round": 2,
+          "mode": "forecast",
+          "dwellMs": 992.7,
+          "white": false
+        },
+        {
+          "round": 3,
+          "mode": "replay",
+          "dwellMs": 980.8,
+          "white": false
+        },
+        {
+          "round": 3,
+          "mode": "rs",
+          "dwellMs": 945.3,
+          "white": false
+        },
+        {
+          "round": 3,
+          "mode": "forecast",
+          "dwellMs": 969.3,
+          "white": false
+        },
+        {
+          "round": 4,
+          "mode": "replay",
+          "dwellMs": 939,
+          "white": false
+        },
+        {
+          "round": 4,
+          "mode": "rs",
+          "dwellMs": 944.4,
+          "white": false
+        },
+        {
+          "round": 4,
+          "mode": "forecast",
+          "dwellMs": 927.3,
+          "white": false
+        },
+        {
+          "round": 5,
+          "mode": "replay",
+          "dwellMs": 970.4,
+          "white": false
+        },
+        {
+          "round": 5,
+          "mode": "rs",
+          "dwellMs": 1001.5,
+          "white": false
+        },
+        {
+          "round": 5,
+          "mode": "forecast",
+          "dwellMs": 963.1,
+          "white": false
+        }
+      ]
+    },
+    "consoleErrors": 0,
+    "consoleErrorSamples": [],
+    "externalNoise": 0,
+    "whiteScreens": 0,
+    "memory": {
+      "metric": "performance.memory.usedJSHeapSize",
+      "scenarios": {
+        "s1": {
+          "beforeBytes": 13231699,
+          "afterBytes": 19123153,
+          "deltaMB": 5.6
+        },
+        "s2": {
+          "beforeBytes": 19124021,
+          "afterBytes": 13967514,
+          "deltaMB": -4.9
+        },
+        "s3": {
+          "beforeBytes": 13968382,
+          "afterBytes": 13672621,
+          "deltaMB": -0.3
+        },
+        "s4": {
+          "beforeBytes": 13673489,
+          "afterBytes": 14402802,
+          "deltaMB": 0.7
+        }
+      },
+      "baselineMB": 12.6,
+      "finalMB": 13.7,
+      "totalDeltaMB": 1.1,
+      "thresholds": {
+        "warnMB": 50,
+        "failMB": 120
+      },
+      "status": "OK"
+    },
+    "verdict": "PASS"
+  },
+  "backend": {
+    "c1": {
+      "name": "全湖快照并发 20×5",
+      "url": "/api/v1/model/v3/prediction-snapshot?entity_id=lake&focus_metric=chla",
+      "rounds": 5,
+      "concurrency": 20,
+      "requests": 100,
+      "non200": 0,
+      "netFail": 0,
+      "failureRate": 0,
+      "p50": 593.7,
+      "p95": 2807.2,
+      "max": 2845.4,
+      "mean": 1011.1,
+      "latencies": [
+        {
+          "status": 200,
+          "ms": 2845.4
+        },
+        {
+          "status": 200,
+          "ms": 2814
+        },
+        {
+          "status": 200,
+          "ms": 2813.6
+        },
+        {
+          "status": 200,
+          "ms": 2690.7
+        },
+        {
+          "status": 200,
+          "ms": 2817.1
+        },
+        {
+          "status": 200,
+          "ms": 2681
+        },
+        {
+          "status": 200,
+          "ms": 2689
+        },
+        {
+          "status": 200,
+          "ms": 2802
+        },
+        {
+          "status": 200,
+          "ms": 2823.2
+        },
+        {
+          "status": 200,
+          "ms": 2689.5
+        },
+        {
+          "status": 200,
+          "ms": 2691.7
+        },
+        {
+          "status": 200,
+          "ms": 2707.3
+        },
+        {
+          "status": 200,
+          "ms": 2697
+        },
+        {
+          "status": 200,
+          "ms": 2787
+        },
+        {
+          "status": 200,
+          "ms": 2692
+        },
+        {
+          "status": 200,
+          "ms": 2807.2
+        },
+        {
+          "status": 200,
+          "ms": 2777.1
+        },
+        {
+          "status": 200,
+          "ms": 2695.4
+        },
+        {
+          "status": 200,
+          "ms": 2799
+        },
+        {
+          "status": 200,
+          "ms": 2696.5
+        },
+        {
+          "status": 200,
+          "ms": 739.8
+        },
+        {
+          "status": 200,
+          "ms": 770.9
+        },
+        {
+          "status": 200,
+          "ms": 785.1
+        },
+        {
+          "status": 200,
+          "ms": 554.1
+        },
+        {
+          "status": 200,
+          "ms": 677.9
+        },
+        {
+          "status": 200,
+          "ms": 745.8
+        },
+        {
+          "status": 200,
+          "ms": 665.9
+        },
+        {
+          "status": 200,
+          "ms": 813.3
+        },
+        {
+          "status": 200,
+          "ms": 786.7
+        },
+        {
+          "status": 200,
+          "ms": 570.3
+        },
+        {
+          "status": 200,
+          "ms": 564.7
+        },
+        {
+          "status": 200,
+          "ms": 807.6
+        },
+        {
+          "status": 200,
+          "ms": 607.9
+        },
+        {
+          "status": 200,
+          "ms": 653.6
+        },
+        {
+          "status": 200,
+          "ms": 651.4
+        },
+        {
+          "status": 200,
+          "ms": 453.1
+        },
+        {
+          "status": 200,
+          "ms": 530.6
+        },
+        {
+          "status": 200,
+          "ms": 793.5
+        },
+        {
+          "status": 200,
+          "ms": 593.7
+        },
+        {
+          "status": 200,
+          "ms": 793.7
+        },
+        {
+          "status": 200,
+          "ms": 457.1
+        },
+        {
+          "status": 200,
+          "ms": 312.5
+        },
+        {
+          "status": 200,
+          "ms": 521.3
+        },
+        {
+          "status": 200,
+          "ms": 448.1
+        },
+        {
+          "status": 200,
+          "ms": 468.5
+        },
+        {
+          "status": 200,
+          "ms": 556.4
+        },
+        {
+          "status": 200,
+          "ms": 582.7
+        },
+        {
+          "status": 200,
+          "ms": 361.6
+        },
+        {
+          "status": 200,
+          "ms": 488.3
+        },
+        {
+          "status": 200,
+          "ms": 520.8
+        },
+        {
+          "status": 200,
+          "ms": 551.7
+        },
+        {
+          "status": 200,
+          "ms": 589.8
+        },
+        {
+          "status": 200,
+          "ms": 444.2
+        },
+        {
+          "status": 200,
+          "ms": 281.5
+        },
+        {
+          "status": 200,
+          "ms": 593.1
+        },
+        {
+          "status": 200,
+          "ms": 467.7
+        },
+        {
+          "status": 200,
+          "ms": 513.6
+        },
+        {
+          "status": 200,
+          "ms": 574.9
+        },
+        {
+          "status": 200,
+          "ms": 441
+        },
+        {
+          "status": 200,
+          "ms": 614.3
+        },
+        {
+          "status": 200,
+          "ms": 549.8
+        },
+        {
+          "status": 200,
+          "ms": 675.6
+        },
+        {
+          "status": 200,
+          "ms": 722
+        },
+        {
+          "status": 200,
+          "ms": 718.1
+        },
+        {
+          "status": 200,
+          "ms": 729.9
+        },
+        {
+          "status": 200,
+          "ms": 571.2
+        },
+        {
+          "status": 200,
+          "ms": 608.7
+        },
+        {
+          "status": 200,
+          "ms": 676.1
+        },
+        {
+          "status": 200,
+          "ms": 606.4
+        },
+        {
+          "status": 200,
+          "ms": 600.8
+        },
+        {
+          "status": 200,
+          "ms": 556.5
+        },
+        {
+          "status": 200,
+          "ms": 720.2
+        },
+        {
+          "status": 200,
+          "ms": 707.3
+        },
+        {
+          "status": 200,
+          "ms": 477.3
+        },
+        {
+          "status": 200,
+          "ms": 633.9
+        },
+        {
+          "status": 200,
+          "ms": 699.6
+        },
+        {
+          "status": 200,
+          "ms": 743.1
+        },
+        {
+          "status": 200,
+          "ms": 434.6
+        },
+        {
+          "status": 200,
+          "ms": 631.3
+        },
+        {
+          "status": 200,
+          "ms": 714.7
+        },
+        {
+          "status": 200,
+          "ms": 478.8
+        },
+        {
+          "status": 200,
+          "ms": 575.6
+        },
+        {
+          "status": 200,
+          "ms": 532.1
+        },
+        {
+          "status": 200,
+          "ms": 526.9
+        },
+        {
+          "status": 200,
+          "ms": 482.5
+        },
+        {
+          "status": 200,
+          "ms": 479.1
+        },
+        {
+          "status": 200,
+          "ms": 360.9
+        },
+        {
+          "status": 200,
+          "ms": 441
+        },
+        {
+          "status": 200,
+          "ms": 444.3
+        },
+        {
+          "status": 200,
+          "ms": 579.4
+        },
+        {
+          "status": 200,
+          "ms": 344.9
+        },
+        {
+          "status": 200,
+          "ms": 564.7
+        },
+        {
+          "status": 200,
+          "ms": 560.1
+        },
+        {
+          "status": 200,
+          "ms": 444.6
+        },
+        {
+          "status": 200,
+          "ms": 495.9
+        },
+        {
+          "status": 200,
+          "ms": 524.1
+        },
+        {
+          "status": 200,
+          "ms": 469.3
+        },
+        {
+          "status": 200,
+          "ms": 569.3
+        },
+        {
+          "status": 200,
+          "ms": 516.3
+        },
+        {
+          "status": 200,
+          "ms": 577
+        }
+      ],
+      "verdict": "FAIL"
+    },
+    "c2": {
+      "name": "8 站点快照并发 ×3",
+      "stationIds": [
+        "mee-077b367a",
+        "mee-0e770fb5",
+        "mee-1d96cbf3",
+        "mee-200076ad",
+        "mee-2f8fdf3a",
+        "mee-32bb00e0",
+        "mee-3690676e",
+        "mee-36e4cf04"
+      ],
+      "requests": 24,
+      "non200": 0,
+      "netFail": 0,
+      "failureRate": 0,
+      "p50": 1822.3,
+      "p95": 1979.6,
+      "max": 1982.8,
+      "mean": 1712.3,
+      "latencies": [
+        {
+          "status": 200,
+          "ms": 1754.7
+        },
+        {
+          "status": 200,
+          "ms": 1762.2
+        },
+        {
+          "status": 200,
+          "ms": 1756.9
+        },
+        {
+          "status": 200,
+          "ms": 1906
+        },
+        {
+          "status": 200,
+          "ms": 1908.4
+        },
+        {
+          "status": 200,
+          "ms": 1919
+        },
+        {
+          "status": 200,
+          "ms": 1765.8
+        },
+        {
+          "status": 200,
+          "ms": 1763.8
+        },
+        {
+          "status": 200,
+          "ms": 1729.2
+        },
+        {
+          "status": 200,
+          "ms": 640.6
+        },
+        {
+          "status": 200,
+          "ms": 700.8
+        },
+        {
+          "status": 200,
+          "ms": 599.5
+        },
+        {
+          "status": 200,
+          "ms": 1982.8
+        },
+        {
+          "status": 200,
+          "ms": 1946.2
+        },
+        {
+          "status": 200,
+          "ms": 1960.5
+        },
+        {
+          "status": 200,
+          "ms": 1822.3
+        },
+        {
+          "status": 200,
+          "ms": 1820.6
+        },
+        {
+          "status": 200,
+          "ms": 1818.9
+        },
+        {
+          "status": 200,
+          "ms": 1873.8
+        },
+        {
+          "status": 200,
+          "ms": 1875.1
+        },
+        {
+          "status": 200,
+          "ms": 1881.1
+        },
+        {
+          "status": 200,
+          "ms": 1957.8
+        },
+        {
+          "status": 200,
+          "ms": 1968.4
+        },
+        {
+          "status": 200,
+          "ms": 1979.6
+        }
+      ],
+      "verdict": "PASS"
+    },
+    "verdict": "FAIL"
+  },
+  "overall": "FAIL"
+}
