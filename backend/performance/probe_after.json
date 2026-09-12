@@ -1,0 +1,382 @@
+{
+  "tag": "after-idle-c20-final",
+  "base": "http://127.0.0.1:8000",
+  "path": "/api/v1/model/v3/prediction-snapshot?entity_id=lake&focus_metric=chla",
+  "started_at": "2026-09-12T18:51:01+0800",
+  "seq": {
+    "requests": [
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 142.5
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 25.9
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 23.2
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 25.8
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 34.2
+      }
+    ],
+    "n": 5,
+    "p50": 25.9,
+    "p95": 120.8,
+    "max": 142.5,
+    "mean": 50.3
+  },
+  "burst": {
+    "concurrency": 20,
+    "rounds": [
+      {
+        "round": 1,
+        "requests": [
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 248.3
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 242.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 250.7
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 254.9
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 263.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 268.5
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 282.7
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 300.5
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 313.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 318.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 331.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 344.1
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 355.4
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 348.2
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 363.4
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 382.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 397.3
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 387.9
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 405.4
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 405.8
+          }
+        ],
+        "n": 20,
+        "p50": 325.3,
+        "p95": 405.4,
+        "max": 405.8,
+        "mean": 323.3
+      },
+      {
+        "round": 2,
+        "requests": [
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 128.1
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 149.4
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 149.9
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 164.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 196.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 217.7
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 235.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 243.2
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 264.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 279.0
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 291.1
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 302.2
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 308.1
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 312.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 327.3
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 336.0
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 339.3
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 355.4
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 369.9
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 376.2
+          }
+        ],
+        "n": 20,
+        "p50": 285.1,
+        "p95": 370.2,
+        "max": 376.2,
+        "mean": 267.4
+      }
+    ],
+    "first_wave": {
+      "round": 1,
+      "requests": [
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 248.3
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 242.8
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 250.7
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 254.9
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 263.6
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 268.5
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 282.7
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 300.5
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 313.8
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 318.8
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 331.8
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 344.1
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 355.4
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 348.2
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 363.4
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 382.6
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 397.3
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 387.9
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 405.4
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 405.8
+        }
+      ],
+      "n": 20,
+      "p50": 325.3,
+      "p95": 405.4,
+      "max": 405.8,
+      "mean": 323.3
+    }
+  },
+  "burst_all_stats": {
+    "n": 40,
+    "p50": 305.1,
+    "p95": 397.7,
+    "max": 405.8,
+    "mean": 295.3
+  }
+}

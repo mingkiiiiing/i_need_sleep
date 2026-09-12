@@ -54,6 +54,18 @@ from .algorithm_models import (  # noqa: E402
 
 logger = logging.getLogger("uvicorn.error")
 
+# T2 性能探针（2026-09-12）：env TAIHU_SNAPSHOT_TIMING=1 时输出视图载荷各环节耗时。
+# 默认关闭，关闭时零额外开销（仅一次 env 读取与布尔判断）。
+# 开启时计时日志写入 backend/performance/snapshot_timing.log（隐藏窗口下 stderr 不可见）。
+_SNAPSHOT_TIMING = os.environ.get("TAIHU_SNAPSHOT_TIMING", "").strip().lower() not in ("", "0", "false")
+if _SNAPSHOT_TIMING:
+    _timing_handler = logging.FileHandler(
+        Path(__file__).resolve().parents[1] / "performance" / "snapshot_timing.log", encoding="utf-8"
+    )
+    _timing_handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+    logger.addHandler(_timing_handler)
+    logger.setLevel(logging.INFO)
+
 PREDICTION_CACHE_ENV = "TAIHU_PREDICTION_CACHE_DIR"
 _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 
@@ -282,10 +294,18 @@ class PredictionSnapshotService:
 
     def _current_live_prediction_id(self) -> str | None:
         """当前实测快照 + 当前模型产物「本应」对应的 prediction_snapshot_id。"""
+        if _SNAPSHOT_TIMING:
+            t_rt = time.perf_counter()
         source = self._current_source_snapshot_id()
+        if _SNAPSHOT_TIMING:
+            t_src = time.perf_counter()
+            self._last_timing_realtime_ms = (t_src - t_rt) * 1000
         if not source:
             return None
         status = self._algorithm_status()
+        if _SNAPSHOT_TIMING:
+            t_status = time.perf_counter()
+            self._last_timing_status_ms = (t_status - t_src) * 1000
         artifacts = status.get("model_artifacts") or {}
         stamp = "|".join(str(item) for item in (
             artifacts.get("manifest_sha256"),
@@ -320,7 +340,12 @@ class PredictionSnapshotService:
             return False
         if not self._source_capability():
             return False
+        if _SNAPSHOT_TIMING:
+            t_src = time.perf_counter()
         live_id = self._current_live_prediction_id()
+        if _SNAPSHOT_TIMING:
+            t_live = time.perf_counter()
+            self._last_timing_live_id_ms = (t_live - t_src) * 1000
         if live_id is None:
             return True
         if published.get("id") == live_id:
@@ -328,10 +353,26 @@ class PredictionSnapshotService:
         return state == "updating" and pending == live_id
 
     def _algorithm_status(self) -> dict[str, Any]:
+        """算法包状态（2s TTL 缓存，T2 性能修复 2026-09-12）。
+
+        algorithm.status() 每次都要读取并解析 manifest.json 两次、glob+stat 全部
+        34 个 joblib 产物并计算摘要哈希，实测单次 ~30ms——它位于快照读路径
+        _serving_is_current() 的每请求必经之路上，20 并发下被 GIL 串行放大为
+        150ms+/请求（探针实测占命中路径总耗时约 80%）。
+        短 TTL 缓存挡住并发突发内的重复计算；版本键对模型产物变化的感知延迟
+        上限 2s，远小于后台 30s 轮询周期，不构成正确性风险。
+        （此前 self._algorithm_status_cache 字段已声明但从未接线，本修复补齐。）
+        """
+        cached = self._algorithm_status_cache
+        now = time.monotonic()
+        if cached is not None and now - cached[0] < self.ALGORITHM_STATUS_TTL_S:
+            return cached[1]
         try:
-            return self.algorithm.status()
+            status = self.algorithm.status()
         except Exception:  # noqa: BLE001
             return {}
+        self._algorithm_status_cache = (now, status)
+        return status
 
     def version_key(self) -> dict[str, Any]:
         return build_version_key(self._algorithm_status(), self._current_source_snapshot_id())
@@ -587,7 +628,16 @@ class PredictionSnapshotService:
         带 (entity, metric, 世代) 键的短 TTL 视图缓存：同一世代内组装结果不变，
         并发重复请求直接复用；世代翻转为新键天然失效，TTL 只约束状态字段的新鲜度。
         """
-        if not self._serving_is_current():
+        t0 = time.perf_counter() if _SNAPSHOT_TIMING else 0.0
+        current = self._serving_is_current()
+        if _SNAPSHOT_TIMING:
+            t_current = time.perf_counter()
+        if not current:
+            if _SNAPSHOT_TIMING:
+                logger.info(
+                    "[snapshot-timing] entity=%s metric=%s serving_current=%.1fms result=not_current",
+                    entity_id, focus_metric, (t_current - t0) * 1000,
+                )
             return None
         entity = self._published_entity(entity_id)
         if not entity:
@@ -599,6 +649,16 @@ class PredictionSnapshotService:
             with self._lock:
                 hit = self._view_payload_cache.get(cache_key)
                 if hit is not None and now - hit[0] < _VIEW_PAYLOAD_CACHE_TTL_S:
+                    if _SNAPSHOT_TIMING:
+                        logger.info(
+                            "[snapshot-timing] entity=%s metric=%s serving_current=%.1fms "
+                            "(realtime=%.1fms algo_status=%.1fms) path=hit total=%.1fms",
+                            entity_id, focus_metric,
+                            (t_current - t0) * 1000,
+                            getattr(self, "_last_timing_realtime_ms", -1.0),
+                            getattr(self, "_last_timing_status_ms", -1.0),
+                            (time.perf_counter() - t0) * 1000,
+                        )
                     return hit[1]
                 event = self._view_payload_inflight.get(cache_key)
                 if event is None:
@@ -612,11 +672,25 @@ class PredictionSnapshotService:
         if is_builder:
             try:
                 payload = self._build_snapshot_payload(entity_id, focus_metric)
+                if _SNAPSHOT_TIMING:
+                    t_built = time.perf_counter()
                 with self._lock:
                     if len(self._view_payload_cache) >= 256:
                         self._view_payload_cache.clear()
                     if payload is not None:
                         self._view_payload_cache[cache_key] = (time.monotonic(), payload)
+                if _SNAPSHOT_TIMING:
+                    logger.info(
+                        "[snapshot-timing] entity=%s metric=%s serving_current=%.1fms path=build "
+                        "(realtime=%.1fms algo_status=%.1fms) build=%.1fms store=%.1fms total=%.1fms",
+                        entity_id, focus_metric,
+                        (t_current - t0) * 1000,
+                        getattr(self, "_last_timing_realtime_ms", -1.0),
+                        getattr(self, "_last_timing_status_ms", -1.0),
+                        (t_built - t_current) * 1000,
+                        (time.perf_counter() - t_built) * 1000,
+                        (time.perf_counter() - t0) * 1000,
+                    )
             finally:
                 with self._lock:
                     self._view_payload_inflight.pop(cache_key, None)
@@ -624,6 +698,7 @@ class PredictionSnapshotService:
         return payload
 
     def _build_snapshot_payload(self, entity_id: str, focus_metric: str) -> dict[str, Any]:
+        t0 = time.perf_counter() if _SNAPSHOT_TIMING else 0.0
         horizons: dict[str, Any] = {}
         for horizon in self.horizons:
             assembled = self.assemble(entity_id, horizon, focus_metric)
@@ -631,6 +706,8 @@ class PredictionSnapshotService:
                 horizons[str(horizon)] = assembled
         if not horizons:
             return None
+        if _SNAPSHOT_TIMING:
+            t_assemble = time.perf_counter()
         with self._lock:
             manifest = dict(self._published.get("manifest") or {})
             status = {
@@ -689,6 +766,12 @@ class PredictionSnapshotService:
         for entry in metric_diagnostics.values():
             for bucket_name in ("variation_horizons", "responsive_horizons", "comparable_horizons", "non_responsive_horizons"):
                 entry[bucket_name] = sorted(entry[bucket_name])
+        if _SNAPSHOT_TIMING:
+            logger.info(
+                "[snapshot-timing] build-breakdown entity=%s metric=%s assemble=%.1fms tail=%.1fms",
+                entity_id, focus_metric,
+                (t_assemble - t0) * 1000, (time.perf_counter() - t_assemble) * 1000,
+            )
         return {
             "entity_id": entity_id,
             "focus_metric": focus_metric,

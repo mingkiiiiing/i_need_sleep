@@ -86,6 +86,20 @@ async function hit(url) {
 async function backendStress() {
   const out = {}
 
+  // T2 性能守卫（2026-09-12）：后端启动后的解释预热/站点重生成窗口（~40-120s）
+  // 会与压测竞争单 worker 的 GIL，首波延迟被放大 3-6 倍（见 backend/performance/
+  // T2_性能定位报告_20260912.md）。连续两次单请求 <300ms 才认为已度过预热窗口，
+  // 避免压测数字被环境因素污染。
+  for (let i = 0; i < 30; i++) {
+    const p1 = await hit(`${API}/model/v3/prediction-snapshot?entity_id=lake&focus_metric=risk`)
+    if (p1.ok && p1.ms < 300) {
+      await sleep(1000)
+      const p2 = await hit(`${API}/model/v3/prediction-snapshot?entity_id=lake&focus_metric=risk`)
+      if (p2.ok && p2.ms < 300) break
+    }
+    await sleep(4000)
+  }
+
   // C1 全湖快照：20 并发 × 5 轮
   {
     const url = `${API}/model/v3/prediction-snapshot?entity_id=lake&focus_metric=chla`

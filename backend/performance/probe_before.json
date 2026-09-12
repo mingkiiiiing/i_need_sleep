@@ -1,0 +1,157 @@
+{
+  "tag": "before",
+  "base": "http://127.0.0.1:8000",
+  "path": "/api/v1/model/v3/prediction-snapshot?entity_id=lake&focus_metric=chla",
+  "started_at": "2026-09-12T18:19:13+0800",
+  "seq": {
+    "requests": [
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 148.5
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 18.4
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 37.6
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 32.3
+      },
+      {
+        "ok": true,
+        "status": 200,
+        "ms": 14.7
+      }
+    ],
+    "n": 5,
+    "p50": 32.3,
+    "p95": 126.3,
+    "max": 148.5,
+    "mean": 50.3
+  },
+  "burst": {
+    "concurrency": 5,
+    "rounds": [
+      {
+        "round": 1,
+        "requests": [
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 122.8
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 122.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 117.6
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 127.7
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 127.7
+          }
+        ],
+        "n": 5,
+        "p50": 122.8,
+        "p95": 127.7,
+        "max": 127.7,
+        "mean": 123.7
+      },
+      {
+        "round": 2,
+        "requests": [
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 50.1
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 70.3
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 80.2
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 79.2
+          },
+          {
+            "ok": true,
+            "status": 200,
+            "ms": 80.6
+          }
+        ],
+        "n": 5,
+        "p50": 79.2,
+        "p95": 80.5,
+        "max": 80.6,
+        "mean": 72.1
+      }
+    ],
+    "first_wave": {
+      "round": 1,
+      "requests": [
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 122.8
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 122.6
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 117.6
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 127.7
+        },
+        {
+          "ok": true,
+          "status": 200,
+          "ms": 127.7
+        }
+      ],
+      "n": 5,
+      "p50": 122.8,
+      "p95": 127.7,
+      "max": 127.7,
+      "mean": 123.7
+    }
+  },
+  "burst_all_stats": {
+    "n": 10,
+    "p50": 99.1,
+    "p95": 127.7,
+    "max": 127.7,
+    "mean": 97.9
+  }
+}
