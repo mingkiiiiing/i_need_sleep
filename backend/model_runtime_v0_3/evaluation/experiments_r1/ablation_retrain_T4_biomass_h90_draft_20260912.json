@@ -1,0 +1,696 @@
+{
+  "runner": "ablation_runner.py",
+  "mode": "retrain_draft",
+  "generated_at": "2026-09-12T14:05:48.926552+00:00",
+  "task": "T4",
+  "variant": "biomass",
+  "horizons": [
+    90
+  ],
+  "split_source": null,
+  "seed": 20260907,
+  "frozen_metric_spec": {
+    "spec_doc": "experiments_r1/口径冻结提案_20260912.md（草案，待主控入台账后生效）",
+    "primary_metrics": {
+      "binary": "brier_score",
+      "probability": "brier_score",
+      "regression_density": "log1p_mae",
+      "regression_default": "mae",
+      "ordinal": "macro_f1"
+    },
+    "uplift_formula_min": "uplift = (baseline_metric - model_metric) / baseline_metric",
+    "uplift_formula_max": "uplift = (model_metric - baseline_metric) / baseline_metric",
+    "baseline_rule": "同 run、同切分、同 seed 下 validation 主指标最优的单一数据驱动族（RF/XGBoost 较优者）",
+    "direction": "min 指标（brier/mae/log1p_mae）下降为正提升；max 指标（macro_f1）上升为正提升",
+    "pass_rule": "uplift >= 0.10 且 n_test >= 15；基准为 0 / 指标不可算时不机械算百分比，如实记 INDETERMINATE",
+    "no_mixing": "R²、准确率、误差下降百分比不得混写；每条提升声明必须绑定单一主指标名"
+  },
+  "summary": {
+    "rows": 8,
+    "status_counts": {
+      "BASELINE_row": 1,
+      "FAIL_below_10pct": 1,
+      "FAIL_worse_than_baseline": 4,
+      "PASS_candidate": 2
+    }
+  },
+  "groups": [
+    {
+      "meta": {
+        "task_id": "T4",
+        "task_label": "蓝藻生物量",
+        "variant": "biomass",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "granularity_tier": "multi_month",
+        "target": "regression",
+        "primary_metric": "mae",
+        "metric_direction": "min",
+        "seed": 20260907,
+        "evidence_source": "retrain_draft",
+        "split_counts": {
+          "train": 333,
+          "validation": 117,
+          "test": 117
+        },
+        "test_window": {
+          "month_min": "2017-08",
+          "month_max": "2020-08"
+        },
+        "run_id": "T4-biomass-ablation-r1",
+        "split_mode": "internal_time_block_cv_v1",
+        "split_key": "target_month",
+        "block_bounds": {
+          "train_max_month": "2014-05",
+          "validation_max_month": "2017-08",
+          "test_min_month": "2017-11"
+        }
+      },
+      "rows": [
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "mechanism",
+          "family_role": "mechanism_only",
+          "test_value": 5.563640075503203,
+          "validation_value": 6.79272370705822,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": -0.03152453989351613,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 109
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "random_forest",
+          "family_role": "single_ai",
+          "test_value": 5.393609032391547,
+          "validation_value": 6.497958285419071,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": null,
+          "status_vs_threshold": "BASELINE_row",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "xgboost",
+          "family_role": "single_ai",
+          "test_value": 5.404633539914386,
+          "validation_value": 6.523748856251737,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": -0.002043994560345521,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "mechanism_feature",
+          "family_role": "fusion",
+          "test_value": 5.897821265946005,
+          "validation_value": 7.182081312811036,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": -0.09348327446917092,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "residual",
+          "family_role": "fusion",
+          "test_value": 5.9121615121808935,
+          "validation_value": 7.085945957368453,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": -0.09614202228510776,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 112
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "constrained_blend",
+          "family_role": "fusion",
+          "test_value": 5.213282922137635,
+          "validation_value": 6.40546912725195,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": 0.03343329284176063,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "simple_baseline",
+          "family_role": "reference_baseline",
+          "test_value": 4.391384949658628,
+          "validation_value": 5.314509114932948,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": 0.18581696906728318,
+          "status_vs_threshold": "PASS_candidate",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 1
+        },
+        {
+          "task_id": "T4",
+          "task_label": "蓝藻生物量",
+          "variant": "biomass",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T4-biomass-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "climatology_global",
+          "family_role": "reference_baseline",
+          "test_value": 4.634984497061732,
+          "validation_value": 5.081110410891558,
+          "baseline_family": "random_forest",
+          "baseline_value": 5.393609032391547,
+          "uplift_vs_best_single": 0.14065248904283992,
+          "status_vs_threshold": "PASS_candidate",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 4
+        }
+      ],
+      "selected_family_gate_rule": "random_forest",
+      "mechanism_degenerate": false,
+      "validation_metrics_by_family": {
+        "mechanism": {
+          "mae": 6.79272370705822,
+          "rmse": 11.160114983571878,
+          "r2": -0.45647851645492654,
+          "log1p_mae": 0.9450265999487294,
+          "n": 117
+        },
+        "random_forest": {
+          "mae": 6.497958285419071,
+          "rmse": 10.679640460288567,
+          "r2": -0.3337671251661025,
+          "log1p_mae": 0.7834147346718306,
+          "n": 117
+        },
+        "xgboost": {
+          "mae": 6.523748856251737,
+          "rmse": 11.008302235026534,
+          "r2": -0.4171226322360264,
+          "log1p_mae": 0.783502347727051,
+          "n": 117
+        },
+        "mechanism_feature": {
+          "mae": 7.182081312811036,
+          "rmse": 11.638821680471908,
+          "r2": -0.5841079494494001,
+          "log1p_mae": 0.9789160420823131,
+          "n": 117
+        },
+        "residual": {
+          "mae": 7.085945957368453,
+          "rmse": 11.449433697847239,
+          "r2": -0.5329738890545119,
+          "log1p_mae": 0.9519997391724668,
+          "n": 117
+        },
+        "constrained_blend": {
+          "mae": 6.40546912725195,
+          "rmse": 10.697941952838407,
+          "r2": -0.33834234370573957,
+          "log1p_mae": 0.8238526440648284,
+          "n": 117
+        },
+        "simple_baseline": {
+          "mae": 5.314509114932948,
+          "rmse": 9.752394787491136,
+          "r2": -0.11221639328784638,
+          "log1p_mae": 0.6615379569793681,
+          "n": 117
+        },
+        "climatology_global": {
+          "mae": 5.081110410891558,
+          "rmse": 9.2834089299711,
+          "r2": -0.007817063836348392,
+          "log1p_mae": 0.6251427270981121,
+          "n": 117
+        }
+      }
+    }
+  ],
+  "rows": [
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "mechanism",
+      "family_role": "mechanism_only",
+      "test_value": 5.563640075503203,
+      "validation_value": 6.79272370705822,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": -0.03152453989351613,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 109
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "random_forest",
+      "family_role": "single_ai",
+      "test_value": 5.393609032391547,
+      "validation_value": 6.497958285419071,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": null,
+      "status_vs_threshold": "BASELINE_row",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "xgboost",
+      "family_role": "single_ai",
+      "test_value": 5.404633539914386,
+      "validation_value": 6.523748856251737,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": -0.002043994560345521,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "mechanism_feature",
+      "family_role": "fusion",
+      "test_value": 5.897821265946005,
+      "validation_value": 7.182081312811036,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": -0.09348327446917092,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "residual",
+      "family_role": "fusion",
+      "test_value": 5.9121615121808935,
+      "validation_value": 7.085945957368453,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": -0.09614202228510776,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 112
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "constrained_blend",
+      "family_role": "fusion",
+      "test_value": 5.213282922137635,
+      "validation_value": 6.40546912725195,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": 0.03343329284176063,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "simple_baseline",
+      "family_role": "reference_baseline",
+      "test_value": 4.391384949658628,
+      "validation_value": 5.314509114932948,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": 0.18581696906728318,
+      "status_vs_threshold": "PASS_candidate",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 1
+    },
+    {
+      "task_id": "T4",
+      "task_label": "蓝藻生物量",
+      "variant": "biomass",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T4-biomass-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "climatology_global",
+      "family_role": "reference_baseline",
+      "test_value": 4.634984497061732,
+      "validation_value": 5.081110410891558,
+      "baseline_family": "random_forest",
+      "baseline_value": 5.393609032391547,
+      "uplift_vs_best_single": 0.14065248904283992,
+      "status_vs_threshold": "PASS_candidate",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 4
+    }
+  ],
+  "honesty_note": "本表为 T3a 消融脚手架草案：offline 模式只对既有产物做同帧复算（不重训练、不挑选子集）；selftest/retrain 模式的行必须按 evidence_source 标注，synthetic_selftest 一律不是证据；最终门禁状态以 T3b 冻结评估后 gate.py 生成的 gate_table.json 为准。 retrain_draft 行在 T1 审计切分落地并通过主控确认前不是门禁证据。"
+}

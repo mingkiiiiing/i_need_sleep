@@ -1,0 +1,696 @@
+{
+  "runner": "ablation_runner.py",
+  "mode": "retrain_draft",
+  "generated_at": "2026-09-12T14:05:21.228969+00:00",
+  "task": "T3",
+  "variant": "density",
+  "horizons": [
+    90
+  ],
+  "split_source": null,
+  "seed": 20260907,
+  "frozen_metric_spec": {
+    "spec_doc": "experiments_r1/口径冻结提案_20260912.md（草案，待主控入台账后生效）",
+    "primary_metrics": {
+      "binary": "brier_score",
+      "probability": "brier_score",
+      "regression_density": "log1p_mae",
+      "regression_default": "mae",
+      "ordinal": "macro_f1"
+    },
+    "uplift_formula_min": "uplift = (baseline_metric - model_metric) / baseline_metric",
+    "uplift_formula_max": "uplift = (model_metric - baseline_metric) / baseline_metric",
+    "baseline_rule": "同 run、同切分、同 seed 下 validation 主指标最优的单一数据驱动族（RF/XGBoost 较优者）",
+    "direction": "min 指标（brier/mae/log1p_mae）下降为正提升；max 指标（macro_f1）上升为正提升",
+    "pass_rule": "uplift >= 0.10 且 n_test >= 15；基准为 0 / 指标不可算时不机械算百分比，如实记 INDETERMINATE",
+    "no_mixing": "R²、准确率、误差下降百分比不得混写；每条提升声明必须绑定单一主指标名"
+  },
+  "summary": {
+    "rows": 8,
+    "status_counts": {
+      "BASELINE_row": 1,
+      "FAIL_below_10pct": 3,
+      "FAIL_worse_than_baseline": 3,
+      "PASS_candidate": 1
+    }
+  },
+  "groups": [
+    {
+      "meta": {
+        "task_id": "T3",
+        "task_label": "蓝藻密度",
+        "variant": "density",
+        "horizon_days": 90,
+        "month_offset": 3,
+        "granularity_tier": "multi_month",
+        "target": "regression",
+        "primary_metric": "log1p_mae",
+        "metric_direction": "min",
+        "seed": 20260907,
+        "evidence_source": "retrain_draft",
+        "split_counts": {
+          "train": 333,
+          "validation": 117,
+          "test": 117
+        },
+        "test_window": {
+          "month_min": "2017-08",
+          "month_max": "2020-08"
+        },
+        "run_id": "T3-density-ablation-r1",
+        "split_mode": "internal_time_block_cv_v1",
+        "split_key": "target_month",
+        "block_bounds": {
+          "train_max_month": "2014-05",
+          "validation_max_month": "2017-08",
+          "test_min_month": "2017-11"
+        }
+      },
+      "rows": [
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "mechanism",
+          "family_role": "mechanism_only",
+          "test_value": 0.1886555392187306,
+          "validation_value": 0.19360228262251214,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": -0.1391504513614458,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "random_forest",
+          "family_role": "single_ai",
+          "test_value": 0.15789313374354824,
+          "validation_value": 0.16742968884275228,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": 0.04660082966183922,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "xgboost",
+          "family_role": "single_ai",
+          "test_value": 0.16561073121927009,
+          "validation_value": 0.16486568634871365,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": null,
+          "status_vs_threshold": "BASELINE_row",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "mechanism_feature",
+          "family_role": "fusion",
+          "test_value": 0.2258451077207925,
+          "validation_value": 0.22085449834625653,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": -0.36371058842661325,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "residual",
+          "family_role": "fusion",
+          "test_value": 0.1977628841697982,
+          "validation_value": 0.19312748914767003,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": -0.1941429321265322,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "constrained_blend",
+          "family_role": "fusion",
+          "test_value": 0.16561073121927009,
+          "validation_value": 0.16486568634871365,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": 0.0,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 117
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "simple_baseline",
+          "family_role": "reference_baseline",
+          "test_value": 0.14831060895568085,
+          "validation_value": 0.1591709989290674,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": 0.10446256795209556,
+          "status_vs_threshold": "PASS_candidate",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 1
+        },
+        {
+          "task_id": "T3",
+          "task_label": "蓝藻密度",
+          "variant": "density",
+          "horizon_days": 90,
+          "month_offset": 3,
+          "granularity_tier": "multi_month",
+          "target": "regression",
+          "primary_metric": "log1p_mae",
+          "metric_direction": "min",
+          "run_id": "T3-density-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "retrain_draft",
+          "split_counts": {
+            "train": 333,
+            "validation": 117,
+            "test": 117
+          },
+          "test_window": {
+            "month_min": "2017-08",
+            "month_max": "2020-08"
+          },
+          "n_test": 117,
+          "test_positives": null,
+          "ablation_family": "climatology_global",
+          "family_role": "reference_baseline",
+          "test_value": 0.16050539887937046,
+          "validation_value": 0.13295017205166237,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.16561073121927009,
+          "uplift_vs_best_single": 0.03082730389699277,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 4
+        }
+      ],
+      "selected_family_gate_rule": "xgboost",
+      "mechanism_degenerate": false,
+      "validation_metrics_by_family": {
+        "mechanism": {
+          "mae": 0.2950509857561231,
+          "rmse": 0.3704411737464105,
+          "r2": -1.4368328021585839,
+          "log1p_mae": 0.19360228262251214,
+          "n": 117
+        },
+        "random_forest": {
+          "mae": 0.2600997091819574,
+          "rmse": 0.3121509938997895,
+          "r2": -0.7302811360473227,
+          "log1p_mae": 0.16742968884275228,
+          "n": 117
+        },
+        "xgboost": {
+          "mae": 0.25708751112279277,
+          "rmse": 0.30507838075550237,
+          "r2": -0.6527611440620587,
+          "log1p_mae": 0.16486568634871365,
+          "n": 117
+        },
+        "mechanism_feature": {
+          "mae": 0.3275066371064635,
+          "rmse": 0.41476903194724574,
+          "r2": -2.0549202335325507,
+          "log1p_mae": 0.22085449834625653,
+          "n": 117
+        },
+        "residual": {
+          "mae": 0.2946438276141888,
+          "rmse": 0.37230500770337116,
+          "r2": -1.4614158018902477,
+          "log1p_mae": 0.19312748914767003,
+          "n": 117
+        },
+        "constrained_blend": {
+          "mae": 0.25708751112279277,
+          "rmse": 0.30507838075550237,
+          "r2": -0.6527611440620587,
+          "log1p_mae": 0.16486568634871365,
+          "n": 117
+        },
+        "simple_baseline": {
+          "mae": 0.2517649861399861,
+          "rmse": 0.2981553450012825,
+          "r2": -0.5786011958931634,
+          "log1p_mae": 0.1591709989290674,
+          "n": 117
+        },
+        "climatology_global": {
+          "mae": 0.2115742791082594,
+          "rmse": 0.25314711022749814,
+          "r2": -0.13797619451607201,
+          "log1p_mae": 0.13295017205166237,
+          "n": 117
+        }
+      }
+    }
+  ],
+  "rows": [
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "mechanism",
+      "family_role": "mechanism_only",
+      "test_value": 0.1886555392187306,
+      "validation_value": 0.19360228262251214,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": -0.1391504513614458,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "random_forest",
+      "family_role": "single_ai",
+      "test_value": 0.15789313374354824,
+      "validation_value": 0.16742968884275228,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": 0.04660082966183922,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "xgboost",
+      "family_role": "single_ai",
+      "test_value": 0.16561073121927009,
+      "validation_value": 0.16486568634871365,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": null,
+      "status_vs_threshold": "BASELINE_row",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "mechanism_feature",
+      "family_role": "fusion",
+      "test_value": 0.2258451077207925,
+      "validation_value": 0.22085449834625653,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": -0.36371058842661325,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "residual",
+      "family_role": "fusion",
+      "test_value": 0.1977628841697982,
+      "validation_value": 0.19312748914767003,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": -0.1941429321265322,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "constrained_blend",
+      "family_role": "fusion",
+      "test_value": 0.16561073121927009,
+      "validation_value": 0.16486568634871365,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": 0.0,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 117
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "simple_baseline",
+      "family_role": "reference_baseline",
+      "test_value": 0.14831060895568085,
+      "validation_value": 0.1591709989290674,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": 0.10446256795209556,
+      "status_vs_threshold": "PASS_candidate",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 1
+    },
+    {
+      "task_id": "T3",
+      "task_label": "蓝藻密度",
+      "variant": "density",
+      "horizon_days": 90,
+      "month_offset": 3,
+      "granularity_tier": "multi_month",
+      "target": "regression",
+      "primary_metric": "log1p_mae",
+      "metric_direction": "min",
+      "run_id": "T3-density-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "retrain_draft",
+      "split_counts": {
+        "train": 333,
+        "validation": 117,
+        "test": 117
+      },
+      "test_window": {
+        "month_min": "2017-08",
+        "month_max": "2020-08"
+      },
+      "n_test": 117,
+      "test_positives": null,
+      "ablation_family": "climatology_global",
+      "family_role": "reference_baseline",
+      "test_value": 0.16050539887937046,
+      "validation_value": 0.13295017205166237,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.16561073121927009,
+      "uplift_vs_best_single": 0.03082730389699277,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 4
+    }
+  ],
+  "honesty_note": "本表为 T3a 消融脚手架草案：offline 模式只对既有产物做同帧复算（不重训练、不挑选子集）；selftest/retrain 模式的行必须按 evidence_source 标注，synthetic_selftest 一律不是证据；最终门禁状态以 T3b 冻结评估后 gate.py 生成的 gate_table.json 为准。 retrain_draft 行在 T1 审计切分落地并通过主控确认前不是门禁证据。"
+}

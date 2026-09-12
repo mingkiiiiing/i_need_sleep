@@ -1,7 +1,7 @@
 {
-  "started_at": "2026-09-12T13:35:32.839Z",
-  "finished_at": "2026-09-12T13:36:26.638Z",
-  "duration_ms": 53796,
+  "started_at": "2026-09-12T07:48:10.707Z",
+  "finished_at": "2026-09-12T07:49:03.021Z",
+  "duration_ms": 52312,
   "env": {
     "base": "http://127.0.0.1:5173",
     "api": "http://127.0.0.1:8000/api/v1",
@@ -12,152 +12,152 @@
       "name": "指标轮换 ×6 轮（24 次切换）",
       "switches": 24,
       "timeouts": 0,
-      "avgMs": 287.7,
-      "p95": 440.9,
-      "max": 517.3,
+      "avgMs": 180.3,
+      "p95": 258.4,
+      "max": 266,
       "steps": [
         {
           "round": 1,
           "metric": "risk",
-          "ms": 124.5,
+          "ms": 183.5,
           "timedOut": false
         },
         {
           "round": 1,
           "metric": "chla",
-          "ms": 176.5,
+          "ms": 160.7,
           "timedOut": false
         },
         {
           "round": 1,
           "metric": "area",
-          "ms": 517.3,
+          "ms": 151.4,
           "timedOut": false
         },
         {
           "round": 1,
           "metric": "biomass",
-          "ms": 425.4,
+          "ms": 194.7,
           "timedOut": false
         },
         {
           "round": 2,
           "metric": "risk",
-          "ms": 188.5,
+          "ms": 111.6,
           "timedOut": false
         },
         {
           "round": 2,
           "metric": "chla",
-          "ms": 320,
+          "ms": 134.2,
           "timedOut": false
         },
         {
           "round": 2,
           "metric": "area",
-          "ms": 287,
+          "ms": 204.3,
           "timedOut": false
         },
         {
           "round": 2,
           "metric": "biomass",
-          "ms": 439.9,
-          "timedOut": false
-        },
-        {
-          "round": 3,
-          "metric": "risk",
-          "ms": 338.2,
-          "timedOut": false
-        },
-        {
-          "round": 3,
-          "metric": "chla",
-          "ms": 410.3,
-          "timedOut": false
-        },
-        {
-          "round": 3,
-          "metric": "area",
-          "ms": 284,
-          "timedOut": false
-        },
-        {
-          "round": 3,
-          "metric": "biomass",
-          "ms": 307.3,
-          "timedOut": false
-        },
-        {
-          "round": 4,
-          "metric": "risk",
-          "ms": 380.6,
-          "timedOut": false
-        },
-        {
-          "round": 4,
-          "metric": "chla",
-          "ms": 292.1,
-          "timedOut": false
-        },
-        {
-          "round": 4,
-          "metric": "area",
-          "ms": 171.3,
-          "timedOut": false
-        },
-        {
-          "round": 4,
-          "metric": "biomass",
-          "ms": 440.9,
-          "timedOut": false
-        },
-        {
-          "round": 5,
-          "metric": "risk",
-          "ms": 293,
-          "timedOut": false
-        },
-        {
-          "round": 5,
-          "metric": "chla",
           "ms": 172.6,
           "timedOut": false
         },
         {
+          "round": 3,
+          "metric": "risk",
+          "ms": 126.5,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "chla",
+          "ms": 196.9,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "area",
+          "ms": 120.3,
+          "timedOut": false
+        },
+        {
+          "round": 3,
+          "metric": "biomass",
+          "ms": 167.9,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "risk",
+          "ms": 179.1,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "chla",
+          "ms": 258.4,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "area",
+          "ms": 196.2,
+          "timedOut": false
+        },
+        {
+          "round": 4,
+          "metric": "biomass",
+          "ms": 250.4,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "risk",
+          "ms": 266,
+          "timedOut": false
+        },
+        {
+          "round": 5,
+          "metric": "chla",
+          "ms": 138.5,
+          "timedOut": false
+        },
+        {
           "round": 5,
           "metric": "area",
-          "ms": 174,
+          "ms": 243.1,
           "timedOut": false
         },
         {
           "round": 5,
           "metric": "biomass",
-          "ms": 174.9,
+          "ms": 193.7,
           "timedOut": false
         },
         {
           "round": 6,
           "metric": "risk",
-          "ms": 309.6,
+          "ms": 204.1,
           "timedOut": false
         },
         {
           "round": 6,
           "metric": "chla",
-          "ms": 188.9,
+          "ms": 187.2,
           "timedOut": false
         },
         {
           "round": 6,
           "metric": "area",
-          "ms": 292.5,
+          "ms": 141.1,
           "timedOut": false
         },
         {
           "round": 6,
           "metric": "biomass",
-          "ms": 195.9,
+          "ms": 144.2,
           "timedOut": false
         }
       ]
@@ -213,49 +213,49 @@
       "stations": [
         {
           "id": "mee-0145cdb7",
-          "ms": 104.5,
+          "ms": 95.5,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-077b367a",
-          "ms": 116.7,
+          "ms": 67.8,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-0e770fb5",
-          "ms": 62.4,
+          "ms": 44.1,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-1c5c6f47",
-          "ms": 84,
+          "ms": 47.7,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-1d96cbf3",
-          "ms": 90.5,
+          "ms": 46.8,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-1eeede89",
-          "ms": 75.4,
+          "ms": 63.5,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-1fb5ae3c",
-          "ms": 92.3,
+          "ms": 54.9,
           "waited": true,
           "hashMatched": true
         },
         {
           "id": "mee-200076ad",
-          "ms": 95.7,
+          "ms": 59.8,
           "waited": true,
           "hashMatched": true
         }
@@ -269,91 +269,91 @@
         {
           "round": 1,
           "mode": "replay",
-          "dwellMs": 1200.7,
+          "dwellMs": 964.2,
           "white": false
         },
         {
           "round": 1,
           "mode": "rs",
-          "dwellMs": 1115.3,
+          "dwellMs": 945.4,
           "white": false
         },
         {
           "round": 1,
           "mode": "forecast",
-          "dwellMs": 1258.5,
+          "dwellMs": 992.2,
           "white": false
         },
         {
           "round": 2,
           "mode": "replay",
-          "dwellMs": 1007.3,
+          "dwellMs": 934.7,
           "white": false
         },
         {
           "round": 2,
           "mode": "rs",
-          "dwellMs": 1045.2,
+          "dwellMs": 930.5,
           "white": false
         },
         {
           "round": 2,
           "mode": "forecast",
-          "dwellMs": 1072.2,
+          "dwellMs": 992.7,
           "white": false
         },
         {
           "round": 3,
           "mode": "replay",
-          "dwellMs": 1004.2,
+          "dwellMs": 980.8,
           "white": false
         },
         {
           "round": 3,
           "mode": "rs",
-          "dwellMs": 953.6,
+          "dwellMs": 945.3,
           "white": false
         },
         {
           "round": 3,
           "mode": "forecast",
-          "dwellMs": 1017.2,
+          "dwellMs": 969.3,
           "white": false
         },
         {
           "round": 4,
           "mode": "replay",
-          "dwellMs": 1039.5,
+          "dwellMs": 939,
           "white": false
         },
         {
           "round": 4,
           "mode": "rs",
-          "dwellMs": 1000,
+          "dwellMs": 944.4,
           "white": false
         },
         {
           "round": 4,
           "mode": "forecast",
-          "dwellMs": 1023.6,
+          "dwellMs": 927.3,
           "white": false
         },
         {
           "round": 5,
           "mode": "replay",
-          "dwellMs": 1089.8,
+          "dwellMs": 970.4,
           "white": false
         },
         {
           "round": 5,
           "mode": "rs",
-          "dwellMs": 1014.5,
+          "dwellMs": 1001.5,
           "white": false
         },
         {
           "round": 5,
           "mode": "forecast",
-          "dwellMs": 1106.1,
+          "dwellMs": 963.1,
           "white": false
         }
       ]
@@ -366,29 +366,29 @@
       "metric": "performance.memory.usedJSHeapSize",
       "scenarios": {
         "s1": {
-          "beforeBytes": 13126285,
-          "afterBytes": 18483262,
-          "deltaMB": 5.1
+          "beforeBytes": 13231699,
+          "afterBytes": 19123153,
+          "deltaMB": 5.6
         },
         "s2": {
-          "beforeBytes": 18484130,
-          "afterBytes": 13849537,
-          "deltaMB": -4.4
+          "beforeBytes": 19124021,
+          "afterBytes": 13967514,
+          "deltaMB": -4.9
         },
         "s3": {
-          "beforeBytes": 13850405,
-          "afterBytes": 13342602,
-          "deltaMB": -0.5
+          "beforeBytes": 13968382,
+          "afterBytes": 13672621,
+          "deltaMB": -0.3
         },
         "s4": {
-          "beforeBytes": 13343470,
-          "afterBytes": 15186565,
-          "deltaMB": 1.8
+          "beforeBytes": 13673489,
+          "afterBytes": 14402802,
+          "deltaMB": 0.7
         }
       },
-      "baselineMB": 12.5,
-      "finalMB": 14.5,
-      "totalDeltaMB": 2,
+      "baselineMB": 12.6,
+      "finalMB": 13.7,
+      "totalDeltaMB": 1.1,
       "thresholds": {
         "warnMB": 50,
         "failMB": 120
@@ -407,62 +407,174 @@
       "non200": 0,
       "netFail": 0,
       "failureRate": 0,
-      "p50": 220.2,
-      "p95": 388.5,
-      "max": 418.1,
-      "mean": 237.5,
+      "p50": 593.7,
+      "p95": 2807.2,
+      "max": 2845.4,
+      "mean": 1011.1,
       "latencies": [
         {
           "status": 200,
-          "ms": 264.9
+          "ms": 2845.4
         },
         {
           "status": 200,
-          "ms": 272.2
+          "ms": 2814
         },
         {
           "status": 200,
-          "ms": 306.3
+          "ms": 2813.6
         },
         {
           "status": 200,
-          "ms": 263
+          "ms": 2690.7
         },
         {
           "status": 200,
-          "ms": 275.9
+          "ms": 2817.1
         },
         {
           "status": 200,
-          "ms": 278.5
+          "ms": 2681
         },
         {
           "status": 200,
-          "ms": 302.9
+          "ms": 2689
         },
         {
           "status": 200,
-          "ms": 278.5
+          "ms": 2802
         },
         {
           "status": 200,
-          "ms": 265.2
+          "ms": 2823.2
         },
         {
           "status": 200,
-          "ms": 278.9
+          "ms": 2689.5
         },
         {
           "status": 200,
-          "ms": 286.2
+          "ms": 2691.7
         },
         {
           "status": 200,
-          "ms": 305.3
+          "ms": 2707.3
         },
         {
           "status": 200,
-          "ms": 308.2
+          "ms": 2697
+        },
+        {
+          "status": 200,
+          "ms": 2787
+        },
+        {
+          "status": 200,
+          "ms": 2692
+        },
+        {
+          "status": 200,
+          "ms": 2807.2
+        },
+        {
+          "status": 200,
+          "ms": 2777.1
+        },
+        {
+          "status": 200,
+          "ms": 2695.4
+        },
+        {
+          "status": 200,
+          "ms": 2799
+        },
+        {
+          "status": 200,
+          "ms": 2696.5
+        },
+        {
+          "status": 200,
+          "ms": 739.8
+        },
+        {
+          "status": 200,
+          "ms": 770.9
+        },
+        {
+          "status": 200,
+          "ms": 785.1
+        },
+        {
+          "status": 200,
+          "ms": 554.1
+        },
+        {
+          "status": 200,
+          "ms": 677.9
+        },
+        {
+          "status": 200,
+          "ms": 745.8
+        },
+        {
+          "status": 200,
+          "ms": 665.9
+        },
+        {
+          "status": 200,
+          "ms": 813.3
+        },
+        {
+          "status": 200,
+          "ms": 786.7
+        },
+        {
+          "status": 200,
+          "ms": 570.3
+        },
+        {
+          "status": 200,
+          "ms": 564.7
+        },
+        {
+          "status": 200,
+          "ms": 807.6
+        },
+        {
+          "status": 200,
+          "ms": 607.9
+        },
+        {
+          "status": 200,
+          "ms": 653.6
+        },
+        {
+          "status": 200,
+          "ms": 651.4
+        },
+        {
+          "status": 200,
+          "ms": 453.1
+        },
+        {
+          "status": 200,
+          "ms": 530.6
+        },
+        {
+          "status": 200,
+          "ms": 793.5
+        },
+        {
+          "status": 200,
+          "ms": 593.7
+        },
+        {
+          "status": 200,
+          "ms": 793.7
+        },
+        {
+          "status": 200,
+          "ms": 457.1
         },
         {
           "status": 200,
@@ -470,350 +582,238 @@
         },
         {
           "status": 200,
-          "ms": 317.2
+          "ms": 521.3
         },
         {
           "status": 200,
-          "ms": 337.4
+          "ms": 448.1
         },
         {
           "status": 200,
-          "ms": 338.2
+          "ms": 468.5
         },
         {
           "status": 200,
-          "ms": 338.1
+          "ms": 556.4
         },
         {
           "status": 200,
-          "ms": 341.5
+          "ms": 582.7
         },
         {
           "status": 200,
-          "ms": 358.1
+          "ms": 361.6
         },
         {
           "status": 200,
-          "ms": 88.4
+          "ms": 488.3
         },
         {
           "status": 200,
-          "ms": 243.4
+          "ms": 520.8
         },
         {
           "status": 200,
-          "ms": 168.9
+          "ms": 551.7
         },
         {
           "status": 200,
-          "ms": 251.4
+          "ms": 589.8
         },
         {
           "status": 200,
-          "ms": 254.5
+          "ms": 444.2
         },
         {
           "status": 200,
-          "ms": 213.1
+          "ms": 281.5
         },
         {
           "status": 200,
-          "ms": 257
+          "ms": 593.1
         },
         {
           "status": 200,
-          "ms": 206.9
+          "ms": 467.7
         },
         {
           "status": 200,
-          "ms": 243.3
+          "ms": 513.6
         },
         {
           "status": 200,
-          "ms": 257.9
+          "ms": 574.9
         },
         {
           "status": 200,
-          "ms": 215.5
+          "ms": 441
         },
         {
           "status": 200,
-          "ms": 267.3
+          "ms": 614.3
         },
         {
           "status": 200,
-          "ms": 211.2
+          "ms": 549.8
         },
         {
           "status": 200,
-          "ms": 217.7
+          "ms": 675.6
         },
         {
           "status": 200,
-          "ms": 260.2
+          "ms": 722
         },
         {
           "status": 200,
-          "ms": 220.2
+          "ms": 718.1
         },
         {
           "status": 200,
-          "ms": 228.2
+          "ms": 729.9
         },
         {
           "status": 200,
-          "ms": 223
+          "ms": 571.2
         },
         {
           "status": 200,
-          "ms": 267.5
+          "ms": 608.7
         },
         {
           "status": 200,
-          "ms": 277.2
+          "ms": 676.1
         },
         {
           "status": 200,
-          "ms": 210.6
+          "ms": 606.4
         },
         {
           "status": 200,
-          "ms": 359.4
+          "ms": 600.8
         },
         {
           "status": 200,
-          "ms": 371.7
+          "ms": 556.5
         },
         {
           "status": 200,
-          "ms": 253.3
+          "ms": 720.2
         },
         {
           "status": 200,
-          "ms": 400.5
+          "ms": 707.3
         },
         {
           "status": 200,
-          "ms": 373.8
+          "ms": 477.3
         },
         {
           "status": 200,
-          "ms": 418.1
+          "ms": 633.9
         },
         {
           "status": 200,
-          "ms": 395.8
+          "ms": 699.6
         },
         {
           "status": 200,
-          "ms": 393.2
+          "ms": 743.1
         },
         {
           "status": 200,
-          "ms": 388.5
+          "ms": 434.6
         },
         {
           "status": 200,
-          "ms": 307.6
+          "ms": 631.3
         },
         {
           "status": 200,
-          "ms": 359.9
+          "ms": 714.7
         },
         {
           "status": 200,
-          "ms": 361.3
+          "ms": 478.8
         },
         {
           "status": 200,
-          "ms": 302.7
+          "ms": 575.6
         },
         {
           "status": 200,
-          "ms": 371.9
+          "ms": 532.1
         },
         {
           "status": 200,
-          "ms": 373.9
+          "ms": 526.9
         },
         {
           "status": 200,
-          "ms": 349
+          "ms": 482.5
         },
         {
           "status": 200,
-          "ms": 354.8
+          "ms": 479.1
         },
         {
           "status": 200,
-          "ms": 163.6
+          "ms": 360.9
         },
         {
           "status": 200,
-          "ms": 412.6
+          "ms": 441
         },
         {
           "status": 200,
-          "ms": 58.1
+          "ms": 444.3
         },
         {
           "status": 200,
-          "ms": 124.2
+          "ms": 579.4
         },
         {
           "status": 200,
-          "ms": 169.2
+          "ms": 344.9
         },
         {
           "status": 200,
-          "ms": 177.8
+          "ms": 564.7
         },
         {
           "status": 200,
-          "ms": 161.9
+          "ms": 560.1
         },
         {
           "status": 200,
-          "ms": 164.6
+          "ms": 444.6
         },
         {
           "status": 200,
-          "ms": 166.1
+          "ms": 495.9
         },
         {
           "status": 200,
-          "ms": 120.4
+          "ms": 524.1
         },
         {
           "status": 200,
-          "ms": 181.1
+          "ms": 469.3
         },
         {
           "status": 200,
-          "ms": 171.9
+          "ms": 569.3
         },
         {
           "status": 200,
-          "ms": 198.6
+          "ms": 516.3
         },
         {
           "status": 200,
-          "ms": 173.3
-        },
-        {
-          "status": 200,
-          "ms": 190
-        },
-        {
-          "status": 200,
-          "ms": 173.3
-        },
-        {
-          "status": 200,
-          "ms": 167.4
-        },
-        {
-          "status": 200,
-          "ms": 189.8
-        },
-        {
-          "status": 200,
-          "ms": 185.1
-        },
-        {
-          "status": 200,
-          "ms": 180.7
-        },
-        {
-          "status": 200,
-          "ms": 176.5
-        },
-        {
-          "status": 200,
-          "ms": 182.5
-        },
-        {
-          "status": 200,
-          "ms": 66.2
-        },
-        {
-          "status": 200,
-          "ms": 66.4
-        },
-        {
-          "status": 200,
-          "ms": 70.7
-        },
-        {
-          "status": 200,
-          "ms": 71.8
-        },
-        {
-          "status": 200,
-          "ms": 153.9
-        },
-        {
-          "status": 200,
-          "ms": 171.6
-        },
-        {
-          "status": 200,
-          "ms": 145.5
-        },
-        {
-          "status": 200,
-          "ms": 146.3
-        },
-        {
-          "status": 200,
-          "ms": 160.1
-        },
-        {
-          "status": 200,
-          "ms": 156.8
-        },
-        {
-          "status": 200,
-          "ms": 181.5
-        },
-        {
-          "status": 200,
-          "ms": 167.2
-        },
-        {
-          "status": 200,
-          "ms": 147.5
-        },
-        {
-          "status": 200,
-          "ms": 163.6
-        },
-        {
-          "status": 200,
-          "ms": 182.4
-        },
-        {
-          "status": 200,
-          "ms": 149
-        },
-        {
-          "status": 200,
-          "ms": 153
-        },
-        {
-          "status": 200,
-          "ms": 183.7
-        },
-        {
-          "status": 200,
-          "ms": 187.4
-        },
-        {
-          "status": 200,
-          "ms": 184.7
+          "ms": 577
         }
       ],
-      "verdict": "PASS"
+      "verdict": "FAIL"
     },
     "c2": {
       "name": "8 站点快照并发 ×3",
@@ -831,111 +831,111 @@
       "non200": 0,
       "netFail": 0,
       "failureRate": 0,
-      "p50": 215,
-      "p95": 262.6,
-      "max": 263.1,
-      "mean": 212.6,
+      "p50": 1822.3,
+      "p95": 1979.6,
+      "max": 1982.8,
+      "mean": 1712.3,
       "latencies": [
         {
           "status": 200,
-          "ms": 142.7
+          "ms": 1754.7
         },
         {
           "status": 200,
-          "ms": 143.5
+          "ms": 1762.2
         },
         {
           "status": 200,
-          "ms": 145.4
+          "ms": 1756.9
         },
         {
           "status": 200,
-          "ms": 164.5
+          "ms": 1906
         },
         {
           "status": 200,
-          "ms": 171.4
+          "ms": 1908.4
         },
         {
           "status": 200,
-          "ms": 165
+          "ms": 1919
         },
         {
           "status": 200,
-          "ms": 167
+          "ms": 1765.8
         },
         {
           "status": 200,
-          "ms": 164.5
+          "ms": 1763.8
         },
         {
           "status": 200,
-          "ms": 169.3
+          "ms": 1729.2
         },
         {
           "status": 200,
-          "ms": 211.1
+          "ms": 640.6
         },
         {
           "status": 200,
-          "ms": 212.3
+          "ms": 700.8
         },
         {
           "status": 200,
-          "ms": 215
+          "ms": 599.5
         },
         {
           "status": 200,
-          "ms": 262.1
+          "ms": 1982.8
         },
         {
           "status": 200,
-          "ms": 256.3
+          "ms": 1946.2
         },
         {
           "status": 200,
-          "ms": 241.7
+          "ms": 1960.5
         },
         {
           "status": 200,
-          "ms": 250.6
+          "ms": 1822.3
         },
         {
           "status": 200,
-          "ms": 263.1
+          "ms": 1820.6
         },
         {
           "status": 200,
-          "ms": 242.5
+          "ms": 1818.9
         },
         {
           "status": 200,
-          "ms": 250.5
+          "ms": 1873.8
         },
         {
           "status": 200,
-          "ms": 255.2
+          "ms": 1875.1
         },
         {
           "status": 200,
-          "ms": 242.3
+          "ms": 1881.1
         },
         {
           "status": 200,
-          "ms": 262.6
+          "ms": 1957.8
         },
         {
           "status": 200,
-          "ms": 244.7
+          "ms": 1968.4
         },
         {
           "status": 200,
-          "ms": 258
+          "ms": 1979.6
         }
       ],
       "verdict": "PASS"
     },
-    "verdict": "PASS"
+    "verdict": "FAIL"
   },
-  "overall": "PASS"
+  "overall": "FAIL"
 }
