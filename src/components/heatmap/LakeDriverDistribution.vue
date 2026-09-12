@@ -172,13 +172,13 @@ const dataNotes = computed(() => {
   <section class="ldd" data-role="lake-driver-distribution">
     <div class="ldd-head">
       <div>
-        <b>全湖驱动因素 · 79 站分布</b>
+        <b>全湖驱动因素 · {{ meta.nStations || '—' }} 站分布</b>
         <span>环境状态口径（机理分解），非模型贡献排序</span>
       </div>
       <span class="ldd-n" data-role="ldd-coverage">n={{ meta.nStations }}</span>
     </div>
 
-    <StatePanel v-if="state === 'loading'" state="loading" title="正在汇总 79 站驱动因素…" description="读取当前预测快照的站间机理分解分布。" />
+    <StatePanel v-if="state === 'loading'" state="loading" title="正在汇总站点间驱动因素…" description="读取当前预测快照的站间机理分解分布。" />
     <StatePanel v-else-if="state === 'error'" state="error" title="全湖驱动分布不可用" :description="errorText">
       <button type="button" class="ldd-retry" @click="load">重试</button>
     </StatePanel>
@@ -241,7 +241,7 @@ const dataNotes = computed(() => {
       </div>
 
       <div v-if="netGrowth" class="ldd-net" data-role="ldd-net">
-        <span class="ldd-sub">净生长率 d⁻¹（79 站分布）</span>
+        <span class="ldd-sub">净生长率 d⁻¹（{{ meta.nStations || '—' }} 站分布）</span>
         <b>中位 {{ fmt(netGrowth.median, 3) }}</b>
         <small>[{{ fmt(netGrowth.p25, 3) }}, {{ fmt(netGrowth.p75, 3) }}] · 范围 {{ fmt(netGrowth.min, 3) }}—{{ fmt(netGrowth.max, 3) }}</small>
       </div>

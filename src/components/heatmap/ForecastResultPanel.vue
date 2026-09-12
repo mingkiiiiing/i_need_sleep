@@ -710,14 +710,15 @@ const heroBar = computed(() => {
         bands: bandSegments(domainMax),
         scaleLabels: BANDS.filter((b) => b.max !== Infinity && b.max <= domainMax)
           .map((b) => ({ pct: (b.max / domainMax) * 100, text: String(b.max) })),
-        title: `79 站中位数在叶绿素 a 风险带刻度上的位置（μg/L）：${v}`
+        // 站点分母读聚合层实际值（目录 79 站、当轮活跃可能只有 78）——不得写死
+        title: `${lakeStationCount.value ?? '—'} 站中位数在叶绿素 a 风险带刻度上的位置（μg/L）：${v}`
       }
     }
     if (props.metric === 'risk') {
       return { pct: Math.min(100, v * 100), color: bandColorOf(v * 50), title: `全湖中位风险概率：${(v * 100).toFixed(1)}%` }
     }
     if (props.metric === 'biomass') {
-      return { pct: Math.min(100, (v / 10) * 100), color: '#38bdf8', title: '79 站中位（参考轴 0–10 mg/L）' }
+      return { pct: Math.min(100, (v / 10) * 100), color: '#38bdf8', title: `${lakeStationCount.value ?? '—'} 站中位（参考轴 0–10 mg/L）` }
     }
     return null
   }
@@ -1052,7 +1053,8 @@ const ringArcDash = computed(() => {
 const HORIZONS = [1, 3, 7, 15, 30, 60, 90]
 const SCENARIO_FROM = 30
 const horizonTrendTitle = computed(() =>
-  props.scope === 'lake' ? `${metricLabel.value} · 79 站中位趋势` : `${metricLabel.value}趋势`
+  // 站点分母动态化：读聚合层实际 station_total，不得写死 79
+  props.scope === 'lake' ? `${metricLabel.value} · ${lakeStationCount.value ?? '—'} 站中位趋势` : `${metricLabel.value}趋势`
 )
 const horizonTrend = computed(() => {
   // 全湖模式：各时效取 79 站聚合的中位数，带 = P25–P75 站间分布；
@@ -1088,7 +1090,7 @@ const horizonTrend = computed(() => {
     }
     const valueText = value.toLocaleString('zh-CN', { maximumFractionDigits: 3 })
     const title = props.scope === 'lake'
-      ? `T+${horizon}：79 站中位 ${valueText}${props.metric === 'risk' ? '%' : ''}${bandLow != null ? `（P25–P75：${bandLow.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}—${bandHigh.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}）` : ''}`
+      ? `T+${horizon}：${lakeStationCount.value ?? '—'} 站中位 ${valueText}${props.metric === 'risk' ? '%' : ''}${bandLow != null ? `（P25–P75：${bandLow.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}—${bandHigh.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}）` : ''}`
       : `T+${horizon}：${valueText}${props.metric === 'risk' ? '%' : ''} · ${originLabel(item) || 'V0.3真实链路'}`
     // 中长期两点必须逐点标注来源，否则"全湖同值"会被读成"逐站趋势"。
     // 常量全局模型（climatology_global）虽读取模型文件，但无站点响应，同样按全湖对待。
@@ -1238,7 +1240,7 @@ const lakeCards = computed(() => {
       key: 'probability', label: '风险概率中位',
       text: `${fmt(Number(prob.median) * 100, 1)}%`,
       bar: Number(prob.median), barColor: bandColorOf(Number(prob.median) * 50),
-      title: `79 站中位；P25 ${fmt(Number(prob.p25) * 100, 1)}% / P75 ${fmt(Number(prob.p75) * 100, 1)}% / P90 ${prob.p90 != null ? `${fmt(Number(prob.p90) * 100, 1)}%` : '—'}`
+      title: `${lakeStationCount.value ?? '—'} 站中位；P25 ${fmt(Number(prob.p25) * 100, 1)}% / P75 ${fmt(Number(prob.p75) * 100, 1)}% / P90 ${prob.p90 != null ? `${fmt(Number(prob.p90) * 100, 1)}%` : '—'}`
     })
   }
   if (highShare) {
@@ -1254,7 +1256,7 @@ const lakeCards = computed(() => {
       key: 'chla', label: '叶绿素 a 中位',
       text: `${fmt(chla.median)} μg/L`,
       bar: Math.min(Number(chla.median) / 50, 1), barColor: bandColorOf(Number(chla.median)),
-      title: `79 站中位；P25 ${fmt(chla.p25)} / P75 ${fmt(chla.p75)} μg/L`
+      title: `${lakeStationCount.value ?? '—'} 站中位；P25 ${fmt(chla.p25)} / P75 ${fmt(chla.p75)} μg/L`
     })
   }
   if (bloom) {
@@ -1272,8 +1274,8 @@ const lakeCards = computed(() => {
       text: `${fmt(bio.median, 4)} mg/L`,
       bar: Math.min(Number(bio.median) / 10, 1), barColor: '#f5b45d',
       title: weighted
-        ? `79 站中位；分区面积加权均值 ${fmt(weighted.value, 4)} mg/L（公示面积口径并列披露）`
-        : '79 站中位；P25/P75 见下方汇总明细'
+        ? `${lakeStationCount.value ?? '—'} 站中位；分区面积加权均值 ${fmt(weighted.value, 4)} mg/L（公示面积口径并列披露）`
+        : `${lakeStationCount.value ?? '—'} 站中位；P25/P75 见下方汇总明细`
     })
   }
   if (den?.median != null) {
@@ -1281,7 +1283,7 @@ const lakeCards = computed(() => {
       key: 'density', label: '密度中位',
       text: fmt(den.median),
       bar: Number(den.median), barColor: '#a78bfa',
-      title: '密度分位秩 79 站中位（0–1）'
+      title: `密度分位秩 ${lakeStationCount.value ?? '—'} 站中位（0–1）`
     })
   }
   if (level?.value) {
@@ -1289,7 +1291,7 @@ const lakeCards = computed(() => {
       key: 'risk_level_lake', label: '全湖风险等级',
       text: RISK_LEVEL_TEXT[level.value] || level.value,
       bar: null, barColor: 'transparent',
-      title: `冻结风险带作用于 79 站叶绿素 a 中位数（${fmt(level.chla_median_ug_l)} μg/L）重新判级；不是站点等级平均`
+      title: `冻结风险带作用于 ${lakeStationCount.value ?? '—'} 站叶绿素 a 中位数（${fmt(level.chla_median_ug_l)} μg/L）重新判级；不是站点等级平均`
     })
   } else if (level?.reason) {
     cards.push({
