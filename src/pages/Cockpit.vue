@@ -15,111 +15,21 @@
       />
     </div>
 
-    <!-- ===== 顶部汇总条 ===== -->
-    <div v-if="state === 'error'" class="rc-chip rc-chip--top rc-chip--error" role="alert">
-      实时汇总加载失败（不会回退情景数据）
-      <button type="button" class="rc-btn" @click="load(true)">重试</button>
-    </div>
-    <div v-else-if="summary && summary.freshness_status === 'historical'" class="rc-chip rc-chip--top" role="status">
-      <strong>历史快照回放</strong>
-      <span>观测 {{ formatStamp(summary.latest_observed_at) }} · 点击时间轴最后一个刻度或刷新返回最新</span>
-    </div>
-    <div v-else-if="summary && summary.freshness_status !== 'normal'" class="rc-chip rc-chip--top rc-chip--error" role="status">
-      实时数据{{ FRESHNESS_TEXT[summary.freshness_status] || summary.freshness_status }}：当前展示最后成功抓取数据
-      （观测 {{ formatStamp(summary.latest_observed_at) }}，滞后 {{ formatLag(summary.observed_lag_h) }}）
-    </div>
-    <div v-else-if="summary" class="rc-chip rc-chip--top" role="status">
-      <strong>{{ monthDayText }}</strong>
-      <span>
-        实时监测预警：全湖以 <b>{{ summary.dominant_class }} 类</b>为主（{{ compliancePct }}% 达标 III 类）
-        <span v-if="summary.warnings.length" class="rc-chip-warn--on"> · {{ summary.warnings.length }} 站蓝藻筛查预警{{ warnBrief }}</span>
-      </span>
+    <!-- ===== 顶部汇总条（四态：error/historical/abnormal/normal，升级版组件） ===== -->
+    <div class="rc-top-shell">
+      <TopStatusChip :summary="summary" :state="state" @retry="load(true)" />
     </div>
 
 
     <!-- ===== 右侧浮层卡片（站点详情抽屉打开时暂时让位，抽屉关闭后自动恢复） ===== -->
     <aside v-show="!drawerOpen" class="rc-cards" aria-label="全湖实时态势卡片">
-      <!-- 湖体健康 -->
-      <section class="rc-card" aria-label="湖体健康">
-        <div class="rc-card-head">
-          <h2>湖体健康</h2>
-          <span class="rc-grade" :class="`rc-grade--${summary?.health?.grade}`">{{ healthGradeText(summary?.health?.grade) }}</span>
-        </div>
-        <div class="rc-health">
-          <div class="rc-gauge" role="img" :aria-label="`湖体健康分 ${summary?.health?.score ?? '—'}`">
-            <svg viewBox="0 0 120 120">
-              <circle class="rc-gauge-track" cx="60" cy="60" r="52" />
-              <circle
-                class="rc-gauge-value"
-                :class="`rc-gauge-value--${summary?.health?.grade}`"
-                cx="60" cy="60" r="52"
-                :stroke-dasharray="`${gaugeDash} ${GAUGE_LEN - gaugeDash}`"
-              />
-            </svg>
-            <div class="rc-gauge-center">
-              <strong>{{ summary?.health?.score ?? '—' }}</strong>
-            </div>
-          </div>
-          <div class="rc-bars">
-            <div v-for="bar in healthBars" :key="bar.label" class="rc-bar-row">
-              <span class="rc-bar-label">{{ bar.label }}</span>
-              <span class="rc-bar-track"><i :style="{ width: bar.pct + '%' }"></i></span>
-              <span class="rc-bar-num">{{ bar.num }}/{{ bar.den }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="rc-stats">
-          <div class="rc-stat"><strong>{{ summary?.station_total ?? '—' }}</strong><span>监测站</span></div>
-          <div class="rc-stat" :class="{ 'rc-stat--bad': (summary?.warnings?.length || 0) > 0 }">
-            <strong>{{ summary?.warnings?.length ?? '—' }}</strong><span>预警</span>
-          </div>
-          <div class="rc-stat"><strong>{{ fmtMean('water_temperature') }}</strong><span>°C 水温</span></div>
-          <div class="rc-stat"><strong>{{ fmtMean('chlorophyll_a') }}</strong><span>μg/L Chl-a</span></div>
-          <div class="rc-stat"><strong>{{ fmtMean('dissolved_oxygen') }}</strong><span>mg/L DO</span></div>
-        </div>
-      </section>
-
-      <!-- 蓝藻预警 -->
-      <section class="rc-card" aria-label="蓝藻筛查预警">
-        <div class="rc-card-head">
-          <h2>蓝藻预警</h2>
-          <span v-if="summary?.warnings?.length" class="rc-badge">{{ summary.warnings.length }}</span>
-        </div>
-        <p v-if="!summary?.warnings?.length" class="rc-empty">
-          暂无报数站点超过筛查阈值（chla {{ summary?.warning_thresholds?.light ?? 10 }} μg/L）
-        </p>
-        <ul v-else class="rc-warn-list">
-          <li v-for="w in summary.warnings" :key="w.station_id">
-            <button type="button" class="rc-warn-item" @click="focusStation(w)">
-              <span class="rc-warn-name">
-                <strong>{{ w.station_name }}</strong>
-                <small>太湖流域 · Chl-a {{ w.chla }} μg/L</small>
-              </span>
-              <span class="rc-band" :class="w.band === 'moderate' ? 'rc-band--moderate' : 'rc-band--light'">
-                {{ w.band === 'moderate' ? '中度' : '轻度' }}
-              </span>
-            </button>
-          </li>
-        </ul>
-      </section>
-
-      <!-- 关键指标 -->
-      <section class="rc-card" aria-label="关键指标（全湖均值与短期趋势）">
-        <div class="rc-card-head">
-          <h2>关键指标</h2>
-          <span class="rc-card-tag">全湖均值 · 环比上一快照</span>
-        </div>
-        <ul class="rc-kpi-list">
-          <li v-for="row in kpiRows" :key="row.code">
-            <span class="rc-kpi-dot" :style="{ background: row.dot }"></span>
-            <span class="rc-kpi-label">{{ row.label }}</span>
-            <small class="rc-kpi-unit">{{ row.unit }}</small>
-            <strong class="rc-kpi-value">{{ row.value }}</strong>
-            <span class="rc-kpi-trend" :class="`rc-trend--${row.chip.tone}`">{{ row.chip.text }}</span>
-          </li>
-        </ul>
-        <p v-if="summary" class="rc-kpi-note">均值仅统计报数站（chla {{ summary.means?.chlorophyll_a?.count ?? 0 }}/{{ summary.station_total }} 站），缺测不参与。</p>
-      </section>
+      <HealthCard :summary="summary" />
+      <WarnCard
+        :warnings="summary?.warnings || []"
+        :threshold="summary?.warning_thresholds?.light ?? 10"
+        @focus="focusStationById"
+      />
+      <KpiCard :summary="summary" :snapshots="timeline?.snapshots || []" />
     </aside>
 
     <!-- ===== 点位图例（chla 筛查口径，与 realtime.chlaColor 着色一致） ===== -->
@@ -135,44 +45,19 @@
       <button type="button" class="rc-btn" @click="retryTiles">重试图层</button>
     </span>
 
-    <!-- ===== 底部：真实快照回放时间轴（站点详情抽屉打开时暂时让位，抽屉关闭后自动恢复） ===== -->
+    <!-- ===== 底部：真实快照回放时间轴（升级版组件，定位壳由页面提供） ===== -->
     <div
       v-if="timeline && timeline.snapshots.length"
       v-show="!drawerOpen"
       class="rc-timeline"
-      aria-label="真实快照回放时间轴"
     >
-      <button
-        type="button"
-        class="rc-tl-play"
-        :aria-label="playing ? '暂停回放' : '播放回放'"
-        @click="togglePlay"
-      >
-        {{ playing ? '❚❚' : '▶' }}
-      </button>
-      <div class="rc-tl-track" role="tablist" aria-label="快照刻度">
-        <button
-          v-for="(snap, i) in timeline.snapshots"
-          :key="snap.snapshot_id"
-          type="button"
-          role="tab"
-          class="rc-tl-tick"
-          :class="{
-            active: activeSnapshotId === snap.snapshot_id,
-            latest: snap.snapshot_id === timeline.latest_snapshot_id,
-            'has-warn': snap.warning_count > 0
-          }"
-          :aria-selected="String(activeSnapshotId === snap.snapshot_id)"
-          :title="`${stampTick(snap)} · 达标 ${snap.class_compliance.num}/${snap.class_compliance.den} · 预警 ${snap.warning_count}`"
-          @click="selectSnapshot(snap.snapshot_id)"
-        >
-          <span class="rc-tl-line"></span>
-          <span class="rc-tl-label">{{ tickLabel(snap) }}</span>
-        </button>
-      </div>
-      <span class="rc-tl-state" :class="{ 'rc-tl-state--replay': !isLatestView }">
-        {{ isLatestView ? '● 最新' : '⟲ 历史回放' }}
-      </span>
+      <ReplayTimeline
+        :timeline="timeline"
+        :active-snapshot-id="activeSnapshotId"
+        :playing="playing"
+        @select="selectSnapshot"
+        @toggle-play="togglePlay"
+      />
     </div>
 
     <!-- ===== 站点详情抽屉 / 分析面板 ===== -->
@@ -198,18 +83,18 @@
 // 与 simulated 情景内容（时空推演页）严格分轨。
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import LakeMap from '../components/cockpit/LakeMap.vue'
+import HealthCard from '../components/cockpit/HealthCard.vue'
+import KpiCard from '../components/cockpit/KpiCard.vue'
+import WarnCard from '../components/cockpit/WarnCard.vue'
+import ReplayTimeline from '../components/cockpit/ReplayTimeline.vue'
+import TopStatusChip from '../components/cockpit/TopStatusChip.vue'
 import CockpitStationDrawer from '../components/stations/CockpitStationDrawer.vue'
 import CockpitAnalysisPanel from '../components/stations/CockpitAnalysisPanel.vue'
 import {
   chlaColor,
+  fetchRealtimeStations,
   fetchRealtimeSummary,
-  fetchRealtimeTimeline,
-  fmtMeasure,
-  formatLag,
-  formatStamp,
-  FRESHNESS_TEXT,
-  healthGradeText,
-  trendChip
+  fetchRealtimeTimeline
 } from '../services/realtime.js'
 import { setRealtimeUpdate, clearRealtimeUpdate } from '../stores/realtimeUpdate.js'
 
@@ -225,10 +110,10 @@ const analysisStationId = ref('')
 const timeline = ref(null)
 const activeSnapshotId = ref('')
 const playing = ref(false)
+// 站点目录：为无坐标预警站（不进 markers）的抽屉提供省份/水质类等身份元数据
+const stationCatalog = ref([])
 let playTimer = null
 let refreshTimer = null
-
-const GAUGE_LEN = 2 * Math.PI * 52
 
 async function load(force = false) {
   if (force) state.value = 'loading'
@@ -256,10 +141,6 @@ async function loadTimeline(force = false) {
     timeline.value = null
   }
 }
-
-const isLatestView = computed(
-  () => !activeSnapshotId.value || activeSnapshotId.value === timeline.value?.latest_snapshot_id
-)
 
 function selectSnapshot(id) {
   if (!id || id === activeSnapshotId.value) return
@@ -300,6 +181,7 @@ function togglePlay() {
 onMounted(() => {
   load()
   loadTimeline()
+  fetchRealtimeStations().then((list) => { stationCatalog.value = list }).catch(() => { stationCatalog.value = [] })
   refreshTimer = setInterval(async () => {
     await loadTimeline(true)
     // 历史回放时只更新可用快照列表，不把用户强制拉回最新。
@@ -347,74 +229,12 @@ watch(selectedId, (id) => {
 
 
 // ---------- 派生展示 ----------
-const monthDayText = computed(() => {
-  const m = String(summary.value?.latest_observed_at || '').match(/^(\d{4})-(\d{2})-(\d{2})/)
-  return m ? `${Number(m[2])}月${Number(m[3])}日` : ''
-})
+// 顶部条/三卡/时间轴的派生口径已内聚到各自升级版组件（HealthCard/KpiCard/WarnCard/
+// ReplayTimeline/TopStatusChip），页面只保留数据加载、播放控制与点位交互。
 
-function stampTick(snap) {
-  return formatStamp(snap.latest_observed_at || snap.retrieved_at_utc)
-}
-
-function tickLabel(snap) {
-  const m = String(snap.latest_observed_at || snap.retrieved_at_utc || '').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
-  return m ? `${m[2]}-${m[3]} ${m[4]}:${m[5]}` : '—'
-}
-
-const compliancePct = computed(() =>
-  summary.value?.class_iii_rate != null ? Math.round(summary.value.class_iii_rate * 100) : '—'
-)
-
-const warnBrief = computed(() => {
-  const list = summary.value?.warnings || []
-  if (!list.length) return ''
-  const names = list.slice(0, 2).map((w) => w.station_name).join('、')
-  return `（${names}${list.length > 2 ? ' 等' : ''}）`
-})
-
-const gaugeDash = computed(() => {
-  const score = Number(summary.value?.health?.score)
-  if (!Number.isFinite(score)) return 0
-  return Math.max(0, Math.min(100, score)) / 100 * GAUGE_LEN
-})
-
-const healthBars = computed(() => {
-  const sub = summary.value?.health?.subscores || {}
-  const rows = []
-  const rate = (v) => (v == null ? 0 : Math.round(v * 100))
-  if (sub.class_compliance) rows.push({ label: '达标率', ...sub.class_compliance, pct: rate(sub.class_compliance.rate) })
-  if (sub.algae_normal) rows.push({ label: '蓝藻正常', ...sub.algae_normal, pct: rate(sub.algae_normal.rate) })
-  // 短期趋势：5 项关键指标中环比持平（|Δ|<3%）占比
-  const trends = Object.values(summary.value?.trends || {})
-  const flat = trends.filter((t) => t.direction === 'flat').length
-  if (trends.length) rows.push({ label: '环比持平', num: flat, den: trends.length, pct: Math.round((flat / trends.length) * 100) })
-  if (sub.completeness) rows.push({ label: '数据完整度', ...sub.completeness, pct: rate(sub.completeness.rate) })
-  return rows
-})
-
-const kpiRows = computed(() => {
-  const defs = [
-    { code: 'chlorophyll_a', label: '叶绿素 a', unit: 'μg/L', dot: '#5fd6a4' },
-    { code: 'dissolved_oxygen', label: '溶解氧', unit: 'mg/L', dot: '#7ec8ff' },
-    { code: 'total_phosphorus', label: '总磷', unit: 'mg/L', dot: '#f5b45d' },
-    { code: 'total_nitrogen', label: '总氮', unit: 'mg/L', dot: '#ff8a8a' },
-    { code: 'ammonia_nitrogen', label: '氨氮', unit: 'mg/L', dot: '#b28aff' }
-  ]
-  const means = summary.value?.means || {}
-  const trends = summary.value?.trends || {}
-  return defs.map(({ code, label, unit, dot }) => ({
-    code,
-    label,
-    unit,
-    dot,
-    value: means[code]?.value != null ? fmtMeasure(means[code].value) : '—',
-    chip: trendChip(trends[code])
-  }))
-})
-
-const fmtMean = (code) => {
-  const v = summary.value?.means?.[code]?.value
-  return v == null ? '—' : Number(v).toFixed(2)
+// WarnCard 点击预警项上抛真实 station_id：选中即打开详情抽屉（与原 focusStation 同一落点）
+function focusStationById(id) {
+  if (id) selectedId.value = id
 }
 
 function buildHoverCard(m) {
@@ -475,13 +295,40 @@ const mapPoints = computed(() =>
   }))
 )
 
-const drawerStation = computed(
-  () => (summary.value?.markers || []).find((m) => m.id === selectedId.value) || null
-)
-
-function focusStation(w) {
-  selectedId.value = w.station_id
-}
+const drawerStation = computed(() => {
+  const id = selectedId.value
+  if (!id) return null
+  // ① 有坐标站：实时快照 markers（含 province/lat/lon/water_level/metrics）
+  const m = (summary.value?.markers || []).find((x) => x.id === id)
+  if (m) return m
+  // ② 无坐标站（不进 markers，但预警可能命中）：回退站点目录取身份元数据
+  const c = stationCatalog.value.find((s) => s.id === id)
+  if (c) {
+    return {
+      id: c.id,
+      name: c.source_station_name,
+      province: c.province || null,
+      basin: '太湖流域',
+      lat: c.location?.lat ?? null,
+      lon: c.location?.lon ?? null,
+      water_level: c.latest_water_level ?? null
+    }
+  }
+  // ③ 目录也未就绪时用预警项兜底身份（省份/坐标确实缺失，如实显示 —）
+  const w = (summary.value?.warnings || []).find((x) => x.station_id === id)
+  if (w) {
+    return {
+      id: w.station_id,
+      name: w.station_name,
+      province: null,
+      basin: '太湖流域',
+      lat: w.lat ?? null,
+      lon: w.lon ?? null,
+      water_level: null
+    }
+  }
+  return null
+})
 </script>
 
 <style scoped>
@@ -498,25 +345,15 @@ function focusStation(w) {
 .rc-map :deep(.map-panel) { height: 100%; border: none; background: transparent; }
 .rc-map :deep(.leaflet-map-container) { height: 100%; }
 
-/* 顶部汇总条 */
-.rc-chip {
+/* 顶部汇总条定位壳（胶囊外观与四态渲染在 TopStatusChip 组件内） */
+.rc-top-shell {
   position: absolute;
   z-index: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-panel-raised);
-  color: var(--text-primary);
-  font-size: 13px;
-  white-space: nowrap;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(92%, 860px);
 }
-.rc-chip--top { top: 14px; left: 50%; transform: translateX(-50%); max-width: min(92%, 860px); overflow: hidden; }
-.rc-chip--top b { color: var(--color-primary); }
-.rc-chip-warn--on { color: var(--risk-critical, #ef4444); font-weight: 700; }
-.rc-chip--error { border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 55%, transparent); color: var(--risk-critical, #ef4444); }
 .rc-btn {
   appearance: none;
   border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
@@ -542,90 +379,6 @@ function focusStation(w) {
   overflow-y: auto;
   padding-left: 2px;
 }
-.rc-card {
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  background: var(--surface-panel-raised);
-  padding: 12px 14px;
-  flex: none;
-}
-.rc-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-.rc-card-head h2 { margin: 0; font-size: 14px; color: var(--text-primary); }
-.rc-card-tag { font-size: 10.5px; color: var(--text-muted); }
-.rc-grade { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--border-subtle); color: var(--risk-low, #22c55e); }
-.rc-grade--fair { color: var(--risk-medium, #facc15); }
-.rc-grade--poor { color: var(--risk-critical, #ef4444); }
-
-.rc-health { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 12px; align-items: center; }
-.rc-gauge { position: relative; width: 108px; height: 108px; }
-.rc-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.rc-gauge-track, .rc-gauge-value { fill: none; stroke-width: 10; stroke-linecap: round; }
-.rc-gauge-track { stroke: var(--border-subtle); }
-.rc-gauge-value { stroke: var(--risk-low, #22c55e); transition: stroke-dasharray 0.6s ease; }
-.rc-gauge-value--fair { stroke: var(--risk-medium, #facc15); }
-.rc-gauge-value--poor { stroke: var(--risk-critical, #ef4444); }
-.rc-gauge-center { position: absolute; inset: 0; display: grid; place-items: center; }
-.rc-gauge-center strong { font-family: var(--font-mono); font-size: 26px; color: var(--text-primary); }
-.rc-bars { display: grid; gap: 7px; min-width: 0; }
-.rc-bar-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
-.rc-bar-label { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
-.rc-bar-track { height: 5px; border-radius: 999px; background: var(--border-subtle); overflow: hidden; display: block; }
-.rc-bar-track i { display: block; height: 100%; border-radius: 999px; background: var(--color-primary); }
-.rc-bar-num { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); white-space: nowrap; }
-
-.rc-stats { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border-subtle); }
-.rc-stat { display: grid; gap: 1px; justify-items: center; min-width: 0; }
-.rc-stat strong { font-family: var(--font-mono); font-size: 15px; color: var(--text-primary); }
-.rc-stat span { font-size: 9.5px; color: var(--text-muted); white-space: nowrap; }
-.rc-stat--bad strong { color: var(--risk-critical, #ef4444); }
-
-.rc-badge {
-  min-width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--risk-critical, #ef4444);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-grid;
-  place-items: center;
-  padding: 0 6px;
-}
-.rc-empty { margin: 0; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
-.rc-warn-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.rc-warn-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  background: var(--surface-panel-soft);
-  padding: 8px 10px;
-  cursor: pointer;
-  color: var(--text-primary);
-  text-align: left;
-}
-.rc-warn-item:hover { border-color: color-mix(in srgb, var(--color-primary) 45%, transparent); }
-.rc-warn-name { display: grid; gap: 1px; min-width: 0; }
-.rc-warn-name strong { font-size: 13px; }
-.rc-warn-name small { font-size: 10.5px; color: var(--text-muted); }
-.rc-band { font-size: 10.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border-subtle); flex: none; }
-.rc-band--light { color: var(--risk-medium, #facc15); border-color: color-mix(in srgb, var(--risk-medium, #facc15) 50%, transparent); }
-.rc-band--moderate { color: var(--risk-critical, #ef4444); border-color: color-mix(in srgb, var(--risk-critical, #ef4444) 50%, transparent); }
-
-.rc-kpi-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
-.rc-kpi-list li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto 64px; align-items: center; gap: 8px; }
-.rc-kpi-dot { width: 8px; height: 8px; border-radius: 999px; }
-.rc-kpi-label { font-size: 12.5px; color: var(--text-primary); }
-.rc-kpi-unit { font-size: 10px; color: var(--text-muted); }
-.rc-kpi-value { font-family: var(--font-mono); font-size: 14px; color: var(--text-primary); justify-self: end; }
-.rc-kpi-trend { font-family: var(--font-mono); font-size: 11px; justify-self: end; white-space: nowrap; }
-.rc-trend--up { color: var(--risk-critical, #ef4444); }
-.rc-trend--down { color: var(--risk-low, #22c55e); }
-.rc-trend--flat { color: var(--text-muted); }
-.rc-kpi-note { margin: 8px 0 0; font-size: 10px; color: var(--text-muted); line-height: 1.6; }
 
 /* 点位图例（chla 筛查口径） */
 .rc-legend {
@@ -674,87 +427,16 @@ function focusStation(w) {
   left: 50%;
   transform: translateX(-50%);
   width: min(680px, 46%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
   padding: 8px 14px;
   border-radius: 14px;
   border: 1px solid var(--border-subtle);
   background: var(--surface-panel-raised);
 }
-.rc-tl-play {
-  appearance: none;
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 50%, transparent);
-  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
-  color: var(--text-primary);
-  font-size: 12px;
-  cursor: pointer;
-}
-.rc-tl-track {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-  overflow-x: auto;
-  gap: 2px;
-}
-.rc-tl-tick {
-  appearance: none;
-  position: relative;
-  flex: 1;
-  min-width: 74px;
-  border: none;
-  background: transparent;
-  padding: 14px 2px 4px;
-  cursor: pointer;
-  color: var(--text-muted);
-}
-.rc-tl-line {
-  position: absolute;
-  top: 7px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--border-subtle);
-}
-.rc-tl-tick::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--border-subtle);
-}
-.rc-tl-tick.latest::after { background: var(--risk-low, #22c55e); }
-.rc-tl-tick.has-warn::after { background: var(--risk-critical, #ef4444); }
-.rc-tl-tick.active::after {
-  background: var(--color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
-.rc-tl-tick.active { color: var(--text-primary); }
-.rc-tl-tick.active .rc-tl-line { background: color-mix(in srgb, var(--color-primary) 60%, transparent); }
-.rc-tl-label { font-family: var(--font-mono); font-size: 9.5px; white-space: nowrap; }
-.rc-tl-state {
-  flex: none;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--risk-low, #22c55e);
-  white-space: nowrap;
-}
-.rc-tl-state--replay { color: var(--risk-medium, #facc15); }
 
 @media (max-width: 1100px) {
   .page-rc { height: auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 10px; }
   .rc-map { position: relative; inset: auto; height: 340px; flex: none; }
-  .rc-chip--top { position: relative; top: auto; left: auto; transform: none; white-space: normal; order: -1; }
-  .rc-chip--updated { position: relative; top: auto; right: auto; order: -2; align-self: flex-end; }
+  .rc-top-shell { position: relative; top: auto; left: auto; transform: none; max-width: none; order: -1; }
   .rc-legend { position: static; order: -1; align-self: flex-start; }
   .rc-cards { position: relative; inset: auto; width: 100%; overflow: visible; }
   .rc-timeline { position: relative; bottom: auto; left: auto; transform: none; width: 100%; }

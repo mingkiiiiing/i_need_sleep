@@ -86,8 +86,11 @@ const obsRows = ref([])
 const obsState = ref('loading')
 
 const coordText = computed(() => {
-  if (!props.station) return '—'
-  return `${Number(props.station.lat).toFixed(3)}°N, ${Number(props.station.lon).toFixed(3)}°E`
+  const lat = props.station?.lat
+  const lon = props.station?.lon
+  // 无坐标站（目录 location missing）如实显示 —，不渲染 NaN
+  if (!props.station || lat == null || lon == null) return '—'
+  return `${Number(lat).toFixed(3)}°N, ${Number(lon).toFixed(3)}°E`
 })
 
 const observedAtText = computed(() => {
@@ -104,8 +107,9 @@ const metricRows = computed(() =>
       label,
       unit,
       text: row && row.value != null && status !== 'missing' ? fmtMeasure(row.value) : '--',
-      // 与站点页「最新观测」同一措辞：qc_rejected = 质控不合格（非"超限"）
-      flag: status === 'ok' ? '正常' : status === 'qc_rejected' ? '质控不合格' : OBS_STATUS_TEXT[status] || '无数据',
+      // QC 质控口径（与站点页同一事实）：ok = QC 通过——措辞点明质控语义，
+      // 避免与蓝藻预警档位混淆（如 chla 86.81 旁写「正常」会被误读为藻情正常）
+      flag: status === 'ok' ? 'QC 通过' : status === 'qc_rejected' ? '质控不合格' : OBS_STATUS_TEXT[status] || '无数据',
       tone: status === 'ok' ? 'ok' : status === 'qc_rejected' ? 'bad' : 'na'
     }
   })
@@ -203,7 +207,7 @@ const miniRange = computed(() => [
 }
 .rcd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .rcd-head h2 { margin: 0; font-size: 20px; color: var(--text-primary); }
-.rcd-sub { margin: 3px 0 0; font-size: 11.5px; color: var(--text-muted); }
+.rcd-sub { margin: 3px 0 0; font-size: 12px; color: var(--text-secondary); }
 .rcd-close {
   appearance: none;
   border: 1px solid var(--border-subtle);

@@ -46,7 +46,7 @@
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T222434Z_538e0fea1ff6\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260911T235434Z_fea5db41b24f\",\"spatial\":\"PRED_mee_surface_water_realtime_20260911T235434Z_fea5db41b24f\",\"driver\":\"PRED_mee_surface_water_realtime_20260911T235434Z_fea5db41b24f\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
@@ -86,7 +86,7 @@
     {
       "name": "T3 落点 A 的 T+1 值与接口一致（未串站）",
       "ok": true,
-      "detail": "页面=1.8% A=1.7517443056319253% C=1.7517443056319253%"
+      "detail": "页面=1.8% A=1.7517443056319253% C=1.2628364558025738%"
     },
     {
       "name": "T4 换指标后 hash metric=chla",
@@ -241,12 +241,12 @@
     {
       "name": "T10 站点驱动每项带来源标注",
       "ok": true,
-      "detail": "[\"逐站 27.19 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\"]"
+      "detail": "[\"逐站 27.41 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\"]"
     },
     {
       "name": "T10 温度来源标注与本站观测一致（缺测时诚实回退网格）",
       "ok": true,
-      "detail": "observed_temp=true 标注=逐站 27.19 ℃ · 本站实测·MEE 水温"
+      "detail": "observed_temp=true 标注=逐站 27.41 ℃ · 本站实测·MEE 水温"
     },
     {
       "name": "T10 光照标注为网格/气候态且非本站实测",
@@ -271,7 +271,7 @@
     {
       "name": "T10 流速明示不可用",
       "ok": true,
-      "detail": "[\"逐站 27.19 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
+      "detail": "[\"逐站 27.41 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.109 mg/L · MEE 实测\",\"逐站 1.531 mg/L · MEE 实测\",\"逐站 0.016 mg/L · MEE 实测·未纳入当前机理公式\",\"全湖 当前 V0.3 特征契约无流速字段·不可用\"]"
     },
     {
       "name": "T10 全湖驱动数据口径披露光/流",
@@ -341,7 +341,7 @@
     {
       "name": "T13 外部第三方资源错误单列披露（不阻塞门禁）",
       "ok": true,
-      "detail": "external=24 [{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/10/418/852\"},{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/10/418/853\"}]"
+      "detail": "external=24 [{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/418/853\"},{\"type\":\"error\",\"text\":\"Failed to load resource: net::ERR_PROXY_CONNECTION_FAILED\",\"url\":\"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/417/852\"}]"
     },
     {
       "name": "T13 控制台零警告",
