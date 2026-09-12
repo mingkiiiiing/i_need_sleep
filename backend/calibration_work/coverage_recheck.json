@@ -1,0 +1,102 @@
+{
+  "coverage_from_bundle": {
+    "T5-chla-0m-s20260907-1d.joblib|h1": {
+      "model_file": "T5-chla-0m-s20260907-1d.joblib",
+      "sha256_disk": "8a419842f8ac4683140c1e49d9d894af1a478a70eb9fee675ee2d64e3ea6a62e",
+      "run_dir": "T5-chla-1d-0m-cv",
+      "n_test": 132,
+      "residual_p05": -5.576590119861105,
+      "residual_p95": 4.405360984880952,
+      "calibration_n": 234,
+      "covered": 106,
+      "coverage": 0.803030303030303,
+      "covered_serving_clipped": 106,
+      "coverage_serving_clipped": 0.803030303030303,
+      "bundle_uncertainty_meta": {
+        "method": "split_conformal_residual_quantiles",
+        "is_calibrated_confidence_interval": true,
+        "coverage_target": 0.9,
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "calibration_n": 234,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "empirical_coverage_test": 0.803030303030303,
+        "test_n": 132,
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。"
+      },
+      "selected_family": "mechanism_feature",
+      "validation_value": 2.531357099464602,
+      "created_at": "2026-09-11T05:31:59.550885+00:00"
+    },
+    "T5-chla-3m-s20260907-90d.joblib|h90": {
+      "model_file": "T5-chla-3m-s20260907-90d.joblib",
+      "sha256_disk": "4d1df9af54da1be67e701585b6eff085785c64a26b61d604be101a999def8d35",
+      "run_dir": "T5-chla-90d-3m-cv",
+      "n_test": 117,
+      "residual_p05": -3.95219869722222,
+      "residual_p95": 7.214580163795102,
+      "calibration_n": 225,
+      "covered": 100,
+      "coverage": 0.8547008547008547,
+      "covered_serving_clipped": 100,
+      "coverage_serving_clipped": 0.8547008547008547,
+      "bundle_uncertainty_meta": {
+        "method": "split_conformal_residual_quantiles",
+        "is_calibrated_confidence_interval": true,
+        "coverage_target": 0.9,
+        "residual_quantile_levels": [
+          0.05,
+          0.95
+        ],
+        "calibration_n": 225,
+        "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+        "empirical_coverage_test": 0.8547008547008547,
+        "test_n": 117,
+        "split_protocol": "train_internal_time_block_cv_v1",
+        "protocol_disclosure": "五个任务（T1/T3/T4/T5/T6）的真实标签或公示代理标签全部落在冻结 train 期（2005-02..2020-11，含 2020-12 航次），冻结 validation 基本为 0 行或无水质行；本 run 在不动冻结划分的前提下，于补训副本内把可用月份按时间顺序切成三段（前 60% 拟合、中 20% 族选择与 conformal 校准、后 20% 留出测试）。测试段完全在时间上晚于拟合段，无前视；测试指标与经验覆盖率在该段上真实核算。该协议模型不得与冻结划分模型的口径混同。"
+      },
+      "selected_family": "random_forest",
+      "validation_value": 2.939673533811097,
+      "created_at": "2026-09-11T05:32:13.858286+00:00"
+    }
+  },
+  "audit_comparison": [
+    {
+      "horizon": 1,
+      "audit_recorded_coverage": 0.803030303030303,
+      "audit_covered": 106,
+      "audit_n": 132,
+      "audit_sha256": "8a419842f8ac4683140c1e49d9d894af1a478a70eb9fee675ee2d64e3ea6a62e",
+      "audit_residual_p05": -5.576590119861105,
+      "audit_residual_p95": 4.405360984880952,
+      "my_sha256": "8a419842f8ac4683140c1e49d9d894af1a478a70eb9fee675ee2d64e3ea6a62e",
+      "sha256_match": true,
+      "my_coverage": 0.803030303030303,
+      "my_covered": 106,
+      "my_n": 132,
+      "coverage_match": true,
+      "p05_match": true,
+      "p95_match": true
+    },
+    {
+      "horizon": 90,
+      "audit_recorded_coverage": 0.8547008547008547,
+      "audit_covered": 100,
+      "audit_n": 117,
+      "audit_sha256": "4d1df9af54da1be67e701585b6eff085785c64a26b61d604be101a999def8d35",
+      "audit_residual_p05": -3.95219869722222,
+      "audit_residual_p95": 7.214580163795102,
+      "my_sha256": "4d1df9af54da1be67e701585b6eff085785c64a26b61d604be101a999def8d35",
+      "sha256_match": true,
+      "my_coverage": 0.8547008547008547,
+      "my_covered": 100,
+      "my_n": 117,
+      "coverage_match": true,
+      "p05_match": true,
+      "p95_match": true
+    }
+  ]
+}

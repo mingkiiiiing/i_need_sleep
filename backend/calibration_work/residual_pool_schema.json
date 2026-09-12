@@ -1,0 +1,24 @@
+{
+  "columns": {
+    "row_id": "监督底表行号（model_dataset 行索引，任务内唯一）",
+    "station_id": "空间单元（站点/全湖实体）",
+    "month": "输入月 YYYY-MM",
+    "target_month": "被预测月 YYYY-MM（offset=0 时等于输入月）",
+    "dataset_split_frozen": "本次 CV 块内的角色 train/validation/test",
+    "fold_id": "折标识（OOF=early->late 两折的 late 折；validation=CV 校准块）",
+    "fold_role": "该行在折中的角色",
+    "source": "oof | validation（残差池来源，严格分开）",
+    "prediction": "预测值（OOF=early-only 折模型对 late 的预测；validation=装配模型对校准确块的预测）",
+    "actual": "实际标签值",
+    "residual": "actual - prediction",
+    "actual_provenance": "逐行标签来源（ground_truth | chla_station_proxy_v1）",
+    "model_sha256": "对应交付模型文件 sha256（身份锚点）",
+    "run_id": "run 标识",
+    "protocol": "评估协议",
+    "in_fit_months": "OOF 行是否落在折模型拟合月范围内（必须为 False 才是真 OOF）",
+    "fit_month_max": "折模型拟合块的最大月",
+    "predict_month_min": "被预测块的最小月",
+    "predictor_row_id_span": "折模型拟合行 row_id 数量（用于核对未见样本）"
+  },
+  "note": "OOF 与 validation 逐行分文件保存，source 列区分；pooled 分位数按 OOF 在前、validation 在后拼接。"
+}

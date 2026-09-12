@@ -1,0 +1,74 @@
+{
+  "model_file": "T5-chla-0m-s20260907-1d.joblib",
+  "run_dir": "T5-chla-1d-0m-cv",
+  "horizon_days": 1,
+  "month_offset": 0,
+  "split_key": "month",
+  "protocol": "train_internal_time_block_cv_v1",
+  "replay_package": {
+    "path": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\backend\\calibration_work\\_replay_pkg",
+    "source_commit": "73be6e7 (2026-09-11 23:37:57 +0800)",
+    "reason": "部署模型训练于 2026-09-11 13:31-13:32；工作区 HEAD 的 target_builder 含 09-12 新增 chla 单位归一，与训练时不同",
+    "replay_feature_digest": "22d8947f8908901bee4313ebbd9f7ef95a10a534fe644531122ef85d65322ac7",
+    "run_feature_sha256": "22d8947f8908901bee4313ebbd9f7ef95a10a534fe644531122ef85d65322ac7",
+    "digest_match": true
+  },
+  "split_block_bounds_recomputed": {
+    "train_max_month": "2014-11",
+    "validation_max_month": "2018-05",
+    "test_min_month": "2018-08"
+  },
+  "split_counts_recomputed": {
+    "train": 360,
+    "cv_validation": 126,
+    "cv_test": 132
+  },
+  "oof_fold": {
+    "cut_month": "2012-02",
+    "fit_months_max": "2011-11",
+    "n_fit_rows": 252,
+    "n_late_rows": 108
+  },
+  "counts": {
+    "oof_rows_total": 108,
+    "oof_rows_finite": 108,
+    "validation_rows_total": 126,
+    "validation_rows_finite": 126,
+    "pool_n": 234,
+    "bundle_calibration_n": 234
+  },
+  "quantiles": {
+    "recomputed_p05": -5.576590119861108,
+    "recomputed_p95": 4.405360984880952,
+    "bundle_p05": -5.576590119861105,
+    "bundle_p95": 4.405360984880952,
+    "delta_p05": -2.6645352591003757e-15,
+    "delta_p95": 0.0
+  },
+  "selection_replay": {
+    "selected_family": "mechanism_feature",
+    "replay_validation_mae": 2.5313570994646017,
+    "selection_manifest_validation_mae": 2.531357099464602,
+    "mae_match": true
+  },
+  "test_replay_max_abs_diff": 1.4210854715202004e-14,
+  "oof_residual_max_abs_diff_vs_original_function": 7.105427357601002e-15,
+  "checks": {
+    "replay_package_feature_digest_matches_run": true,
+    "oof_residual_vector_matches_within_tol": true,
+    "oof_ids_disjoint_from_validation_ids": true,
+    "oof_ids_subset_of_cv_train": true,
+    "validation_ids_equals_cv_validation": true,
+    "pool_ids_disjoint_from_cv_test": true,
+    "oof_rows_all_in_late_block": true,
+    "early_months_all_before_cut": true,
+    "early_and_late_no_row_overlap": true,
+    "fold_boundary_strictly_increasing_time": true,
+    "preprocessor_medians_match_bundle": true,
+    "prediction_frame_replay_matches_run_test_predictions": true,
+    "pool_n_equals_bundle_calibration_n": true,
+    "p05_equals_bundle": true,
+    "p95_equals_bundle": true
+  },
+  "all_checks_pass": true
+}
