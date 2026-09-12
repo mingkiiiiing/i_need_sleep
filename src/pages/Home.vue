@@ -4,8 +4,8 @@
     <section class="hero" aria-labelledby="home-title">
       <div class="hero-copy">
         <h1 id="home-title" class="title">
-          <span>蓝藻水华</span>
-          <span class="title-accent">监测预警</span>
+          <ScrambleText text="蓝藻水华" tag="span" />
+          <ScrambleText text="监测预警" tag="span" class="title-accent" :duration="1100" />
         </h1>
         <p class="lede">
           融合多源数据、机理模型与人工智能，支持全湖态势研判、站点下钻、时空推演与历史复盘。
@@ -36,12 +36,10 @@
         <div
           class="lake-canvas"
           role="group"
-          aria-label="太湖流域实时监测可视化：全画布粒子网络缓慢漂移并彼此连线，鼠标靠近时粒子散开，监测站点可点击"
-          @mousemove="onCanvasMove"
-          @mouseleave="onCanvasLeave"
+          aria-label="太湖流域实时监测可视化：全画布粒子网络缓慢漂移并彼此连线，鼠标靠近时粒子散开，点击激发冲击波，监测站点可点击"
         >
-          <!-- 水体粒子基因流场 + 中央 DNA 双螺旋：纯装饰动效，对读屏隐藏 -->
-          <canvas ref="flowEl" class="flow-canvas" aria-hidden="true"></canvas>
+          <!-- 全域粒子流场引擎（组件化）：轨迹/连线/星枢/斥力 + 点击冲击波/FPS 自适应/指针光尾 -->
+          <FlowCanvas :stations="stationDots" :hovered-id="hoveredStation || ''" />
 
           <button
             v-for="s in stationDots"
@@ -78,19 +76,20 @@
       </figure>
     </section>
 
-    <!-- ============ 第二屏：六个核心入口 ============ -->
-    <section class="entries" aria-labelledby="entries-title">
-      <header class="entries-head">
-        <h2 id="entries-title">核心业务入口</h2>
-      </header>
-      <div class="entry-grid">
-        <RouterLink v-for="e in entries" :key="e.to" class="entry-card" :to="e.to">
-          <span class="entry-title">{{ e.title }}</span>
-          <span class="entry-desc">{{ e.desc }}</span>
-          <span class="entry-cta">进入 <i aria-hidden="true">→</i></span>
-        </RouterLink>
-      </div>
-    </section>
+    <!-- ============ 工程脉搏：真实系统数字带 ============ -->
+    <div :ref="pulseReveal.targetRef" class="home-reveal" :class="{ 'is-in': pulseReveal.visible.value }">
+      <SystemPulse
+        :station-total="summary?.station_total ?? '—'"
+        :plottable="plottableCount"
+        :warnings="summary?.warnings?.length ?? '—'"
+        :state="rtState"
+      />
+    </div>
+
+    <!-- ============ 第二屏：六个核心入口（聚光/磁吸/stagger 升级版） ============ -->
+    <div :ref="entriesReveal.targetRef" class="home-reveal" :class="{ 'is-in': entriesReveal.visible.value }">
+      <EntryGrid :entries="entries" />
+    </div>
 
   </main>
 </template>
@@ -101,6 +100,11 @@ import { useRouter } from 'vue-router'
 import { dataIdentity as identity } from '../data/dataIdentity.js'
 import { fetchRealtimeSummary } from '../services/realtime.js'
 import DataModeBadge from '../components/common/DataModeBadge.vue'
+import FlowCanvas from '../components/home/FlowCanvas.vue'
+import EntryGrid from '../components/home/EntryGrid.vue'
+import SystemPulse from '../components/home/SystemPulse.vue'
+import ScrambleText from '../components/home/ScrambleText.vue'
+import { useReveal } from '../composables/useReveal.js'
 
 const router = useRouter()
 
@@ -182,6 +186,14 @@ const stationStats = computed(() => {
 // 与粒子同风格的发光节点，DOM 按钮仅作透明热区（悬停提示 / 点击下钻）
 const STN_MARGIN = 18
 
+// 站点 band→色（热区 tip 强调色与 FlowCanvas 内部着色同口径）
+const BAND_COLORS = {
+  normal: '#5fd6a4',
+  light: '#f5b45d',
+  moderate: '#ef4444',
+  none: '#7d93a8'
+}
+
 const stationDots = computed(() => {
   const out = []
   for (const m of summary.value?.markers || []) {
@@ -212,396 +224,14 @@ function goStation(id) {
   router.push({ path: '/stations', query: { p: id } })
 }
 
-// ---------- 全域交互式粒子网络（Canvas 2D，物理在 viewBox 空间进行） ----------
-// 形态参考 particles.js 类“粒子星座”效果：粒子铺满全画布、邻近连线成类螺旋网络、
-// 整体缓慢漂移，鼠标靠近时粒子迅速四散避开
-const flowEl = ref(null)
-const N_PARTICLES = 300
-const TRAIL_MS = 800
-const SPEED = 14 // viewBox 单位/秒，整体缓慢漂移
-const LINK_DIST = 72 // 粒子连线的判定距离（viewBox 单位）
-const LINK_MAX_PER_PARTICLE = 4 // 每个粒子最多连线数，防止连成毛球
-const REPEL_RADIUS = 100 // 鼠标斥力作用半径
-const REPEL_SPEED = 260 // 鼠标斥力峰值速度，保证粒子“迅速离开”鼠标位置
-const particles = []
-const mouse = { x: 0, y: 0, active: false }
-let rafId = 0
-let intervalId = 0
-let watchdogId = 0
-let lastDrawAt = 0
-let resizeObserver = null
-let ctx = null
-let lastFrame = 0
-let running = false
+// 有坐标站数（可上图）：工程脉搏 live 口径
+const plottableCount = computed(
+  () => (summary.value?.markers || []).filter((m) => m.lat != null && m.lon != null).length
+)
 
-// 画布固定为亮色底（.lake-canvas 渐变不随主题），粒子/连线用深青墨色保证亮底可读
-const CANVAS_INK = '#0f8ea0'
-
-// ---- 发光精灵：径向渐变（白核→主题色→透明），避免实心圆斑的污渍感 ----
-const spriteCache = new Map()
-function hexToRgb(hex) {
-  const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim())
-  if (!m) return '57, 197, 187'
-  const v = parseInt(m[1], 16)
-  return `${(v >> 16) & 255}, ${(v >> 8) & 255}, ${v & 255}`
-}
-function glowSprite(color) {
-  let sp = spriteCache.get(color)
-  if (sp) return sp
-  const rgb = hexToRgb(color)
-  const s = document.createElement('canvas')
-  s.width = s.height = 64
-  const g = s.getContext('2d')
-  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32)
-  grad.addColorStop(0, `rgba(${rgb}, 0.9)`)
-  grad.addColorStop(0.3, `rgba(${rgb}, 0.32)`)
-  grad.addColorStop(1, `rgba(${rgb}, 0)`)
-  g.fillStyle = grad
-  g.fillRect(0, 0, 64, 64)
-  spriteCache.set(color, s)
-  return s
-}
-
-// 鼠标位置换算成 viewBox 坐标，供斥力计算
-function onCanvasMove(e) {
-  const rect = e.currentTarget.getBoundingClientRect()
-  mouse.x = ((e.clientX - rect.left) / rect.width) * VB_W - PAD.l
-  mouse.y = ((e.clientY - rect.top) / rect.height) * VB_H - PAD.t
-  mouse.active = true
-}
-function onCanvasLeave() {
-  mouse.active = false
-}
-
-function resizeCanvas() {
-  const el = flowEl.value
-  if (!el || !ctx) return
-  const dpr = window.devicePixelRatio || 1
-  const w = el.clientWidth
-  const h = el.clientHeight
-  if (!w || !h) return
-  el.width = Math.round(w * dpr)
-  el.height = Math.round(h * dpr)
-}
-
-// viewBox(520×400) → 画布（外扩 PAD 后拉伸铺满），与站点投影共用同一坐标系
-function applyViewTransform() {
-  const el = flowEl.value
-  const dpr = window.devicePixelRatio || 1
-  const sx = (el.clientWidth * dpr) / VB_W
-  const sy = (el.clientHeight * dpr) / VB_H
-  ctx.setTransform(sx, 0, 0, sy, PAD.l * sx, PAD.t * sy)
-  // 记录纵横比修正系数，供涡旋流场换算正圆轨道
-  if (sx > 0) FLOW_K = sy / sx
-}
-
-// 全域均匀重生（不再限定湖体轮廓，粒子铺满整个画布）
-function respawn(p, warm = 0) {
-  p.x = -PAD.l + Math.random() * VB_W
-  p.y = -PAD.t + Math.random() * VB_H
-  p.trail = [[p.x, p.y, performance.now()]]
-  p.life = 9 + Math.random() * 9
-  // 深度（视差）与闪烁参数：远粒子更小更淡更慢，营造空间层次
-  p.z = 0.35 + Math.random() * 0.65
-  p.tw = 0.5 + Math.random() * 1.2
-  p.ph = Math.random() * Math.PI * 2
-  // 预热：静态帧（reduced-motion）下让轨迹先长出来
-  for (let i = 0; i < warm; i++) stepParticle(p, 1 / 30)
-}
-
-// 类螺旋流场：绕画布中心的缓速涡旋（切向）叠加长波摆动，
-// 连线随运动呈现出缓慢旋转的螺旋状结构
-const FLOW_CX = -PAD.l + VB_W / 2
-const FLOW_CY = -PAD.t + VB_H / 2
-let FLOW_K = 0.6 // 纵横比修正系数（随画布实际尺寸更新），保证涡旋在屏幕上是正圆
-const _v = { x: 0, y: 0 }
-function flowVec(x, y, t) {
-  const dx = x - FLOW_CX
-  const dy = (y - FLOW_CY) * FLOW_K
-  let vx = -dy
-  let vy = dx / FLOW_K
-  const norm = Math.hypot(vx, vy) || 1
-  vx = vx / norm + Math.sin(y * 0.01 + t * 0.22) * 0.5
-  vy = vy / norm + Math.sin(x * 0.007 - t * 0.16 + y * 0.004) * 0.35
-  const m = Math.hypot(vx, vy) || 1
-  _v.x = vx / m
-  _v.y = vy / m
-  return _v
-}
-
-function stepParticle(p, dt) {
-  const t = performance.now() / 1000
-  const v = flowVec(p.x, p.y, t)
-  const sz = 0.45 + 0.75 * p.z // 深度视差：近粒子漂移更快
-  p.x += v.x * SPEED * sz * dt
-  p.y += v.y * SPEED * sz * dt
-  // 鼠标斥力：作用半径内的粒子沿远离方向迅速弹开（平方衰减，越近推得越快），
-  // 同时甩掉旧轨迹，让鼠标位置立刻空出一块干净的“空腔”
-  if (mouse.active) {
-    const dx = p.x - mouse.x
-    const dy = p.y - mouse.y
-    const d2 = dx * dx + dy * dy
-    if (d2 < REPEL_RADIUS * REPEL_RADIUS && d2 > 0.01) {
-      const d = Math.sqrt(d2)
-      const falloff = 1 - d / REPEL_RADIUS
-      const push = falloff * falloff * REPEL_SPEED * dt
-      p.x += (dx / d) * push
-      p.y += (dy / d) * push
-      if (p.trail.length > 4) p.trail.splice(0, 2)
-    }
-  }
-  p.life -= dt
-  const now = performance.now()
-  p.trail.push([p.x, p.y, now])
-  while (p.trail.length && (now - p.trail[0][2] > TRAIL_MS || p.trail.length > 36)) {
-    p.trail.shift()
-  }
-  // 边界环绕：从对侧进入（清空轨迹，避免跨屏拉出长线）
-  let wrapped = false
-  if (p.x < -PAD.l) { p.x += VB_W; wrapped = true }
-  else if (p.x > 520 + PAD.r) { p.x -= VB_W; wrapped = true }
-  if (p.y < -PAD.t) { p.y += VB_H; wrapped = true }
-  else if (p.y > 400 + PAD.b) { p.y -= VB_H; wrapped = true }
-  if (wrapped) p.trail = [[p.x, p.y, now]]
-  else if (p.life <= 0) respawn(p)
-}
-
-function drawParticles(color) {
-  applyViewTransform()
-  ctx.clearRect(-PAD.l, -PAD.t, VB_W, VB_H)
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
-  // ---- 基因连线：邻近粒子按当前头部位置两两相连，透明度随距离衰减、
-  //      随两端粒子深度增强；每个粒子最多 LINK_MAX_PER_PARTICLE 条，保持疏朗网络 ----
-  const heads = particles.map((p) => (p.trail.length ? p.trail[p.trail.length - 1] : null))
-  const linkSegs = [[], [], [], []] // 按期望亮度分 4 档，近/深粒子连线更亮
-  const linkCount = new Array(particles.length).fill(0)
-  for (let i = 0; i < heads.length; i++) {
-    if (!heads[i] || linkCount[i] >= LINK_MAX_PER_PARTICLE) continue
-    for (let j = i + 1; j < heads.length; j++) {
-      if (!heads[j] || linkCount[j] >= LINK_MAX_PER_PARTICLE) continue
-      const dx = heads[i][0] - heads[j][0]
-      const dy = heads[i][1] - heads[j][1]
-      if (dx > LINK_DIST || dx < -LINK_DIST || dy > LINK_DIST || dy < -LINK_DIST) continue
-      const d = Math.sqrt(dx * dx + dy * dy)
-      if (d > LINK_DIST) continue
-  const want = (1 - d / LINK_DIST) * (0.35 + 0.55 * Math.min(particles[i].z, particles[j].z))
-      linkSegs[want > 0.46 ? 0 : want > 0.3 ? 1 : want > 0.16 ? 2 : 3].push(heads[i], heads[j])
-      linkCount[i]++
-      linkCount[j]++
-      if (linkCount[i] >= LINK_MAX_PER_PARTICLE) break
-    }
-  }
-  const LINK_ALPHAS = [0.62, 0.45, 0.28, 0.13]
-  ctx.strokeStyle = color
-  // 双层描边：宽而淡的底层做柔化，窄而亮的表层保持清晰
-  for (let b = 0; b < 4; b++) {
-    if (!linkSegs[b].length) continue
-    ctx.beginPath()
-    for (let k = 0; k < linkSegs[b].length; k += 2) {
-      ctx.moveTo(linkSegs[b][k][0], linkSegs[b][k][1])
-      ctx.lineTo(linkSegs[b][k + 1][0], linkSegs[b][k + 1][1])
-    }
-    ctx.globalAlpha = LINK_ALPHAS[b] * 0.3
-    ctx.lineWidth = 2.6
-    ctx.stroke()
-    ctx.globalAlpha = LINK_ALPHAS[b]
-    ctx.lineWidth = 0.9
-    ctx.stroke()
-  }
-  ctx.globalAlpha = 1
-
-  // ---- 轨迹：按新旧分三档透明度批量描边，避免逐段 stroke 的开销 ----
-  const buckets = [
-    { from: 0, to: 1 / 3, alpha: 0.07, width: 1.0 },
-    { from: 1 / 3, to: 2 / 3, alpha: 0.16, width: 1.25 },
-    { from: 2 / 3, to: 1, alpha: 0.34, width: 1.5 }
-  ]
-  for (const b of buckets) {
-    ctx.strokeStyle = color
-    ctx.globalAlpha = b.alpha
-    ctx.lineWidth = b.width
-    ctx.beginPath()
-    for (const p of particles) {
-      const n = p.trail.length
-      if (n < 2) continue
-      const start = Math.max(1, Math.floor(n * b.from))
-      const end = Math.max(start + 1, Math.ceil(n * b.to))
-      ctx.moveTo(p.trail[start - 1][0], p.trail[start - 1][1])
-      for (let i = start; i < Math.min(end, n); i++) {
-        ctx.lineTo(p.trail[i][0], p.trail[i][1])
-      }
-    }
-    ctx.stroke()
-  }
-  // 粒子头部：径向渐变光晕精灵（白核→主题色→透明）+ 白亮小核心，随深度闪烁呼吸
-  const t = performance.now() / 1000
-  const sprite = glowSprite(color)
-  for (const p of particles) {
-    const n = p.trail.length
-    if (!n) continue
-    const hx = p.trail[n - 1][0]
-    const hy = p.trail[n - 1][1]
-    const tw = 0.72 + 0.28 * Math.sin(t * p.tw + p.ph)
-    const r = 5 + 8.5 * p.z
-    ctx.globalAlpha = (0.4 + 0.5 * p.z) * tw
-    ctx.drawImage(sprite, hx - r, hy - r, r * 2, r * 2)
-    ctx.globalAlpha = Math.min(1, (0.5 + 0.5 * p.z) * tw)
-    ctx.fillStyle = '#ffffff'
-    ctx.beginPath()
-    ctx.arc(hx, hy, 0.7 + 1.1 * p.z, 0, Math.PI * 2)
-    ctx.fill()
-  }
-  ctx.globalAlpha = 1
-
-  drawStations(t)
-}
-
-// ---- 监测站节点：与粒子同风格的发光枢纽 ----
-// 每站以细线接入最近的 2 个网络粒子（枢纽感），预警站带呼吸外环，悬停放大高亮
-const BAND_COLORS = {
-  normal: '#5fd6a4',
-  light: '#f5b45d',
-  moderate: '#ef4444',
-  none: '#7d93a8'
-}
-
-function drawStations(t) {
-  const stns = stationDots.value
-  if (!stns.length) return
-  for (const s of stns) {
-    const col = BAND_COLORS[s.band] || BAND_COLORS.none
-    const hovered = hoveredStation.value === s.id
-    const k = hovered ? 1.3 : 1
-    const sprite = glowSprite(col)
-
-    // 接入网络：连到最近的 2 个流场粒子（先粗筛距离再取最近）
-    let n1 = null, d1 = Infinity, n2 = null, d2 = Infinity
-    for (const p of particles) {
-      const n = p.trail.length
-      if (!n) continue
-      const px2 = p.trail[n - 1][0]
-      const py2 = p.trail[n - 1][1]
-      const dd = Math.hypot(px2 - s.vx, py2 - s.vy)
-      if (dd < d1) { n2 = n1; d2 = d1; n1 = [px2, py2]; d1 = dd }
-      else if (dd < d2) { n2 = [px2, py2]; d2 = dd }
-    }
-    ctx.strokeStyle = col
-    ctx.lineWidth = 0.6
-    ctx.globalAlpha = hovered ? 0.35 : 0.16
-    for (const pt of [n1, n2]) {
-      if (!pt || pt[0] === undefined) continue
-      ctx.beginPath()
-      ctx.moveTo(s.vx, s.vy)
-      ctx.lineTo(pt[0], pt[1])
-      ctx.stroke()
-    }
-
-    // 星星节点：彩光晕 + 四角星缓慢旋转 + 轻微呼吸 + 白色小核心
-    const gr = (hovered ? 19 : 15) * k
-    ctx.globalAlpha = hovered ? 0.85 : 0.6
-    ctx.drawImage(sprite, s.vx - gr, s.vy - gr, gr * 2, gr * 2)
-    const breathe = 0.92 + 0.08 * Math.sin(t * 1.6 + s.vy * 0.05)
-    const R = 6.5 * k * breathe
-    const rot = t * 0.5 + s.vx * 0.02
-    starPath(s.vx, s.vy, R, R * 0.42, rot)
-    ctx.globalAlpha = hovered ? 1 : 0.92
-    ctx.fillStyle = col
-    ctx.fill()
-    ctx.globalAlpha = 0.95
-    ctx.fillStyle = '#ffffff'
-    ctx.beginPath()
-    ctx.arc(s.vx, s.vy, 1.5 * k, 0, Math.PI * 2)
-    ctx.fill()
-
-    // 预警呼吸外环
-    if (s.band === 'light' || s.band === 'moderate') {
-      const pulseT = (Math.sin(t * 2.4 + s.vx * 0.05) + 1) / 2
-      ctx.globalAlpha = (hovered ? 0.55 : 0.35) * (1 - pulseT)
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.arc(s.vx, s.vy, (6 + 5.5 * pulseT) * k, 0, Math.PI * 2)
-      ctx.stroke()
-    }
-  }
-  ctx.globalAlpha = 1
-}
-
-// 四角星（sparkle）路径：外半径 R、内半径 r、旋转 rot
-function starPath(x, y, R, r, rot) {
-  ctx.beginPath()
-  for (let i = 0; i < 8; i++) {
-    const rad = i % 2 === 0 ? R : r
-    const a = rot + (i * Math.PI) / 4
-    const px = x + Math.sin(a) * rad
-    const py = y - Math.cos(a) * rad
-    i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
-  }
-  ctx.closePath()
-}
-
-function frame(now) {
-  if (!running) return
-  const dt = Math.min((now - lastFrame) / 1000 || 0, 0.05)
-  lastFrame = now
-  if (document.hidden) return
-  for (const p of particles) stepParticle(p, dt)
-  drawParticles(CANVAS_INK)
-  lastDrawAt = performance.now()
-}
-
-function tick(now) {
-  if (!running) return
-  // rAF 正常流动时，停掉定时器退化路径，避免双倍速率
-  if (intervalId) {
-    clearInterval(intervalId)
-    intervalId = 0
-  }
-  frame(now)
-  rafId = requestAnimationFrame(tick)
-}
-
-function startFlow() {
-  const el = flowEl.value
-  if (!el) return
-  ctx = el.getContext('2d')
-  resizeCanvas()
-  resizeObserver = new ResizeObserver(resizeCanvas)
-  resizeObserver.observe(el)
-
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const warmSteps = reduced ? 260 : 40 // 首帧先长出短轨迹，避免空白起步
-  for (let i = 0; i < N_PARTICLES; i++) {
-    const p = { x: 0, y: 0, life: 0, trail: [] }
-    respawn(p, warmSteps)
-    particles.push(p)
-  }
-  drawParticles(CANVAS_INK)
-  if (reduced) return // 静态帧即可，不启动动画
-  running = true
-  lastFrame = performance.now()
-  lastDrawAt = performance.now()
-  rafId = requestAnimationFrame(tick)
-  // 某些嵌入式 WebView 的 rAF 只在首帧派发甚至完全不派发：周期检查，
-  // 超过 1.5s 没有实际绘制就切换为定时器驱动；rAF 恢复后 tick() 会收回定时器
-  watchdogId = setInterval(() => {
-    if (running && !intervalId && performance.now() - lastDrawAt > 1500) {
-      intervalId = setInterval(() => frame(performance.now()), 33)
-    }
-  }, 1000)
-}
-
-function stopFlow() {
-  running = false
-  if (rafId) cancelAnimationFrame(rafId)
-  if (intervalId) clearInterval(intervalId)
-  if (watchdogId) clearInterval(watchdogId)
-  if (resizeObserver) resizeObserver.disconnect()
-}
-
-onMounted(startFlow)
-onBeforeUnmount(stopFlow)
+// 下方区块滚动入场（进入视口一次性 reveal）
+const pulseReveal = useReveal()
+const entriesReveal = useReveal()
 
 // ---------- 核心入口（顺序 = 业务动线：总览 → 站点 → 预警处置 → 分析 → 展示） ----------
 const entries = [
@@ -786,14 +416,7 @@ const entries = [
 @media (prefers-reduced-motion: reduce) {
   .lake-canvas::before { animation: none; }
 }
-.flow-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
+/* .flow-canvas 样式随引擎迁入 FlowCanvas.vue 组件 */
 
 /* 站点按钮：可见形态由 canvas 绘制（发光节点），按钮只是透明热区，
    负责悬停提示与点击下钻 */
@@ -883,84 +506,29 @@ const entries = [
   cursor: pointer;
 }
 
-/* ============ 六个核心入口 ============ */
-.entries {
-  display: grid;
-  gap: 16px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border-subtle);
+/* ============ 下方区块滚动入场 ============ */
+.home-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.56s var(--ease-out, ease-out), transform 0.56s var(--ease-out, ease-out);
 }
-.entries-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+.home-reveal.is-in {
+  opacity: 1;
+  transform: none;
 }
-.entries-head h2 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal { opacity: 1; transform: none; transition: none; }
 }
-
-.entry-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.entry-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 18px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-panel);
-  background: var(--surface-panel);
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.entry-card:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-}
-.entry-card:active { transform: translateY(0); }
-.entry-title {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.entry-desc {
-  flex: 1;
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--text-secondary);
-}
-.entry-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--color-primary);
-}
-.entry-cta i {
-  font-style: normal;
-  transition: transform 0.15s ease;
-}
-.entry-card:hover .entry-cta i { transform: translateX(4px); }
 
 /* ============ 响应式 ============ */
 @media (max-width: 1180px) {
   .hero-copy,
   .lake-panel { grid-column: span 12; }
   .hero-copy { max-width: 820px; }
-  .entry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
   .home { gap: 28px; }
   .lake-canvas { min-height: 340px; }
-  .entry-grid { grid-template-columns: 1fr; }
   .actions .btn { width: 100%; }
 }
 @media (hover: none) {
