@@ -1,0 +1,541 @@
+{
+  "capability_matrix_rows": 56,
+  "capability_same_month_rows": 28,
+  "capability_real_future_rows": 21,
+  "time_pairing": {
+    "horizon_month_map": {
+      "1": 0,
+      "3": 0,
+      "7": 0,
+      "15": 0,
+      "30": 1,
+      "60": 2,
+      "90": 3
+    },
+    "tasks": {
+      "T1-bloom-mo0": {
+        "task": "T1-bloom",
+        "month_offset": 0,
+        "n_rows": 657,
+        "target_month_equals_input_month_ratio": 1.0,
+        "input_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "target_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "split_counts": {
+          "train": 586,
+          "test": 40,
+          "validation": 31
+        },
+        "verdict": "预测目标=当月标签（target_month==month 全部成立），不构成『未来 N 天』预测；h1/3/7/15 四个时效共享同一监督表与同一 run"
+      },
+      "T1-bloom-mo1": {
+        "task": "T1-bloom",
+        "month_offset": 1,
+        "n_rows": 37,
+        "target_month_equals_input_month_ratio": 0.0,
+        "input_month_range": [
+          "2024-08",
+          "2026-05"
+        ],
+        "target_month_range": [
+          "2024-09",
+          "2026-06"
+        ],
+        "split_counts": {
+          "test": 37
+        },
+        "verdict": "目标月=输入月+1 个月，月粒度真实前瞻（非日尺度）"
+      },
+      "T1-bloom-mo3": {
+        "task": "T1-bloom",
+        "month_offset": 3,
+        "n_rows": 604,
+        "target_month_equals_input_month_ratio": 0.0,
+        "input_month_range": [
+          "2005-02",
+          "2026-03"
+        ],
+        "target_month_range": [
+          "2005-05",
+          "2026-06"
+        ],
+        "split_counts": {
+          "train": 567,
+          "test": 37
+        },
+        "verdict": "目标月=输入月+3 个月，月粒度真实前瞻（非日尺度）"
+      },
+      "T5-chla-mo0": {
+        "task": "T5-chla",
+        "month_offset": 0,
+        "n_rows": 618,
+        "target_month_equals_input_month_ratio": 1.0,
+        "input_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "target_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "split_counts": {
+          "train": 586,
+          "validation": 31,
+          "test": 1
+        },
+        "verdict": "预测目标=当月标签（target_month==month 全部成立），不构成『未来 N 天』预测；h1/3/7/15 四个时效共享同一监督表与同一 run"
+      },
+      "T5-chla-mo1": {
+        "task": "T5-chla",
+        "month_offset": 1,
+        "n_rows": 0,
+        "target_month_equals_input_month_ratio": null,
+        "input_month_range": null,
+        "target_month_range": null,
+        "split_counts": {},
+        "verdict": "目标月=输入月+1 个月，月粒度真实前瞻（非日尺度）"
+      },
+      "T5-chla-mo3": {
+        "task": "T5-chla",
+        "month_offset": 3,
+        "n_rows": 567,
+        "target_month_equals_input_month_ratio": 0.0,
+        "input_month_range": [
+          "2005-02",
+          "2020-08"
+        ],
+        "target_month_range": [
+          "2005-05",
+          "2020-11"
+        ],
+        "split_counts": {
+          "train": 567
+        },
+        "verdict": "目标月=输入月+3 个月，月粒度真实前瞻（非日尺度）"
+      },
+      "T6-probability-mo0": {
+        "task": "T6-probability",
+        "month_offset": 0,
+        "n_rows": 657,
+        "target_month_equals_input_month_ratio": 1.0,
+        "input_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "target_month_range": [
+          "2005-02",
+          "2026-08"
+        ],
+        "split_counts": {
+          "train": 586,
+          "test": 40,
+          "validation": 31
+        },
+        "verdict": "预测目标=当月标签（target_month==month 全部成立），不构成『未来 N 天』预测；h1/3/7/15 四个时效共享同一监督表与同一 run"
+      },
+      "T6-probability-mo1": {
+        "task": "T6-probability",
+        "month_offset": 1,
+        "n_rows": 37,
+        "target_month_equals_input_month_ratio": 0.0,
+        "input_month_range": [
+          "2024-08",
+          "2026-05"
+        ],
+        "target_month_range": [
+          "2024-09",
+          "2026-06"
+        ],
+        "split_counts": {
+          "test": 37
+        },
+        "verdict": "目标月=输入月+1 个月，月粒度真实前瞻（非日尺度）"
+      },
+      "T6-probability-mo3": {
+        "task": "T6-probability",
+        "month_offset": 3,
+        "n_rows": 604,
+        "target_month_equals_input_month_ratio": 0.0,
+        "input_month_range": [
+          "2005-02",
+          "2026-03"
+        ],
+        "target_month_range": [
+          "2005-05",
+          "2026-06"
+        ],
+        "split_counts": {
+          "train": 567,
+          "test": 37
+        },
+        "verdict": "目标月=输入月+3 个月，月粒度真实前瞻（非日尺度）"
+      }
+    },
+    "sub_monthly_target_inventory": {
+      "clms_lwq_10daily": {
+        "rows_final_tables": 142,
+        "months": [
+          "2024-09",
+          "2024-10",
+          "2024-11",
+          "2024-12",
+          "2025-01",
+          "2025-02",
+          "2025-03",
+          "2025-04",
+          "2025-05",
+          "2025-06",
+          "2025-07",
+          "2025-08",
+          "2025-09",
+          "2025-10",
+          "2025-11",
+          "2025-12",
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08"
+        ],
+        "spatial_units": [
+          "TAIHU_LAKE",
+          "TAIHU_WHOLE"
+        ],
+        "variables": {
+          "chla_retrieval": 70,
+          "chla_mean": 24,
+          "chla_uncertainty": 24,
+          "fcb_prob": 24
+        },
+        "note": "10-day 旬尺度全湖单空间单元；可用于旬尺度未来目标，但仅覆盖 2024-09..2026-08 24 个月"
+      },
+      "mee_realtime_silver": {
+        "rows": 187605,
+        "time_range": [
+          "2026-09-04T15:00:00+08:00",
+          "2026-09-12T18:00:00+08:00"
+        ],
+        "variables": {
+          "ammonia_nitrogen": 17055,
+          "chlorophyll_a": 17055,
+          "cod_mn": 17055,
+          "conductivity": 17055,
+          "cyanobacteria_density": 17055,
+          "dissolved_oxygen": 17055,
+          "pH": 17055,
+          "total_nitrogen": 17055,
+          "total_phosphorus": 17055,
+          "turbidity": 17055,
+          "water_temperature": 17055
+        },
+        "note": "79 站半小时级、含 chlorophyll_a/cyanobacteria_density，是唯一真实日尺度藻类目标，但跨度仅 8 天，不足以回测 T+1/T+3/T+7/T+15"
+      },
+      "simulated_fixture": {
+        "rows": 6,
+        "note": "backend/sample-data 模拟数据（value_origin=simulated），不得作为未来目标"
+      }
+    },
+    "feasibility_conclusion": "用现有数据无法构造 1/3/7/15 天『未来 N 天』目标的可信回测集：历史期（2024-09 之前）不存在日/旬尺度藻类目标（CLMS 10-day 仅 2024-09 起且全湖单单元；MEE 实时仅 2026-09-04 起 8 天）。可行路径：(1) 30/60/90 天维持月粒度配对（已具备）；(2) 旬尺度目标用 CLMS 10-day 场从 2024-09 起构造（约 70 旬，需先修复 CLMS 三列同值缺陷）；(3) T+1/T+3 依赖 MEE realtime 持续积累（半小时级，需 ≥3~6 个月才能形成最小回测集）。缺什么：历史日/旬尺度叶绿素或藻密度目标数据。"
+  },
+  "mechanism_provenance": {
+    "wq_phyto_biomass_verdict": "源头有真实数据：THQBCA-V2 1WaterQuality.xlsx → water_quality.parquet 576 行全 valid/ground_truth（mg/L，2005-02..2020-11，9 分区站）→ model_dataset/features_base 均保留 576 行 → 唯一阳性测试样本所在 bloom 监督表亦含 576 行。『全 NaN』不是数据缺失：它发生在任务监督表层——T3-density/T4-biomass 的防同月泄漏剔除（TARGET_SOURCE_FEATURE_EXCLUSIONS）把该列从特征帧删除，而 _mechanism_design 对缺席列置整列 NaN，17 列有效性门随之全灭 → _fit_mechanism 常数回退。这是两段代码的交互缺陷（软件 bug），不是数据不足。",
+    "mech_net_growth_rate_d_verdict": "监督底表全 914 行 NaN（非空交集=0 行）；训练特征被中位数插补为常数 0。根因是机理三因子（温度/光照/营养盐）的观测来源是互不相交的站点集合，月度宽表内不可能同行齐全。",
+    "mech_light_factor": {
+      "present": true,
+      "rows": 914,
+      "non_null": 242,
+      "nunique": 3,
+      "min": 0.150903,
+      "max": 1.0,
+      "note": "仅 NASA_POWER 气象网格行有值（242/914）；TAIHU 分区站行全 NaN → 训练时插补为网格中位数"
+    },
+    "levels": [
+      {
+        "layer": "4_任务监督表 T1-bloom-0m",
+        "present": true,
+        "rows": 657,
+        "non_null": 576,
+        "note": "契约含 wq_phyto_biomass",
+        "mech_design_columns": [
+          "mech_temperature_factor",
+          "mech_light_factor",
+          "mech_phosphorus_factor",
+          "mech_nitrogen_factor",
+          "mech_nutrient_factor",
+          "mech_net_growth_rate_d",
+          "wq_tp",
+          "wq_tn",
+          "wq_do",
+          "wq_nh4_n",
+          "wq_phyto_biomass",
+          "met_air_temperature_c",
+          "met_shortwave_radiation_wm2",
+          "hydro_water_level_m",
+          "calendar_month_sin",
+          "calendar_month_cos",
+          "log1p_wq_chla"
+        ],
+        "mech_design_valid_rows_of_train": 586,
+        "mech_design_n_columns": 17,
+        "mech_fit_would_fallback_constant": false
+      },
+      {
+        "layer": "4_任务监督表 T4-biomass-0m",
+        "present": false,
+        "rows": 576,
+        "non_null": 0,
+        "note": "契约剔除 wq_phyto_biomass（TARGET_SOURCE_FEATURE_EXCLUSIONS 防同月泄漏）→ 列不存在",
+        "mech_design_columns": [
+          "mech_temperature_factor",
+          "mech_light_factor",
+          "mech_phosphorus_factor",
+          "mech_nitrogen_factor",
+          "mech_nutrient_factor",
+          "mech_net_growth_rate_d",
+          "wq_tp",
+          "wq_tn",
+          "wq_do",
+          "wq_nh4_n",
+          "wq_phyto_biomass",
+          "met_air_temperature_c",
+          "met_shortwave_radiation_wm2",
+          "hydro_water_level_m",
+          "calendar_month_sin",
+          "calendar_month_cos",
+          "log1p_wq_chla"
+        ],
+        "mech_design_valid_rows_of_train": 0,
+        "mech_design_n_columns": 17,
+        "mech_fit_would_fallback_constant": true
+      },
+      {
+        "layer": "4_任务监督表 T3-density-0m",
+        "present": false,
+        "rows": 576,
+        "non_null": 0,
+        "note": "契约剔除 wq_phyto_biomass（TARGET_SOURCE_FEATURE_EXCLUSIONS 防同月泄漏）→ 列不存在",
+        "mech_design_columns": [
+          "mech_temperature_factor",
+          "mech_light_factor",
+          "mech_phosphorus_factor",
+          "mech_nitrogen_factor",
+          "mech_nutrient_factor",
+          "mech_net_growth_rate_d",
+          "wq_tp",
+          "wq_tn",
+          "wq_do",
+          "wq_nh4_n",
+          "wq_phyto_biomass",
+          "met_air_temperature_c",
+          "met_shortwave_radiation_wm2",
+          "hydro_water_level_m",
+          "calendar_month_sin",
+          "calendar_month_cos",
+          "log1p_wq_chla"
+        ],
+        "mech_design_valid_rows_of_train": 0,
+        "mech_design_n_columns": 17,
+        "mech_fit_would_fallback_constant": true
+      },
+      {
+        "layer": "4_任务监督表 T5-chla-0m",
+        "present": true,
+        "rows": 618,
+        "non_null": 576,
+        "note": "契约含 wq_phyto_biomass",
+        "mech_design_columns": [
+          "mech_temperature_factor",
+          "mech_light_factor",
+          "mech_phosphorus_factor",
+          "mech_nitrogen_factor",
+          "mech_nutrient_factor",
+          "mech_net_growth_rate_d",
+          "wq_tp",
+          "wq_tn",
+          "wq_do",
+          "wq_nh4_n",
+          "wq_phyto_biomass",
+          "met_air_temperature_c",
+          "met_shortwave_radiation_wm2",
+          "hydro_water_level_m",
+          "calendar_month_sin",
+          "calendar_month_cos",
+          "log1p_wq_chla"
+        ],
+        "mech_design_valid_rows_of_train": 586,
+        "mech_design_n_columns": 17,
+        "mech_fit_would_fallback_constant": false
+      }
+    ],
+    "mech_net_growth": {
+      "layer": "3_监督底表 mech_net_growth_rate_d",
+      "present": true,
+      "rows": 914,
+      "non_null": 0,
+      "nunique": 0,
+      "min": null,
+      "max": null,
+      "temp_nonnull_rows": 374,
+      "light_nonnull_rows": 242,
+      "tp_nonnull_rows": 576,
+      "temp_and_light_rows": 242,
+      "temp_light_tp_intersection_rows": 0,
+      "root_cause": "temp(ERA5/NASA_POWER 行) × light(仅 NASA_POWER 行) × nutrient(仅 TAIHU 分区站行)三个非空集合交集为空 → net_growth 每行至少一个 NaN → 全表 NaN；训练时 RealPreprocessor 对全 NaN 列取 median=0.0 → 特征恒 0"
+    }
+  },
+  "event_split": {
+    "n_events_monthly": 23,
+    "n_events_cross_split": 0,
+    "positive_rows_by_split": {
+      "train": 23,
+      "validation": 0,
+      "test": 1
+    },
+    "test_positive_detail": [
+      {
+        "row_id": 881,
+        "station_id": "TAIHU_WHOLE",
+        "month": "2024-12"
+      }
+    ],
+    "clms_positive_months": [
+      "2024-12"
+    ],
+    "conclusion": "月粒度下 23 个训练期阳性事件（2005-05..2019-08，全部为代理 chla 阈值派生的孤立单月）与 1 个测试期阳性（2024-12 TAIHU_WHOLE，CLMS bloom_label）互不重叠；未发现同一连续阳性事件被拆进训练与测试集合（冻结切分按目标月、且 train≤2021-12 与 test≥2024-09 之间有 ≥32 个月间隙）。但两点保留：(1) 阳性事件本身几乎全部由 chla_station_proxy_v1 代理标签派生，事件真实性受代理标签与单位混用缺陷影响；(2) 真事件级切分需在旬尺度（CLMS 10-day）上重做，当前月粒度无法识别旬级事件拆分。建议：以『连续阳性旬/月段 ± 1 旬缓冲』为事件单元整段分配到同一集合。",
+    "recommendation": "事件级切分：event_id = (station, 连续阳性段); 划分时整段分配; 缓冲 1 个时间步不进任何评估"
+  },
+  "lineage_row881": {
+    "预测样本": {
+      "来源产物": "backend/model_runtime_v0_3/runs/T1-bloom-1d-0m/test_predictions.csv",
+      "row_id": 881,
+      "actual": 1.0,
+      "month": "2024-12",
+      "station_id": "TAIHU_WHOLE",
+      "prediction": 0.0,
+      "note": "T1-bloom-1d 冻结测试集 40 行中唯一阳性；模型 prediction=0 → 假阴性"
+    },
+    "特征层": {
+      "文件": "data-cleaning/.../tables/model_dataset.parquet 行 881",
+      "non_null_features": {
+        "station_id": "TAIHU_WHOLE",
+        "month": "2024-12",
+        "station_type": "lake_subregion",
+        "mee_trophic_state_zones": "东部沿岸区: 中度污染，湖心区、北部沿岸区和西部沿岸区为轻度污染; 西部沿岸区: 轻度污染",
+        "mee_water_quality_category": "轻度污染，主要超标指标为总磷",
+        "mee_zone_status": "东部沿岸区: 中度污染，湖心区、北部沿岸区和西部沿岸区为轻度污染; 西部沿岸区: 轻度污染; 北部沿岸区: 和西部沿岸区为轻度污染; 湖心区: 、北部沿岸区和西部沿岸区为轻度污染",
+        "mee_monitoring_point_count": 17.0,
+        "rs_clms_lwq_300m_10daily_chla_mean": 95.9935531616211,
+        "rs_clms_lwq_300m_10daily_chla_uncertainty": 95.9935531616211,
+        "rs_clms_lwq_300m_10daily_fcb_prob": 95.9935531616211,
+        "rs_sentinel2_cdse_monthly_30m_B03": 1187.1851806640625,
+        "rs_sentinel2_cdse_monthly_30m_B04": 1164.95458984375,
+        "rs_sentinel2_cdse_monthly_30m_B05": 1154.8416748046875,
+        "rs_sentinel2_cdse_monthly_30m_B08": 754.321533203125,
+        "rs_sentinel2_cdse_monthly_30m_B11": 73.27867889404297,
+        "rs_sentinel2_cdse_monthly_30m_FAI": -0.0208445489406585,
+        "rs_sentinel2_cdse_monthly_30m_MCI": 0.0082735801115632,
+        "rs_sentinel2_cdse_monthly_30m_NDCI": -0.0087706986814737,
+        "rs_sentinel2_cdse_monthly_30m_NDWI": 0.2598394751548767,
+        "rs_month_low_quality": "False",
+        "static_lake_area_km2": 2329.357405,
+        "static_lake_elevation_mean_m": 0.5138400197029114,
+        "static_dem_valid_frac": 0.5113428545961378,
+        "station_name": "太湖全湖(18/17点位均值)",
+        "dataset_split": "train"
+      },
+      "关键缺陷": "rs_clms_lwq_300m_10daily_chla_mean / _chla_uncertainty / _fcb_prob 三列同值 95.9935531616211（= fcb_prob 口径 0.0096 × 1e4 缩放），chla_mean/uncertainty 语义被 fcb_prob 覆盖"
+    },
+    "标签层": {
+      "文件": "data-cleaning/.../tables/labels.parquet（26 行 CLMS bloom_label）",
+      "2024-12 行": [
+        {
+          "observed_at": "2024-12-01",
+          "value": 1.0,
+          "source_id": "clms_lwq_300m_v2"
+        },
+        {
+          "observed_at": "2024-12-21",
+          "value": 0.0,
+          "source_id": "clms_lwq_300m_v2"
+        }
+      ],
+      "label_bloom_clms_2024_12_TAIHU_WHOLE": 1.0,
+      "note": "label_bloom_any=1 由 CLMS bloom_label=1 支路触发（target_builder L447-463）"
+    },
+    "清洗层长表": {
+      "文件": "data-cleaning/.../tables/taihu_clean_final_long.parquet",
+      "2024-12-01 TAIHU_LAKE": {
+        "chla_mean": 8.12359,
+        "chla_uncertainty": 13.83364,
+        "fcb_prob": 0.008179,
+        "source_id": "clms_lwq_300m_10daily_v2"
+      },
+      "note": "长表三变量语义正常；装配层（storage/cleaned 中间层已不在仓库）把三列写成了同一值"
+    },
+    "原始数据层": {
+      "CLMS 平台目录": "data-cleaning/storage/raw/clms_lwq_catalog/（lwq-nrt_global_300m_10daily_v2 COG 索引）",
+      "MEE 月报": "model_dataset 行 881 的 mee_* 文本列（TAIHU_WHOLE 月报）"
+    },
+    "推理落点": {
+      "模型槽位": "backend/model_runtime_v0_3/models/T1-bloom-0m-s20260907-1d.joblib",
+      "特征处理": "RealPreprocessor 中位数插补（该行 wq_*/met_*/hydro_* 全缺 → 全部中位数）",
+      "结论": "该预测的输入除遥感 CLMS（同值缺陷列）与静态/日历列外全为插补中位数；brier 指标对阳性样本的 1/40 贡献来自这一条假阴性"
+    }
+  },
+  "data_defects": {
+    "clms_three_column_identical": {
+      "chla_mean_eq_uncertainty_ratio": 1.0,
+      "chla_mean_eq_fcb_prob_ratio": 1.0,
+      "non_null_rows": 40,
+      "value_range": [
+        89.3546880086263,
+        188.11563873291016
+      ],
+      "verdict": "装配层三语义列 100% 同值（值域 89.35~188.12 ≈ fcb_prob×1e4）。中间清洗层 storage/cleaned/*.csv 已不在仓库，无法定位写坏点 → 需重建管道复现（阻断项）。后果：78 列契约的 chla_mean 特征与其 lag 列语义错误；T2 coverage 标签建立在同值列上；FCB 阳性支路（≥0.5）全部恒不触发。"
+    },
+    "chla_unit_mixing": {
+      "by_source_unit": [
+        {
+          "source_id": "taihu_field_samples",
+          "unit": "mg/L",
+          "count": 41,
+          "min": 0.00113,
+          "median": 0.00567,
+          "max": 0.01803
+        },
+        {
+          "source_id": "taihu_field_samples",
+          "unit": "ug/L",
+          "count": 41,
+          "min": 1.13,
+          "median": 5.67,
+          "max": 18.03
+        },
+        {
+          "source_id": "taihu_water_quality",
+          "unit": "mg/L",
+          "count": 1,
+          "min": 0.03,
+          "median": 0.03,
+          "max": 0.03
+        }
+      ],
+      "mg_vs_ug_paired_values": 38,
+      "field_mg_rows": 41,
+      "verdict": "water_quality.parquet 中同一批野外航次 chla 以 mg/L 与 ug/L 两种单位重复入库（数值严格同值异单位成对），另 taihu_water_quality 1 行 0.03 mg/L。load_label_wide 以 aggfunc='mean' 对同 (station,month) 两种单位行求均值 → field 月标签被混合单位污染（约为真实 μg/L 值的一半量级）。chla_proxy 锚点（2020-12 IN_SITU 均值）因此被拉低 → 全部代理 chla 标签系统性偏低 → bloom 阈值 20 μg/L 几乎只在代理季节峰触发（阳性 22/914）。"
+    },
+    "field_chla_bloom_threshold_check": {
+      "n_field_rows": 83,
+      "n_ge_20ugL_as_is": 0,
+      "note": "无论按入库值还是换算 μg/L，野外 chla 均无 ≥20 μg/L 的阳性（max 18.03 μg/L）"
+    }
+  }
+}
