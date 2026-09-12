@@ -1,0 +1,1320 @@
+{
+  "runner": "ablation_runner.py",
+  "mode": "selftest",
+  "generated_at": "2026-09-12T09:54:59.344272+00:00",
+  "seed": 20260907,
+  "frozen_metric_spec": {
+    "spec_doc": "experiments_r1/口径冻结提案_20260912.md（草案，待主控入台账后生效）",
+    "primary_metrics": {
+      "binary": "brier_score",
+      "probability": "brier_score",
+      "regression_density": "log1p_mae",
+      "regression_default": "mae",
+      "ordinal": "macro_f1"
+    },
+    "uplift_formula_min": "uplift = (baseline_metric - model_metric) / baseline_metric",
+    "uplift_formula_max": "uplift = (model_metric - baseline_metric) / baseline_metric",
+    "baseline_rule": "同 run、同切分、同 seed 下 validation 主指标最优的单一数据驱动族（RF/XGBoost 较优者）",
+    "direction": "min 指标（brier/mae/log1p_mae）下降为正提升；max 指标（macro_f1）上升为正提升",
+    "pass_rule": "uplift >= 0.10 且 n_test >= 15；基准为 0 / 指标不可算时不机械算百分比，如实记 INDETERMINATE",
+    "no_mixing": "R²、准确率、误差下降百分比不得混写；每条提升声明必须绑定单一主指标名"
+  },
+  "summary": {
+    "panels": [
+      "T5-chla-0m",
+      "T6-risk_level-0m"
+    ],
+    "rows": 16,
+    "errors": [],
+    "ordinal_macro_f1_nonzero": true,
+    "status_counts": {
+      "BASELINE_row": 2,
+      "ERROR_family_failed": 1,
+      "FAIL_below_10pct": 2,
+      "FAIL_worse_than_baseline": 11
+    }
+  },
+  "groups": [
+    {
+      "meta": {
+        "task_id": "T5",
+        "task_label": "叶绿素 a",
+        "variant": "chla",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "granularity_tier": "month_granularity",
+        "target": "regression",
+        "primary_metric": "mae",
+        "metric_direction": "min",
+        "seed": 20260907,
+        "evidence_source": "synthetic_selftest",
+        "split_counts": {
+          "train": 336,
+          "validation": 120,
+          "test": 120
+        },
+        "test_window": {
+          "month_min": "2018-03",
+          "month_max": "2018-12"
+        },
+        "run_id": "T5-chla-ablation-r1",
+        "panel": "T5-chla-0m"
+      },
+      "selected_family_gate_rule": "random_forest",
+      "mechanism_degenerate": false,
+      "validation_metrics_by_family": {
+        "mechanism": {
+          "mae": 1.6591055929485656,
+          "rmse": 2.062838005076489,
+          "r2": 0.8533809140644657,
+          "log1p_mae": 0.12859117729791508,
+          "n": 120
+        },
+        "random_forest": {
+          "mae": 1.6465962173060091,
+          "rmse": 2.025553620642089,
+          "r2": 0.8586330955783141,
+          "log1p_mae": 0.12909830585029253,
+          "n": 120
+        },
+        "xgboost": {
+          "mae": 1.7160176651791166,
+          "rmse": 2.095614576468367,
+          "r2": 0.8486846172737823,
+          "log1p_mae": 0.13300286122750596,
+          "n": 120
+        },
+        "mechanism_feature": {
+          "mae": 1.814793092254674,
+          "rmse": 2.23526179824114,
+          "r2": 0.8278460264875964,
+          "log1p_mae": 0.14181703087876638,
+          "n": 120
+        },
+        "residual": {
+          "mae": 1.6650279590787298,
+          "rmse": 2.089505787582177,
+          "r2": 0.8495655106185285,
+          "log1p_mae": 0.1293560636579218,
+          "n": 120
+        },
+        "constrained_blend": {
+          "mae": 1.6611038308261523,
+          "rmse": 2.0578351845342233,
+          "r2": 0.8540912165851982,
+          "log1p_mae": 0.12890518587319252,
+          "n": 120
+        },
+        "simple_baseline": {
+          "mae": 4.979514547177543,
+          "rmse": 5.81466267646052,
+          "r2": -0.16495542981540035,
+          "log1p_mae": 0.3393525273795214,
+          "n": 120
+        },
+        "climatology_global": {
+          "mae": 2.6425136595148992,
+          "rmse": 3.5555874495162536,
+          "r2": 0.5644048971716603,
+          "log1p_mae": 0.18264478753292676,
+          "n": 120
+        },
+        "persistence": {
+          "error": "'wq_chla'"
+        }
+      },
+      "rows": [
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "mechanism",
+          "family_role": "mechanism_only",
+          "test_value": 1.6773546921931743,
+          "validation_value": 1.6591055929485656,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.054803323419183904,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "random_forest",
+          "family_role": "single_ai",
+          "test_value": 1.5902061123167182,
+          "validation_value": 1.6465962173060091,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": null,
+          "status_vs_threshold": "BASELINE_row",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "xgboost",
+          "family_role": "single_ai",
+          "test_value": 1.669496718558771,
+          "validation_value": 1.7160176651791166,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.04986184220266707,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "mechanism_feature",
+          "family_role": "fusion",
+          "test_value": 1.786786305112082,
+          "validation_value": 1.814793092254674,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.12361931656077763,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "residual",
+          "family_role": "fusion",
+          "test_value": 1.7299933813266495,
+          "validation_value": 1.6650279590787298,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.08790512621428673,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "constrained_blend",
+          "family_role": "fusion",
+          "test_value": 1.6414190467140022,
+          "validation_value": 1.6611038308261523,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.032205217927802836,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 120
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "simple_baseline",
+          "family_role": "reference_baseline",
+          "test_value": 4.742874675455246,
+          "validation_value": 4.979514547177543,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -1.9825534178997153,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 1
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "climatology_global",
+          "family_role": "reference_baseline",
+          "test_value": 2.5633978153196053,
+          "validation_value": 2.6425136595148992,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": -0.611990920840492,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": 9
+        },
+        {
+          "task_id": "T5",
+          "task_label": "叶绿素 a",
+          "variant": "chla",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "regression",
+          "primary_metric": "mae",
+          "metric_direction": "min",
+          "run_id": "T5-chla-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 0,
+          "test_positives": null,
+          "ablation_family": "persistence",
+          "family_role": "reference_baseline",
+          "test_value": null,
+          "validation_value": null,
+          "baseline_family": "random_forest",
+          "baseline_value": 1.5902061123167182,
+          "uplift_vs_best_single": null,
+          "status_vs_threshold": "ERROR_family_failed",
+          "mechanism_degenerate_run": false,
+          "prediction_unique_test": null
+        }
+      ]
+    },
+    {
+      "meta": {
+        "task_id": "T6",
+        "task_label": "风险等级/概率",
+        "variant": "risk_level",
+        "horizon_days": 1,
+        "month_offset": 0,
+        "granularity_tier": "month_granularity",
+        "target": "ordinal",
+        "primary_metric": "macro_f1",
+        "metric_direction": "max",
+        "seed": 20260907,
+        "evidence_source": "synthetic_selftest",
+        "split_counts": {
+          "train": 336,
+          "validation": 120,
+          "test": 120
+        },
+        "test_window": {
+          "month_min": "2018-03",
+          "month_max": "2018-12"
+        },
+        "run_id": "T6-risk_level-ablation-r1",
+        "panel": "T6-risk_level-0m"
+      },
+      "selected_family_gate_rule": "xgboost",
+      "mechanism_degenerate": true,
+      "validation_metrics_by_family": {
+        "mechanism": {
+          "macro_f1": 0.6793950284516321,
+          "accuracy": 0.95,
+          "n": 120
+        },
+        "random_forest": {
+          "macro_f1": 0.8422953632218159,
+          "accuracy": 0.975,
+          "n": 120
+        },
+        "xgboost": {
+          "macro_f1": 0.859546165884194,
+          "accuracy": 0.9833333333333333,
+          "n": 120
+        },
+        "mechanism_feature": {
+          "macro_f1": 0.8457442348008386,
+          "accuracy": 0.975,
+          "n": 120
+        },
+        "constrained_blend": {
+          "macro_f1": 0.859546165884194,
+          "accuracy": 0.9833333333333333,
+          "n": 120
+        },
+        "simple_baseline": {
+          "macro_f1": 0.31268436578171094,
+          "accuracy": 0.8833333333333333,
+          "n": 120
+        },
+        "climatology_global": {
+          "macro_f1": 0.5153167185877466,
+          "accuracy": 0.9166666666666666,
+          "n": 120
+        }
+      },
+      "rows": [
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "mechanism",
+          "family_role": "mechanism_only",
+          "test_value": 0.7031366294524188,
+          "validation_value": 0.6793950284516321,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": -0.24418058289415215,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "random_forest",
+          "family_role": "single_ai",
+          "test_value": 0.9189560439560439,
+          "validation_value": 0.8422953632218159,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": -0.012190814138556959,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "xgboost",
+          "family_role": "single_ai",
+          "test_value": 0.9302971232795795,
+          "validation_value": 0.859546165884194,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": null,
+          "status_vs_threshold": "BASELINE_row",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "mechanism_feature",
+          "family_role": "fusion",
+          "test_value": 0.9302971232795795,
+          "validation_value": 0.8457442348008386,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": 0.0,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "constrained_blend",
+          "family_role": "fusion",
+          "test_value": 0.9302971232795795,
+          "validation_value": 0.859546165884194,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": 0.0,
+          "status_vs_threshold": "FAIL_below_10pct",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "simple_baseline",
+          "family_role": "reference_baseline",
+          "test_value": 0.30952380952380953,
+          "validation_value": 0.31268436578171094,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": -0.667284997686928,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        },
+        {
+          "task_id": "T6",
+          "task_label": "风险等级/概率",
+          "variant": "risk_level",
+          "horizon_days": 1,
+          "month_offset": 0,
+          "granularity_tier": "month_granularity",
+          "target": "ordinal",
+          "primary_metric": "macro_f1",
+          "metric_direction": "max",
+          "run_id": "T6-risk_level-ablation-r1",
+          "seed": 20260907,
+          "evidence_source": "synthetic_selftest",
+          "split_counts": {
+            "train": 336,
+            "validation": 120,
+            "test": 120
+          },
+          "test_window": {
+            "month_min": "2018-03",
+            "month_max": "2018-12"
+          },
+          "n_test": 120,
+          "test_positives": null,
+          "ablation_family": "climatology_global",
+          "family_role": "reference_baseline",
+          "test_value": 0.502982456140351,
+          "validation_value": 0.5153167185877466,
+          "baseline_family": "xgboost",
+          "baseline_value": 0.9302971232795795,
+          "uplift_vs_best_single": -0.45933138611975355,
+          "status_vs_threshold": "FAIL_worse_than_baseline",
+          "mechanism_degenerate_run": true,
+          "prediction_unique_test": 0
+        }
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "mechanism",
+      "family_role": "mechanism_only",
+      "test_value": 1.6773546921931743,
+      "validation_value": 1.6591055929485656,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.054803323419183904,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "random_forest",
+      "family_role": "single_ai",
+      "test_value": 1.5902061123167182,
+      "validation_value": 1.6465962173060091,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": null,
+      "status_vs_threshold": "BASELINE_row",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "xgboost",
+      "family_role": "single_ai",
+      "test_value": 1.669496718558771,
+      "validation_value": 1.7160176651791166,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.04986184220266707,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "mechanism_feature",
+      "family_role": "fusion",
+      "test_value": 1.786786305112082,
+      "validation_value": 1.814793092254674,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.12361931656077763,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "residual",
+      "family_role": "fusion",
+      "test_value": 1.7299933813266495,
+      "validation_value": 1.6650279590787298,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.08790512621428673,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "constrained_blend",
+      "family_role": "fusion",
+      "test_value": 1.6414190467140022,
+      "validation_value": 1.6611038308261523,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.032205217927802836,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 120
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "simple_baseline",
+      "family_role": "reference_baseline",
+      "test_value": 4.742874675455246,
+      "validation_value": 4.979514547177543,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -1.9825534178997153,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 1
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "climatology_global",
+      "family_role": "reference_baseline",
+      "test_value": 2.5633978153196053,
+      "validation_value": 2.6425136595148992,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": -0.611990920840492,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": 9
+    },
+    {
+      "task_id": "T5",
+      "task_label": "叶绿素 a",
+      "variant": "chla",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "regression",
+      "primary_metric": "mae",
+      "metric_direction": "min",
+      "run_id": "T5-chla-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 0,
+      "test_positives": null,
+      "ablation_family": "persistence",
+      "family_role": "reference_baseline",
+      "test_value": null,
+      "validation_value": null,
+      "baseline_family": "random_forest",
+      "baseline_value": 1.5902061123167182,
+      "uplift_vs_best_single": null,
+      "status_vs_threshold": "ERROR_family_failed",
+      "mechanism_degenerate_run": false,
+      "prediction_unique_test": null
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "mechanism",
+      "family_role": "mechanism_only",
+      "test_value": 0.7031366294524188,
+      "validation_value": 0.6793950284516321,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": -0.24418058289415215,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "random_forest",
+      "family_role": "single_ai",
+      "test_value": 0.9189560439560439,
+      "validation_value": 0.8422953632218159,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": -0.012190814138556959,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "xgboost",
+      "family_role": "single_ai",
+      "test_value": 0.9302971232795795,
+      "validation_value": 0.859546165884194,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": null,
+      "status_vs_threshold": "BASELINE_row",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "mechanism_feature",
+      "family_role": "fusion",
+      "test_value": 0.9302971232795795,
+      "validation_value": 0.8457442348008386,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": 0.0,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "constrained_blend",
+      "family_role": "fusion",
+      "test_value": 0.9302971232795795,
+      "validation_value": 0.859546165884194,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": 0.0,
+      "status_vs_threshold": "FAIL_below_10pct",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "simple_baseline",
+      "family_role": "reference_baseline",
+      "test_value": 0.30952380952380953,
+      "validation_value": 0.31268436578171094,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": -0.667284997686928,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    },
+    {
+      "task_id": "T6",
+      "task_label": "风险等级/概率",
+      "variant": "risk_level",
+      "horizon_days": 1,
+      "month_offset": 0,
+      "granularity_tier": "month_granularity",
+      "target": "ordinal",
+      "primary_metric": "macro_f1",
+      "metric_direction": "max",
+      "run_id": "T6-risk_level-ablation-r1",
+      "seed": 20260907,
+      "evidence_source": "synthetic_selftest",
+      "split_counts": {
+        "train": 336,
+        "validation": 120,
+        "test": 120
+      },
+      "test_window": {
+        "month_min": "2018-03",
+        "month_max": "2018-12"
+      },
+      "n_test": 120,
+      "test_positives": null,
+      "ablation_family": "climatology_global",
+      "family_role": "reference_baseline",
+      "test_value": 0.502982456140351,
+      "validation_value": 0.5153167185877466,
+      "baseline_family": "xgboost",
+      "baseline_value": 0.9302971232795795,
+      "uplift_vs_best_single": -0.45933138611975355,
+      "status_vs_threshold": "FAIL_worse_than_baseline",
+      "mechanism_degenerate_run": true,
+      "prediction_unique_test": 0
+    }
+  ],
+  "honesty_note": "本表为 T3a 消融脚手架草案：offline 模式只对既有产物做同帧复算（不重训练、不挑选子集）；selftest/retrain 模式的行必须按 evidence_source 标注，synthetic_selftest 一律不是证据；最终门禁状态以 T3b 冻结评估后 gate.py 生成的 gate_table.json 为准。 本文件全部行来自合成数据（synthetic_selftest），仅证明链路可用，不是任何任务的证据。"
+}
