@@ -696,6 +696,12 @@ COVERAGE_TARGET = 0.90
 COVERAGE_TOLERANCE = 0.02
 COVERAGE_ACCEPTANCE_MIN = round(COVERAGE_TARGET - COVERAGE_TOLERANCE, 6)
 
+# 展示线（产品决策 2026-09-13，双阈值方案）：覆盖率 ≥ 80% 且结构自洽的源区间允许把
+# 等级范围以"参考范围"形态展示（band_mode=reference，页面明标"供趋势参考、不用于决策"）。
+# 决策线仍为 COVERAGE_ACCEPTANCE_MIN（88%），decision_usable 判定不变——参考范围
+# 不改变任何决策路径的门槛，只是把 80%~88% 区间从"完全不展示"改为"带保留意见展示"。
+COVERAGE_DISPLAY_MIN = 0.80
+
 # 校准状态枚举（写进 uncertainty.calibration_status）
 CALIBRATION_VALIDATED = "validated"
 CALIBRATION_UNDERCOVERED = "undercovered"
@@ -2398,9 +2404,28 @@ class AlgorithmModelServiceV3:
         p05_band = p95_band = None
         # 只有"决策可用"的区间才允许映射等级范围：结构自洽但缺乏校准证据的区间
         # （如 test_n=1 的叶绿素 a）不足以支撑等级范围结论。
-        if chla_uncertainty.get("decision_usable") and chla_uncertainty.get("p05") is not None and chla_uncertainty.get("p95") is not None:
-            p05_band = self._band_of(float(chla_uncertainty["p05"]), risk_bands)
-            p95_band = self._band_of(float(chla_uncertainty["p95"]), risk_bands)
+        src_p05 = chla_uncertainty.get("p05")
+        src_p95 = chla_uncertainty.get("p95")
+        cov_val = chla_uncertainty.get("empirical_coverage")
+        cov_num = isinstance(cov_val, (int, float)) and not isinstance(cov_val, bool)
+        # 双阈值：decision 模式维持原判据不变；reference 模式 = 结构自洽 ∧ 校准状态
+        # 可核算（validated/undercovered）∧ 覆盖率 ≥ 展示线 80%。低于展示线仍走
+        # band_range_blocked 显式阻断，不静默。
+        reference_ok = bool(
+            chla_uncertainty.get("structural_valid")
+            and chla_uncertainty.get("calibration_status") in (CALIBRATION_VALIDATED, CALIBRATION_UNDERCOVERED)
+            and cov_num
+            and float(cov_val) >= COVERAGE_DISPLAY_MIN
+        )
+        band_mode = None
+        if src_p05 is not None and src_p95 is not None and chla_uncertainty.get("structural_valid"):
+            if chla_uncertainty.get("decision_usable"):
+                band_mode = "decision"
+            elif reference_ok:
+                band_mode = "reference"
+        if band_mode is not None:
+            p05_band = self._band_of(float(src_p05), risk_bands)
+            p95_band = self._band_of(float(src_p95), risk_bands)
         band_range = p05_band is not None and p95_band is not None
         # 等级范围缺失时必须给出明确原因，不能只留一个空态。判据按三层合同同序给出，
         # 让页面能说清"是被结构否掉、被校准否掉，还是被验收线否掉"。
@@ -2423,6 +2448,7 @@ class AlgorithmModelServiceV3:
                 "coverage_target": COVERAGE_TARGET,
                 "coverage_tolerance": COVERAGE_TOLERANCE,
                 "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
+                "coverage_display_min": COVERAGE_DISPLAY_MIN,
                 "structural_valid": chla_uncertainty.get("structural_valid"),
                 "test_n": chla_uncertainty.get("test_n"),
                 "source_interval": {
@@ -2471,6 +2497,9 @@ class AlgorithmModelServiceV3:
                     # 渲染等级范围条，不走 P05—点—P95 刻度尺。structural_valid / decision_usable
                     # 继承源区间，保证三层合同在本任务上语义完整、不必让前端猜缺字段的含义。
                     "band_range": True,
+                    "band_mode": band_mode,
+                    "display_usable": band_mode == "reference",
+                    "display_threshold": COVERAGE_DISPLAY_MIN,
                     "interval_semantics": UNCERTAINTY_SEMANTICS,
                     "structural_valid": bool(chla_uncertainty.get("structural_valid")),
                     "calibration_status": chla_uncertainty.get("calibration_status") or CALIBRATION_UNAVAILABLE,
@@ -2487,7 +2516,13 @@ class AlgorithmModelServiceV3:
                         "empirical_coverage": chla_uncertainty.get("empirical_coverage"),
                         "training_protocol": chla_uncertainty.get("training_protocol"),
                     },
-                    "note": "等级范围由叶绿素 a 的预测区间映射到冻结风险带；等级本身不是经校准的概率输出。",
+                    "note": (
+                        "等级范围由叶绿素 a 的预测区间映射到冻结风险带；等级本身不是经校准的概率输出。"
+                        + (
+                            " 已达展示线（80%），范围供趋势参考展示；尚未达到决策线（88%），结果供参考、不用于决策。"
+                            if band_mode == "reference" else ""
+                        )
+                    ),
                 }
                 if band_range
                 else None
@@ -3014,6 +3049,33 @@ class AlgorithmModelServiceV3:
             index[key] = row
         return index
 
+    @staticmethod
+    def _fusion_stability(gate: dict[str, Any]) -> dict[str, Any]:
+        """融合稳定性聚合（产品分层展示 2026-09-13）：增益 ≥ 0% 即"不劣于最佳单模型"。
+
+        展示层主口径；显著融合增益（≥10%）严格口径保留在 pass/fail 与评估详情。
+        基线为零导致 uplift 无法计算的行单列（indeterminate），不混入通过或劣化。
+        """
+        rows = gate.get("rows") or []
+        ev = [r for r in rows if r.get("status") in ("PASS", "FAIL")]
+        num = [
+            r for r in ev
+            if isinstance(r.get("uplift"), (int, float)) and not isinstance(r.get("uplift"), bool)
+        ]
+        stab = sum(1 for r in num if r["uplift"] >= 0)
+        degrade = len(num) - stab
+        indeterminate = len(ev) - len(num)
+        return {
+            "requirement": "融合稳定性：融合模型不劣于最佳单一数据驱动模型（增益 ≥ 0%）",
+            "evaluable": len(ev),
+            "pass": stab,
+            "degrade": degrade,
+            "indeterminate_baseline_zero": indeterminate,
+            "pass_text": f"{stab}/{len(ev)}",
+            "status": "PASS" if degrade == 0 and indeterminate == 0 else "PARTIAL",
+            "note": "展示层主口径（不劣于单模型）。显著融合增益（≥10%）严格口径见 pass/fail 与评估详情；劣化行与基线为零行如实列出，不做隐藏。",
+        }
+
     def acceptance(self) -> dict[str, Any]:
         gate = self._gate_table()
         summary = gate["summary"]
@@ -3029,6 +3091,7 @@ class AlgorithmModelServiceV3:
             "baseline": "同一任务和时效下 Random Forest 与 XGBoost 的较优者（validation 选族、冻结测试集同口径）",
             "min_test_rows": gate.get("min_test_rows"),
             "evidence": "/api/v1/model/acceptance/detail",
+            "fusion_stability": self._fusion_stability(gate),
             "honesty_note": gate.get("honesty_note"),
             "note": summary.get("note"),
             "action": (
@@ -3064,6 +3127,7 @@ class AlgorithmModelServiceV3:
                 "uplift": None,
             })
         return {
+            "fusion_stability": self._fusion_stability(gate),
             "gate_version": gate.get("gate_version"),
             "generated_at": gate.get("generated_at"),
             "comparison_rule": gate.get("comparison_rule"),

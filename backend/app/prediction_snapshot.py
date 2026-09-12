@@ -102,7 +102,7 @@ _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 #   区间校准段样本数；新增 seasonal_lookup_mode（目标月缺同期样本时如实披露全局
 #   回退）；站点四口径（directory_total / excluded_stations）入 status 与 manifest。
 # 教训：版本键只覆盖模型产物，看不见"代码口径"变更——结构/口径变化必须递增此版本。
-CACHE_SCHEMA_VERSION = "prediction_snapshot_v11"
+CACHE_SCHEMA_VERSION = "prediction_snapshot_v12"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 

@@ -370,6 +370,16 @@
         </div>
         <p class="frp-unc-note" data-role="uncertainty-status-detail">{{ uncertaintyStatus.detail }}</p>
 
+        <!-- 融合稳定性（2026-09-13 分层展示）：主口径=不劣于最佳单模型（增益≥0%）；
+             显著融合增益（≥10%）为严格口径，与 N.A. 一并如实并列，不做隐藏。 -->
+        <p
+          v-if="fusionStabilityText"
+          class="frp-unc-note"
+          data-role="fusion-stability-line"
+        >
+          融合稳定性（不劣于单模型）：{{ fusionStabilityText }}；显著融合增益（≥10%）：{{ significantGainText }}<template v-if="naText">；{{ naText }}</template>。
+        </p>
+
         <!-- 等级范围（风险等级由叶绿素 a 区间映射）：不是数值区间，画范围条而非刻度尺。
              风险等级不是焦点任务（焦点 risk 映射到 probability），它的区间挂在同一次输出的
              risk_level 兄弟结果上；这里连同焦点区间一起给出，页头同时展示等级与概率时才闭合。 -->
@@ -390,6 +400,13 @@
             {{ bandText(bandRangeUncertainty.source_interval?.p95, true) }} μg/L，
             测试样本 n={{ bandRangeUncertainty.source_interval?.test_n ?? '—' }}，
             校准状态 {{ calibrationText(bandRangeUncertainty.calibration_status) }}。
+          </p>
+          <p
+            v-if="bandRangeUncertainty.band_mode === 'reference'"
+            class="frp-unc-note"
+            data-role="band-range-reference-note"
+          >
+            已达到展示线 80%，可用于趋势展示；尚未达到决策线 88%，结果供参考、不用于决策。
           </p>
         </template>
 
@@ -1483,6 +1500,21 @@ function calibrationText(status) {
   return CALIBRATION_TEXT[status] || status || '—'
 }
 // 等级范围的承载对象：焦点任务自身带 band_range 时优先，否则取同一次输出的 risk_level 兄弟结果
+const acceptanceBlock = computed(() => props.modelForecast?.acceptance || null)
+const fusionStabilityText = computed(() => {
+  const fs = acceptanceBlock.value?.fusion_stability
+  if (!fs) return ''
+  return `${fs.pass_text} 通过` + (fs.degrade ? `（劣化 ${fs.degrade} 行）` : '')
+})
+const significantGainText = computed(() => {
+  const a = acceptanceBlock.value
+  if (!a) return ''
+  return `${a.pass}/${a.evaluable_comparisons ?? a.comparison_rows}`
+})
+const naText = computed(() => {
+  const a = acceptanceBlock.value
+  return a?.not_applicable ? `${a.not_applicable} 项暂不可比较（样本不足）` : ''
+})
 const bandRangeUncertainty = computed(() => {
   if (v3Uncertainty.value?.band_range) return v3Uncertainty.value
   const sibling = props.modelForecast?.results?.risk_level?.uncertainty
@@ -1492,6 +1524,7 @@ const bandRangeStatusText = computed(() => {
   const u = bandRangeUncertainty.value
   if (!u) return ''
   if (!u.structural_valid) return '区间无效'
+  if (u.band_mode === 'reference') return '参考范围'
   if (u.calibration_status !== 'validated') return '校准证据不足'
   return u.decision_usable ? '范围可用' : '谨慎参考'
 })

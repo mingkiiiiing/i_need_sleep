@@ -336,11 +336,12 @@ async function main() {
     eU.decisionUsable ? true : (uTab.ringNote.includes('未核算') && !uTab.ringNote.includes('已核算')),
     `覆盖率环=${uTab.ringNote} 后端decision_usable=${eU.decisionUsable}`)
 
-  // ---------- T8b 风险等级范围：源区间可决策才给范围，否则必须阻断并说明原因 ----------
+  // ---------- T8b 风险等级范围：双阈值合同（2026-09-13） ----------
   // 默认焦点指标是风险等级，它没有自己的数值区间，等级范围由叶绿素 a 的区间映射而来。
-  // 2026-09-11 合同收紧后：T+1 叶绿素区间留出覆盖率 80.30% < 88% 验收线 → 不给范围，
-  // 页面必须渲染 band-range-blocked 并写明原因，不得留空态；T+30 季节基线源区间
-  // 覆盖率 92.42% 达标 → 必须给出三档等级范围。
+  // 双阈值：源区间覆盖率 ≥ 决策线 88% → 三档等级范围（decision 模式）；覆盖率在
+  // 展示线 80%~88% 之间 → "参考范围"放行，但页面必须渲染保留意见标注
+  // （band-range-reference-note），不得无标注放行；覆盖率 < 展示线 → 阻断并给原因。
+  // 三种形态都不允许空态。
   await page.click('[data-role="result-tab-uncertainty"]')
   await settle(1400)
   const uDerived = await page.evaluate(() => {
@@ -355,16 +356,21 @@ async function main() {
       bandStatus: bandHead ? bandHead.innerText.trim() : null,
       bandBlocked: Boolean(blockedBox),
       bandBlockedReason: blockedBox ? blockedBox.innerText.replace(/\s+/g, ' ').trim() : '',
+      referenceNote: Boolean(document.querySelector('[data-role="band-range-reference-note"]')),
       statusKey: (box?.querySelector('.frp-driver-head strong') || {}).getAttribute?.('data-status') || null
     }
   })
   const eRisk = await expected(ST_A, 'risk', 1)
   check('T8b 焦点区间不是空态', !uDerived.blocked, `blocked=${uDerived.blocked}`)
-  check('T8b 等级范围与源区间可决策状态一致（不可决策→阻断并给原因）',
+  check('T8b 等级范围与源区间可决策状态一致（双阈值：决策给范围/展示线给带标注的参考范围/以下阻断）',
     eRisk.chlaUsable
       ? uDerived.bandPresent
-      : (uDerived.bandBlocked && uDerived.bandBlockedReason.length > 0 && !uDerived.bandPresent),
-    `chlaUsable=${eRisk.chlaUsable} band=${uDerived.bandPresent} blocked=${uDerived.bandBlocked} ` +
+      : (
+          (uDerived.bandPresent && uDerived.bandStatus === '参考范围' && uDerived.referenceNote) ||
+          (uDerived.bandBlocked && uDerived.bandBlockedReason.length > 0 && !uDerived.bandPresent)
+        ),
+    `chlaUsable=${eRisk.chlaUsable} band=${uDerived.bandPresent} status=${uDerived.bandStatus} ` +
+    `refNote=${uDerived.referenceNote} blocked=${uDerived.bandBlocked} ` +
     `reason=${uDerived.bandBlockedReason.slice(0, 70)}`)
   check('T8b 后端 decision_usable 与页面结论一致',
     !eRisk.decisionUsable || uDerived.statusKey === 'usable',
