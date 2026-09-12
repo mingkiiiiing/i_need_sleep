@@ -119,3 +119,4 @@ backend/model_runtime_v0_3/_derived_backup_*/
 # 预警中心运行态（2026-09-12 复审整改）：事件/通知/状态由运行中的系统持续改写，
 # 提交进 Git 只会让工作树反复变脏。目录保留在磁盘，代码在缺目录时自行创建。
 backend/alerts-data/
+dist_check_*/
