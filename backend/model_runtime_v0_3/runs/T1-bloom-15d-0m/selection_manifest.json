@@ -1,153 +1,170 @@
 {
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-11T05:30:16.558791+00:00",
-  "feature_sha256": "7a8f53ef91734265d86155dfffad3fb8e84140eaa3ef37454b20cf132408e96d",
+  "created_at": "2026-09-12T17:04:43.223109+00:00",
+  "feature_sha256": "bed825098e61178ea6adb06f2c7bf1ce81c3a2555af870536bf04f97462827f5",
   "run_id": "T1-bloom-0m-s20260907",
   "seed": 20260907,
-  "selected_family": "random_forest",
+  "selected_family": "xgboost",
   "validation_metrics_by_family": {
     "climatology_global": {
-      "brier_score": 0.0008944812703775835,
+      "brier_score": 0.029910168604364972,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0228,
-          "n": 31,
+          "mean_predicted": 0.0,
+          "n": 13,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 2,
+          "mean_predicted": 0.227,
+          "n": 18,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.02279,
+      "expected_calibration_error": 0.131785,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0008944812703775835,
+      "primary": 0.029910168604364972,
       "recall": null,
       "roc_auc": null
     },
     "constrained_blend": {
-      "brier_score": 1.244678696466999e-07,
+      "brier_score": 3.940567346521231e-05,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0003,
+          "mean_predicted": 0.0061,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.000347,
+      "expected_calibration_error": 0.006138,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 1.244678696466999e-07,
+      "primary": 3.940567346521231e-05,
       "recall": null,
       "roc_auc": null
     },
     "mechanism": {
-      "brier_score": 0.0015404955212058383,
+      "brier_score": 0.0006437849624269879,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0392,
+          "mean_predicted": 0.0247,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.039249,
+      "expected_calibration_error": 0.024688,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0015404955212058383,
+      "primary": 0.0006437849624269879,
       "recall": null,
       "roc_auc": null
     },
     "mechanism_feature": {
-      "brier_score": 0.0,
+      "brier_score": 9.903396427573917e-05,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0,
+          "mean_predicted": 0.008,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.0,
+      "expected_calibration_error": 0.00803,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0,
+      "primary": 9.903396427573917e-05,
       "recall": null,
       "roc_auc": null
     },
-    "persistence": {
-      "error": "'wq_chla'",
-      "primary": null
-    },
     "random_forest": {
-      "brier_score": 0.0,
+      "brier_score": 0.00046262114479646364,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0,
+          "mean_predicted": 0.0164,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.0,
+      "expected_calibration_error": 0.01639,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0,
+      "primary": 0.00046262114479646364,
       "recall": null,
       "roc_auc": null
     },
     "residual": {
-      "error": "Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.",
-      "primary": null
-    },
-    "simple_baseline": {
-      "brier_score": 0.0015404955212058383,
+      "brier_score": 0.0006437849624269879,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0392,
+          "mean_predicted": 0.0247,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.039249,
+      "expected_calibration_error": 0.024688,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0015404955212058383,
+      "primary": 0.0006437849624269879,
+      "recall": null,
+      "roc_auc": null
+    },
+    "simple_baseline": {
+      "brier_score": 0.05151195704085081,
+      "calibration_bins": [
+        {
+          "bin": 2,
+          "mean_predicted": 0.227,
+          "n": 31,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.226962,
+      "f1": null,
+      "n": 31,
+      "pr_auc": null,
+      "precision": null,
+      "primary": 0.05151195704085081,
       "recall": null,
       "roc_auc": null
     },
     "xgboost": {
-      "brier_score": 1.244678696466999e-07,
+      "brier_score": 3.940567346521231e-05,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0003,
+          "mean_predicted": 0.0061,
           "n": 31,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.000347,
+      "expected_calibration_error": 0.006138,
       "f1": null,
       "n": 31,
       "pr_auc": null,
       "precision": null,
-      "primary": 1.244678696466999e-07,
+      "primary": 3.940567346521231e-05,
       "recall": null,
       "roc_auc": null
     }
   },
   "validation_primary_metric": "brier_score",
-  "validation_value": 0.0
+  "validation_value": 3.940567346521231e-05
 }

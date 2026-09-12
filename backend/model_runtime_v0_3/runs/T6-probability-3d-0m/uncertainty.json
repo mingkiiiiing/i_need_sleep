@@ -2,7 +2,7 @@
   "calibration_n": 212,
   "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
   "coverage_target": 0.9,
-  "empirical_coverage_test": 0.975,
+  "empirical_coverage_test": 0.95,
   "is_calibrated_confidence_interval": true,
   "method": "split_conformal_residual_quantiles",
   "residual_quantile_levels": [

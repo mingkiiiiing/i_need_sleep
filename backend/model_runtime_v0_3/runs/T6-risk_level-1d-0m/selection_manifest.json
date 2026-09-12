@@ -1,54 +1,54 @@
 {
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-11T05:30:34.652761+00:00",
-  "feature_sha256": "d52953e4368de731cc4e6bad8f16a4c60db9ca458690f32d9873ea49555e21be",
+  "created_at": "2026-09-12T17:14:39.452895+00:00",
+  "feature_sha256": "54999fe3f4d0c4b1b0ad890d2b242dd9f75b3f857436ee4ac70e815dd8548ce9",
   "run_id": "T6-risk_level-0m-s20260907",
   "seed": 20260907,
-  "selected_family": "simple_baseline",
+  "selected_family": "mechanism",
   "validation_metrics_by_family": {
     "climatology_global": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     },
     "constrained_blend": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     },
     "mechanism": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.3333333333333333,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.3333333333333333
     },
     "mechanism_feature": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     },
     "random_forest": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     },
     "simple_baseline": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     },
     "xgboost": {
-      "accuracy": 0.0,
-      "macro_f1": 0.0,
+      "accuracy": 0.41935483870967744,
+      "macro_f1": 0.29545454545454547,
       "n": 31,
-      "primary": 0.0
+      "primary": 0.29545454545454547
     }
   },
   "validation_primary_metric": "macro_f1",
-  "validation_value": 0.0
+  "validation_value": 0.3333333333333333
 }

@@ -1,69 +1,77 @@
 {
+  "artifact_id": "T5:chla:frozen_split:off0:h15:s20260907",
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-11T05:30:31.041366+00:00",
+  "created_at": "2026-09-12T17:13:38.197491+00:00",
+  "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+  "label_provenance_breakdown": {
+    "chla_station_proxy_v1": 576,
+    "ground_truth": 42
+  },
+  "label_provenance_declared": "ground_truth_or_proxy",
+  "protocol": "frozen_split",
   "run_id": "T5-chla-0m-s20260907",
-  "selected_family": "xgboost",
+  "selected_family": "random_forest",
   "test_metrics_by_family": {
     "climatology_global": {
-      "log1p_mae": 2.4099906036022474,
-      "mae": 10.437872222222223,
+      "log1p_mae": 0.3468240778627969,
+      "mae": 9.085179861111111,
       "n": 1,
       "r2": null,
-      "rmse": 10.437872222222223
+      "rmse": 9.085179861111111
     },
     "constrained_blend": {
-      "log1p_mae": 2.193605233152525,
-      "mae": 8.206509323120118,
+      "log1p_mae": 1.158824029757024,
+      "mae": 21.270493507385254,
       "n": 1,
       "r2": null,
-      "rmse": 8.206509323120118
+      "rmse": 21.270493507385254
     },
     "mechanism": {
-      "log1p_mae": 2.101027195744885,
-      "mae": 7.389799351535836,
+      "log1p_mae": 1.0499280513358507,
+      "mae": 20.151149245314294,
       "n": 1,
       "r2": null,
-      "rmse": 7.389799351535836
+      "rmse": 20.151149245314294
     },
     "mechanism_feature": {
-      "log1p_mae": 2.240621551727132,
-      "mae": 8.65114668985715,
+      "log1p_mae": 1.2941658810108074,
+      "mae": 22.502080885434008,
       "n": 1,
       "r2": null,
-      "rmse": 8.65114668985715
+      "rmse": 22.502080885434008
     },
     "random_forest": {
-      "log1p_mae": 2.231693682803598,
-      "mae": 8.56509936235715,
+      "log1p_mae": 1.2553195738294272,
+      "mae": 22.16547244001733,
       "n": 1,
       "r2": null,
-      "rmse": 8.56509936235715
+      "rmse": 22.16547244001733
     },
     "residual": {
-      "log1p_mae": 2.2325157556949415,
-      "mae": 8.57299047652381,
+      "log1p_mae": 1.0499280513358507,
+      "mae": 20.151149245314294,
       "n": 1,
       "r2": null,
-      "rmse": 8.57299047652381
+      "rmse": 20.151149245314294
     },
     "simple_baseline": {
-      "log1p_mae": 2.101027195744885,
-      "mae": 7.389799351535836,
+      "log1p_mae": 0.6724108697351712,
+      "mae": 15.17523156996587,
       "n": 1,
       "r2": null,
-      "rmse": 7.389799351535836
+      "rmse": 15.17523156996587
     },
     "xgboost": {
-      "log1p_mae": 2.193605233152525,
-      "mae": 8.206509323120118,
+      "log1p_mae": 1.158824029757024,
+      "mae": 21.270493507385254,
       "n": 1,
       "r2": null,
-      "rmse": 8.206509323120118
+      "rmse": 21.270493507385254
     }
   },
   "test_primary_metric": "mae",
   "test_rows": 1,
-  "test_value": 8.206509323120118,
+  "test_value": 22.16547244001733,
   "uncertainty": {
     "calibration_n": 212,
     "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
