@@ -101,8 +101,11 @@ data-cleaning/storage/*
 !data-cleaning/storage/manifests/
 !data-cleaning/storage/manifests/**
 
-# 卫星遥感年度 PNG（build_rs_overlays.py 生成产物，脚本可复现，不入库）
+# 卫星遥感年度 PNG（build_rs_overlays.py 生成产物，脚本可复现）
+# v1.1 起随仓库分发：队友克隆即含时空推演图层（原始推演产物保留、可由脚本重建）
 backend/rs_overlays/
+!backend/rs_overlays/
+!backend/rs_overlays/**
 
 # 运行时缓存与本地临时（不入库）
 backend/prediction-cache/
@@ -120,3 +123,7 @@ backend/model_runtime_v0_3/_derived_backup_*/
 # 提交进 Git 只会让工作树反复变脏。目录保留在磁盘，代码在缺目录时自行创建。
 backend/alerts-data/
 dist_check_*/
+
+# ── 正式版 v1.1：小型运行数据包随仓库分发（队友克隆即含算法数据支持）──
+!企业提交材料/A23_小型运行数据包_V1.0/realtime_catalog/observations.parquet
+!企业提交材料/A23_小型运行数据包_V1.0.zip

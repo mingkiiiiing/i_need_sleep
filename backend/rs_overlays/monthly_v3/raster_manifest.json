@@ -1,0 +1,948 @@
+{
+  "generated_at": "2026-09-09T11:00:57.124854+00:00",
+  "source": "THQBCA-V2 2.Bio-optics 年度 30m 反演产品 + 站点月度 chla 观测残差修正",
+  "spatial_method": "calibrated_annual_product_plus_station_residual",
+  "claim_boundary": "half_empirical_monthly_field_retrieval_proxy",
+  "colorbar_inversion_note": "年度 PNG 色标为全期固定尺度（0-60 μg/L，5 段线性渐变），按最近邻颜色线性反解像元值，存在 8-bit 量化误差；修正场仅用于连续空间格局展示，不替代站点实测。",
+  "idw_note": "锚点残差按 1/d² 反距离加权扩散；无锚点月不出图（不虚构）。",
+  "bloom_threshold_ug_l": 20.0,
+  "layers": [
+    {
+      "month": "2020-12",
+      "year_base": 2020,
+      "png": "monthly_v3/chla_2020-12.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2020-12.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 1248.205,
+        "feature_count": 1623
+      },
+      "calibration": {
+        "pair_count": 0,
+        "r2": null,
+        "rmse": null,
+        "status": "annual_base_only"
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2022-12",
+      "year_base": 2022,
+      "png": "monthly_v3/chla_2022-12.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2022-12.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 2147.101,
+        "feature_count": 883
+      },
+      "calibration": {
+        "pair_count": 0,
+        "r2": null,
+        "rmse": null,
+        "status": "annual_base_only"
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2023-10",
+      "year_base": 2023,
+      "png": "monthly_v3/chla_2023-10.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2023-10.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 1673.886,
+        "feature_count": 837
+      },
+      "calibration": {
+        "pair_count": 0,
+        "r2": null,
+        "rmse": null,
+        "status": "annual_base_only"
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2024-09",
+      "year_base": 2024,
+      "png": "monthly_v3/chla_2024-09.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2024-09.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 101.925,
+        "feature_count": 1355
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 11.4314,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2024-10",
+      "year_base": 2024,
+      "png": "monthly_v3/chla_2024-10.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2024-10.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 128.946,
+        "feature_count": 1441
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 10.4065,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2024-11",
+      "year_base": 2024,
+      "png": "monthly_v3/chla_2024-11.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2024-11.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 355.638,
+        "feature_count": 1880
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 6.1107,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2024-12",
+      "year_base": 2024,
+      "png": "monthly_v3/chla_2024-12.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2024-12.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 204.272,
+        "feature_count": 1664
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 8.4747,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-01",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-01.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-01.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 90.78,
+        "feature_count": 1140
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.331,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-02",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-02.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-02.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 79.995,
+        "feature_count": 1078
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.7973,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-03",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-03.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-03.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 54.819,
+        "feature_count": 936
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 15.5125,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-04",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-04.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-04.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 72.888,
+        "feature_count": 1039
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 14.2563,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-05",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-05.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-05.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 113.332,
+        "feature_count": 1289
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 12.2831,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-06",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-06.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-06.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 149.944,
+        "feature_count": 1458
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 10.9137,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-07",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-07.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-07.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 78.678,
+        "feature_count": 1058
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.9994,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-08",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-08.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-08.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 113.332,
+        "feature_count": 1289
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 12.2693,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-09",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-09.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-09.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 69.524,
+        "feature_count": 1012
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 14.4006,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-10",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-10.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-10.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 67.936,
+        "feature_count": 1002
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 14.6803,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-11",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-11.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-11.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 92.1,
+        "feature_count": 1154
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.2023,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2025-12",
+      "year_base": 2025,
+      "png": "monthly_v3/chla_2025-12.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2025-12.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 90.78,
+        "feature_count": 1140
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.429,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-01",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-01.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-01.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 14.217,
+        "feature_count": 447
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 18.1843,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-02",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-02.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-02.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 11.629,
+        "feature_count": 395
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 18.9054,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-03",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-03.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-03.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 10.208,
+        "feature_count": 362
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 19.3732,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-04",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-04.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-04.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 15.593,
+        "feature_count": 479
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 17.8669,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-05",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-05.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-05.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 22.348,
+        "feature_count": 680
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 16.4572,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-06",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-06.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-06.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 50.661,
+        "feature_count": 1118
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 13.3012,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-07",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-07.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-07.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 24.32,
+        "feature_count": 723
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 16.1778,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 1,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    },
+    {
+      "month": "2026-08",
+      "year_base": 2026,
+      "png": "monthly_v3/chla_2026-08.png",
+      "boundary_geojson": "monthly_v3/boundaries/chla_2026-08.geojson",
+      "bounds": [
+        [
+          30.88862958397795,
+          119.87055894223587
+        ],
+        [
+          31.561867727838166,
+          120.35830430404148
+        ]
+      ],
+      "vmin": 0.0,
+      "vmax": 60.0,
+      "unit": "μg/L",
+      "boundary": {
+        "threshold_ug_l": 20.0,
+        "area_km2": 1223.564,
+        "feature_count": 1931
+      },
+      "calibration": {
+        "pair_count": 1,
+        "r2": null,
+        "rmse": 14.0705,
+        "status": "calibrated",
+        "anchor_provenance": [
+          "ground_truth",
+          "remote_retrieval"
+        ]
+      },
+      "anchor_count": 2,
+      "spatial_method": "calibrated_annual_product_plus_station_residual"
+    }
+  ]
+}
