@@ -1,0 +1,2325 @@
+{
+ "audit": "T4 区间独立检验",
+ "date": "2026-09-12",
+ "serving_clip_rule": "lower=max(x,0); upper=min(x,1) for bloom/coverage/density/probability/spatial（同 serving _build_uncertainty）",
+ "summary": {
+  "models_total": 34,
+  "with_intervals": 29,
+  "no_intervals": [
+   "T6:risk_level:train_internal_time_block_cv_v1:off0:h15:s20260907",
+   "T6:risk_level:train_internal_time_block_cv_v1:off0:h1:s20260907",
+   "T6:risk_level:train_internal_time_block_cv_v1:off0:h3:s20260907",
+   "T6:risk_level:train_internal_time_block_cv_v1:off0:h7:s20260907",
+   "T6:risk_level:train_internal_time_block_cv_v1:off3:h90:s20260907"
+  ],
+  "no_valid_anchor": [],
+  "structural_violations": [],
+  "fully_degenerate_models": [
+   "T1:bloom:train_internal_time_block_cv_v1:off1:h30:s20260907",
+   "T1:bloom:train_internal_time_block_cv_v1:off2:h60:s20260907",
+   "T6:probability:train_internal_time_block_cv_v1:off1:h30:s20260907",
+   "T6:probability:train_internal_time_block_cv_v1:off2:h60:s20260907"
+  ],
+  "family_shared_groups": 2,
+  "coverage_vs_manifest_max_diff": 0.0,
+  "anchor_note": "锚点构成见各 model 行 anchor_source_counts：实测来源仅 target_chla 42/914 行（zenodo_taihu_insitu 41 + taihu_water_station_batch 1）；bloom/density/biomass 目标无实测来源列（代理契约），覆盖率对代理标签部分为参考性指标（L-data-01/04/05/08）"
+ },
+ "family_residual_pool_sharing": [
+  {
+   "group": "T1/bloom:frozen_split",
+   "distinct_intervals": 1,
+   "family_shared": true,
+   "intervals": [
+    [
+     -0.350995195,
+     0.0
+    ]
+   ]
+  },
+  {
+   "group": "T1/bloom:train_internal_time_block_cv_v1",
+   "distinct_intervals": 2,
+   "family_shared": false,
+   "intervals": [
+    [
+     -0.118055556,
+     0.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ]
+  },
+  {
+   "group": "T3/density:train_internal_time_block_cv_v1",
+   "distinct_intervals": 2,
+   "family_shared": false,
+   "intervals": [
+    [
+     -0.247103266,
+     0.483750297
+    ],
+    [
+     -0.245418517,
+     0.5033311
+    ]
+   ]
+  },
+  {
+   "group": "T4/biomass:train_internal_time_block_cv_v1",
+   "distinct_intervals": 2,
+   "family_shared": false,
+   "intervals": [
+    [
+     -4.578406787,
+     19.876286475
+    ],
+    [
+     -3.936931026,
+     17.090976867
+    ]
+   ]
+  },
+  {
+   "group": "T5/chla:train_internal_time_block_cv_v1",
+   "distinct_intervals": 2,
+   "family_shared": false,
+   "intervals": [
+    [
+     -5.57659012,
+     4.405360985
+    ],
+    [
+     -3.952198697,
+     7.214580164
+    ]
+   ]
+  },
+  {
+   "group": "T6/probability:frozen_split",
+   "distinct_intervals": 1,
+   "family_shared": true,
+   "intervals": [
+    [
+     -0.350995195,
+     0.0
+    ]
+   ]
+  },
+  {
+   "group": "T6/probability:train_internal_time_block_cv_v1",
+   "distinct_intervals": 2,
+   "family_shared": false,
+   "intervals": [
+    [
+     -0.118055556,
+     0.0
+    ],
+    [
+     0.0,
+     0.0
+    ]
+   ]
+  }
+ ],
+ "test_frame_reuse": [
+  {
+   "test_predictions_sha16": "ef9cd0b74125fdc3",
+   "artifacts": [
+    "T1:bloom:frozen_split:off0:h15:s20260907",
+    "T1:bloom:frozen_split:off0:h1:s20260907",
+    "T1:bloom:frozen_split:off0:h3:s20260907",
+    "T1:bloom:frozen_split:off0:h7:s20260907",
+    "T6:probability:frozen_split:off0:h15:s20260907",
+    "T6:probability:frozen_split:off0:h1:s20260907",
+    "T6:probability:frozen_split:off0:h3:s20260907",
+    "T6:probability:frozen_split:off0:h7:s20260907"
+   ],
+   "artifact_count": 8
+  },
+  {
+   "test_predictions_sha16": "1b9f4c84470fe950",
+   "artifacts": [
+    "T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907",
+    "T4:biomass:train_internal_time_block_cv_v1:off0:h1:s20260907",
+    "T4:biomass:train_internal_time_block_cv_v1:off0:h3:s20260907",
+    "T4:biomass:train_internal_time_block_cv_v1:off0:h7:s20260907"
+   ],
+   "artifact_count": 4
+  },
+  {
+   "test_predictions_sha16": "6b24cf2d0ae10b1f",
+   "artifacts": [
+    "T1:bloom:train_internal_time_block_cv_v1:off1:h30:s20260907",
+    "T6:probability:train_internal_time_block_cv_v1:off1:h30:s20260907"
+   ],
+   "artifact_count": 2
+  },
+  {
+   "test_predictions_sha16": "9ef5683bc35629a8",
+   "artifacts": [
+    "T1:bloom:train_internal_time_block_cv_v1:off2:h60:s20260907",
+    "T6:probability:train_internal_time_block_cv_v1:off2:h60:s20260907"
+   ],
+   "artifact_count": 2
+  },
+  {
+   "test_predictions_sha16": "a3a9c7d831a28dbf",
+   "artifacts": [
+    "T1:bloom:train_internal_time_block_cv_v1:off3:h90:s20260907",
+    "T6:probability:train_internal_time_block_cv_v1:off3:h90:s20260907"
+   ],
+   "artifact_count": 2
+  }
+ ],
+ "models": [
+  {
+   "artifact_id": "T1:bloom:frozen_split:off0:h15:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "frozen_split",
+   "horizon_days": 15,
+   "run_id": "T1-bloom-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.3509951950915241,
+   "residual_p95": 0.0,
+   "residual_width": 0.3509951950915241,
+   "calibration_n": 212,
+   "run_dir": "runs\\T1-bloom-15d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:frozen_split:off0:h1:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "frozen_split",
+   "horizon_days": 1,
+   "run_id": "T1-bloom-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.35099519509152405,
+   "residual_p95": 0.0,
+   "residual_width": 0.35099519509152405,
+   "calibration_n": 212,
+   "run_dir": "runs\\T1-bloom-1d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:frozen_split:off0:h3:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "frozen_split",
+   "horizon_days": 3,
+   "run_id": "T1-bloom-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.3509951950915241,
+   "residual_p95": 0.0,
+   "residual_width": 0.3509951950915241,
+   "calibration_n": 212,
+   "run_dir": "runs\\T1-bloom-3d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:frozen_split:off0:h7:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "frozen_split",
+   "horizon_days": 7,
+   "run_id": "T1-bloom-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.3509951950915241,
+   "residual_p95": 0.0,
+   "residual_width": 0.3509951950915241,
+   "calibration_n": 212,
+   "run_dir": "runs\\T1-bloom-7d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off1:h30:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 30,
+   "run_id": "T1-bloom-1m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": 0.0,
+   "residual_p95": 0.0,
+   "residual_width": 0.0,
+   "calibration_n": 16,
+   "run_dir": "runs\\T1-bloom-30d-1m-cv",
+   "run_dir_exists": true,
+   "test_rows": 5,
+   "test_rows_with_anchor": 5,
+   "test_months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05"
+   ],
+   "test_window": [
+    "2026-01",
+    "2026-05"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 5
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 5,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 5,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0,
+     "p75": 0.0,
+     "max": 0.0
+    },
+    "degenerate_rate": 1.0,
+    "degenerate_n": 5,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off2:h60:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 60,
+   "run_id": "T1-bloom-2m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": 0.0,
+   "residual_p95": 0.0,
+   "residual_width": 0.0,
+   "calibration_n": 16,
+   "run_dir": "runs\\T1-bloom-60d-2m-cv",
+   "run_dir_exists": true,
+   "test_rows": 5,
+   "test_rows_with_anchor": 5,
+   "test_months": [
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04"
+   ],
+   "test_window": [
+    "2025-12",
+    "2026-04"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 5
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 5,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 5,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0,
+     "p75": 0.0,
+     "max": 0.0
+    },
+    "degenerate_rate": 1.0,
+    "degenerate_n": 5,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T1:bloom:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T1/bloom",
+   "output_key": "bloom",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T1-bloom-3m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.11805555555555555,
+   "residual_p95": 0.0,
+   "residual_width": 0.11805555555555555,
+   "calibration_n": 261,
+   "run_dir": "runs\\T1-bloom-90d-3m-cv",
+   "run_dir_exists": true,
+   "test_rows": 28,
+   "test_rows_with_anchor": 28,
+   "test_months": [
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03"
+   ],
+   "test_window": [
+    "2024-11",
+    "2026-03"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 28
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 28,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 28,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.036530440184593505,
+     "mean": 0.02944634616359853,
+     "p75": 0.0383386581469648,
+     "max": 0.1180555555555555
+    },
+    "degenerate_rate": 0.2857142857142857,
+    "degenerate_n": 8,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h15:s20260907",
+   "task_variant": "T3/density",
+   "output_key": "density",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 15,
+   "run_id": "T3-density-0m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.24541851703466297,
+   "residual_p95": 0.5033310997400908,
+   "residual_width": 0.7487496167747538,
+   "calibration_n": 225,
+   "run_dir": "runs\\T3-density-15d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7692307692307693,
+    "point_in_interval_rate_serving": 0.7692307692307693,
+    "upper_clipped_to_1": true
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7692,
+    "empirical_serving_clip": 0.7692,
+    "manifest_declared": 0.7692307692307693,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 0.464466447824456,
+     "p25": 0.7057422087509329,
+     "median": 0.7487496167747537,
+     "mean": 0.7129872238722216,
+     "p75": 0.7487496167747537,
+     "max": 0.7487496167747538
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.37606837606837606
+   }
+  },
+  {
+   "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h1:s20260907",
+   "task_variant": "T3/density",
+   "output_key": "density",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 1,
+   "run_id": "T3-density-0m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.2454185170346629,
+   "residual_p95": 0.5033310997400908,
+   "residual_width": 0.7487496167747537,
+   "calibration_n": 225,
+   "run_dir": "runs\\T3-density-1d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7692307692307693,
+    "point_in_interval_rate_serving": 0.7692307692307693,
+    "upper_clipped_to_1": true
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7692,
+    "empirical_serving_clip": 0.7692,
+    "manifest_declared": 0.7692307692307693,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 0.4644664478244559,
+     "p25": 0.7057422087509327,
+     "median": 0.7487496167747536,
+     "mean": 0.7129872238722215,
+     "p75": 0.7487496167747536,
+     "max": 0.7487496167747538
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.37606837606837606
+   }
+  },
+  {
+   "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h3:s20260907",
+   "task_variant": "T3/density",
+   "output_key": "density",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 3,
+   "run_id": "T3-density-0m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.2454185170346629,
+   "residual_p95": 0.5033310997400908,
+   "residual_width": 0.7487496167747537,
+   "calibration_n": 225,
+   "run_dir": "runs\\T3-density-3d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7692307692307693,
+    "point_in_interval_rate_serving": 0.7692307692307693,
+    "upper_clipped_to_1": true
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7692,
+    "empirical_serving_clip": 0.7692,
+    "manifest_declared": 0.7692307692307693,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 0.4644664478244559,
+     "p25": 0.7057422087509327,
+     "median": 0.7487496167747536,
+     "mean": 0.7129872238722215,
+     "p75": 0.7487496167747536,
+     "max": 0.7487496167747538
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.37606837606837606
+   }
+  },
+  {
+   "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h7:s20260907",
+   "task_variant": "T3/density",
+   "output_key": "density",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 7,
+   "run_id": "T3-density-0m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.2454185170346629,
+   "residual_p95": 0.5033310997400908,
+   "residual_width": 0.7487496167747537,
+   "calibration_n": 225,
+   "run_dir": "runs\\T3-density-7d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7692307692307693,
+    "point_in_interval_rate_serving": 0.7692307692307693,
+    "upper_clipped_to_1": true
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7692,
+    "empirical_serving_clip": 0.7692,
+    "manifest_declared": 0.7692307692307693,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 0.4644664478244559,
+     "p25": 0.7057422087509327,
+     "median": 0.7487496167747536,
+     "mean": 0.7129872238722215,
+     "p75": 0.7487496167747536,
+     "max": 0.7487496167747538
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.37606837606837606
+   }
+  },
+  {
+   "artifact_id": "T3:density:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T3/density",
+   "output_key": "density",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T3-density-3m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.24710326646090536,
+   "residual_p95": 0.4837502967711299,
+   "residual_width": 0.7308535632320352,
+   "calibration_n": 225,
+   "run_dir": "runs\\T3-density-90d-3m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-08",
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08"
+   ],
+   "test_window": [
+    "2017-08",
+    "2020-08"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7948717948717948,
+    "point_in_interval_rate_serving": 0.7948717948717948,
+    "upper_clipped_to_1": true
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7949,
+    "empirical_serving_clip": 0.7949,
+    "manifest_declared": 0.7948717948717948,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 0.6220364929566318,
+     "p25": 0.7308535632320352,
+     "median": 0.7308535632320352,
+     "mean": 0.7057419316300189,
+     "p75": 0.7308535632320352,
+     "max": 0.7308535632320353
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.23076923076923078
+   }
+  },
+  {
+   "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907",
+   "task_variant": "T4/biomass",
+   "output_key": "biomass",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 15,
+   "run_id": "T4-biomass-0m-s20260907-cv",
+   "label_provenance": "ground_truth",
+   "residual_p05": -3.9369310261786277,
+   "residual_p95": 17.09097686690554,
+   "residual_width": 21.027907893084166,
+   "calibration_n": 225,
+   "run_dir": "runs\\T4-biomass-15d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7435897435897436,
+    "point_in_interval_rate_serving": 0.7435897435897436,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7436,
+    "empirical_serving_clip": 0.7436,
+    "manifest_declared": 0.7435897435897436,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 18.740430216492612,
+     "p25": 20.116325701774556,
+     "median": 21.027907893084166,
+     "mean": 20.532353251318835,
+     "p75": 21.02790789308417,
+     "max": 21.02790789308417
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.47863247863247865
+   }
+  },
+  {
+   "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h1:s20260907",
+   "task_variant": "T4/biomass",
+   "output_key": "biomass",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 1,
+   "run_id": "T4-biomass-0m-s20260907-cv",
+   "label_provenance": "ground_truth",
+   "residual_p05": -3.9369310261786277,
+   "residual_p95": 17.09097686690554,
+   "residual_width": 21.027907893084166,
+   "calibration_n": 225,
+   "run_dir": "runs\\T4-biomass-1d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7435897435897436,
+    "point_in_interval_rate_serving": 0.7435897435897436,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7436,
+    "empirical_serving_clip": 0.7436,
+    "manifest_declared": 0.7435897435897436,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 18.740430216492612,
+     "p25": 20.116325701774556,
+     "median": 21.027907893084166,
+     "mean": 20.532353251318835,
+     "p75": 21.02790789308417,
+     "max": 21.02790789308417
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.47863247863247865
+   }
+  },
+  {
+   "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h3:s20260907",
+   "task_variant": "T4/biomass",
+   "output_key": "biomass",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 3,
+   "run_id": "T4-biomass-0m-s20260907-cv",
+   "label_provenance": "ground_truth",
+   "residual_p05": -3.9369310261786277,
+   "residual_p95": 17.09097686690554,
+   "residual_width": 21.027907893084166,
+   "calibration_n": 225,
+   "run_dir": "runs\\T4-biomass-3d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7435897435897436,
+    "point_in_interval_rate_serving": 0.7435897435897436,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7436,
+    "empirical_serving_clip": 0.7436,
+    "manifest_declared": 0.7435897435897436,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 18.740430216492612,
+     "p25": 20.116325701774556,
+     "median": 21.027907893084166,
+     "mean": 20.532353251318835,
+     "p75": 21.02790789308417,
+     "max": 21.02790789308417
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.47863247863247865
+   }
+  },
+  {
+   "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h7:s20260907",
+   "task_variant": "T4/biomass",
+   "output_key": "biomass",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 7,
+   "run_id": "T4-biomass-0m-s20260907-cv",
+   "label_provenance": "ground_truth",
+   "residual_p05": -3.9369310261786277,
+   "residual_p95": 17.09097686690554,
+   "residual_width": 21.027907893084166,
+   "calibration_n": 225,
+   "run_dir": "runs\\T4-biomass-7d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11"
+   ],
+   "test_window": [
+    "2017-11",
+    "2020-11"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.7435897435897436,
+    "point_in_interval_rate_serving": 0.7435897435897436,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.7436,
+    "empirical_serving_clip": 0.7436,
+    "manifest_declared": 0.7435897435897436,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 18.740430216492612,
+     "p25": 20.116325701774556,
+     "median": 21.027907893084166,
+     "mean": 20.532353251318835,
+     "p75": 21.02790789308417,
+     "max": 21.02790789308417
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.47863247863247865
+   }
+  },
+  {
+   "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T4/biomass",
+   "output_key": "biomass",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T4-biomass-3m-s20260907-cv",
+   "label_provenance": "ground_truth",
+   "residual_p05": -4.578406786897354,
+   "residual_p95": 19.876286474714448,
+   "residual_width": 24.4546932616118,
+   "calibration_n": 225,
+   "run_dir": "runs\\T4-biomass-90d-3m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-08",
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08"
+   ],
+   "test_window": [
+    "2017-08",
+    "2020-08"
+   ],
+   "anchor_source_semantics": "no_ground_truth_source_column(proxy_contract)",
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.811965811965812,
+    "point_in_interval_rate_serving": 0.811965811965812,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.812,
+    "empirical_serving_clip": 0.812,
+    "manifest_declared": 0.811965811965812,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "no_ground_truth_source_column(proxy_contract)"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 23.543314585069893,
+     "p25": 24.155036429813656,
+     "median": 24.155036429813656,
+     "mean": 24.152173003395006,
+     "p75": 24.4546932616118,
+     "max": 24.4546932616118
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.5384615384615384
+   }
+  },
+  {
+   "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h15:s20260907",
+   "task_variant": "T5/chla",
+   "output_key": "chla",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 15,
+   "run_id": "T5-chla-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "residual_p05": -5.576590119861107,
+   "residual_p95": 4.405360984880953,
+   "residual_width": 9.981951104742059,
+   "calibration_n": 234,
+   "run_dir": "runs\\T5-chla-15d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 132,
+   "test_rows_with_anchor": 132,
+   "test_months": [
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11",
+    "2020-12",
+    "2022-12",
+    "2023-10",
+    "2026-08"
+   ],
+   "test_window": [
+    "2018-08",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 90,
+    "zenodo_taihu_insitu": 41,
+    "taihu_water_station_batch": 1
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.803030303030303,
+    "point_in_interval_rate_serving": 0.803030303030303,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.803,
+    "empirical_serving_clip": 0.803,
+    "manifest_declared": 0.803030303030303,
+    "manifest_test_n": 132,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 132,
+     "min": 6.944999103333332,
+     "p25": 9.891913712708334,
+     "median": 9.981951104742059,
+     "mean": 9.670826591985778,
+     "p75": 9.981951104742059,
+     "max": 9.981951104742063
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.26515151515151514
+   }
+  },
+  {
+   "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h1:s20260907",
+   "task_variant": "T5/chla",
+   "output_key": "chla",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 1,
+   "run_id": "T5-chla-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "residual_p05": -5.576590119861105,
+   "residual_p95": 4.405360984880952,
+   "residual_width": 9.981951104742057,
+   "calibration_n": 234,
+   "run_dir": "runs\\T5-chla-1d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 132,
+   "test_rows_with_anchor": 132,
+   "test_months": [
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11",
+    "2020-12",
+    "2022-12",
+    "2023-10",
+    "2026-08"
+   ],
+   "test_window": [
+    "2018-08",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 90,
+    "zenodo_taihu_insitu": 41,
+    "taihu_water_station_batch": 1
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.803030303030303,
+    "point_in_interval_rate_serving": 0.803030303030303,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.803,
+    "empirical_serving_clip": 0.803,
+    "manifest_declared": 0.803030303030303,
+    "manifest_test_n": 132,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 132,
+     "min": 6.944999103333331,
+     "p25": 9.891913712708334,
+     "median": 9.981951104742055,
+     "mean": 9.670826591985774,
+     "p75": 9.981951104742057,
+     "max": 9.981951104742059
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.26515151515151514
+   }
+  },
+  {
+   "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h3:s20260907",
+   "task_variant": "T5/chla",
+   "output_key": "chla",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 3,
+   "run_id": "T5-chla-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "residual_p05": -5.576590119861107,
+   "residual_p95": 4.405360984880952,
+   "residual_width": 9.981951104742059,
+   "calibration_n": 234,
+   "run_dir": "runs\\T5-chla-3d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 132,
+   "test_rows_with_anchor": 132,
+   "test_months": [
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11",
+    "2020-12",
+    "2022-12",
+    "2023-10",
+    "2026-08"
+   ],
+   "test_window": [
+    "2018-08",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 90,
+    "zenodo_taihu_insitu": 41,
+    "taihu_water_station_batch": 1
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.803030303030303,
+    "point_in_interval_rate_serving": 0.803030303030303,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.803,
+    "empirical_serving_clip": 0.803,
+    "manifest_declared": 0.803030303030303,
+    "manifest_test_n": 132,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 132,
+     "min": 6.944999103333331,
+     "p25": 9.891913712708332,
+     "median": 9.981951104742059,
+     "mean": 9.670826591985778,
+     "p75": 9.981951104742059,
+     "max": 9.98195110474206
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.26515151515151514
+   }
+  },
+  {
+   "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off0:h7:s20260907",
+   "task_variant": "T5/chla",
+   "output_key": "chla",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 7,
+   "run_id": "T5-chla-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "residual_p05": -5.576590119861106,
+   "residual_p95": 4.405360984880952,
+   "residual_width": 9.981951104742059,
+   "calibration_n": 234,
+   "run_dir": "runs\\T5-chla-7d-0m-cv",
+   "run_dir_exists": true,
+   "test_rows": 132,
+   "test_rows_with_anchor": 132,
+   "test_months": [
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08",
+    "2020-11",
+    "2020-12",
+    "2022-12",
+    "2023-10",
+    "2026-08"
+   ],
+   "test_window": [
+    "2018-08",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 90,
+    "zenodo_taihu_insitu": 41,
+    "taihu_water_station_batch": 1
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.803030303030303,
+    "point_in_interval_rate_serving": 0.803030303030303,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.803,
+    "empirical_serving_clip": 0.803,
+    "manifest_declared": 0.803030303030303,
+    "manifest_test_n": 132,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 132,
+     "min": 6.944999103333332,
+     "p25": 9.891913712708332,
+     "median": 9.981951104742059,
+     "mean": 9.670826591985778,
+     "p75": 9.981951104742059,
+     "max": 9.981951104742059
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.26515151515151514
+   }
+  },
+  {
+   "artifact_id": "T5:chla:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T5/chla",
+   "output_key": "chla",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T5-chla-3m-s20260907-cv",
+   "label_provenance": "chla_station_proxy_v1",
+   "residual_p05": -3.95219869722222,
+   "residual_p95": 7.214580163795102,
+   "residual_width": 11.166778861017322,
+   "calibration_n": 225,
+   "run_dir": "runs\\T5-chla-90d-3m-cv",
+   "run_dir_exists": true,
+   "test_rows": 117,
+   "test_rows_with_anchor": 117,
+   "test_months": [
+    "2017-08",
+    "2017-11",
+    "2018-02",
+    "2018-05",
+    "2018-08",
+    "2018-11",
+    "2019-02",
+    "2019-05",
+    "2019-08",
+    "2019-11",
+    "2020-02",
+    "2020-05",
+    "2020-08"
+   ],
+   "test_window": [
+    "2017-08",
+    "2020-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 117
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.8547008547008547,
+    "point_in_interval_rate_serving": 0.8547008547008547,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.8547,
+    "empirical_serving_clip": 0.8547,
+    "manifest_declared": 0.8547008547008547,
+    "manifest_test_n": 117,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 117,
+     "min": 10.339117614877352,
+     "p25": 11.166778861017322,
+     "median": 11.166778861017322,
+     "mean": 11.138999371052192,
+     "p75": 11.166778861017322,
+     "max": 11.166778861017324
+    },
+    "degenerate_rate": 0.0,
+    "degenerate_n": 0,
+    "clipped_at_bound_rate": 0.05982905982905983
+   }
+  },
+  {
+   "artifact_id": "T6:probability:frozen_split:off0:h15:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "frozen_split",
+   "horizon_days": 15,
+   "run_id": "T6-probability-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.35099519509152405,
+   "residual_p95": 0.0,
+   "residual_width": 0.35099519509152405,
+   "calibration_n": 212,
+   "run_dir": "runs\\T6-probability-15d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:frozen_split:off0:h1:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "frozen_split",
+   "horizon_days": 1,
+   "run_id": "T6-probability-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.3509951950915241,
+   "residual_p95": 0.0,
+   "residual_width": 0.3509951950915241,
+   "calibration_n": 212,
+   "run_dir": "runs\\T6-probability-1d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:frozen_split:off0:h3:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "frozen_split",
+   "horizon_days": 3,
+   "run_id": "T6-probability-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.3509951950915241,
+   "residual_p95": 0.0,
+   "residual_width": 0.3509951950915241,
+   "calibration_n": 212,
+   "run_dir": "runs\\T6-probability-3d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:frozen_split:off0:h7:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "frozen_split",
+   "horizon_days": 7,
+   "run_id": "T6-probability-0m-s20260907",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.35099519509152405,
+   "residual_p95": 0.0,
+   "residual_width": 0.35099519509152405,
+   "calibration_n": 212,
+   "run_dir": "runs\\T6-probability-7d-0m",
+   "run_dir_exists": true,
+   "test_rows": 40,
+   "test_rows_with_anchor": 40,
+   "test_months": [
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-08"
+   ],
+   "test_window": [
+    "2024-09",
+    "2026-08"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 40
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 0.975,
+    "point_in_interval_rate_serving": 0.975,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 0.975,
+    "empirical_serving_clip": 0.975,
+    "manifest_declared": 0.975,
+    "manifest_test_n": 40,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 40,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0045333908417971944,
+     "p75": 0.0043671874999999,
+     "max": 0.0172369454079876
+    },
+    "degenerate_rate": 0.625,
+    "degenerate_n": 25,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off1:h30:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 30,
+   "run_id": "T6-probability-1m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": 0.0,
+   "residual_p95": 0.0,
+   "residual_width": 0.0,
+   "calibration_n": 16,
+   "run_dir": "runs\\T6-probability-30d-1m-cv",
+   "run_dir_exists": true,
+   "test_rows": 5,
+   "test_rows_with_anchor": 5,
+   "test_months": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05"
+   ],
+   "test_window": [
+    "2026-01",
+    "2026-05"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 5
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 5,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 5,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0,
+     "p75": 0.0,
+     "max": 0.0
+    },
+    "degenerate_rate": 1.0,
+    "degenerate_n": 5,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off2:h60:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 60,
+   "run_id": "T6-probability-2m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": 0.0,
+   "residual_p95": 0.0,
+   "residual_width": 0.0,
+   "calibration_n": 16,
+   "run_dir": "runs\\T6-probability-60d-2m-cv",
+   "run_dir_exists": true,
+   "test_rows": 5,
+   "test_rows_with_anchor": 5,
+   "test_months": [
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04"
+   ],
+   "test_window": [
+    "2025-12",
+    "2026-04"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 5
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 5,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 5,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.0,
+     "mean": 0.0,
+     "p75": 0.0,
+     "max": 0.0
+    },
+    "degenerate_rate": 1.0,
+    "degenerate_n": 5,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:probability:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T6/probability",
+   "output_key": "probability",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T6-probability-3m-s20260907-cv",
+   "label_provenance": "proxy_derived",
+   "residual_p05": -0.11805555555555555,
+   "residual_p95": 0.0,
+   "residual_width": 0.11805555555555555,
+   "calibration_n": 261,
+   "run_dir": "runs\\T6-probability-90d-3m-cv",
+   "run_dir_exists": true,
+   "test_rows": 28,
+   "test_rows_with_anchor": 28,
+   "test_months": [
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03"
+   ],
+   "test_window": [
+    "2024-11",
+    "2026-03"
+   ],
+   "anchor_source_semantics": "mixed_or_proxy",
+   "anchor_source_counts": {
+    "nan": 28
+   },
+   "status": "checked",
+   "structural": {
+    "raw_p05_le_p95": true,
+    "raw_finite": true,
+    "clipped_p05_le_p95_all_rows": true,
+    "point_in_interval_rate_raw": 1.0,
+    "point_in_interval_rate_serving": 1.0,
+    "upper_clipped_to_1": false
+   },
+   "coverage": {
+    "empirical_raw_no_clip": 1.0,
+    "empirical_serving_clip": 1.0,
+    "manifest_declared": 1.0,
+    "manifest_test_n": 28,
+    "independent_vs_manifest_diff": 0.0,
+    "anchor_semantics": "mixed_or_proxy"
+   },
+   "width": {
+    "distribution_serving_clip": {
+     "n": 28,
+     "min": 0.0,
+     "p25": 0.0,
+     "median": 0.036530440184593505,
+     "mean": 0.02944634616359853,
+     "p75": 0.0383386581469648,
+     "max": 0.1180555555555555
+    },
+    "degenerate_rate": 0.2857142857142857,
+    "degenerate_n": 8,
+    "clipped_at_bound_rate": 1.0
+   }
+  },
+  {
+   "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h15:s20260907",
+   "task_variant": "T6/risk_level",
+   "output_key": "risk_level",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 15,
+   "run_id": "T6-risk_level-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "status": "no_intervals"
+  },
+  {
+   "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h1:s20260907",
+   "task_variant": "T6/risk_level",
+   "output_key": "risk_level",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 1,
+   "run_id": "T6-risk_level-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "status": "no_intervals"
+  },
+  {
+   "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h3:s20260907",
+   "task_variant": "T6/risk_level",
+   "output_key": "risk_level",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 3,
+   "run_id": "T6-risk_level-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "status": "no_intervals"
+  },
+  {
+   "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off0:h7:s20260907",
+   "task_variant": "T6/risk_level",
+   "output_key": "risk_level",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 7,
+   "run_id": "T6-risk_level-0m-s20260907-cv",
+   "label_provenance": "mixed(chla_station_proxy_v1|ground_truth)",
+   "status": "no_intervals"
+  },
+  {
+   "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off3:h90:s20260907",
+   "task_variant": "T6/risk_level",
+   "output_key": "risk_level",
+   "protocol": "train_internal_time_block_cv_v1",
+   "horizon_days": 90,
+   "run_id": "T6-risk_level-3m-s20260907-cv",
+   "label_provenance": "chla_station_proxy_v1",
+   "status": "no_intervals"
+  }
+ ]
+}

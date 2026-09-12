@@ -30,7 +30,13 @@ from .providers import (
 from .alerts import AlertEngine
 from .station_forecast import MODEL_VERSION as _STATION_FC_VERSION
 from .station_forecast import StationForecastEngine
-from .algorithm_models import AlgorithmModelService, AlgorithmModelServiceV3, AlgorithmModelUnavailable
+from .algorithm_models import (
+    AlgorithmModelService,
+    AlgorithmModelServiceV3,
+    AlgorithmModelUnavailable,
+    CLAIM_BOUNDARY_V3,
+    DATA_VERSION_V3,
+)
 from .errors import ApiError
 from .prediction_snapshot import FOCUS_RESULT_KEY, SNAPSHOT_HORIZONS, PredictionSnapshotService
 
@@ -221,6 +227,11 @@ class BackendService:
             status_code=409,
             code="PREDICTION_SNAPSHOT_NOT_READY",
             message="预测快照未就绪：页面只读取预生成结果，不运行模型",
+            # 错误出口口径必须与同端点成功响应一致（hybrid/真实包）；缺省会回落
+            # 演示轨 meta（simulated/simulation_only），对 v3 是错误声明（T4 审计 2026-09-12）。
+            dataset_version=DATA_VERSION_V3,
+            data_mode="hybrid",
+            claim_boundary=CLAIM_BOUNDARY_V3,
             detail=json.dumps(
                 {
                     "entity_id": entity_id,
@@ -267,6 +278,10 @@ class BackendService:
             status_code=409,
             code="PREDICTION_SNAPSHOT_NOT_READY",
             message="预测快照未就绪：页面只读取预生成结果，不运行模型",
+            # 同上：v3 快照视图的错误出口保持 hybrid/真实包口径，不回落演示轨。
+            dataset_version=DATA_VERSION_V3,
+            data_mode="hybrid",
+            claim_boundary=CLAIM_BOUNDARY_V3,
             detail=json.dumps(
                 {
                     "entity_id": entity_id,
