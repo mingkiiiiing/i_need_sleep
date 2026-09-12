@@ -1,0 +1,118 @@
+{
+  "gate_table": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\backend\\model_runtime_v0_3\\evaluation\\gate_table.json",
+  "gate_summary": {
+    "comparison_rows": 42,
+    "evaluable_comparisons": 30,
+    "pass": 2,
+    "fail": 28,
+    "not_applicable": 12,
+    "status": "FAIL",
+    "note": "可评估比较 30 条，PASS 比例 6.67%，门禁阈值 90%。"
+  },
+  "conclusion": "两条 PASS（T1-bloom h90 与 T6-probability h90）的比较均在 28 行全阴性测试段上核算：actual 唯一值 {0.0}，预测决策全部为负类，brier 退化为 mean(prob²)，roc/pr-AUC 不可定义。该 uplift=0.5619 属平凡比较（single_class_test / weak evidence），不构成融合族判别力证据；建议 gate 层比照运行层 _calibration_verdict 的 class_support 口径补 single_class 标记。",
+  "gate_layer_gap": "gate.py build_gate_table 只判 test_n>=GATE_MIN_TEST_ROWS(15) 与 uplift>=0.10（gate.py:109-124），无类别支持检查；运行层 algorithm_models._calibration_verdict 对 binary/probability 已有 class_support → single_class_test 判定。两层口径不一致。",
+  "cases": [
+    {
+      "task_id": "T1",
+      "variant": "bloom",
+      "run_dir": "T1-bloom-90d-3m-cv",
+      "run_id": "T1-bloom-3m-s20260907-cv",
+      "protocol": "train_internal_time_block_cv_v1",
+      "split_key": "target_month",
+      "test_window": {
+        "month_min": "2024-11",
+        "month_max": "2026-03",
+        "n_rows": 28
+      },
+      "class_support": {
+        "n_positive": 0,
+        "n_negative": 28,
+        "unique_actual_values": [
+          0.0
+        ],
+        "single_class_test": true,
+        "n_unique_predictions": 1,
+        "all_negative_decision": true
+      },
+      "probability_distribution": {
+        "min": 0.1587270621215404,
+        "max": 0.2493922509892121,
+        "mean": 0.1844043524837695,
+        "n_unique": 9
+      },
+      "brier_on_this_segment": {
+        "recomputed_from_rows": 0.03501296131635121,
+        "by_family_from_run_metrics": {
+          "climatology_global": 0.03782594569151525,
+          "constrained_blend": 0.015339791855464259,
+          "mechanism": 0.036903017929709084,
+          "mechanism_feature": 0.016913586990229126,
+          "random_forest": 0.03501296131635124,
+          "residual": 0.036903017929709084,
+          "simple_baseline": 0.05233030031184586,
+          "xgboost": 0.0033816531708105863
+        },
+        "fusion_value_in_gate": 0.015339791855464259,
+        "best_single_value_in_gate": 0.03501296131635124,
+        "uplift_in_gate": 0.5618824778382714
+      },
+      "discriminative_metrics_definable": {
+        "roc_auc_pr_auc_defined_on_single_class": false,
+        "note": "probability_metrics 仅在测试段同时含 0/1 两类时才给出 roc_auc/pr_auc（training_real.probability_metrics:117），单类段为 None。"
+      },
+      "gate_row_status": "PASS",
+      "selected_family": "random_forest"
+    },
+    {
+      "task_id": "T6",
+      "variant": "probability",
+      "run_dir": "T6-probability-90d-3m-cv",
+      "run_id": "T6-probability-3m-s20260907-cv",
+      "protocol": "train_internal_time_block_cv_v1",
+      "split_key": "target_month",
+      "test_window": {
+        "month_min": "2024-11",
+        "month_max": "2026-03",
+        "n_rows": 28
+      },
+      "class_support": {
+        "n_positive": 0,
+        "n_negative": 28,
+        "unique_actual_values": [
+          0.0
+        ],
+        "single_class_test": true,
+        "n_unique_predictions": 1,
+        "all_negative_decision": true
+      },
+      "probability_distribution": {
+        "min": 0.1587270621215404,
+        "max": 0.2493922509892121,
+        "mean": 0.18440435248376952,
+        "n_unique": 9
+      },
+      "brier_on_this_segment": {
+        "recomputed_from_rows": 0.03501296131635122,
+        "by_family_from_run_metrics": {
+          "climatology_global": 0.03782594569151525,
+          "constrained_blend": 0.015339791855464259,
+          "mechanism": 0.036903017929709084,
+          "mechanism_feature": 0.016913586990229126,
+          "random_forest": 0.035012961316351225,
+          "residual": 0.036903017929709084,
+          "simple_baseline": 0.05233030031184586,
+          "xgboost": 0.0033816531708105863
+        },
+        "fusion_value_in_gate": 0.015339791855464259,
+        "best_single_value_in_gate": 0.035012961316351225,
+        "uplift_in_gate": 0.5618824778382712
+      },
+      "discriminative_metrics_definable": {
+        "roc_auc_pr_auc_defined_on_single_class": false,
+        "note": "probability_metrics 仅在测试段同时含 0/1 两类时才给出 roc_auc/pr_auc（training_real.probability_metrics:117），单类段为 None。"
+      },
+      "gate_row_status": "PASS",
+      "selected_family": "random_forest"
+    }
+  ]
+}

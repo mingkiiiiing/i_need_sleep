@@ -7,6 +7,7 @@ n_test < GATE_MIN_TEST_ROWS → NA（reason=test_n_below_minimum_15）。
 """
 from __future__ import annotations
 
+import csv
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,10 +22,57 @@ HONESTY_NOTE = (
     "无任何硬编码比较数；n_test<15 的行按主理人裁定记为 N.A. 并披露原因；"
     "测试集行数以 evaluation_manifest 为准，禁止挑选子集或调整口径。"
 )
+# R5-01（2026-09-13）：二分类/概率任务的行必须披露测试段类别支持。全正例或全负例的
+# 测试段上 brier 退化为 mean(p²)，uplift 是"预测压缩程度"的平凡可比值，不构成 10%
+# 硬指标的判别力证据。本字段只做诚实披露，不改变既有 PASS/FAIL 机械状态——状态语义
+# 是否降级由主理人拍板，本表不替决策。
+SINGLE_CLASS_DISCLOSURE = (
+    "single_class_test=true 的行：测试段无正类（或无负类）样本，uplift 为单类别平凡比较，"
+    "不构成 10% 达标证据（口径 F1/F3）；机械状态保持原值，是否降级由主理人裁定。"
+)
 
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _test_class_support(run_dir: Path) -> dict[str, Any] | None:
+    """统计 runs/<run>/test_predictions.csv 的测试段类别分布（R5-01）。
+
+    仅对二分类/概率任务有意义（actual ∈ {0,1}）；CSV 缺失或无 actual 列时返回 None，
+    绝不猜测。类别判定：actual>0 记正类，actual==0 记负类。
+    """
+    csv_path = run_dir / "test_predictions.csv"
+    if not csv_path.is_file():
+        return None
+    positives = negatives = unreadable = 0
+    try:
+        with csv_path.open(newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle):
+                raw = (row.get("actual") or "").strip()
+                if not raw:
+                    unreadable += 1
+                    continue
+                try:
+                    value = float(raw)
+                except ValueError:
+                    unreadable += 1
+                    continue
+                if value > 0:
+                    positives += 1
+                elif value == 0:
+                    negatives += 1
+                else:
+                    unreadable += 1
+    except OSError:
+        return None
+    return {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": positives,
+        "negatives_test": negatives,
+        "unreadable_rows": unreadable,
+        "single_class_test": positives == 0 or negatives == 0,
+    }
 
 
 def _better(value_a: float, value_b: float, direction: str) -> float:
@@ -98,6 +146,9 @@ def build_gate_table(runs_dir: str | Path) -> dict[str, Any]:
                     or "frozen_split"
                 ),
             }
+            # R5-01：二分类/概率任务披露测试段类别支持；其余任务类型无类别含义，不加字段。
+            if config.get("problem_type") in {"binary", "probability"}:
+                row["class_support"] = _test_class_support(run_dir)
             if fusion_family is None or single_family is None:
                 row.update({
                     "status": "NA",
@@ -157,5 +208,6 @@ def build_gate_table(runs_dir: str | Path) -> dict[str, Any]:
             "note": overall_note,
         },
         "rows": rows,
+        "single_class_disclosure": SINGLE_CLASS_DISCLOSURE,
         "honesty_note": HONESTY_NOTE,
     }

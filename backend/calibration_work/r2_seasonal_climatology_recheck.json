@@ -1,0 +1,295 @@
+{
+  "artifact": "D:\\Project\\fuwai\\项目完整汇总_2026-08-31\\01_我们的开发\\backend\\model_runtime_v0_3\\evaluation\\seasonal_climatology.json",
+  "artifact_version": "seasonal_climatology_v4",
+  "artifact_generated_at": "2026-09-12T17:39:23.433912+00:00",
+  "replay_code": "workspace modeling_real @ git HEAD e698d0a（监督表构建同源；回测计算独立重写）",
+  "cal_07_note": "台账 L-cal-07 的 71.97%（n=132）为 2026-09-12 审查时点旧产物的接口读数；R1 冻结重跑后 v4 产物已重新生成，本轮对当前产物从原始监督表逐行独立复算。",
+  "tasks": [
+    {
+      "task_id": "T1",
+      "variant": "bloom",
+      "problem_type": "binary",
+      "artifact_record": {
+        "empirical_coverage": 1.0,
+        "coverage_n": 31,
+        "covered_implied": 31,
+        "test_window": [
+          "2025-02",
+          "2026-08"
+        ],
+        "interval_calibration_n": 140,
+        "residual_quantiles": {
+          "p05": -0.5555555555555556,
+          "p95": 0.8944444444444425
+        },
+        "test_positive_n": 1,
+        "test_negative_n": 30,
+        "class_support_sufficient": true
+      },
+      "recomputed": {
+        "n_rows_total": 657,
+        "n_unique_target_months": 90,
+        "fit_months_range": [
+          "2005-02",
+          "2018-05"
+        ],
+        "calib_months_range": [
+          "2018-08",
+          "2025-01"
+        ],
+        "test_months_range": [
+          "2025-02",
+          "2026-08"
+        ],
+        "covered": 31,
+        "coverage_n": 31,
+        "coverage_rate": 1.0,
+        "test_positive_n": 1,
+        "test_negative_n": 30
+      },
+      "diffs": {
+        "by_month_max_abs_diff": 0.0,
+        "fallback_abs_diff": 0.0,
+        "p05_abs_diff": 0.0,
+        "p95_abs_diff": 0.0,
+        "coverage_count_match": true,
+        "coverage_n_match": true,
+        "coverage_rate_abs_diff": 0.0,
+        "calibration_n_match": true,
+        "segments_match": true,
+        "class_support_match": true
+      },
+      "all_match": true,
+      "consumed_by": "运行层 T+30/T+60（及未被逐站模型覆盖的时效）回退季节基线时，uncertainty.empirical_coverage 直接透传本 backtest 记录（algorithm_models._climatology_result）。"
+    },
+    {
+      "task_id": "T3",
+      "variant": "density",
+      "problem_type": "regression",
+      "artifact_record": {
+        "empirical_coverage": 0.6495726495726496,
+        "coverage_n": 117,
+        "covered_implied": 76,
+        "test_window": [
+          "2017-11",
+          "2020-11"
+        ],
+        "interval_calibration_n": 117,
+        "residual_quantiles": {
+          "p05": -0.37052469135802474,
+          "p95": 0.31141975308641956
+        },
+        "test_positive_n": null,
+        "test_negative_n": null,
+        "class_support_sufficient": null
+      },
+      "recomputed": {
+        "n_rows_total": 576,
+        "n_unique_target_months": 64,
+        "fit_months_range": [
+          "2005-02",
+          "2014-05"
+        ],
+        "calib_months_range": [
+          "2014-08",
+          "2017-08"
+        ],
+        "test_months_range": [
+          "2017-11",
+          "2020-11"
+        ],
+        "covered": 76,
+        "coverage_n": 117,
+        "coverage_rate": 0.6495726495726496,
+        "test_positive_n": 61,
+        "test_negative_n": 56
+      },
+      "diffs": {
+        "by_month_max_abs_diff": 0.0,
+        "fallback_abs_diff": 0.0,
+        "p05_abs_diff": 0.0,
+        "p95_abs_diff": 0.0,
+        "coverage_count_match": true,
+        "coverage_n_match": true,
+        "coverage_rate_abs_diff": 0.0,
+        "calibration_n_match": true,
+        "segments_match": true,
+        "class_support_match": null
+      },
+      "all_match": true,
+      "consumed_by": "运行层 T+30/T+60（及未被逐站模型覆盖的时效）回退季节基线时，uncertainty.empirical_coverage 直接透传本 backtest 记录（algorithm_models._climatology_result）。"
+    },
+    {
+      "task_id": "T4",
+      "variant": "biomass",
+      "problem_type": "regression",
+      "artifact_record": {
+        "empirical_coverage": 0.7606837606837606,
+        "coverage_n": 117,
+        "covered_implied": 89,
+        "test_window": [
+          "2017-11",
+          "2020-11"
+        ],
+        "interval_calibration_n": 117,
+        "residual_quantiles": {
+          "p05": -4.306712178571429,
+          "p95": 22.698326476165928
+        },
+        "test_positive_n": null,
+        "test_negative_n": null,
+        "class_support_sufficient": null
+      },
+      "recomputed": {
+        "n_rows_total": 576,
+        "n_unique_target_months": 64,
+        "fit_months_range": [
+          "2005-02",
+          "2014-05"
+        ],
+        "calib_months_range": [
+          "2014-08",
+          "2017-08"
+        ],
+        "test_months_range": [
+          "2017-11",
+          "2020-11"
+        ],
+        "covered": 89,
+        "coverage_n": 117,
+        "coverage_rate": 0.7606837606837606,
+        "test_positive_n": 112,
+        "test_negative_n": 5
+      },
+      "diffs": {
+        "by_month_max_abs_diff": 0.0,
+        "fallback_abs_diff": 0.0,
+        "p05_abs_diff": 0.0,
+        "p95_abs_diff": 0.0,
+        "coverage_count_match": true,
+        "coverage_n_match": true,
+        "coverage_rate_abs_diff": 0.0,
+        "calibration_n_match": true,
+        "segments_match": true,
+        "class_support_match": null
+      },
+      "all_match": true,
+      "consumed_by": "运行层 T+30/T+60（及未被逐站模型覆盖的时效）回退季节基线时，uncertainty.empirical_coverage 直接透传本 backtest 记录（algorithm_models._climatology_result）。"
+    },
+    {
+      "task_id": "T5",
+      "variant": "chla",
+      "problem_type": "regression",
+      "artifact_record": {
+        "empirical_coverage": 0.7272727272727273,
+        "coverage_n": 132,
+        "covered_implied": 96,
+        "test_window": [
+          "2018-08",
+          "2026-08"
+        ],
+        "interval_calibration_n": 126,
+        "residual_quantiles": {
+          "p05": -8.651083333333332,
+          "p95": 18.774133333333335
+        },
+        "test_positive_n": null,
+        "test_negative_n": null,
+        "class_support_sufficient": null
+      },
+      "recomputed": {
+        "n_rows_total": 618,
+        "n_unique_target_months": 68,
+        "fit_months_range": [
+          "2005-02",
+          "2014-11"
+        ],
+        "calib_months_range": [
+          "2015-02",
+          "2018-05"
+        ],
+        "test_months_range": [
+          "2018-08",
+          "2026-08"
+        ],
+        "covered": 96,
+        "coverage_n": 132,
+        "coverage_rate": 0.7272727272727273,
+        "test_positive_n": 132,
+        "test_negative_n": 0
+      },
+      "diffs": {
+        "by_month_max_abs_diff": 0.0,
+        "fallback_abs_diff": 0.0,
+        "p05_abs_diff": 0.0,
+        "p95_abs_diff": 0.0,
+        "coverage_count_match": true,
+        "coverage_n_match": true,
+        "coverage_rate_abs_diff": 0.0,
+        "calibration_n_match": true,
+        "segments_match": true,
+        "class_support_match": null
+      },
+      "all_match": true,
+      "consumed_by": "运行层 T+30/T+60（及未被逐站模型覆盖的时效）回退季节基线时，uncertainty.empirical_coverage 直接透传本 backtest 记录（algorithm_models._climatology_result）。"
+    },
+    {
+      "task_id": "T6",
+      "variant": "probability",
+      "problem_type": "probability",
+      "artifact_record": {
+        "empirical_coverage": 1.0,
+        "coverage_n": 31,
+        "covered_implied": 31,
+        "test_window": [
+          "2025-02",
+          "2026-08"
+        ],
+        "interval_calibration_n": 140,
+        "residual_quantiles": {
+          "p05": -0.5555555555555556,
+          "p95": 0.8944444444444425
+        },
+        "test_positive_n": 1,
+        "test_negative_n": 30,
+        "class_support_sufficient": true
+      },
+      "recomputed": {
+        "n_rows_total": 657,
+        "n_unique_target_months": 90,
+        "fit_months_range": [
+          "2005-02",
+          "2018-05"
+        ],
+        "calib_months_range": [
+          "2018-08",
+          "2025-01"
+        ],
+        "test_months_range": [
+          "2025-02",
+          "2026-08"
+        ],
+        "covered": 31,
+        "coverage_n": 31,
+        "coverage_rate": 1.0,
+        "test_positive_n": 1,
+        "test_negative_n": 30
+      },
+      "diffs": {
+        "by_month_max_abs_diff": 0.0,
+        "fallback_abs_diff": 0.0,
+        "p05_abs_diff": 0.0,
+        "p95_abs_diff": 0.0,
+        "coverage_count_match": true,
+        "coverage_n_match": true,
+        "coverage_rate_abs_diff": 0.0,
+        "calibration_n_match": true,
+        "segments_match": true,
+        "class_support_match": true
+      },
+      "all_match": true,
+      "consumed_by": "运行层 T+30/T+60（及未被逐站模型覆盖的时效）回退季节基线时，uncertainty.empirical_coverage 直接透传本 backtest 记录（algorithm_models._climatology_result）。"
+    }
+  ],
+  "all_tasks_match": true
+}

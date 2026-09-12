@@ -35,6 +35,11 @@
             <span v-if="showNaReason" class="evp-mono">na_reason: {{ gateNaReason }}</span>
           </div>
           <p v-if="naReasonNote" class="evp-note">{{ naReasonNote }}</p>
+          <!-- 单类别测试段披露（R5-02）：门禁 PASS 但测试段无正类样本时，
+               uplift 是单类别平凡比较，不构成 10% 达标证据——必须如实告诉用户。 -->
+          <p v-if="singleClassNote" class="evp-note" data-role="eval-gate-single-class">
+            {{ singleClassNote }}
+          </p>
           <!-- comparison_evidence：按 envelope 实际字段结构以键值对如实展示。
                envelope 未携带 fusion vs single 的成对指标值（那只在 gate_table.json 里），
                因此这里不编造对比对，只列实际存在的字段。 -->
@@ -114,6 +119,21 @@ const NA_REASON_TEXT = {
   test_n_below_minimum_15: '测试样本数低于最低要求（15 行），门禁不做达标判定（N.A.），不视为通过。'
 }
 const naReasonNote = computed(() => (showNaReason.value ? NA_REASON_TEXT[gateNaReason.value] || '' : ''))
+
+// 单类别测试段披露（R5-02）：门禁行带 class_support（gate_table.json 透出），
+// single_class_test=true 且机械状态为 PASS 时，uplift 不得被当作提升证据解读。
+const singleClassNote = computed(() => {
+  const support = diag.value?.gate_class_support
+  if (!support?.single_class_test) return ''
+  const pos = support.positives_test
+  const neg = support.negatives_test
+  const detail = `（正类 ${pos ?? '—'}、负类 ${neg ?? '—'}）`
+  const pass = gateStatus.value === 'PASS'
+  const tail = pass
+    ? 'uplift 为单类别平凡比较，不构成 10% 达标证据；机械状态保持原值，是否降级由主理人裁定。'
+    : '该行测试段类别单一，指标值不具判别力含义。'
+  return `测试段无正类样本或无负类样本${detail}：${tail}`
+})
 
 // comparison_evidence 键值对标签：键名与 envelope 实际字段一一对应
 const EVIDENCE_LABELS = {

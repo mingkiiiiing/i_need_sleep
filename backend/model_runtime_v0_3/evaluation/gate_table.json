@@ -1,6 +1,6 @@
 {
   "gate_version": "v1_real_2026",
-  "generated_at": "2026-09-12T17:39:23.623069+00:00",
+  "generated_at": "2026-09-12T18:22:04.793054+00:00",
   "comparison_rule": "fusion vs 同任务同时效 RF/XGBoost 较优者（validation 选族，冻结测试集同口径评估）",
   "uplift_threshold": 0.1,
   "min_test_rows": 15,
@@ -31,6 +31,13 @@
       "run_id": "T1-bloom-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -54,6 +61,13 @@
       "run_id": "T1-bloom-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -77,6 +91,13 @@
       "run_id": "T1-bloom-1m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 5,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
       "fusion_value": 0.0017361112145913987,
@@ -100,6 +121,13 @@
       "run_id": "T1-bloom-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -123,6 +151,13 @@
       "run_id": "T1-bloom-2m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 5,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
       "fusion_value": 0.0017361112145913987,
@@ -146,6 +181,13 @@
       "run_id": "T1-bloom-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -169,6 +211,13 @@
       "run_id": "T1-bloom-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 28,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "PASS",
       "na_reason": null,
       "fusion_value": 0.015339791855464259,
@@ -629,6 +678,13 @@
       "run_id": "T6-probability-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -652,6 +708,13 @@
       "run_id": "T6-probability-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -675,6 +738,13 @@
       "run_id": "T6-probability-1m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 5,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
       "fusion_value": 0.0017361112145913987,
@@ -698,6 +768,13 @@
       "run_id": "T6-probability-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -721,6 +798,13 @@
       "run_id": "T6-probability-2m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 5,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
       "fusion_value": 0.0017361112145913987,
@@ -744,6 +828,13 @@
       "run_id": "T6-probability-0m-s20260907",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "frozen_split",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 2,
+        "negatives_test": 38,
+        "unreadable_rows": 0,
+        "single_class_test": false
+      },
       "status": "FAIL",
       "na_reason": null,
       "fusion_value": 0.04944846954062168,
@@ -767,6 +858,13 @@
       "run_id": "T6-probability-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
+      "class_support": {
+        "basis": "holdout_rows_test_predictions",
+        "positives_test": 0,
+        "negatives_test": 28,
+        "unreadable_rows": 0,
+        "single_class_test": true
+      },
       "status": "PASS",
       "na_reason": null,
       "fusion_value": 0.015339791855464259,
@@ -981,5 +1079,6 @@
       "uplift": 0.06465284174755276
     }
   ],
+  "single_class_disclosure": "single_class_test=true 的行：测试段无正类（或无负类）样本，uplift 为单类别平凡比较，不构成 10% 达标证据（口径 F1/F3）；机械状态保持原值，是否降级由主理人裁定。",
   "honesty_note": "本比较表由真实冻结测试集评估实时生成（gate.py 扫描 runs/*/test_metrics_by_family.json），无任何硬编码比较数；n_test<15 的行按主理人裁定记为 N.A. 并披露原因；测试集行数以 evaluation_manifest 为准，禁止挑选子集或调整口径。"
 }

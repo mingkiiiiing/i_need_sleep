@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import threading
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -24,6 +25,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .alerts import LEVEL_META, THRESHOLD_NOTE, AlertEngine
+
+logger = logging.getLogger(__name__)
 
 CENTER_VERSION = "alert-center-v1"
 MAX_RECORDS = 500
@@ -392,16 +395,29 @@ class AlertCenter:
                             "observed_at": alert.get("observed_at"),
                             "state": "valid",
                         })
-                        event["records"].append({
-                            "at": _now_iso(),
-                            "actor": "系统",
-                            "action": "escalate",
-                            "detail": f"风险等级由 {LEVEL_META.get(old_level, {}).get('label', old_level)} 升级为 {LEVEL_META.get(new_level, {}).get('label', new_level)}",
-                        })
-                        upgraded += 1
-                        self._notify(event, "escalation", f"风险升级：{event['station_name']}", [
-                            f"{event['title']} 已升级为 {LEVEL_META.get(new_level, {}).get('label', new_level)}",
-                        ])
+                        old_label = LEVEL_META.get(old_level, {}).get("label", old_level)
+                        new_label = LEVEL_META.get(new_level, {}).get("label", new_level)
+                        if old_level != new_level:
+                            # F-2（R4 整改 2026-09-13）：只有等级真正变化才记 escalate/
+                            # 发升级通知/计 upgraded——此前同级并入也走这里，产生
+                            # "由黄色预警升级为黄色预警"的自相矛盾留痕。
+                            event["records"].append({
+                                "at": _now_iso(),
+                                "actor": "系统",
+                                "action": "escalate",
+                                "detail": f"风险等级由 {old_label} 升级为 {new_label}",
+                            })
+                            upgraded += 1
+                            self._notify(event, "escalation", f"风险升级：{event['station_name']}", [
+                                f"{event['title']} 已升级为 {new_label}",
+                            ])
+                        else:
+                            event["records"].append({
+                                "at": _now_iso(),
+                                "actor": "系统",
+                                "action": "update",
+                                "detail": f"风险等级维持 {new_label}（并入新引擎告警，证据已刷新）",
+                            })
                     else:
                         event = self._new_event(alert)
                         events.insert(0, event)
@@ -638,8 +654,27 @@ class AlertCenter:
                 detail = (payload or {}).get("reason") or "误报/重复事件，撤销"
             event["records"].append({"at": now, "actor": actor, "action": action, "detail": detail})
             event["updated_at"] = now
-            self._audit(actor, action, f"{event['no']}（{event['station_name']}）", detail)
-            self.store.save_events(events)
+            # F-1（R4 整改 2026-09-13）：先落盘业务状态，成功后再记审计。原顺序是
+            # 先 _audit 后 save_events，Windows 下 temp.replace 文件占用瞬态失败时
+            # 会出现"审计记成功、业务未生效"的不一致窗口（实测 submit_review 500
+            # 后 3 分钟才自愈）。现在 save 失败则不写成功审计，并以请求级堆栈入日志
+            # （O-1）后原样上抛；audit 写失败不再让请求 500——业务事实已发生，
+            # 审计缺口交由日志告警复核，避免"业务已生效却报错"诱发重复操作。
+            try:
+                self.store.save_events(events)
+            except Exception:
+                logger.exception(
+                    "apply_action 事件落盘失败（未记成功审计）：event=%s action=%s actor=%s",
+                    event_id, action, actor,
+                )
+                raise
+            try:
+                self._audit(actor, action, f"{event['no']}（{event['station_name']}）", detail)
+            except Exception:
+                logger.exception(
+                    "apply_action 审计写入失败（业务状态已生效）：event=%s action=%s actor=%s",
+                    event_id, action, actor,
+                )
             return event
 
     # ---- 预案匹配与采用 ----

@@ -1,0 +1,100 @@
+{
+  "task_id": "T4",
+  "variant": "biomass",
+  "model_file": "T4-biomass-3m-s20260907-90d.joblib",
+  "model_sha256": "b782e71a2ff8c4d4d711d6ba7bc34ea25ff430b9507b5e17b984848dd0de0d05",
+  "run_dir": "T4-biomass-90d-3m-cv",
+  "run_id": "T4-biomass-3m-s20260907-cv",
+  "horizon_days": 90,
+  "month_offset": 3,
+  "split_key": "target_month",
+  "protocol": "train_internal_time_block_cv_v1",
+  "replay_code": {
+    "source": "workspace modeling_real @ git HEAD e698d0a（R1 冻结重跑所用代码，工作区干净）",
+    "replay_pkg_used": false,
+    "reason": "R1 于 2026-09-13 以修复后代码强制重训全部 42 runs；新产物由现码产生，L-cal-16 的版本漂移不再适用。本脚本三锚（特征指纹/测试逐行预测/分位数）通过即自证现码=训练码。",
+    "replay_feature_digest": "6789e636c6d9112169dcb809962be9b9ac60865e391fdc67f7962e56936b3bad",
+    "run_feature_sha256": "6789e636c6d9112169dcb809962be9b9ac60865e391fdc67f7962e56936b3bad",
+    "digest_match": true
+  },
+  "feature_contract": {
+    "expected": "frozen-78col（rerun_r3/cv_stdout.log 首行）",
+    "n_features": 77,
+    "equals_frozen78_intersection": true
+  },
+  "selected_family": "climatology_global",
+  "split_block_bounds_recomputed": {
+    "train_max_month": "2014-05",
+    "validation_max_month": "2017-08",
+    "test_min_month": "2017-11"
+  },
+  "split_block_bounds_run_config": {
+    "test_min_month": "2017-11",
+    "train_max_month": "2014-05",
+    "validation_max_month": "2017-08"
+  },
+  "split_counts_recomputed": {
+    "train": 333,
+    "cv_validation": 117,
+    "cv_test": 117
+  },
+  "oof_fold": {
+    "cut_month": "2011-05",
+    "fit_months_max": "2011-02",
+    "n_fit_rows": 225,
+    "n_late_rows": 108
+  },
+  "counts": {
+    "oof_rows_total": 108,
+    "oof_rows_finite": 108,
+    "validation_rows_total": 117,
+    "validation_rows_finite": 117,
+    "pool_n": 225,
+    "bundle_calibration_n": 225
+  },
+  "quantiles": {
+    "recomputed_p05": -4.578406786897354,
+    "recomputed_p95": 19.876286474714448,
+    "bundle_p05": -4.578406786897354,
+    "bundle_p95": 19.876286474714448,
+    "delta_p05": 0.0,
+    "delta_p95": 0.0
+  },
+  "selection_replay": {
+    "selected_family": "climatology_global",
+    "primary_metric": "mae",
+    "replay_primary": 5.081110410891558,
+    "selection_manifest_value": 5.081110410891558,
+    "match": true
+  },
+  "test_replay_max_abs_diff": 0.0,
+  "oof_residual_max_abs_diff_vs_original_function": 0.0,
+  "coverage_recheck": {
+    "covered": 95,
+    "test_n": 117,
+    "rate": 0.811965811965812,
+    "run_uncertainty_empirical_coverage_test": 0.811965811965812,
+    "match": true
+  },
+  "checks": {
+    "replay_feature_digest_matches_run_selection_manifest": true,
+    "prediction_frame_replay_matches_run_test_predictions": true,
+    "selection_primary_metric_replay_matches_manifest": true,
+    "feature_columns_equal_frozen78_intersection": true,
+    "preprocessor_medians_match_bundle": true,
+    "pool_n_equals_bundle_calibration_n": true,
+    "oof_ids_subset_of_cv_train": true,
+    "oof_ids_disjoint_from_validation_ids": true,
+    "validation_ids_equals_cv_validation": true,
+    "pool_ids_disjoint_from_cv_test": true,
+    "oof_rows_all_in_late_block": true,
+    "early_months_all_before_cut": true,
+    "early_and_late_no_row_overlap": true,
+    "fold_boundary_strictly_increasing_time": true,
+    "oof_residual_vector_matches_within_tol": true,
+    "p05_equals_bundle": true,
+    "p95_equals_bundle": true,
+    "split_block_bounds_match_run_config": true
+  },
+  "all_checks_pass": true
+}

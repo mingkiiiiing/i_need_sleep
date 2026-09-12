@@ -121,7 +121,28 @@ async function readPage(page) {
 
 const POSITIVE_COMPARE = /(?<!不)可用于站点(间)?比较/
 
+// R5-07（R6 2026-09-13）：快照冷加载就绪等待。快照后台重建期间页面读到的
+// hero/覆盖/聚合卡是 null/0 形态，会产生大面积假失败（R5 实测冷启动首轮 9/70）。
+// 开测前轮询轻量状态接口（不触发推理）直到 state=ready，超时上限 60s。
+async function waitForSnapshotReady(timeoutMs = 60000) {
+  const deadline = Date.now() + timeoutMs
+  let last = 'unreachable'
+  while (Date.now() < deadline) {
+    try {
+      const resp = await fetch(`${API}/model/v3/prediction-status`)
+      if (resp.ok) {
+        const d = (await resp.json()).data || {}
+        last = String(d.state)
+        if (d.state === 'ready') return
+      }
+    } catch { /* 后端未起或网络抖动，继续等 */ }
+    await new Promise((r) => setTimeout(r, 2000))
+  }
+  throw new Error(`waitForSnapshotReady: 快照 ${timeoutMs}ms 内未就绪（last state=${last}）`)
+}
+
 async function main() {
+  await waitForSnapshotReady()
   const browser = await puppeteer.launch({
     executablePath: EDGE,
     headless: true,
@@ -327,7 +348,13 @@ async function main() {
   // 曾经这条是单向的（一律不得显示"可用"），因为当时所有模型 test_n=0；现在补训协议
   // 切出真实留出测试段，证据成立就该允许"可用"，否则页面会低报自己已经做到的证据。
   check('T8 区间可用结论与后端 decision_usable 一致',
-    eU.decisionUsable ? uTab.statusText === '区间可用' : uTab.statusText !== '区间可用',
+    // R6 注（2026-09-13）：后端 decision_usable=true 时，页面允许显示"区间可用"或
+    // 既有"范围偏宽"（width/point>1.5 的保守披露分支，语义为更保守而非更乐观）；
+    // 页面不得比后端更乐观（false 时绝不显示"区间可用"）。新实测快照下低点值
+    // 会触发 wide 分支，旧断言未覆盖该既有分支。
+    eU.decisionUsable
+      ? (uTab.statusText === '区间可用' || uTab.statusText === '范围偏宽')
+      : uTab.statusText !== '区间可用',
     `shortTitle=${uTab.statusText} 后端decision_usable=${eU.decisionUsable}`)
   check('T8 区间刻度尺绘制与后端结构自洽一致', uTab.hasScale === Boolean(eU.structuralValid),
     `尺=${uTab.hasScale} 后端structural_valid=${eU.structuralValid}`)
@@ -367,7 +394,8 @@ async function main() {
     `chlaUsable=${eRisk.chlaUsable} band=${uDerived.bandPresent} blocked=${uDerived.bandBlocked} ` +
     `reason=${uDerived.bandBlockedReason.slice(0, 70)}`)
   check('T8b 后端 decision_usable 与页面结论一致',
-    !eRisk.decisionUsable || uDerived.statusKey === 'usable',
+    // R6 注（2026-09-13）：同 T8——页面允许比后端更保守（wide），不得更乐观。
+    !eRisk.decisionUsable || ['usable', 'wide'].includes(uDerived.statusKey),
     `后端=${eRisk.decisionUsable} 页面=${uDerived.statusKey}`)
   // T+30（中长期档）：季节基线 v3 三段回测后，独立测试覆盖率低于验收线的时效同样阻断；
   // 断言数据驱动——源区间可决策必须给三档范围，不可决策必须渲染阻断原因，不允许空态。

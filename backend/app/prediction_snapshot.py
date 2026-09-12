@@ -101,8 +101,12 @@ _DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[1] / "prediction-cache"
 #   T1/T6 全负例测试段按 single_class_test 判定、不开放决策；calibration_n 改绑
 #   区间校准段样本数；新增 seasonal_lookup_mode（目标月缺同期样本时如实披露全局
 #   回退）；站点四口径（directory_total / excluded_stations）入 status 与 manifest。
+# v12：2026-09-13 R6（R5-03）——模型路径校准合同补单类别否决：二分类/概率任务的
+#   留出测试段只含单一类别时（读 runs/<run>/test_predictions.csv 统计），即使覆盖率
+#   100% 也判 single_class_test、decision_usable=false（T+90 probability 由平凡
+#   validated 翻转为阻断）。calibration_evidence 新增 class_support 字段。
 # 教训：版本键只覆盖模型产物，看不见"代码口径"变更——结构/口径变化必须递增此版本。
-CACHE_SCHEMA_VERSION = "prediction_snapshot_v11"
+CACHE_SCHEMA_VERSION = "prediction_snapshot_v12"
 
 SNAPSHOT_HORIZONS: tuple[int, ...] = (1, 3, 7, 15, 30, 60, 90)
 
@@ -1327,6 +1331,9 @@ class PredictionSnapshotService:
                     "test_metrics": quality_entry.get("test_metrics"),
                     "gate_status": gate_status,
                     "gate_na_reason": (gate_row or {}).get("na_reason"),
+                    # R5-02：门禁行测试段类别支持透出（single_class_test=true 即测试段
+                    # 全负/全正例），前端据此披露"uplift 为单类别平凡比较"。
+                    "gate_class_support": (gate_row or {}).get("class_support"),
                     "comparison_evidence": evidence,
                     "stations_ready": stations_ready,
                 }

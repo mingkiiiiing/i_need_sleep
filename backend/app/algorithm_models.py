@@ -874,6 +874,9 @@ class AlgorithmModelServiceV3:
         # 只读 runs/<run>/test_predictions.csv 并复用 bundle 的残差分位数与物理裁剪口径，
         # 不写入任何产物文件、不参与 decision_usable 判定，纯粹是展示层证据（T4-sug-02）。
         self._row_degeneracy_cache: dict[tuple[Any, ...], dict[str, Any] | None] = {}
+        # 测试段类别支持缓存（键 = run 名）。同样只读 test_predictions.csv，参与
+        # 校准合同的单类别否决判定（R5-03：全负例测试段的 100% 覆盖率不得判 validated）。
+        self._class_support_cache: dict[str, dict[str, Any] | None] = {}
 
     def _realtime_signature(self) -> Any:
         """实测目录签名（status.json 的 mtime+size）。
@@ -1517,6 +1520,58 @@ class AlgorithmModelServiceV3:
         except Exception:  # noqa: BLE001 — 行级统计不可得不得影响预测与三层合同
             return None
 
+    def _test_class_support(self, bundle: Any, training_protocol: str) -> dict[str, Any] | None:
+        """二分类/概率任务的留出测试段类别支持（R5-03 整改，只读 test_predictions.csv）。
+
+        全正例或全负例的测试段上，经验覆盖率退化为平凡值（全负例下区间恒覆盖 →
+        表观 100%），不构成判别力或概率校准证据。返回 None 表示该任务不适用
+        （回归/ordinal 无类别含义）或 CSV 不可得（不猜测，维持既有判定口径）。
+        """
+        if getattr(bundle, "problem_type", None) not in {"binary", "probability"}:
+            return None
+        task_id = getattr(bundle, "task_id", None)
+        variant = getattr(bundle, "variant", None)
+        horizon_days = getattr(bundle, "horizon_days", None)
+        month_offset = getattr(bundle, "month_offset", None)
+        if not task_id or not variant or horizon_days is None or month_offset is None:
+            return None
+        suffix = "-cv" if training_protocol == "train_internal_time_block_cv_v1" else ""
+        run_name = f"{task_id}-{variant}-{horizon_days}d-{month_offset}m{suffix}"
+        cached = self._class_support_cache.get(run_name, "miss")
+        if cached != "miss":
+            return cached
+        result = self._compute_test_class_support(run_name)
+        self._class_support_cache[run_name] = result
+        return result
+
+    def _compute_test_class_support(self, run_name: str) -> dict[str, Any] | None:
+        csv_path = self.package_dir / "runs" / run_name / "test_predictions.csv"
+        if not csv_path.is_file():
+            return None
+        try:
+            import pandas as pd
+
+            frame = pd.read_csv(csv_path)
+            if "actual" not in frame.columns:
+                return None
+            actual = pd.to_numeric(frame["actual"], errors="coerce").dropna()
+            if actual.empty:
+                return None
+            positive_n = int((actual > 0).sum())
+            negative_n = int((actual == 0).sum())
+            return {
+                "applicable": True,
+                "basis": "holdout_rows_test_predictions",
+                "source": f"runs/{run_name}/test_predictions.csv",
+                "test_positive_n": positive_n,
+                "test_negative_n": negative_n,
+                # 任一侧为 0 即单类别测试段：class_support_sufficient=False →
+                # _calibration_verdict 判 single_class_test，覆盖率再高也不放行。
+                "class_support_sufficient": bool(positive_n > 0 and negative_n > 0),
+            }
+        except Exception:  # noqa: BLE001 — 类别支持不可得不得影响预测，仅放弃否决
+            return None
+
     # ---------------------------------------------------- 不确定性三层合同
     def _build_uncertainty(
         self, bundle: Any, value: Any, output_key: str, training_protocol: str
@@ -1553,12 +1608,16 @@ class AlgorithmModelServiceV3:
             structural_reason = "点预测落在预测区间之外，区间与点预测不自洽"
 
         # ② 校准证据：样本量足够 ∧ 经验覆盖率确实核算过 ∧ 覆盖率达到验收线。三条缺一不可。
+        # 另加单类别否决（R5-03）：二分类/概率任务的留出测试段只含单一类别时，覆盖率
+        # 无论多高都只反映该类覆盖（全负例下平凡 100%），判 single_class_test、不放行。
         test_n_raw = bundle.uncertainty_meta.get("test_n")
         test_n = int(test_n_raw) if isinstance(test_n_raw, (int, float)) and not isinstance(test_n_raw, bool) else None
         empirical_coverage = bundle.uncertainty_meta.get("empirical_coverage_test")
         calibration_n = bundle.intervals.calibration_n
+        class_support = self._test_class_support(bundle, training_protocol)
         calibration_status, calibration_reason, coverage_gap = _calibration_verdict(
             empirical_coverage, test_n, source_label="模型留出测试集",
+            class_support=class_support,
         )
 
         calibration_evidence = {
@@ -1572,6 +1631,7 @@ class AlgorithmModelServiceV3:
             "coverage_acceptance_min": COVERAGE_ACCEPTANCE_MIN,
             "coverage_gap": coverage_gap,
             "min_test_n": MIN_CALIBRATION_TEST_N,
+            "class_support": class_support,
         }
         calibration_ok = calibration_status == CALIBRATION_VALIDATED
 
@@ -3114,6 +3174,23 @@ class AlgorithmModelServiceV3:
     def acceptance(self) -> dict[str, Any]:
         gate = self._gate_table()
         summary = gate["summary"]
+        # R5-02（2026-09-13）：单类别 PASS 行不得作为普通提升证据展示，必须显式披露。
+        # 机械 PASS 状态是否降级由主理人裁定，本层只加强诚实披露，不改变统计。
+        single_class_pass = [
+            row for row in gate.get("rows") or []
+            if (row.get("class_support") or {}).get("single_class_test") and row.get("status") == "PASS"
+        ]
+        single_class_disclosure = None
+        if single_class_pass:
+            names = "、".join(
+                f"{row.get('task_id')}-{row.get('variant')} T+{row.get('horizon_days')}"
+                for row in single_class_pass
+            )
+            single_class_disclosure = (
+                f"{len(single_class_pass)} 条 PASS 行（{names}）的测试段无正类样本："
+                "uplift 为单类别平凡比较，不构成 10% 达标证据；"
+                "机械状态保持原值，是否降级由主理人裁定。"
+            )
         return {
             "requirement": "融合模型相对最强单一数据驱动模型提升不低于10%",
             "status": summary["status"],
@@ -3127,6 +3204,8 @@ class AlgorithmModelServiceV3:
             "min_test_rows": gate.get("min_test_rows"),
             "evidence": "/api/v1/model/acceptance/detail",
             "honesty_note": gate.get("honesty_note"),
+            "single_class_test_pass_rows": len(single_class_pass),
+            "single_class_disclosure": single_class_disclosure,
             "note": summary.get("note"),
             "action": (
                 "真实数据可评估比较数以 gate_table.json 为准；N.A. 行须补足真实标签后重训再评。"
@@ -3168,6 +3247,9 @@ class AlgorithmModelServiceV3:
             "min_test_rows": gate.get("min_test_rows"),
             "summary": gate.get("summary"),
             "rows": rows,
+            # R5-02：单类别测试段披露（rows 内二分类/概率行带 class_support 字段，
+            # single_class_test=true 即测试段全负/全正例）。
+            "single_class_disclosure": gate.get("single_class_disclosure"),
             "honesty_note": gate.get("honesty_note"),
         }
 

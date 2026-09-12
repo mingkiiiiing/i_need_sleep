@@ -1,6 +1,6 @@
 # artifact ↔ run 目录映射核对表（34 在役 artifact × 42 run 目录）
 
-- 生成时间：2026-09-12 07:20:03 UTC
+- 生成时间：2026-09-12 18:28:02 UTC
 - 生成脚本：`code/interval_audit/build_artifact_run_map.py`（只读审计，无写回）
 - 运行命令：`cd backend && .venv/Scripts/python.exe model_runtime_v0_3/code/interval_audit/build_artifact_run_map.py`
 
@@ -36,32 +36,32 @@
 
 | artifact_id | model file | task/variant/h | label_provenance | run 目录 | cov_test | cal 状态 | unc↔bundle |
 |---|---|---|---|---|---|---|---|
-| T1:bloom:frozen_split:off0:h15:s20260907 | T1-bloom-0m-s20260907-15d.joblib | T1/bloom/T+15 | proxy_derived | T1-bloom-15d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T1:bloom:frozen_split:off0:h1:s20260907 | T1-bloom-0m-s20260907-1d.joblib | T1/bloom/T+1 | proxy_derived | T1-bloom-1d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T1:bloom:frozen_split:off0:h3:s20260907 | T1-bloom-0m-s20260907-3d.joblib | T1/bloom/T+3 | proxy_derived | T1-bloom-3d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T1:bloom:frozen_split:off0:h7:s20260907 | T1-bloom-0m-s20260907-7d.joblib | T1/bloom/T+7 | proxy_derived | T1-bloom-7d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
+| T1:bloom:frozen_split:off0:h15:s20260907 | T1-bloom-0m-s20260907-15d.joblib | T1/bloom/T+15 | proxy_derived | T1-bloom-15d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T1:bloom:frozen_split:off0:h1:s20260907 | T1-bloom-0m-s20260907-1d.joblib | T1/bloom/T+1 | proxy_derived | T1-bloom-1d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T1:bloom:frozen_split:off0:h3:s20260907 | T1-bloom-0m-s20260907-3d.joblib | T1/bloom/T+3 | proxy_derived | T1-bloom-3d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T1:bloom:frozen_split:off0:h7:s20260907 | T1-bloom-0m-s20260907-7d.joblib | T1/bloom/T+7 | proxy_derived | T1-bloom-7d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
 | T1:bloom:train_internal_time_block_cv_v1:off1:h30:s20260907 | T1-bloom-1m-s20260907-30d.joblib | T1/bloom/T+30 | proxy_derived | T1-bloom-30d-1m-cv | 1.0000 | calibrated(cal_n=16) | inconsistency(string) |
 | T1:bloom:train_internal_time_block_cv_v1:off2:h60:s20260907 | T1-bloom-2m-s20260907-60d.joblib | T1/bloom/T+60 | proxy_derived | T1-bloom-60d-2m-cv | 1.0000 | calibrated(cal_n=16) | inconsistency(string) |
 | T1:bloom:train_internal_time_block_cv_v1:off3:h90:s20260907 | T1-bloom-3m-s20260907-90d.joblib | T1/bloom/T+90 | proxy_derived | T1-bloom-90d-3m-cv | 1.0000 | calibrated(cal_n=261) | inconsistency(string) |
-| T3:density:train_internal_time_block_cv_v1:off0:h15:s20260907 | T3-density-0m-s20260907-15d.joblib | T3/density/T+15 | proxy_derived | T3-density-15d-0m-cv | 0.7692 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T3:density:train_internal_time_block_cv_v1:off0:h1:s20260907 | T3-density-0m-s20260907-1d.joblib | T3/density/T+1 | proxy_derived | T3-density-1d-0m-cv | 0.7692 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T3:density:train_internal_time_block_cv_v1:off0:h3:s20260907 | T3-density-0m-s20260907-3d.joblib | T3/density/T+3 | proxy_derived | T3-density-3d-0m-cv | 0.7692 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T3:density:train_internal_time_block_cv_v1:off0:h7:s20260907 | T3-density-0m-s20260907-7d.joblib | T3/density/T+7 | proxy_derived | T3-density-7d-0m-cv | 0.7692 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T3:density:train_internal_time_block_cv_v1:off0:h15:s20260907 | T3-density-0m-s20260907-15d.joblib | T3/density/T+15 | proxy_derived | T3-density-15d-0m-cv | 0.7094 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T3:density:train_internal_time_block_cv_v1:off0:h1:s20260907 | T3-density-0m-s20260907-1d.joblib | T3/density/T+1 | proxy_derived | T3-density-1d-0m-cv | 0.7094 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T3:density:train_internal_time_block_cv_v1:off0:h3:s20260907 | T3-density-0m-s20260907-3d.joblib | T3/density/T+3 | proxy_derived | T3-density-3d-0m-cv | 0.7094 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T3:density:train_internal_time_block_cv_v1:off0:h7:s20260907 | T3-density-0m-s20260907-7d.joblib | T3/density/T+7 | proxy_derived | T3-density-7d-0m-cv | 0.7094 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
 | T3:density:train_internal_time_block_cv_v1:off3:h90:s20260907 | T3-density-3m-s20260907-90d.joblib | T3/density/T+90 | proxy_derived | T3-density-90d-3m-cv | 0.7949 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907 | T4-biomass-0m-s20260907-15d.joblib | T4/biomass/T+15 | ground_truth | T4-biomass-15d-0m-cv | 0.7436 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T4:biomass:train_internal_time_block_cv_v1:off0:h1:s20260907 | T4-biomass-0m-s20260907-1d.joblib | T4/biomass/T+1 | ground_truth | T4-biomass-1d-0m-cv | 0.7436 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T4:biomass:train_internal_time_block_cv_v1:off0:h3:s20260907 | T4-biomass-0m-s20260907-3d.joblib | T4/biomass/T+3 | ground_truth | T4-biomass-3d-0m-cv | 0.7436 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T4:biomass:train_internal_time_block_cv_v1:off0:h7:s20260907 | T4-biomass-0m-s20260907-7d.joblib | T4/biomass/T+7 | ground_truth | T4-biomass-7d-0m-cv | 0.7436 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907 | T4-biomass-0m-s20260907-15d.joblib | T4/biomass/T+15 | ground_truth | T4-biomass-15d-0m-cv | 0.7863 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T4:biomass:train_internal_time_block_cv_v1:off0:h1:s20260907 | T4-biomass-0m-s20260907-1d.joblib | T4/biomass/T+1 | ground_truth | T4-biomass-1d-0m-cv | 0.7863 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T4:biomass:train_internal_time_block_cv_v1:off0:h3:s20260907 | T4-biomass-0m-s20260907-3d.joblib | T4/biomass/T+3 | ground_truth | T4-biomass-3d-0m-cv | 0.7863 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
+| T4:biomass:train_internal_time_block_cv_v1:off0:h7:s20260907 | T4-biomass-0m-s20260907-7d.joblib | T4/biomass/T+7 | ground_truth | T4-biomass-7d-0m-cv | 0.7863 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
 | T4:biomass:train_internal_time_block_cv_v1:off3:h90:s20260907 | T4-biomass-3m-s20260907-90d.joblib | T4/biomass/T+90 | ground_truth | T4-biomass-90d-3m-cv | 0.8120 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T5:chla:train_internal_time_block_cv_v1:off0:h15:s20260907 | T5-chla-0m-s20260907-15d.joblib | T5/chla/T+15 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-15d-0m-cv | 0.8030 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
-| T5:chla:train_internal_time_block_cv_v1:off0:h1:s20260907 | T5-chla-0m-s20260907-1d.joblib | T5/chla/T+1 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-1d-0m-cv | 0.8030 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
-| T5:chla:train_internal_time_block_cv_v1:off0:h3:s20260907 | T5-chla-0m-s20260907-3d.joblib | T5/chla/T+3 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-3d-0m-cv | 0.8030 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
-| T5:chla:train_internal_time_block_cv_v1:off0:h7:s20260907 | T5-chla-0m-s20260907-7d.joblib | T5/chla/T+7 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-7d-0m-cv | 0.8030 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
-| T5:chla:train_internal_time_block_cv_v1:off3:h90:s20260907 | T5-chla-3m-s20260907-90d.joblib | T5/chla/T+90 | chla_station_proxy_v1 | T5-chla-90d-3m-cv | 0.8547 (<0.88 验收线) | calibrated(cal_n=225) | inconsistency(string) |
-| T6:probability:frozen_split:off0:h15:s20260907 | T6-probability-0m-s20260907-15d.joblib | T6/probability/T+15 | proxy_derived | T6-probability-15d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T6:probability:frozen_split:off0:h1:s20260907 | T6-probability-0m-s20260907-1d.joblib | T6/probability/T+1 | proxy_derived | T6-probability-1d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T6:probability:frozen_split:off0:h3:s20260907 | T6-probability-0m-s20260907-3d.joblib | T6/probability/T+3 | proxy_derived | T6-probability-3d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
-| T6:probability:frozen_split:off0:h7:s20260907 | T6-probability-0m-s20260907-7d.joblib | T6/probability/T+7 | proxy_derived | T6-probability-7d-0m | 0.9750 | calibrated(cal_n=212) | inconsistency(string) |
+| T5:chla:train_internal_time_block_cv_v1:off0:h15:s20260907 | T5-chla-0m-s20260907-15d.joblib | T5/chla/T+15 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-15d-0m-cv | 0.8712 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
+| T5:chla:train_internal_time_block_cv_v1:off0:h1:s20260907 | T5-chla-0m-s20260907-1d.joblib | T5/chla/T+1 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-1d-0m-cv | 0.8712 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
+| T5:chla:train_internal_time_block_cv_v1:off0:h3:s20260907 | T5-chla-0m-s20260907-3d.joblib | T5/chla/T+3 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-3d-0m-cv | 0.8712 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
+| T5:chla:train_internal_time_block_cv_v1:off0:h7:s20260907 | T5-chla-0m-s20260907-7d.joblib | T5/chla/T+7 | mixed(chla_station_proxy_v1|ground_truth) | T5-chla-7d-0m-cv | 0.8712 (<0.88 验收线) | calibrated(cal_n=234) | inconsistency(string) |
+| T5:chla:train_internal_time_block_cv_v1:off3:h90:s20260907 | T5-chla-3m-s20260907-90d.joblib | T5/chla/T+90 | chla_station_proxy_v1 | T5-chla-90d-3m-cv | 0.8889 | calibrated(cal_n=225) | inconsistency(string) |
+| T6:probability:frozen_split:off0:h15:s20260907 | T6-probability-0m-s20260907-15d.joblib | T6/probability/T+15 | proxy_derived | T6-probability-15d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T6:probability:frozen_split:off0:h1:s20260907 | T6-probability-0m-s20260907-1d.joblib | T6/probability/T+1 | proxy_derived | T6-probability-1d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T6:probability:frozen_split:off0:h3:s20260907 | T6-probability-0m-s20260907-3d.joblib | T6/probability/T+3 | proxy_derived | T6-probability-3d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
+| T6:probability:frozen_split:off0:h7:s20260907 | T6-probability-0m-s20260907-7d.joblib | T6/probability/T+7 | proxy_derived | T6-probability-7d-0m | 0.9500 | calibrated(cal_n=212) | inconsistency(string) |
 | T6:probability:train_internal_time_block_cv_v1:off1:h30:s20260907 | T6-probability-1m-s20260907-30d.joblib | T6/probability/T+30 | proxy_derived | T6-probability-30d-1m-cv | 1.0000 | calibrated(cal_n=16) | inconsistency(string) |
 | T6:probability:train_internal_time_block_cv_v1:off2:h60:s20260907 | T6-probability-2m-s20260907-60d.joblib | T6/probability/T+60 | proxy_derived | T6-probability-60d-2m-cv | 1.0000 | calibrated(cal_n=16) | inconsistency(string) |
 | T6:probability:train_internal_time_block_cv_v1:off3:h90:s20260907 | T6-probability-3m-s20260907-90d.joblib | T6/probability/T+90 | proxy_derived | T6-probability-90d-3m-cv | 1.0000 | calibrated(cal_n=261) | inconsistency(string) |
