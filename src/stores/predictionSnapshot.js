@@ -284,6 +284,8 @@ export function intervalState(resultBox) {
     testN: uncertainty.test_n ?? evidence.test_n ?? null,
     empiricalCoverage: uncertainty.empirical_coverage ?? evidence.empirical_coverage ?? null,
     minTestN: evidence.min_test_n ?? null,
+    // 行级区间退化（T4-sug-02）：校准/留出段逐行零宽占比；只读透出，不参与任何判定
+    rowLevelDegeneracy: uncertainty.row_level_degeneracy ?? null,
     // ③ 决策层
     decisionUsable: Boolean(uncertainty.decision_usable),
     decisionReason: uncertainty.decision_reason || ''

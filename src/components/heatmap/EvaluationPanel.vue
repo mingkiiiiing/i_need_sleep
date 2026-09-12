@@ -162,6 +162,7 @@ const CALIBRATION_TEXT = {
   undercovered: '覆盖率未达标',
   no_test_evidence: '无测试证据',
   insufficient_test_evidence: '样本不足',
+  single_class_test: '单类别测试段',
   unavailable: '不适用'
 }
 

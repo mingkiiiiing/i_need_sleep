@@ -870,6 +870,10 @@ class AlgorithmModelServiceV3:
         self._epoch_provider: Any = realtime_provider
         # bundle 文件哈希缓存：键 = (路径, 大小, mtime_ns)，只在文件真正变化时重算 SHA256
         self._artifact_hash_cache: dict[tuple[str, int, int], str] = {}
+        # 行级区间退化统计缓存（键 = 任务/变体/时效/月偏移/协议/输出键）。
+        # 只读 runs/<run>/test_predictions.csv 并复用 bundle 的残差分位数与物理裁剪口径，
+        # 不写入任何产物文件、不参与 decision_usable 判定，纯粹是展示层证据（T4-sug-02）。
+        self._row_degeneracy_cache: dict[tuple[Any, ...], dict[str, Any] | None] = {}
 
     def _realtime_signature(self) -> Any:
         """实测目录签名（status.json 的 mtime+size）。
@@ -1424,6 +1428,95 @@ class AlgorithmModelServiceV3:
         except Exception:  # noqa: BLE001
             return None
 
+    # ---------------------------------------------------- 行级区间退化标记（T4-sug-02）
+    # 整体 interval_degenerate 只回答"当前这条服务行是否退化为零宽"；它不能说明
+    # 该模型在校准/留出段有多少行本身就贴地裁剪成零宽。frozen bloom/probability
+    # 的残差池下界为负、上界为 0，点值贴地（=0）时 p05/p95 裁剪后同值，
+    # 40 行里有 25 行宽度为 0，整体却仍是 validated。这里逐行复算该占比，
+    # 作为元数据透出去；判定口径（decision_usable）完全不变。
+    _ROW_DEGENERACY_UPPER_BOUNDED = {"bloom", "coverage", "density", "probability", "spatial"}
+
+    def _row_level_degeneracy(
+        self, bundle: Any, output_key: str, training_protocol: str
+    ) -> dict[str, Any] | None:
+        """校准/留出段逐行区间宽度退化统计（只读，展示层证据）。
+
+        数据源为该 run 冻结的 runs/<run>/test_predictions.csv，逐行施加
+        bundle.intervals 的残差分位数与 serving 相同的物理边界裁剪后统计零宽行。
+        拿不到 CSV 或残差区间时返回 None——绝不猜测行级数字。
+        """
+        intervals = getattr(bundle, "intervals", None)
+        task_id = getattr(bundle, "task_id", None)
+        variant = getattr(bundle, "variant", None)
+        horizon_days = getattr(bundle, "horizon_days", None)
+        month_offset = getattr(bundle, "month_offset", None)
+        if intervals is None or not task_id or not variant or horizon_days is None or month_offset is None:
+            return None
+        key = (
+            str(task_id), str(variant), int(horizon_days), int(month_offset),
+            str(training_protocol), str(output_key),
+        )
+        cached = self._row_degeneracy_cache.get(key, "miss")
+        if cached != "miss":
+            return cached
+        result = self._compute_row_level_degeneracy(
+            intervals, str(task_id), str(variant), int(horizon_days), int(month_offset),
+            str(training_protocol), str(output_key),
+        )
+        self._row_degeneracy_cache[key] = result
+        return result
+
+    def _compute_row_level_degeneracy(
+        self, intervals: Any, task_id: str, variant: str, horizon_days: int,
+        month_offset: int, training_protocol: str, output_key: str,
+    ) -> dict[str, Any] | None:
+        suffix = "-cv" if training_protocol == "train_internal_time_block_cv_v1" else ""
+        run_name = f"{task_id}-{variant}-{horizon_days}d-{month_offset}m{suffix}"
+        csv_path = self.package_dir / "runs" / run_name / "test_predictions.csv"
+        if not csv_path.is_file():
+            return None
+        try:
+            import pandas as pd
+
+            frame = pd.read_csv(csv_path)
+            pred_col = "probability" if ("probability" in frame.columns and output_key in self._ROW_DEGENERACY_UPPER_BOUNDED) else "prediction"
+            if pred_col not in frame.columns:
+                pred_col = "prediction"
+            if pred_col not in frame.columns:
+                return None
+            pred = pd.to_numeric(frame[pred_col], errors="coerce").to_numpy(dtype=float)
+            r05 = float(intervals.residual_p05)
+            r95 = float(intervals.residual_p95)
+            if not (math.isfinite(r05) and math.isfinite(r95)):
+                return None
+            raw_lo = pred + r05
+            raw_hi = pred + r95
+            lo = np.maximum(raw_lo, 0.0)
+            hi = np.minimum(raw_hi, 1.0) if output_key in self._ROW_DEGENERACY_UPPER_BOUNDED else raw_hi
+            finite = np.isfinite(pred) & np.isfinite(lo) & np.isfinite(hi)
+            rows_n = int(finite.sum())
+            if rows_n == 0:
+                return None
+            degenerate = np.isclose(lo, hi) & finite
+            degenerate_rows = int(degenerate.sum())
+            clipped = (np.isclose(lo, 0.0) | (np.isclose(hi, 1.0) if output_key in self._ROW_DEGENERACY_UPPER_BOUNDED else False)) & finite
+            rate = round(degenerate_rows / rows_n, 4)
+            return {
+                "basis": "holdout_rows_test_predictions",
+                "source": f"runs/{run_name}/test_predictions.csv",
+                "rows_n": rows_n,
+                "degenerate_rows": degenerate_rows,
+                "degenerate_rate": rate,
+                "clipped_at_bound_rows": int(clipped.sum()),
+                "upper_bounded": output_key in self._ROW_DEGENERACY_UPPER_BOUNDED,
+                "note": (
+                    "行级宽度按该 run 的留出段逐行施加残差分位数与物理边界裁剪后统计；"
+                    "它描述模型区间的行级信息量，不改变当前服务行的结构/校准/决策三层判定。"
+                ),
+            }
+        except Exception:  # noqa: BLE001 — 行级统计不可得不得影响预测与三层合同
+            return None
+
     # ---------------------------------------------------- 不确定性三层合同
     def _build_uncertainty(
         self, bundle: Any, value: Any, output_key: str, training_protocol: str
@@ -1508,6 +1601,10 @@ class AlgorithmModelServiceV3:
             "test_n": test_n,
             "empirical_coverage": empirical_coverage,
             "calibration_n": calibration_n,
+            # 行级区间退化（T4-sug-02，展示层证据）：校准/留出段逐行零宽占比。
+            # 与整体 interval_degenerate 不同——后者只看当前服务行。这里只加标记，
+            # 不参与 ②/③ 判定，decision_usable 语义不变。
+            "row_level_degeneracy": self._row_level_degeneracy(bundle, output_key, training_protocol),
             # ③ 决策层
             "decision_usable": decision_usable,
             "decision_reason": decision_reason,
@@ -2432,8 +2529,8 @@ class AlgorithmModelServiceV3:
                 },
                 "note": (
                     "风险等级范围由叶绿素 a 的预测区间映射得到；该源区间未达决策可用"
-                    "（覆盖率未达标 / 未核算 / 结构不自洽），因此不给出等级范围，"
-                    "更不得反向用于决策。"
+                    "（覆盖率未达标 / 未核算 / 结构不自洽），因此风险等级范围暂不可用，"
+                    "更不得反向用于决策。源区间本身的数值与覆盖率证据照常保留。"
                 ),
             }
         return {

@@ -369,6 +369,24 @@
           <strong :data-status="uncertaintyStatus.key">{{ uncertaintyStatus.shortTitle }}</strong>
         </div>
         <p class="frp-unc-note" data-role="uncertainty-status-detail">{{ uncertaintyStatus.detail }}</p>
+        <!-- 风险概率与风险等级来源不同，必须分别标注：概率有数值范围不等于等级范围可给，
+             等级被阻断也不等于概率不确定性不可计算。 -->
+        <p v-if="metric === 'risk'" class="frp-unc-note" data-role="risk-source-separation">
+          <b>风险概率</b>（上方 P05—P95）来自 T6 概率模型的独立 conformal 区间；
+          <b>风险等级</b>由叶绿素 a（T5）预测区间按冻结风险带映射。
+          两者来源不同、证据链不同，任何一方的可用性都不能替代另一方。
+        </p>
+        <!-- 非 risk 指标页：突出当前指标自身的参考范围，风险等级阻断仅作相关说明，
+             避免被误读成"当前数值区间也不存在"。用独立 v-if，不与上一段构成 v-else 链。 -->
+        <p
+          v-if="metric !== 'risk' && relatedBandBlocked"
+          class="frp-unc-note"
+          data-role="related-band-blocked"
+        >
+          相关说明：风险等级范围因源区间（叶绿素 a）未达决策可用而暂不可用；
+          本页展示的是 <b>{{ metricLabel }}</b> 自身的区间，
+          结构自洽但未通过可信性验收时按「参考范围」呈现，与该等级阻断相互独立。
+        </p>
 
         <!-- 等级范围（风险等级由叶绿素 a 区间映射）：不是数值区间，画范围条而非刻度尺。
              风险等级不是焦点任务（焦点 risk 映射到 probability），它的区间挂在同一次输出的
@@ -393,21 +411,25 @@
           </p>
         </template>
 
-        <!-- 源区间未达决策可用：不画等级范围条，也不留空态，显式说明原因。 -->
+        <!-- 源区间未达决策可用：不画等级范围条，也不留空态，显式说明原因 + 源叶绿素证据链。 -->
         <div v-else-if="bandRangeBlocked" data-role="band-range-blocked">
           <div class="frp-driver-head">
             <div><b>风险等级范围</b><span>由叶绿素 a 预测区间映射</span></div>
-            <strong data-status="invalid">不给出范围</strong>
+            <strong data-status="invalid">风险等级范围暂不可用</strong>
           </div>
           <p class="frp-unc-note" data-role="band-range-blocked-note">{{ bandRangeBlocked.note }}</p>
           <p class="frp-unc-note" data-role="band-range-blocked-reason">
-            原因：{{ calibrationBlockText(bandRangeBlocked) }}｜
-            源区间叶绿素 a：{{ bandText(bandRangeBlocked.source_interval?.p05, true) }} —
+            原因：{{ calibrationBlockText(bandRangeBlocked) }}
+            <template v-if="blockedCalibEvidence">｜{{ blockedCalibEvidence }}</template>
+          </p>
+          <p class="frp-unc-note" data-role="band-range-blocked-source">
+            源区间（叶绿素 a 预测区间，结构{{ bandRangeBlocked.structural_valid ? '自洽' : '不自洽' }}）：
+            {{ bandText(bandRangeBlocked.source_interval?.p05, true) }} —
             {{ bandText(bandRangeBlocked.source_interval?.p95, true) }} μg/L｜
             测试样本 n={{ bandRangeBlocked.test_n ?? '—' }}
             <template v-if="bandRangeBlocked.empirical_coverage != null">
               ｜经验覆盖率 {{ (Number(bandRangeBlocked.empirical_coverage) * 100).toFixed(2) }}%
-              （验收线 {{ (Number(bandRangeBlocked.coverage_acceptance_min) * 100).toFixed(0) }}%）
+              （要求≥{{ (Number(bandRangeBlocked.coverage_acceptance_min) * 100).toFixed(0) }}%）
             </template>
           </p>
         </div>
@@ -448,6 +470,7 @@
         </dl>
 
         <p v-if="conformalProtocolNote" class="frp-unc-note" data-role="uncertainty-protocol-note">{{ conformalProtocolNote }}</p>
+        <p v-if="rowDegeneracyNote" class="frp-unc-note" data-role="row-degeneracy-note">{{ rowDegeneracyNote }}</p>
 
         <!-- 覆盖率环 + 任务区间矩阵 -->
         <div class="frp-unc-grid">
@@ -1463,6 +1486,18 @@ const conformalProtocolNote = computed(() => {
   }
   return ''
 })
+// 行级区间退化（T4-sug-02）：整体"已核算"不能掩盖留出段有行宽度贴地为 0。
+// 只加显示，不改任何判定；没有行级统计（row_level_degeneracy=null）时不虚构数字。
+const rowDegeneracyNote = computed(() => {
+  const rl = v3Uncertainty.value?.row_level_degeneracy
+  if (!rl || !Number(rl.rows_n)) return ''
+  const rowsN = Number(rl.rows_n)
+  const degN = Number(rl.degenerate_rows || 0)
+  if (degN <= 0) return ''
+  const rate = rl.degenerate_rate != null ? `${(Number(rl.degenerate_rate) * 100).toFixed(1)}%` : '—'
+  return `区间退化（宽度不足）：留出段 ${degN}/${rowsN} 行（${rate}）在物理边界裁剪后宽度为 0，`
+    + '这些行不表达可用不确定性范围；整体校准状态不因此改变，仅提示行级信息量。'
+})
 function conformalValue(value) {
   const num = Number(value)
   if (!Number.isFinite(num)) return '—'
@@ -1472,7 +1507,8 @@ function conformalValue(value) {
 const RISK_BAND_TEXT = { none: '无风险', low: '低', medium: '中', high: '高', severe: '严重' }
 const CALIBRATION_TEXT = {
   validated: '已核算', undercovered: '覆盖率未达标', no_test_evidence: '无测试证据',
-  insufficient_test_evidence: '样本不足', unavailable: '不适用'
+  insufficient_test_evidence: '样本不足', single_class_test: '单类别测试段',
+  unavailable: '不适用'
 }
 function bandText(band, numeric = false) {
   if (band == null) return '—'
@@ -1481,6 +1517,45 @@ function bandText(band, numeric = false) {
 }
 function calibrationText(status) {
   return CALIBRATION_TEXT[status] || status || '—'
+}
+// 百分比/样本量格式化：校准证据文案必须带具体数字，不得停留在"证据不足"。
+function pctText(value, digits = 2) {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return null
+  return `${(n * 100).toFixed(digits)}%`
+}
+function calibrEvidenceText(u) {
+  if (!u) return ''
+  const evidence = u.calibration_evidence || {}
+  const status = u.calibration_status || 'unavailable'
+  const cov = u.empirical_coverage ?? evidence.empirical_coverage ?? u.source_interval?.empirical_coverage
+  const accMin = evidence.coverage_acceptance_min
+  const target = evidence.coverage_target
+  const tolerance = evidence.coverage_tolerance
+  const testN = u.test_n ?? evidence.test_n ?? u.source_interval?.test_n ?? null
+  const minN = evidence.min_test_n ?? null
+  const covText = pctText(cov)
+  const accText = pctText(accMin, 0)
+  if (status === 'undercovered') {
+    const line = covText != null
+      ? `区间覆盖率未达标：${covText}${accText ? `，要求≥${accText}` : ''}`
+      : '区间覆盖率未达标（低于验收线）'
+    const basis = (target != null || tolerance != null)
+      ? `（验收线 ${accText || '—'} = 标称 ${pctText(target, 0) || '—'} − 容差 ${pctText(tolerance, 0) || '—'}）`
+      : ''
+    return `${line}${basis}；区间结构自洽但未通过可信性验收，不构成校准证据。`
+  }
+  if (status === 'insufficient_test_evidence') {
+    return `测试样本不足：n=${testN ?? '—'}${minN != null ? `（最小样本 ${minN}）` : ''}，经验覆盖率不具统计意义，不构成校准证据。`
+  }
+  if (status === 'no_test_evidence') {
+    return `冻结测试集无该任务标签（test_n=${testN ?? 0}），覆盖率无法核算，不构成校准证据。`
+  }
+  if (status === 'single_class_test') {
+    return '独立测试段只含单一类别样本，覆盖率仅反映该类覆盖，不构成事件判别力证据。'
+  }
+  if (status === 'unavailable') return '该任务未提供 conformal 预测区间。'
+  return u.calibration_reason || '校准证据未通过。'
 }
 // 等级范围的承载对象：焦点任务自身带 band_range 时优先，否则取同一次输出的 risk_level 兄弟结果
 const bandRangeUncertainty = computed(() => {
@@ -1511,11 +1586,33 @@ function calibrationBlockText(blocked) {
   if (!blocked) return '—'
   const reason = blocked.reason || ''
   if (BLOCKED_REASON_TEXT[reason]) return BLOCKED_REASON_TEXT[reason]
+  if (reason === 'source_interval_undercovered') {
+    // 欠覆盖必须写具体数字（覆盖率 + 验收线），不得停留在"证据不足"。
+    const cov = blocked.empirical_coverage != null ? pctText(blocked.empirical_coverage) : null
+    const acc = blocked.coverage_acceptance_min != null ? pctText(blocked.coverage_acceptance_min, 0) : null
+    return cov
+      ? `源区间（叶绿素 a）区间覆盖率未达标：${cov}${acc ? `，要求≥${acc}` : ''}`
+      : '源区间（叶绿素 a）区间覆盖率未达标'
+  }
   if (reason.startsWith('source_interval_')) {
-    return `源区间校准证据不足：${calibrationText(reason.slice('source_interval_'.length))}`
+    const st = reason.slice('source_interval_'.length)
+    return `源区间（叶绿素 a）${calibrationText(st)}：不构成等级范围映射所需的校准证据`
   }
   return reason || '源区间未达决策可用'
 }
+// 阻断原因里的具体证据（覆盖率/验收线/样本量），与源区间数值分开成行展示。
+// 非 risk 指标页上，风险等级被阻断时的「相关说明」：只借用阻断事实，不改本指标判定。
+const relatedBandBlocked = computed(() => Boolean(bandRangeBlocked.value))
+const blockedCalibEvidence = computed(() => {
+  const b = bandRangeBlocked.value
+  if (!b) return ''
+  const cov = b.empirical_coverage != null ? pctText(b.empirical_coverage) : null
+  const acc = b.coverage_acceptance_min != null ? pctText(b.coverage_acceptance_min, 0) : null
+  const parts = []
+  if (cov != null) parts.push(`留出段经验覆盖率 ${cov}${acc ? `（要求≥${acc}）` : ''}`)
+  if (b.test_n != null) parts.push(`测试样本 n=${b.test_n}`)
+  return parts.join('，')
+})
 
 // ---------- hero 范围带（P05 — 点值 — P95，2026-09-12 W2） ----------
 // 口径（诚实第一）：
@@ -1575,15 +1672,19 @@ const heroRange = computed(() => {
   }
 })
 
-// 「模型评估」块数据源：store 新增只读导出（不改既有导出），取当前时效完整诊断
-const evaluationDiagnostics = computed(() => focusEvaluation(props.horizonDays))
 // 状态判定严格镜像后端三层合同：①结构自洽 ②校准证据 ③决策可用。
 // 顺序不可颠倒——结构不自洽时谈校准无意义；校准未 validated 时不得显示"区间可用"。
-const UNCERTAINTY_STATUS_LABELS = {
-  no_test_evidence: '冻结测试集无该任务标签，覆盖率无法核算，不构成校准证据。',
-  insufficient_test_evidence: '冻结测试集样本过少，覆盖率不具统计意义，不构成校准证据。',
-  undercovered: '冻结测试集经验覆盖率低于验收线，区间实际覆盖不足，不构成校准证据。',
-  unavailable: '该任务未提供 conformal 预测区间。'
+// 校准状态一律给具体中文短标题，不再全部收进"校准证据不足"一个筐（L-ui-01/L-ui-03）。
+const CALIB_SHORT_TITLE = {
+  undercovered: '覆盖率未达标',
+  insufficient_test_evidence: '样本不足',
+  no_test_evidence: '无测试证据',
+  single_class_test: '单类别测试段',
+  unavailable: '无区间',
+  validated: '已核算'
+}
+function calibShortTitle(status) {
+  return CALIB_SHORT_TITLE[status] || '校准证据不足'
 }
 const uncertaintyStatus = computed(() => {
   const u = v3Uncertainty.value
@@ -1598,8 +1699,8 @@ const uncertaintyStatus = computed(() => {
         detail: u.decision_reason || '源区间结构层校验未通过，不据此作决策。' }
     }
     if (calibStatus !== 'validated') {
-      return { key: 'insufficient', shortTitle: '校准证据不足', title: '等级范围可读，但源区间校准证据不足',
-        detail: `${UNCERTAINTY_STATUS_LABELS[calibStatus] || '校准证据未通过'}（test_n=${testN}）` }
+      return { key: 'insufficient', shortTitle: calibShortTitle(calibStatus), title: '等级范围可读，但源区间未通过可信性验收',
+        detail: `${calibrEvidenceText(u)}（test_n=${testN}）` }
     }
     return {
       key: u.decision_usable ? 'usable' : 'watch',
@@ -1621,13 +1722,13 @@ const uncertaintyStatus = computed(() => {
       detail: u.structural_reason || u.invalid_reason || '结构层校验未通过，不据此作决策。'
     }
   }
-  // ② 校准证据层
+  // ② 校准证据层：按 undercovered / 样本不足 / 无测试证据 / 单类别 / 无区间分别说明
   if (calibStatus !== 'validated') {
     return {
       key: 'insufficient',
-      title: '区间结构自洽，但校准证据不足，不作决策依据',
-      shortTitle: '校准证据不足',
-      detail: `${UNCERTAINTY_STATUS_LABELS[calibStatus] || '校准证据未通过'}（test_n=${testN}）`
+      title: '区间结构自洽，但未通过可信性验收，不作决策依据',
+      shortTitle: calibShortTitle(calibStatus),
+      detail: `${calibrEvidenceText(u)}（test_n=${testN}）`
     }
   }
   if (Number.isFinite(width) && Math.abs(width) < 1e-12) {
@@ -1696,13 +1797,23 @@ const coverageRing = computed(() => {
   const pct = Math.round(Number(cov) * 1000) / 10
   const withinBand = Math.abs(Number(cov) - Number(target)) <= 0.1
   const applicable = structuralValid && calibStatus === 'validated'
+  const accMin = u?.calibration_evidence?.coverage_acceptance_min ?? u?.coverage?.acceptance_min
+  const accText = pctText(accMin, 0) || '88%'
+  let note
+  if (applicable) {
+    note = `目标 ${Math.round(Number(target) * 100)}%`
+  } else if (!structuralValid) {
+    note = '区间结构不自洽，覆盖率不适用'
+  } else if (calibStatus === 'undercovered') {
+    note = `区间覆盖率未达标：${pct}%，要求≥${accText}`
+  } else {
+    note = `${calibrationText(calibStatus)}，仅登记`
+  }
   return {
     dash: `${(pct / 100) * 188.5} `,
     color: applicable && withinBand ? '#5fd6a4' : '#f5b45d',
     text: `${pct}%`,
-    note: applicable
-      ? `目标 ${Math.round(Number(target) * 100)}%`
-      : (!structuralValid ? '区间结构不自洽，覆盖率不适用' : '校准证据不足，仅登记')
+    note
   }
 })
 const uncertaintyMatrix = computed(() => {
@@ -1726,25 +1837,37 @@ const uncertaintyMatrix = computed(() => {
       bloom: '水华', chla: '叶绿素', area: '面积', coverage: '覆盖', density: '密度',
       biomass: '生物量', risk_level: '风险等级', probability: '风险概率', spatial: '空间'
     }
+    // 行级退化（T4-sug-02）：整体 validated 但留出段多数行贴地时，逐条标出退化。
+    const rowDeg = hasInterval ? u.row_level_degeneracy : null
+    const rowDegDeg = rowDeg && Number(rowDeg.rows_n) ? Number(rowDeg.degenerate_rows || 0) : 0
+    const rowDegRows = rowDeg && Number(rowDeg.rows_n) ? Number(rowDeg.rows_n) : 0
+    // 风险等级被源区间阻断（band_range_blocked，未给出 band_range）：不是"无区间"，
+    // 而是"等级范围暂不可用"——矩阵必须与面板口径一致，不能让评委读成模型没这任务。
+    const bandBlockedHere = Boolean(item?.band_range_blocked) && !isBandRange
     // 与后端三层合同同序：结构 → 校准 → 决策。任一未过即不得标"可用"。
     // 等级范围（band_range）没有数值区间，按同一三层合同在其自身口径上判定。
     const statusText = isBandRange
-      ? (!structuralValid ? '结构不自洽' : calibStatus !== 'validated' ? '校准证据不足' : (u.decision_usable ? '范围可用' : '参考'))
-      : !hasInterval
+      ? (!structuralValid ? '结构不自洽' : calibStatus !== 'validated' ? calibShortTitle(calibStatus) : (u.decision_usable ? '范围可用' : '参考'))
+      : bandBlockedHere
+        ? '等级范围暂不可用'
+        : !hasInterval
         ? '无'
         : !structuralValid
           ? '结构不自洽'
           : calibStatus !== 'validated'
-            ? `校准证据不足`
+            ? calibShortTitle(calibStatus)
             : Math.abs(width0) < 1e-12
               ? '退化'
               : (point && width0 / Math.abs(point) > 1.5
                   ? '过宽'
-                  : (u.decision_usable ? '可用' : '参考'))
+                  : (rowDegDeg > 0 ? `参考·退化${rowDegDeg}/${rowDegRows}行` : (u.decision_usable ? '可用' : '参考')))
     const title = isBandRange
       ? `${item.label}：等级范围 ${bandText(u.p05_band)} — ${bandText(u.p95_band)}（由叶绿素 a 区间映射）｜结构${structuralValid ? '自洽' : '不自洽'}｜校准 ${calibStatus}（test_n=${testN}）`
+      : bandBlockedHere
+        ? `${item.label}：由叶绿素 a 预测区间映射；源区间未达决策可用（${item.band_range_blocked?.reason || '未达决策可用'}），等级范围暂不可用，非"无此任务"`
       : hasInterval
         ? `${item.label}：P05 ${Number(u.p05).toFixed(3)} ~ P95 ${Number(u.p95).toFixed(3)}｜结构${structuralValid ? '自洽' : '不自洽'}｜校准 ${calibStatus}（test_n=${testN}）｜决策可用 ${u.decision_usable ? '是' : '否'}（${item.value_origin || ''}）`
+          + (rowDegDeg > 0 ? `｜行级退化 ${rowDegDeg}/${rowDegRows} 行宽度为 0` : '')
         : `${item.label}：未提供预测区间（${item.value_origin || 'not_applicable'}）`
     return {
       key,
@@ -1752,6 +1875,7 @@ const uncertaintyMatrix = computed(() => {
       originKey: originKey(item),
       width,
       statusText,
+      statusKey: rowDegDeg > 0 && structuralValid && calibStatus === 'validated' ? 'degenerate_partial' : null,
       title
     }
   })
