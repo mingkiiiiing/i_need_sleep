@@ -1,0 +1,87 @@
+{
+  "artifact_id": "T4:biomass:train_internal_time_block_cv_v1:off0:h15:s20260907",
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-12T17:36:28.056217+00:00",
+  "label_provenance": "ground_truth",
+  "label_provenance_breakdown": {
+    "ground_truth": 576
+  },
+  "label_provenance_declared": "ground_truth",
+  "protocol": "train_internal_time_block_cv_v1",
+  "run_id": "T4-biomass-0m-s20260907-cv",
+  "selected_family": "constrained_blend",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "log1p_mae": 0.7102880729095278,
+      "mae": 4.379742106851891,
+      "n": 117,
+      "r2": -0.027076578362537962,
+      "rmse": 7.195265618251372
+    },
+    "constrained_blend": {
+      "log1p_mae": 0.8637010335579619,
+      "mae": 5.4629896688426385,
+      "n": 117,
+      "r2": -0.30619118960118574,
+      "rmse": 8.114257639817817
+    },
+    "mechanism": {
+      "log1p_mae": 0.8592323345520314,
+      "mae": 5.469752721989386,
+      "n": 117,
+      "r2": -0.29516218383372506,
+      "rmse": 8.079928091920756
+    },
+    "mechanism_feature": {
+      "log1p_mae": 0.9056716919783215,
+      "mae": 5.6053897454492185,
+      "n": 117,
+      "r2": -0.37094565105054,
+      "rmse": 8.312957059442258
+    },
+    "random_forest": {
+      "log1p_mae": 0.948791095583382,
+      "mae": 6.24147156701252,
+      "n": 117,
+      "r2": -0.4702089051350786,
+      "rmse": 8.608647846779856
+    },
+    "residual": {
+      "log1p_mae": 0.8759744465698854,
+      "mae": 5.646070638728532,
+      "n": 117,
+      "r2": -0.3483757529242053,
+      "rmse": 8.244244917282332
+    },
+    "simple_baseline": {
+      "log1p_mae": 0.7138114341777797,
+      "mae": 4.36090883428988,
+      "n": 117,
+      "r2": -0.030180641989506984,
+      "rmse": 7.206130296288752
+    },
+    "xgboost": {
+      "log1p_mae": 0.8613078747862027,
+      "mae": 5.521607675011256,
+      "n": 117,
+      "r2": -0.39048159060815446,
+      "rmse": 8.371977254136342
+    }
+  },
+  "test_primary_metric": "mae",
+  "test_rows": 117,
+  "test_value": 5.4629896688426385,
+  "uncertainty": {
+    "calibration_n": 225,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 0.7863247863247863,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 117
+  }
+}

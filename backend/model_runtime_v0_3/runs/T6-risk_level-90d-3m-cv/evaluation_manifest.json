@@ -1,0 +1,66 @@
+{
+  "artifact_id": "T6:risk_level:train_internal_time_block_cv_v1:off3:h90:s20260907",
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-12T17:39:18.222378+00:00",
+  "label_provenance": "chla_station_proxy_v1",
+  "label_provenance_breakdown": {
+    "chla_station_proxy_v1": 567
+  },
+  "label_provenance_declared": "ground_truth_or_proxy",
+  "protocol": "train_internal_time_block_cv_v1",
+  "run_id": "T6-risk_level-3m-s20260907-cv",
+  "selected_family": "mechanism_feature",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "accuracy": 0.4444444444444444,
+      "macro_f1": 0.1992115119258821,
+      "n": 117
+    },
+    "constrained_blend": {
+      "accuracy": 0.4700854700854701,
+      "macro_f1": 0.20086580086580086,
+      "n": 117
+    },
+    "mechanism": {
+      "accuracy": 0.29914529914529914,
+      "macro_f1": 0.17731001589825118,
+      "n": 117
+    },
+    "mechanism_feature": {
+      "accuracy": 0.452991452991453,
+      "macro_f1": 0.2364804273857602,
+      "n": 117
+    },
+    "random_forest": {
+      "accuracy": 0.4700854700854701,
+      "macro_f1": 0.22211975407645013,
+      "n": 117
+    },
+    "simple_baseline": {
+      "accuracy": 0.4358974358974359,
+      "macro_f1": 0.12142857142857141,
+      "n": 117
+    },
+    "xgboost": {
+      "accuracy": 0.4700854700854701,
+      "macro_f1": 0.20086580086580086,
+      "n": 117
+    }
+  },
+  "test_primary_metric": "macro_f1",
+  "test_rows": 117,
+  "test_value": 0.2364804273857602,
+  "uncertainty": {
+    "calibration_n": 0,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": null,
+    "is_calibrated_confidence_interval": false,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 117
+  }
+}

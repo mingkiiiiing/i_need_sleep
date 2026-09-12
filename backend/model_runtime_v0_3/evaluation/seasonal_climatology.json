@@ -1,6 +1,6 @@
 {
   "artifact_version": "seasonal_climatology_v4",
-  "generated_at": "2026-09-11T18:41:01.763528+00:00",
+  "generated_at": "2026-09-12T17:39:23.433912+00:00",
   "method": "per_target_month_climatology_with_three_segment_time_block_backtest",
   "disclosure": "季节气候态基线：由该任务历史标签序列按目标月聚合成均值（分类任务取众数概率）得到，反映真实季节循环。它不含站点分辨——同一目标月全湖同值，不得据此做站间比较。回测按唯一目标月时间序三段拆分：前 60% 拟合气候态，中 20% 只核算经验残差分位数，末 20% 只做独立测试（指标与经验覆盖率）——分位数与覆盖率来自互不重叠的时间段，覆盖率是独立测试结果而非分位数构造的必然值。仅当 (任务, 时效) 没有评估充分的逐站模型时，运行层才回退到本基线。",
   "station_resolution_note": "同一目标月全湖同值；站间比较请改用有逐站模型支撑的时效。",
@@ -63,12 +63,12 @@
         ]
       },
       "by_month": {
-        "2": 0.0,
+        "2": 0.1111111111111111,
         "5": 0.0,
-        "8": 0.0,
-        "11": 0.0
+        "8": 0.5555555555555556,
+        "11": 0.3333333333333333
       },
-      "fallback": 0.043209876543209874,
+      "fallback": 0.21810699588477367,
       "backtest": {
         "protocol": "time_block_three_segment_v1",
         "holdout_fractions": {
@@ -85,35 +85,59 @@
         "n": 31,
         "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "brier_score": 0.0011443475866680431,
-          "roc_auc": null,
-          "pr_auc": null,
-          "recall": null,
-          "precision": null,
-          "f1": null,
+          "brier_score": 0.07375995550988546,
+          "roc_auc": 0.9500000000000001,
+          "pr_auc": 0.25,
+          "recall": 1.0,
+          "precision": 0.25,
+          "f1": 0.4,
           "n": 31,
-          "expected_calibration_error": 0.026483,
+          "expected_calibration_error": 0.205363,
           "calibration_bins": [
             {
               "bin": 0,
-              "mean_predicted": 0.0265,
+              "mean_predicted": 0.0,
               "observed_frequency": 0.0,
-              "n": 31
+              "n": 3
+            },
+            {
+              "bin": 1,
+              "mean_predicted": 0.1111,
+              "observed_frequency": 0.0,
+              "n": 3
+            },
+            {
+              "bin": 2,
+              "mean_predicted": 0.2181,
+              "observed_frequency": 0.0,
+              "n": 19
+            },
+            {
+              "bin": 3,
+              "mean_predicted": 0.3333,
+              "observed_frequency": 0.0,
+              "n": 2
+            },
+            {
+              "bin": 5,
+              "mean_predicted": 0.5556,
+              "observed_frequency": 0.25,
+              "n": 4
             }
           ]
         },
         "residual_quantiles": {
-          "p05": -0.043209876543209874,
-          "p95": 0.0
+          "p05": -0.5555555555555556,
+          "p95": 0.8944444444444425
         },
         "empirical_coverage": 1.0,
         "coverage_n": 31,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88,
-        "test_positive_n": 0,
-        "test_negative_n": 31,
-        "test_event_rate": 0.0,
-        "class_support_sufficient": false
+        "test_positive_n": 1,
+        "test_negative_n": 30,
+        "test_event_rate": 0.032258,
+        "class_support_sufficient": true
       }
     },
     {
@@ -352,7 +376,7 @@
         "90": {
           "artifact_exists": true,
           "test_n": 117,
-          "empirical_coverage": 0.8547008547008547,
+          "empirical_coverage": 0.8888888888888888,
           "evidence_sufficient": true,
           "reason": null
         }
@@ -366,12 +390,12 @@
         ]
       },
       "by_month": {
-        "2": 6.857022222222223,
-        "5": 6.133422222222222,
-        "8": 8.306811111111111,
-        "11": 5.588488888888889
+        "2": 13.700333333333333,
+        "5": 12.2546,
+        "8": 16.597022222222222,
+        "11": 11.165799999999999
       },
-      "fallback": 7.574895833333334,
+      "fallback": 15.13465472222222,
       "backtest": {
         "protocol": "time_block_three_segment_v1",
         "holdout_fractions": {
@@ -388,17 +412,17 @@
         "n": 132,
         "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "mae": 3.841439745370371,
-          "rmse": 4.7156458661642695,
-          "r2": -0.033939854163920646,
-          "log1p_mae": 0.5627198972009142,
+          "mae": 7.651454623316498,
+          "rmse": 9.384061660241263,
+          "r2": -0.01249188402125978,
+          "log1p_mae": 0.6047246754898392,
           "n": 132
         },
         "residual_quantiles": {
-          "p05": -4.329872222222223,
-          "p95": 9.396486111111113
+          "p05": -8.651083333333332,
+          "p95": 18.774133333333335
         },
-        "empirical_coverage": 0.7196969696969697,
+        "empirical_coverage": 0.7272727272727273,
         "coverage_n": 132,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88,
@@ -463,12 +487,12 @@
         ]
       },
       "by_month": {
-        "2": 0.0,
+        "2": 0.1111111111111111,
         "5": 0.0,
-        "8": 0.0,
-        "11": 0.0
+        "8": 0.5555555555555556,
+        "11": 0.3333333333333333
       },
-      "fallback": 0.043209876543209874,
+      "fallback": 0.21810699588477367,
       "backtest": {
         "protocol": "time_block_three_segment_v1",
         "holdout_fractions": {
@@ -485,35 +509,59 @@
         "n": 31,
         "coverage_leakage_note": "残差分位数（校准段）与经验覆盖率（独立测试段）来自互不重叠的时间段",
         "metrics": {
-          "brier_score": 0.0011443475866680431,
-          "roc_auc": null,
-          "pr_auc": null,
-          "recall": null,
-          "precision": null,
-          "f1": null,
+          "brier_score": 0.07375995550988546,
+          "roc_auc": 0.9500000000000001,
+          "pr_auc": 0.25,
+          "recall": 1.0,
+          "precision": 0.25,
+          "f1": 0.4,
           "n": 31,
-          "expected_calibration_error": 0.026483,
+          "expected_calibration_error": 0.205363,
           "calibration_bins": [
             {
               "bin": 0,
-              "mean_predicted": 0.0265,
+              "mean_predicted": 0.0,
               "observed_frequency": 0.0,
-              "n": 31
+              "n": 3
+            },
+            {
+              "bin": 1,
+              "mean_predicted": 0.1111,
+              "observed_frequency": 0.0,
+              "n": 3
+            },
+            {
+              "bin": 2,
+              "mean_predicted": 0.2181,
+              "observed_frequency": 0.0,
+              "n": 19
+            },
+            {
+              "bin": 3,
+              "mean_predicted": 0.3333,
+              "observed_frequency": 0.0,
+              "n": 2
+            },
+            {
+              "bin": 5,
+              "mean_predicted": 0.5556,
+              "observed_frequency": 0.25,
+              "n": 4
             }
           ]
         },
         "residual_quantiles": {
-          "p05": -0.043209876543209874,
-          "p95": 0.0
+          "p05": -0.5555555555555556,
+          "p95": 0.8944444444444425
         },
         "empirical_coverage": 1.0,
         "coverage_n": 31,
         "coverage_target": 0.9,
         "coverage_acceptance_min": 0.88,
-        "test_positive_n": 0,
-        "test_negative_n": 31,
-        "test_event_rate": 0.0,
-        "class_support_sufficient": false
+        "test_positive_n": 1,
+        "test_negative_n": 30,
+        "test_event_rate": 0.032258,
+        "class_support_sufficient": true
       }
     }
   ]

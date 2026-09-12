@@ -1,0 +1,87 @@
+{
+  "artifact_id": "T3:density:train_internal_time_block_cv_v1:off0:h1:s20260907",
+  "claim_boundary": "real_data_monthly_station_v0_3",
+  "created_at": "2026-09-12T17:33:08.163800+00:00",
+  "label_provenance": "proxy_derived",
+  "label_provenance_breakdown": {
+    "proxy_derived": 576
+  },
+  "label_provenance_declared": "proxy_derived",
+  "protocol": "train_internal_time_block_cv_v1",
+  "run_id": "T3-density-0m-s20260907-cv",
+  "selected_family": "random_forest",
+  "test_metrics_by_family": {
+    "climatology_global": {
+      "log1p_mae": 0.16392457426096899,
+      "mae": 0.2503900250460178,
+      "n": 117,
+      "r2": -0.3535430057432365,
+      "rmse": 0.296753309820742
+    },
+    "constrained_blend": {
+      "log1p_mae": 0.16076655348550023,
+      "mae": 0.2474238960265208,
+      "n": 117,
+      "r2": -0.36870042281308857,
+      "rmse": 0.29841025427171114
+    },
+    "mechanism": {
+      "log1p_mae": 0.18186217855450318,
+      "mae": 0.27769007257200423,
+      "n": 117,
+      "r2": -0.6584623349721885,
+      "rmse": 0.3284825839978953
+    },
+    "mechanism_feature": {
+      "log1p_mae": 0.1991207922536703,
+      "mae": 0.3001807274582521,
+      "n": 117,
+      "r2": -1.0014709375193895,
+      "rmse": 0.36085621220324954
+    },
+    "random_forest": {
+      "log1p_mae": 0.15421822495385645,
+      "mae": 0.23634031117523593,
+      "n": 117,
+      "r2": -0.2136429888315321,
+      "rmse": 0.2809991574252872
+    },
+    "residual": {
+      "log1p_mae": 0.18368457721376363,
+      "mae": 0.2820255626852795,
+      "n": 117,
+      "r2": -0.7830449915478064,
+      "rmse": 0.3405969016469926
+    },
+    "simple_baseline": {
+      "log1p_mae": 0.1494990073802201,
+      "mae": 0.2293294135247108,
+      "n": 117,
+      "r2": -0.17858727461488888,
+      "rmse": 0.27691113252655014
+    },
+    "xgboost": {
+      "log1p_mae": 0.16076655348550023,
+      "mae": 0.2474238960265208,
+      "n": 117,
+      "r2": -0.36870042281308857,
+      "rmse": 0.29841025427171114
+    }
+  },
+  "test_primary_metric": "log1p_mae",
+  "test_rows": 117,
+  "test_value": 0.15421822495385645,
+  "uncertainty": {
+    "calibration_n": 225,
+    "calibration_source": "train_expanding_fold_oof_plus_validation_residuals",
+    "coverage_target": 0.9,
+    "empirical_coverage_test": 0.7094017094017094,
+    "is_calibrated_confidence_interval": true,
+    "method": "split_conformal_residual_quantiles",
+    "residual_quantile_levels": [
+      0.05,
+      0.95
+    ],
+    "test_n": 117
+  }
+}

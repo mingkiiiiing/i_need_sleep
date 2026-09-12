@@ -1,15 +1,21 @@
 {
   "climatology_global": {
-    "brier_score": 0.0002439482079189341,
+    "brier_score": 0.010283355226121222,
     "calibration_bins": [
       {
         "bin": 0,
-        "mean_predicted": 0.0082,
-        "n": 5,
+        "mean_predicted": 0.024,
+        "n": 4,
+        "observed_frequency": 0.0
+      },
+      {
+        "bin": 2,
+        "mean_predicted": 0.2055,
+        "n": 1,
         "observed_frequency": 0.0
       }
     ],
-    "expected_calibration_error": 0.008219,
+    "expected_calibration_error": 0.060274,
     "f1": null,
     "n": 5,
     "pr_auc": null,
@@ -18,7 +24,7 @@
     "roc_auc": null
   },
   "constrained_blend": {
-    "brier_score": 0.0017361111111111112,
+    "brier_score": 0.0017361112145913987,
     "calibration_bins": [
       {
         "bin": 0,
@@ -36,16 +42,16 @@
     "roc_auc": null
   },
   "mechanism": {
-    "brier_score": 0.0017361111111111112,
+    "brier_score": 0.00033381383652542003,
     "calibration_bins": [
       {
         "bin": 0,
-        "mean_predicted": 0.0417,
+        "mean_predicted": 0.0136,
         "n": 5,
         "observed_frequency": 0.0
       }
     ],
-    "expected_calibration_error": 0.041667,
+    "expected_calibration_error": 0.01356,
     "f1": null,
     "n": 5,
     "pr_auc": null,
@@ -54,40 +60,16 @@
     "roc_auc": null
   },
   "mechanism_feature": {
-    "brier_score": 0.011348024053879718,
+    "brier_score": 0.003226423644872852,
     "calibration_bins": [
       {
         "bin": 0,
-        "mean_predicted": 0.0157,
-        "n": 4,
-        "observed_frequency": 0.0
-      },
-      {
-        "bin": 2,
-        "mean_predicted": 0.2346,
-        "n": 1,
-        "observed_frequency": 0.0
-      }
-    ],
-    "expected_calibration_error": 0.059502,
-    "f1": null,
-    "n": 5,
-    "pr_auc": null,
-    "precision": null,
-    "recall": null,
-    "roc_auc": null
-  },
-  "persistence": {
-    "brier_score": 0.0,
-    "calibration_bins": [
-      {
-        "bin": 0,
-        "mean_predicted": 0.0,
+        "mean_predicted": 0.0484,
         "n": 5,
         "observed_frequency": 0.0
       }
     ],
-    "expected_calibration_error": 0.0,
+    "expected_calibration_error": 0.04838,
     "f1": null,
     "n": 5,
     "pr_auc": null,
@@ -96,22 +78,40 @@
     "roc_auc": null
   },
   "random_forest": {
-    "brier_score": 0.012453164827784073,
+    "brier_score": 0.006805143632283656,
     "calibration_bins": [
       {
         "bin": 0,
-        "mean_predicted": 0.0132,
-        "n": 4,
+        "mean_predicted": 0.0441,
+        "n": 3,
         "observed_frequency": 0.0
       },
       {
-        "bin": 2,
-        "mean_predicted": 0.2467,
-        "n": 1,
+        "bin": 1,
+        "mean_predicted": 0.1182,
+        "n": 2,
         "observed_frequency": 0.0
       }
     ],
-    "expected_calibration_error": 0.05993,
+    "expected_calibration_error": 0.073769,
+    "f1": null,
+    "n": 5,
+    "pr_auc": null,
+    "precision": null,
+    "recall": null,
+    "roc_auc": null
+  },
+  "residual": {
+    "brier_score": 0.00033381383652542003,
+    "calibration_bins": [
+      {
+        "bin": 0,
+        "mean_predicted": 0.0136,
+        "n": 5,
+        "observed_frequency": 0.0
+      }
+    ],
+    "expected_calibration_error": 0.01356,
     "f1": null,
     "n": 5,
     "pr_auc": null,

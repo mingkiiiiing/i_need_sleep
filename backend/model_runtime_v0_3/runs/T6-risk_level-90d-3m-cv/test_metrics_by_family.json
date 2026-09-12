@@ -1,37 +1,37 @@
 {
   "climatology_global": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.4444444444444444,
+    "macro_f1": 0.1992115119258821,
     "n": 117
   },
   "constrained_blend": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.4700854700854701,
+    "macro_f1": 0.20086580086580086,
     "n": 117
   },
   "mechanism": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.29914529914529914,
+    "macro_f1": 0.17731001589825118,
     "n": 117
   },
   "mechanism_feature": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.452991452991453,
+    "macro_f1": 0.2364804273857602,
     "n": 117
   },
   "random_forest": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.4700854700854701,
+    "macro_f1": 0.22211975407645013,
     "n": 117
   },
   "simple_baseline": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.4358974358974359,
+    "macro_f1": 0.12142857142857141,
     "n": 117
   },
   "xgboost": {
-    "accuracy": 0.0,
-    "macro_f1": 0.0,
+    "accuracy": 0.4700854700854701,
+    "macro_f1": 0.20086580086580086,
     "n": 117
   }
 }

@@ -1,32 +1,38 @@
 {
   "claim_boundary": "real_data_monthly_station_v0_3",
-  "created_at": "2026-09-11T05:32:16.545744+00:00",
-  "feature_sha256": "809dd025906dc58a24712701b06051795dda12052d8f3204e0893d4a961eef7f",
+  "created_at": "2026-09-12T17:37:38.899380+00:00",
+  "feature_sha256": "bcbec7513f7c7797eaf561d7641fcbf7b4e21297421963bdc53a883d0160cb16",
   "run_id": "T6-probability-1m-s20260907-cv",
   "seed": 20260907,
-  "selected_family": "persistence",
+  "selected_family": "simple_baseline",
   "validation_metrics_by_family": {
     "climatology_global": {
-      "brier_score": 0.0003429355281207133,
+      "brier_score": 0.008663333628924219,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0093,
-          "n": 8,
+          "mean_predicted": 0.0123,
+          "n": 6,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1824,
+          "n": 2,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.009259,
+      "expected_calibration_error": 0.054867,
       "f1": null,
       "n": 8,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.0003429355281207133,
+      "primary": 0.008663333628924219,
       "recall": null,
       "roc_auc": null
     },
     "constrained_blend": {
-      "brier_score": 0.001736111111111111,
+      "brier_score": 0.0017361112145913987,
       "calibration_bins": [
         {
           "bin": 0,
@@ -40,113 +46,125 @@
       "n": 8,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.001736111111111111,
+      "primary": 0.0017361112145913987,
       "recall": null,
       "roc_auc": null
     },
     "mechanism": {
-      "brier_score": 0.001736111111111111,
+      "brier_score": 0.09673516594631101,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0417,
-          "n": 8,
+          "mean_predicted": 0.0142,
+          "n": 7,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 8,
+          "mean_predicted": 0.8782,
+          "n": 1,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.041667,
+      "expected_calibration_error": 0.122226,
       "f1": null,
       "n": 8,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.001736111111111111,
+      "primary": 0.09673516594631101,
       "recall": null,
       "roc_auc": null
     },
     "mechanism_feature": {
-      "brier_score": 0.07232154124534358,
+      "brier_score": 0.019728862997390725,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.028,
-          "n": 4,
+          "mean_predicted": 0.0393,
+          "n": 6,
           "observed_frequency": 0.0
         },
         {
           "bin": 2,
-          "mean_predicted": 0.2535,
-          "n": 2,
+          "mean_predicted": 0.2211,
+          "n": 1,
           "observed_frequency": 0.0
         },
         {
-          "bin": 4,
-          "mean_predicted": 0.4716,
-          "n": 2,
+          "bin": 3,
+          "mean_predicted": 0.3111,
+          "n": 1,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.195278,
+      "expected_calibration_error": 0.096002,
       "f1": null,
       "n": 8,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.07232154124534358,
+      "primary": 0.019728862997390725,
       "recall": null,
       "roc_auc": null
     },
     "persistence": {
-      "brier_score": 0.0,
-      "calibration_bins": [
-        {
-          "bin": 0,
-          "mean_predicted": 0.0,
-          "n": 8,
-          "observed_frequency": 0.0
-        }
-      ],
-      "expected_calibration_error": 0.0,
-      "f1": null,
-      "n": 8,
-      "pr_auc": null,
-      "precision": null,
-      "primary": 0.0,
-      "recall": null,
-      "roc_auc": null
+      "error": "'wq_chla'",
+      "primary": null
     },
     "random_forest": {
-      "brier_score": 0.08085161967412785,
+      "brier_score": 0.0161129426190512,
       "calibration_bins": [
         {
           "bin": 0,
-          "mean_predicted": 0.0275,
-          "n": 4,
+          "mean_predicted": 0.0656,
+          "n": 6,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 1,
+          "mean_predicted": 0.1502,
+          "n": 1,
           "observed_frequency": 0.0
         },
         {
           "bin": 2,
-          "mean_predicted": 0.2702,
-          "n": 2,
-          "observed_frequency": 0.0
-        },
-        {
-          "bin": 4,
-          "mean_predicted": 0.4973,
-          "n": 2,
+          "mean_predicted": 0.2774,
+          "n": 1,
           "observed_frequency": 0.0
         }
       ],
-      "expected_calibration_error": 0.205648,
+      "expected_calibration_error": 0.102663,
       "f1": null,
       "n": 8,
       "pr_auc": null,
       "precision": null,
-      "primary": 0.08085161967412785,
+      "primary": 0.0161129426190512,
       "recall": null,
       "roc_auc": null
     },
     "residual": {
-      "error": "Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values.",
-      "primary": null
+      "brier_score": 0.0967360253084232,
+      "calibration_bins": [
+        {
+          "bin": 0,
+          "mean_predicted": 0.0145,
+          "n": 7,
+          "observed_frequency": 0.0
+        },
+        {
+          "bin": 8,
+          "mean_predicted": 0.8782,
+          "n": 1,
+          "observed_frequency": 0.0
+        }
+      ],
+      "expected_calibration_error": 0.122465,
+      "f1": null,
+      "n": 8,
+      "pr_auc": null,
+      "precision": null,
+      "primary": 0.0967360253084232,
+      "recall": null,
+      "roc_auc": null
     },
     "simple_baseline": {
       "brier_score": 0.001736111111111111,
@@ -188,5 +206,5 @@
     }
   },
   "validation_primary_metric": "brier_score",
-  "validation_value": 0.0
+  "validation_value": 0.001736111111111111
 }

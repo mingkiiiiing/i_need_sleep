@@ -1,17 +1,17 @@
 {
   "gate_version": "v1_real_2026",
-  "generated_at": "2026-09-12T17:21:24.025496+00:00",
+  "generated_at": "2026-09-12T17:39:23.623069+00:00",
   "comparison_rule": "fusion vs 同任务同时效 RF/XGBoost 较优者（validation 选族，冻结测试集同口径评估）",
   "uplift_threshold": 0.1,
   "min_test_rows": 15,
   "summary": {
     "comparison_rows": 42,
     "evaluable_comparisons": 30,
-    "pass": 6,
-    "fail": 24,
+    "pass": 2,
+    "fail": 28,
     "not_applicable": 12,
     "status": "FAIL",
-    "note": "可评估比较 30 条，PASS 比例 20.00%，门禁阈值 90%。"
+    "note": "可评估比较 30 条，PASS 比例 6.67%，门禁阈值 90%。"
   },
   "rows": [
     {
@@ -71,7 +71,7 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 5,
-      "selected_family": "persistence",
+      "selected_family": "simple_baseline",
       "fusion_family": "constrained_blend",
       "single_family": "xgboost",
       "run_id": "T1-bloom-1m-s20260907-cv",
@@ -79,7 +79,7 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
-      "fusion_value": 0.0017361111111111112,
+      "fusion_value": 0.0017361112145913987,
       "best_single_value": 0.0017361112145913987,
       "uplift": null
     },
@@ -117,7 +117,7 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 5,
-      "selected_family": "persistence",
+      "selected_family": "simple_baseline",
       "fusion_family": "constrained_blend",
       "single_family": "xgboost",
       "run_id": "T1-bloom-2m-s20260907-cv",
@@ -125,7 +125,7 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
-      "fusion_value": 0.0017361111111111112,
+      "fusion_value": 0.0017361112145913987,
       "best_single_value": 0.0017361112145913987,
       "uplift": null
     },
@@ -163,17 +163,17 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 28,
-      "selected_family": "climatology_global",
+      "selected_family": "random_forest",
       "fusion_family": "constrained_blend",
-      "single_family": "xgboost",
+      "single_family": "random_forest",
       "run_id": "T1-bloom-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "FAIL",
+      "status": "PASS",
       "na_reason": null,
-      "fusion_value": 0.002093212012473834,
-      "best_single_value": 0.0005535897245586991,
-      "uplift": -2.781161245618249
+      "fusion_value": 0.015339791855464259,
+      "best_single_value": 0.03501296131635124,
+      "uplift": 0.5618824778382714
     },
     {
       "task_id": "T3",
@@ -186,17 +186,17 @@
       "primary_metric": "log1p_mae",
       "metric_direction": "min",
       "n_test": 117,
-      "selected_family": "residual",
-      "fusion_family": "residual",
-      "single_family": "xgboost",
+      "selected_family": "random_forest",
+      "fusion_family": "constrained_blend",
+      "single_family": "random_forest",
       "run_id": "T3-density-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.1567628103135278,
-      "best_single_value": 0.19431295201569082,
-      "uplift": 0.19324569624741664
+      "fusion_value": 0.16076655348550023,
+      "best_single_value": 0.15421822495385643,
+      "uplift": -0.04246144405826956
     },
     {
       "task_id": "T3",
@@ -209,17 +209,17 @@
       "primary_metric": "log1p_mae",
       "metric_direction": "min",
       "n_test": 117,
-      "selected_family": "residual",
-      "fusion_family": "residual",
-      "single_family": "xgboost",
+      "selected_family": "random_forest",
+      "fusion_family": "constrained_blend",
+      "single_family": "random_forest",
       "run_id": "T3-density-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.1567628103135278,
-      "best_single_value": 0.19431295201569082,
-      "uplift": 0.19324569624741664
+      "fusion_value": 0.16076655348550023,
+      "best_single_value": 0.15421822495385645,
+      "uplift": -0.04246144405826937
     },
     {
       "task_id": "T3",
@@ -232,17 +232,17 @@
       "primary_metric": "log1p_mae",
       "metric_direction": "min",
       "n_test": 117,
-      "selected_family": "residual",
-      "fusion_family": "residual",
-      "single_family": "xgboost",
+      "selected_family": "random_forest",
+      "fusion_family": "constrained_blend",
+      "single_family": "random_forest",
       "run_id": "T3-density-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.1567628103135278,
-      "best_single_value": 0.19431295201569082,
-      "uplift": 0.19324569624741664
+      "fusion_value": 0.16076655348550023,
+      "best_single_value": 0.15421822495385643,
+      "uplift": -0.04246144405826956
     },
     {
       "task_id": "T3",
@@ -255,17 +255,17 @@
       "primary_metric": "log1p_mae",
       "metric_direction": "min",
       "n_test": 117,
-      "selected_family": "residual",
-      "fusion_family": "residual",
-      "single_family": "xgboost",
+      "selected_family": "random_forest",
+      "fusion_family": "constrained_blend",
+      "single_family": "random_forest",
       "run_id": "T3-density-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.1567628103135278,
-      "best_single_value": 0.19431295201569082,
-      "uplift": 0.19324569624741664
+      "fusion_value": 0.16076655348550023,
+      "best_single_value": 0.15421822495385645,
+      "uplift": -0.04246144405826937
     },
     {
       "task_id": "T3",
@@ -279,16 +279,16 @@
       "metric_direction": "min",
       "n_test": 117,
       "selected_family": "climatology_global",
-      "fusion_family": "residual",
-      "single_family": "random_forest",
+      "fusion_family": "constrained_blend",
+      "single_family": "xgboost",
       "run_id": "T3-density-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.14784731573897,
-      "best_single_value": 0.18631063007227958,
-      "uplift": 0.20644723448354854
+      "fusion_value": 0.16561073121927009,
+      "best_single_value": 0.16561073121927009,
+      "uplift": 0.0
     },
     {
       "task_id": "T4",
@@ -309,9 +309,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 5.0343646800086175,
-      "best_single_value": 5.360978616670388,
-      "uplift": 0.06092431252125097
+      "fusion_value": 5.4629896688426385,
+      "best_single_value": 5.521607675011256,
+      "uplift": 0.010616112121457123
     },
     {
       "task_id": "T4",
@@ -332,9 +332,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 5.0343646800086175,
-      "best_single_value": 5.360978616670388,
-      "uplift": 0.06092431252125097
+      "fusion_value": 5.4629896688426385,
+      "best_single_value": 5.521607675011256,
+      "uplift": 0.010616112121457123
     },
     {
       "task_id": "T4",
@@ -355,9 +355,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 5.0343646800086175,
-      "best_single_value": 5.360978616670388,
-      "uplift": 0.06092431252125097
+      "fusion_value": 5.4629896688426385,
+      "best_single_value": 5.521607675011256,
+      "uplift": 0.010616112121457123
     },
     {
       "task_id": "T4",
@@ -378,9 +378,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 5.0343646800086175,
-      "best_single_value": 5.360978616670388,
-      "uplift": 0.06092431252125097
+      "fusion_value": 5.4629896688426385,
+      "best_single_value": 5.521607675011256,
+      "uplift": 0.010616112121457123
     },
     {
       "task_id": "T4",
@@ -399,11 +399,11 @@
       "run_id": "T4-biomass-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "PASS",
+      "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 4.391384949658628,
-      "best_single_value": 5.232953911980114,
-      "uplift": 0.16082101552525277
+      "fusion_value": 5.213282922137635,
+      "best_single_value": 5.393609032391547,
+      "uplift": 0.03343329284176063
     },
     {
       "task_id": "T5",
@@ -439,17 +439,17 @@
       "primary_metric": "mae",
       "metric_direction": "min",
       "n_test": 132,
-      "selected_family": "mechanism_feature",
-      "fusion_family": "mechanism_feature",
+      "selected_family": "constrained_blend",
+      "fusion_family": "constrained_blend",
       "single_family": "random_forest",
       "run_id": "T5-chla-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 3.094663218804113,
-      "best_single_value": 3.1101071382230043,
-      "uplift": 0.004965719421394331
+      "fusion_value": 5.444693564800762,
+      "best_single_value": 5.491090269445267,
+      "uplift": 0.008449452179410677
     },
     {
       "task_id": "T5",
@@ -485,17 +485,17 @@
       "primary_metric": "mae",
       "metric_direction": "min",
       "n_test": 132,
-      "selected_family": "mechanism_feature",
-      "fusion_family": "mechanism_feature",
+      "selected_family": "constrained_blend",
+      "fusion_family": "constrained_blend",
       "single_family": "random_forest",
       "run_id": "T5-chla-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 3.0946632188041137,
-      "best_single_value": 3.110107138223005,
-      "uplift": 0.004965719421394473
+      "fusion_value": 5.444693564800762,
+      "best_single_value": 5.491090269445267,
+      "uplift": 0.008449452179410677
     },
     {
       "task_id": "T5",
@@ -531,17 +531,17 @@
       "primary_metric": "mae",
       "metric_direction": "min",
       "n_test": 132,
-      "selected_family": "mechanism_feature",
-      "fusion_family": "mechanism_feature",
+      "selected_family": "constrained_blend",
+      "fusion_family": "constrained_blend",
       "single_family": "random_forest",
       "run_id": "T5-chla-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 3.094663218804113,
-      "best_single_value": 3.1101071382230048,
-      "uplift": 0.0049657194213944735
+      "fusion_value": 5.444693564800762,
+      "best_single_value": 5.491090269445267,
+      "uplift": 0.008449452179410677
     },
     {
       "task_id": "T5",
@@ -577,17 +577,17 @@
       "primary_metric": "mae",
       "metric_direction": "min",
       "n_test": 132,
-      "selected_family": "mechanism_feature",
-      "fusion_family": "mechanism_feature",
+      "selected_family": "constrained_blend",
+      "fusion_family": "constrained_blend",
       "single_family": "random_forest",
       "run_id": "T5-chla-0m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 3.0946632188041128,
-      "best_single_value": 3.1101071382230048,
-      "uplift": 0.004965719421394616
+      "fusion_value": 5.444693564800762,
+      "best_single_value": 5.491090269445267,
+      "uplift": 0.008449452179410677
     },
     {
       "task_id": "T5",
@@ -600,17 +600,17 @@
       "primary_metric": "mae",
       "metric_direction": "min",
       "n_test": 117,
-      "selected_family": "random_forest",
-      "fusion_family": "mechanism_feature",
-      "single_family": "random_forest",
+      "selected_family": "constrained_blend",
+      "fusion_family": "constrained_blend",
+      "single_family": "xgboost",
       "run_id": "T5-chla-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 3.0866218152614358,
-      "best_single_value": 3.0756071138512726,
-      "uplift": -0.0035813096414549976
+      "fusion_value": 6.007112109034334,
+      "best_single_value": 6.095531708780924,
+      "uplift": 0.014505641832560276
     },
     {
       "task_id": "T6",
@@ -669,7 +669,7 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 5,
-      "selected_family": "persistence",
+      "selected_family": "simple_baseline",
       "fusion_family": "constrained_blend",
       "single_family": "xgboost",
       "run_id": "T6-probability-1m-s20260907-cv",
@@ -677,7 +677,7 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
-      "fusion_value": 0.0017361111111111112,
+      "fusion_value": 0.0017361112145913987,
       "best_single_value": 0.0017361112145913987,
       "uplift": null
     },
@@ -715,7 +715,7 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 5,
-      "selected_family": "persistence",
+      "selected_family": "simple_baseline",
       "fusion_family": "constrained_blend",
       "single_family": "xgboost",
       "run_id": "T6-probability-2m-s20260907-cv",
@@ -723,7 +723,7 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "NA",
       "na_reason": "test_n_below_minimum_15",
-      "fusion_value": 0.0017361111111111112,
+      "fusion_value": 0.0017361112145913987,
       "best_single_value": 0.0017361112145913987,
       "uplift": null
     },
@@ -761,17 +761,17 @@
       "primary_metric": "brier_score",
       "metric_direction": "min",
       "n_test": 28,
-      "selected_family": "climatology_global",
+      "selected_family": "random_forest",
       "fusion_family": "constrained_blend",
-      "single_family": "xgboost",
+      "single_family": "random_forest",
       "run_id": "T6-probability-3m-s20260907-cv",
       "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
       "training_protocol": "train_internal_time_block_cv_v1",
-      "status": "FAIL",
+      "status": "PASS",
       "na_reason": null,
-      "fusion_value": 0.002093212012473834,
-      "best_single_value": 0.0005535897245586991,
-      "uplift": -2.781161245618249
+      "fusion_value": 0.015339791855464259,
+      "best_single_value": 0.035012961316351225,
+      "uplift": 0.5618824778382712
     },
     {
       "task_id": "T6",
@@ -807,7 +807,7 @@
       "primary_metric": "macro_f1",
       "metric_direction": "max",
       "n_test": 132,
-      "selected_family": "simple_baseline",
+      "selected_family": "random_forest",
       "fusion_family": "mechanism_feature",
       "single_family": "random_forest",
       "run_id": "T6-risk_level-0m-s20260907-cv",
@@ -815,9 +815,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.0,
-      "best_single_value": 0.0,
-      "uplift": null
+      "fusion_value": 0.2622114016207379,
+      "best_single_value": 0.2956855212522593,
+      "uplift": -0.11320851792050873
     },
     {
       "task_id": "T6",
@@ -853,7 +853,7 @@
       "primary_metric": "macro_f1",
       "metric_direction": "max",
       "n_test": 132,
-      "selected_family": "simple_baseline",
+      "selected_family": "random_forest",
       "fusion_family": "mechanism_feature",
       "single_family": "random_forest",
       "run_id": "T6-risk_level-0m-s20260907-cv",
@@ -861,9 +861,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.0,
-      "best_single_value": 0.0,
-      "uplift": null
+      "fusion_value": 0.2622114016207379,
+      "best_single_value": 0.2956855212522593,
+      "uplift": -0.11320851792050873
     },
     {
       "task_id": "T6",
@@ -899,7 +899,7 @@
       "primary_metric": "macro_f1",
       "metric_direction": "max",
       "n_test": 132,
-      "selected_family": "simple_baseline",
+      "selected_family": "random_forest",
       "fusion_family": "mechanism_feature",
       "single_family": "random_forest",
       "run_id": "T6-risk_level-0m-s20260907-cv",
@@ -907,9 +907,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.0,
-      "best_single_value": 0.0,
-      "uplift": null
+      "fusion_value": 0.2622114016207379,
+      "best_single_value": 0.2956855212522593,
+      "uplift": -0.11320851792050873
     },
     {
       "task_id": "T6",
@@ -945,7 +945,7 @@
       "primary_metric": "macro_f1",
       "metric_direction": "max",
       "n_test": 132,
-      "selected_family": "simple_baseline",
+      "selected_family": "random_forest",
       "fusion_family": "mechanism_feature",
       "single_family": "random_forest",
       "run_id": "T6-risk_level-0m-s20260907-cv",
@@ -953,9 +953,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.0,
-      "best_single_value": 0.0,
-      "uplift": null
+      "fusion_value": 0.2622114016207379,
+      "best_single_value": 0.2956855212522593,
+      "uplift": -0.11320851792050873
     },
     {
       "task_id": "T6",
@@ -968,7 +968,7 @@
       "primary_metric": "macro_f1",
       "metric_direction": "max",
       "n_test": 117,
-      "selected_family": "simple_baseline",
+      "selected_family": "mechanism_feature",
       "fusion_family": "mechanism_feature",
       "single_family": "random_forest",
       "run_id": "T6-risk_level-3m-s20260907-cv",
@@ -976,9 +976,9 @@
       "training_protocol": "train_internal_time_block_cv_v1",
       "status": "FAIL",
       "na_reason": null,
-      "fusion_value": 0.0,
-      "best_single_value": 0.0,
-      "uplift": null
+      "fusion_value": 0.2364804273857602,
+      "best_single_value": 0.22211975407645013,
+      "uplift": 0.06465284174755276
     }
   ],
   "honesty_note": "本比较表由真实冻结测试集评估实时生成（gate.py 扫描 runs/*/test_metrics_by_family.json），无任何硬编码比较数；n_test<15 的行按主理人裁定记为 N.A. 并披露原因；测试集行数以 evaluation_manifest 为准，禁止挑选子集或调整口径。"
