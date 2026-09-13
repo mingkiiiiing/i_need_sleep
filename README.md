@@ -43,13 +43,13 @@ cd backend
 # requirements.txt 已固定版本，建议使用 Python 3.12+
 pip install -r requirements.txt
 
-# 启动 mock 服务（默认端口 8000）
+# 启动 mock 服务（默认端口 8000；8000 被其他项目占用时改 --port 8010，并给前端设 BACKEND_ORIGIN=http://127.0.0.1:8010）
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
 - 接口根：http://127.0.0.1:8000
 - 接口文档：/docs（Swagger）、/redoc
-- CORS 已配置白名单（localhost:5173 / 127.0.0.1:5173），配合 Vite 代理跨域调用
+- CORS 已配置白名单（localhost:5173 / 127.0.0.1:5173），配合 Vite 代理跨域调用；vite preview（4173）等额外来源可用环境变量 `A23_CORS_ORIGINS`（逗号分隔）追加
 
 ### 3.2 前端（Vue 3 + Vite）
 
@@ -64,13 +64,13 @@ npm run dev
 npm run build
 # 产物输出到 dist/ 目录
 
-# 4. 本地预览构建产物
+# 4. 本地预览构建产物（默认端口 4173）
 npm run preview
 ```
 
 启动后控制台会输出 **Local** 与 **Network** 两个地址，局域网内其他设备可通过 Network 地址访问（如 http://192.168.x.x:5173/）。
 
-vite.config.js 已配代理：/api/* → http://127.0.0.1:8000，前端代码统一使用 `/api/v1` 相对路径。默认必须先启动后端；后端异常会显示调用错误，不会自动切换为 mock。
+vite.config.js 已配代理：/api/* → http://127.0.0.1:8000（标准口径；8000 被占用时后端跑 8010，启动前端前设 `BACKEND_ORIGIN=http://127.0.0.1:8010` 覆盖），前端代码统一使用 `/api/v1` 相对路径。默认必须先启动后端；后端异常会显示调用错误，不会自动切换为 mock。
 
 ### 3.3 数据源说明
 

@@ -21,7 +21,7 @@ powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1
 | 现象 | 处理 |
 | --- | --- |
 | `setup_a23.py` 报数据文件缺失 | 克隆不完整，重新 `git clone`（确认含 `企业提交材料/A23_小型运行数据包_V1.0/` 与 `backend/model_runtime_v0_3/models/`） |
-| 8000 端口被占（本机常见：其他项目默认占 8000） | `powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1 -BackendPort 8001`（前端代理自动跟随）；启动脚本会自动探测 8000 是否为 A23 后端，不是就换端口 |
+| 8000 端口被占（本机常见：其他项目默认占 8000） | `powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1 -BackendPort 8010`（前端代理自动跟随）；启动脚本会自动探测 8000 是否为 A23 后端，非 A23 占用时拒绝启动并提示换端口 |
 | 首次打开页面数值为空 | 后端启动后快照预热约 1~2 分钟，稍候刷新 |
 | 只想校验不安装 | `python scripts/setup_a23.py --check` |
 

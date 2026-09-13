@@ -6,6 +6,7 @@ Provider 配置在导入期校验：OBSERVATION_PROVIDER / PREDICTION_PROVIDER
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -64,9 +65,16 @@ app = FastAPI(
     description="太湖 A23 蓝藻水华监测、反演与机理-AI 推演服务。观测、代理、派生和模拟值按来源分别披露。",
     version="2.2.0",
 )
+# CORS：默认放行 Vite dev（5173）。vite preview（4173）等额外来源用环境变量
+# A23_CORS_ORIGINS 追加（逗号分隔），例如：
+# A23_CORS_ORIGINS=http://localhost:4173,http://127.0.0.1:4173
+_cors_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+_cors_origins.extend(
+    origin.strip() for origin in os.getenv("A23_CORS_ORIGINS", "").split(",") if origin.strip()
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],

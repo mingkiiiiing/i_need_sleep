@@ -31,7 +31,7 @@
     {
       "name": "T1 一行技术状态标签存在且非\"可用于比较\"",
       "ok": true,
-      "detail": "state=forecast 文本=预测范围"
+      "detail": "state=none 文本=暂无范围"
     },
     {
       "name": "T1 门禁 0 PASS 下页面绝不出现正面\"可用于站点比较\"",
@@ -46,7 +46,7 @@
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260913T042458Z_3557c97ccd3a\",\"spatial\":\"PRED_mee_surface_water_realtime_20260913T042458Z_3557c97ccd3a\",\"driver\":\"PRED_mee_surface_water_realtime_20260913T042458Z_3557c97ccd3a\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260913T085435Z_55205e70bab1\",\"spatial\":\"PRED_mee_surface_water_realtime_20260913T085435Z_55205e70bab1\",\"driver\":\"PRED_mee_surface_water_realtime_20260913T085435Z_55205e70bab1\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
@@ -66,7 +66,7 @@
     {
       "name": "T2 深链站点 A：站内不再出现\"vs 全湖中位\"对比行",
       "ok": true,
-      "detail": "结果总览 驱动因素 不确定性 临江 未来 T+1 · 短临 返回全湖结果 中 · 12.5% 0% —— 12.53% —— 12.53% 预测范围 风险等级 本站模型预测 12.5% 水华风险概率 风险等级趋势 同月短期结果 · 四档同值"
+      "detail": "结果总览 驱动因素 不确定性 临江 未来 T+1 · 短临 返回全湖结果 低 · 8.6% 0% —— 8.58% —— 8.58% 预测范围 风险等级 本站模型预测 8.6% 水华风险概率 风险等级趋势 同月短期结果 · 四档同值 全湖同"
     },
     {
       "name": "T2 深链站点 A：hero 口径为本站预测",
@@ -76,7 +76,7 @@
     {
       "name": "T2 深链站点 A：T+1 概率与接口同值（展示精度）",
       "ok": true,
-      "detail": "页面=12.5% 接口=12.528784550033512%"
+      "detail": "页面=8.6% 接口=8.577008019552556%"
     },
     {
       "name": "T3 快速切换后落在最后目标 A",
@@ -86,7 +86,7 @@
     {
       "name": "T3 落点 A 的 T+1 值与接口一致（未串站）",
       "ok": true,
-      "detail": "页面=12.5% A=12.528784550033512% C=1.2628364558025738%"
+      "detail": "页面=8.6% A=8.577008019552556% C=1.2628364558025738%"
     },
     {
       "name": "T4 换指标后 hash metric=chla",
@@ -96,7 +96,7 @@
     {
       "name": "T4 hero 显示 μg/L 口径",
       "ok": true,
-      "detail": "hero=21.569 μg/L"
+      "detail": "hero=13.003 μg/L"
     },
     {
       "name": "T5 hero 口径为\"中长期\"",
@@ -276,12 +276,12 @@
     {
       "name": "T10 站点驱动每项带来源标注",
       "ok": true,
-      "detail": "[\"全湖 24.385 ℃ · ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.275 mg/L · MEE 实测\",\"逐站 2.099 mg/L · MEE 实测\",\"逐站 0.111 mg/L · MEE 实测·未纳入当前机理公式\"]"
+      "detail": "[\"逐站 28.01 ℃ · 本站实测·MEE 水温\",\"全湖 缺测·不进入温度适合度\",\"全湖 164.008 W/m² · 9 月气候态·NASA POWER 网格（非实测） （已取到上限，恒为 1.0）\",\"逐站 0.171 mg/L · MEE 实测\",\"逐站 2.011 mg/L · MEE 实测\",\"逐站 0.13 mg/L · MEE 实测·未纳入当前机理公式\"]"
     },
     {
       "name": "T10 温度来源标注与本站观测一致（缺测时诚实回退网格）",
       "ok": true,
-      "detail": "observed_temp=false 标注=全湖 24.385 ℃ · ERA5 湖表温度网格·月度（全湖同一网格，非站间分辨）"
+      "detail": "observed_temp=true 标注=逐站 28.01 ℃ · 本站实测·MEE 水温"
     },
     {
       "name": "T10 光照标注为网格/气候态且非本站实测",
@@ -296,7 +296,7 @@
     {
       "name": "T10 逐站/全湖徽标成对出现",
       "ok": true,
-      "detail": "[\"lake\",\"lake\",\"lake\",\"station\",\"station\",\"station\",\"lake\"]"
+      "detail": "[\"station\",\"lake\",\"lake\",\"station\",\"station\",\"station\",\"lake\"]"
     },
     {
       "name": "T10 流速行只剩徽标不带来源长句",

@@ -30,8 +30,10 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
-const BASE = 'http://127.0.0.1:5173'
-const API = 'http://127.0.0.1:8000/api/v1'
+const BASE = process.env.A23_WEB_BASE || 'http://127.0.0.1:5173'
+// 8000 被其他服务占用时用 A23_API_BASE 指向实际后端；主机形式（不带 /api/v1）自动补全
+const _API_RAW = (process.env.A23_API_BASE || 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '')
+const API = _API_RAW.includes('/api/v1') ? _API_RAW : `${_API_RAW}/api/v1`
 const REPORT_PATH = new URL('./stress-report.json', import.meta.url)
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
