@@ -149,7 +149,6 @@
         <div v-if="horizonTrend" class="frp-horizon" data-role="horizon-trend">
           <div class="frp-compare-head">
             <b>{{ horizonTrendTitle }}</b>
-            <span>{{ horizonTrend.legend }}</span>
           </div>
           <HorizonFanChart
             :points="horizonTrend.points"
@@ -165,12 +164,6 @@
             :band-ranges="horizonTrend.bandRanges"
             :aria-label="`${metricLabel}七时效趋势`"
           />
-          <p v-if="horizonTrend.resolutionNote" class="frp-unc-note" data-role="trend-resolution-note">
-            {{ horizonTrend.resolutionNote }}
-          </p>
-          <ul v-if="horizonTrend.stationNotes.length" class="frp-unc-note" data-role="trend-station-notes">
-            <li v-for="note in horizonTrend.stationNotes" :key="note">{{ note }}</li>
-          </ul>
         </div>
         <p v-else-if="lakeAreaNote" class="frp-note" data-role="lake-area-note">{{ lakeAreaNote }}</p>
 
@@ -178,7 +171,7 @@
 
         <!-- 站点模式：九任务状态矩阵（本站模型输出） -->
         <template v-if="scope === 'station'">
-          <h4 class="frp-sub-h">本次模型输出 <span>9 任务同一时效</span></h4>
+          <h4 class="frp-sub-h">本次模型输出</h4>
           <div class="frp-cards" data-role="model-results">
             <div v-for="card in overviewCards" :key="card.key" class="frp-card" :title="card.title">
               <div class="frp-card-head">
@@ -238,12 +231,6 @@
             <dd :class="{ 'frp-miss': row.miss }">{{ row.text }}</dd>
           </div>
         </dl>
-        <dl v-if="stationVsLake" class="frp-kv" data-role="station-vs-lake">
-          <div>
-            <dt>本站{{ metricLabel }} vs 全湖中位（{{ lakeStationCount ?? "—" }} 站）</dt>
-            <dd>{{ stationVsLake.text }}</dd>
-          </div>
-        </dl>
       </template>
       <template v-else>
         <!-- 全湖汇总：活跃站预测分布聚合（替代"均值虚拟站点"口径） -->
@@ -294,7 +281,6 @@
           <div><b>水华形成驱动</b><span>环境 × 营养盐 × 水动力 × AI 响应</span></div>
           <strong v-if="mechanismNet" :class="mechanismNet.positive ? 'frp-net-up' : 'frp-net-down'">{{ mechanismNet.text }}</strong>
         </div>
-        <p v-if="sourceGroups.note" class="frp-unc-note" data-role="driver-source-groups">{{ sourceGroups.note }}</p>
         <div class="frp-driver-modules" data-role="mechanism-factors">
           <section v-for="group in driverGroups" :key="group.key" class="frp-driver-module" :data-group="group.key">
             <header><i>{{ group.icon }}</i><div><b>{{ group.title }}</b><span>{{ group.subtitle }}</span></div></header>
@@ -306,7 +292,7 @@
               <div class="frp-bar-track"><i class="frp-factor-fill" :style="{ width: `${f.stateOnly ? 4 : Math.max(f.pct, 4)}%`, background: f.color }"></i></div>
               <small data-role="driver-source">
                 <em :data-resolution="f.stationResolution ? 'station' : 'lake'">{{ f.stationResolution ? '逐站' : '全湖' }}</em>
-                {{ f.stateOnly ? (f.sourceText || '暂无量化') : f.sourceText }}
+                {{ f.sourceText }}
                 <template v-if="f.saturated">（已取到上限，恒为 1.0）</template>
               </small>
             </div>
@@ -347,7 +333,10 @@
           </li>
         </ul>
         </template>
-        <div v-else class="frp-ai-empty" data-role="drivers-ineffective">当前输出对输入扰动没有明显响应</div>
+        <div v-else class="frp-ai-empty" data-role="drivers-ineffective">
+          当前输出对输入扰动没有明显响应
+          <small v-if="ineffectiveReasonText" data-role="drivers-ineffective-reason">{{ ineffectiveReasonText }}</small>
+        </div>
       </section>
 
       <template v-if="unavailableFactors.length">
@@ -369,17 +358,6 @@
           <div><b>预测范围</b><span>P05 — 点预测 — P95</span></div>
           <strong :data-status="uncertaintyStatus.key">{{ uncertaintyStatus.shortTitle }}</strong>
         </div>
-        <p class="frp-unc-note" data-role="uncertainty-status-detail">{{ uncertaintyStatus.detail }}</p>
-
-        <!-- 融合稳定性（2026-09-13 分层展示）：主口径=不劣于最佳单模型（增益≥0%）；
-             显著融合增益（≥10%）为严格口径，与 N.A. 一并如实并列，不做隐藏。 -->
-        <p
-          v-if="fusionStabilityText"
-          class="frp-unc-note"
-          data-role="fusion-stability-line"
-        >
-          融合稳定性（不劣于单模型）：{{ fusionStabilityText }}；显著融合增益（≥10%）：{{ significantGainText }}<template v-if="naText">；{{ naText }}</template>。
-        </p>
 
         <!-- 等级范围（风险等级由叶绿素 a 区间映射）：不是数值区间，画范围条而非刻度尺。
              风险等级不是焦点任务（焦点 risk 映射到 probability），它的区间挂在同一次输出的
@@ -1176,36 +1154,6 @@ const horizonTrend = computed(() => {
         title: `同月短期结果 T+${shortPoints.map((p) => p.horizon).join('/')}：${shortValues[0].toLocaleString('zh-CN', { maximumFractionDigits: 3 })}（同一月度标签，四档按定义相同）`
       }
     : null
-  const longOrigins = new Set(scenarioPoints.map((row) => row.originKey))
-  const notes = []
-  if (shortGroup) {
-    notes.push('短期四档（T+1/3/7/15）共用同一个月度标签，数值按定义相同，图上合并标注为“同月短期结果”——训练面板为站-月粒度，不含日尺度信号。')
-  }
-  if (longOrigins.has('climatology')) {
-    notes.push(
-      scenarioPoints.some((p) => p.item?.seasonal_lookup_mode === 'global_fallback')
-        ? '中长期虚线含季节气候态基线点：部分目标月无历史同期样本，该档使用全期均值基线（全湖同值、不含站点分辨）。'
-        : '中长期虚线含季节气候态基线点：按目标月给出历史同期值，全湖同值、不含站点分辨。'
-    )
-  }
-  // 逐点来源说明：让"哪一档能看站点差异"变成一条可核对的清单，而不是靠图例猜。
-  const stationNotes = scenarioPoints.map((p) => {
-    const label = `T+${p.horizon}`
-    if (p.stationResolution === true) {
-      const file = p.item?.model_file
-      return `${label} 逐站月度趋势（${originLabel(p.item) || 'V0.3 模型'}${file ? ` · ${file}` : ''}），可做站间比较`
-    }
-    if (p.stationResolution === false) {
-      if (p.item?.value_origin === 'seasonal_climatology_baseline') {
-        const fallback = p.item?.seasonal_lookup_mode === 'global_fallback'
-          ? '（目标月无同期样本，使用全期均值基线）'
-          : ''
-        return `${label} 全湖季节基线（季节气候态 · 全湖同值）${fallback}，不做站间比较`
-      }
-      return `${label} 全湖常量模型（读模型文件但无站点响应），不做站间比较`
-    }
-    return `${label} 来源未标注站点分辨率，按全湖同值对待`
-  })
   // 等级色带（2026-09-13，用户选定方案）：risk 焦点时把各时效"风险等级范围"
   // （risk_level.uncertainty 的 p05_band→p95_band，由叶绿素 a 区间映射、经双阈值
   // 放行）画成轴下方背景色带，与不确定页签的等级范围块呼应；无带时效（T+30/60
@@ -1249,10 +1197,7 @@ const horizonTrend = computed(() => {
     lineScenario: scenarioLine.length >= 2 ? scenarioLine.map((p) => `${p.x},${p.y}`).join(' ') : '',
     intervals,
     bandCaption,
-    scenarioX: 28 + 3.5 * 60,
-    legend: shortGroup ? '同月短期（合并）· 中长期虚线（点位标注站点分辨率）' : '短期实线 · 中长期虚线',
-    resolutionNote: notes.join(' '),
-    stationNotes
+    scenarioX: 28 + 3.5 * 60
   }
 })
 
@@ -1393,25 +1338,6 @@ const aggregateBloomShare = computed(() => {
   }
 })
 
-// 站点 vs 全湖中位：全湖聚合层随站点载荷附带（lake_aggregate），同一快照同源
-const METRIC_UNIT = { probability: '', chla: 'μg/L', biomass: 'mg/L', density: '秩', area: 'km²' }
-const stationVsLake = computed(() => {
-  if (props.scope !== 'station') return null
-  const agg = props.modelForecast?.lake_aggregate
-  if (!agg?.metrics) return null
-  const key = (props.modelForecast?.analysis_focus?.result_key) || FOCUS_KEY_BY_METRIC[props.metric] || 'probability'
-  const stats = agg.metrics[key]
-  const mine = ((props.modelForecast?.results || {})[key] || {}).value
-  if (!stats || mine == null || stats.median == null) return null
-  const delta = Number(mine) - Number(stats.median)
-  const rel = Number(stats.median) !== 0 ? delta / Math.abs(Number(stats.median)) : null
-  const dir = rel == null ? '不可比' : Math.abs(rel) < 0.02 ? '与全湖中位持平' : rel > 0 ? '高于全湖中位' : '低于全湖中位'
-  const fmt = (v) => Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 3 })
-  const unit = METRIC_UNIT[key] ? ` ${METRIC_UNIT[key]}` : props.modelForecast?.results?.[key]?.unit ? ` ${props.modelForecast.results[key].unit}` : ''
-  return {
-    text: `${fmt(mine)} vs ${fmt(stats.median)}${unit}（${delta >= 0 ? '+' : ''}${fmt(delta)}，${dir}）`
-  }
-})
 const mechanismFactors = computed(() => {
   const factors = mechanismDrivers.value?.factors || []
   return factors.map((f) => {
@@ -1422,7 +1348,8 @@ const mechanismFactors = computed(() => {
     // 气候态代理等），后端未给时回退到粗分类；禁止把代理值标成"本站实测"。
     let sourceLabel
     if (f.source) sourceLabel = f.source
-    else if (f.key === 'flow' && f.source_value == null) sourceLabel = '缺少有效数据'
+    // 流速：契约无该字段，后端不再给来源注，前端也不补文案（右侧保留"不可用"状态即可）
+    else if (f.key === 'flow' && f.source_value == null) sourceLabel = ''
     else if (f.proxy) sourceLabel = '代理输入'
     else if (f.source_value != null) sourceLabel = '本站实测'
     else sourceLabel = '缺测'
@@ -1442,18 +1369,6 @@ const mechanismFactors = computed(() => {
       sourceText: [sourceRaw, sourceLabel].filter(Boolean).join(' · ')
     }
   })
-})
-// 来源分组说明：把"哪些逐站、哪些全湖"一次讲清，避免用户把全湖同值误读成站点数据没更新
-const sourceGroups = computed(() => {
-  const groups = mechanismDrivers.value?.source_groups
-  if (!groups) return { note: '' }
-  const labelOf = (key) => mechanismFactors.value.find((f) => f.key === key)?.shortLabel || key
-  const per = (groups.per_station || []).map(labelOf).filter(Boolean)
-  const wide = (groups.lake_wide || []).map(labelOf).filter(Boolean)
-  const parts = []
-  if (per.length) parts.push(`逐站：${per.join('、')}`)
-  if (wide.length) parts.push(`全湖同值：${wide.join('、')}（单一气象网格，物理上无站间差异）`)
-  return { note: parts.join('；') }
 })
 const driverGroups = computed(() => {
   const byKeys = (keys) => mechanismFactors.value.filter((f) => keys.includes(f.key))
@@ -1488,6 +1403,18 @@ const mechanismNet = computed(() => {
 // ---- 驱动因素：模型敏感性 ----
 const modelExplanation = computed(() => focusResult.value?.explainability || null)
 const modelFactors = computed(() => (modelExplanation.value?.factors || []).slice(0, 8))
+// 解释无效的原因翻译（2026-09-13）：后端 ineffective_reason 一直有值，此前未渲染，
+// 用户只看到"没有明显响应"不知道为什么。常见两种：常量基线模型（对输入不敏感）、
+// 低风险饱和（扰动范围内模型输出恒 0）。
+const INEFFECTIVE_REASON_TEXT = {
+  selected_model_constant_baseline_not_input_sensitive: '当前时效选中的是常量基线模型，输出不随输入变化，扰动敏感性不适用。',
+  trained_model_zero_response_in_perturbation_range: '当前为低风险饱和状态：扰动范围内模型输出恒接近 0，扰动不改变结论（可切换到叶绿素 a 查看有效驱动）。'
+}
+const ineffectiveReasonText = computed(() => {
+  const e = modelExplanation.value
+  if (!e || e.effective) return ''
+  return INEFFECTIVE_REASON_TEXT[e.ineffective_reason] || ''
+})
 const unavailableFactors = computed(() => modelExplanation.value?.unavailable_factors || [])
 const maxContribution = computed(() =>
   modelFactors.value.reduce((m, f) => Math.max(m, f.contribution_percent), 0) || 1
@@ -1535,24 +1462,6 @@ function calibrationText(status) {
   return CALIBRATION_TEXT[status] || status || '—'
 }
 // 等级范围的承载对象：焦点任务自身带 band_range 时优先，否则取同一次输出的 risk_level 兄弟结果
-const acceptanceBlock = computed(() => props.modelForecast?.acceptance || null)
-const fusionStabilityText = computed(() => {
-  const fs = acceptanceBlock.value?.fusion_stability
-  if (!fs) return ''
-  const parts = []
-  if (fs.degrade) parts.push(`劣化 ${fs.degrade} 行`)
-  if (fs.indeterminate_baseline_zero) parts.push(`基线为零不可比 ${fs.indeterminate_baseline_zero} 行`)
-  return `${fs.pass_text} 通过` + (parts.length ? `（${parts.join('，')}）` : '')
-})
-const significantGainText = computed(() => {
-  const a = acceptanceBlock.value
-  if (!a) return ''
-  return `${a.pass}/${a.evaluable_comparisons ?? a.comparison_rows}`
-})
-const naText = computed(() => {
-  const a = acceptanceBlock.value
-  return a?.not_applicable ? `${a.not_applicable} 项暂不可比较（样本不足）` : ''
-})
 const bandRangeUncertainty = computed(() => {
   if (v3Uncertainty.value?.band_range) return v3Uncertainty.value
   const sibling = props.modelForecast?.results?.risk_level?.uncertainty
@@ -1744,7 +1653,14 @@ const intervalScale = computed(() => {
   const p05 = Number(u.p05)
   const p95 = Number(u.p95)
   const banded = focusKey === 'chla' || focusKey === 'probability'
-  const domainMax = banded ? Math.max(50, p95 * 1.15) : Math.max(p95 * 1.08, point * 1.2, 0.0001)
+  // 概率域低值自适应（2026-09-13）：概率按 ×50 等效 μg/L 映射到等级色带；低风险期
+  // p95 贴 0（如 0.29% ≈ 0.14 等效），固定 0–50 域会让游标挤成看不见的一个点。
+  // 改为：低值时域自动收缩到区间附近（色带只显示对应首段），高值时仍是完整 0–50。
+  const domainMax = banded
+    ? (focusKey === 'probability'
+        ? Math.max(0.05, Math.min(50, Math.max(p95 * 1.6, point * 1.4)))
+        : Math.max(50, p95 * 1.15))
+    : Math.max(p95 * 1.08, point * 1.2, 0.0001)
   const x = (v) => Math.min(300, Math.max(0, (Math.min(Math.max(v, 0), domainMax) / domainMax) * 300))
   const segments = banded
     ? bandSegments(domainMax).map((seg) => ({
