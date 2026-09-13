@@ -8,6 +8,8 @@
   ① 快照状态：state=ready、79/79 站点、读的是已发布快照；
   ② 标签来源：chla 系结果逐行如实披露（proxy/mixed），清单对账 mismatch=0；
   ③ 不确定性四条件：decision_usable = 结构自洽 ∧ test_n≥15 ∧ 覆盖率已核算 ∧ 覆盖率≥88%
+     （双阈值补充 2026-09-13：覆盖率≥展示线 80% 时等级范围以"参考范围"放行并强制标注，
+      decision_usable 判定不变；<80% 仍阻断）
     （季节基线必须是独立测试段覆盖率，产物为 seasonal_climatology_v3 三段互不重叠）；
   ④ 中长期路由：T+30/60 评估不足的逐站模型被拒并回退季节基线；
   ⑤ 模型身份：API 返回 artifact_id + 清单真实 file/sha256，34 个产物文件在盘且哈希一致；
@@ -198,13 +200,22 @@ def main() -> int:
             check(f"{rtag} 派生口径+代理披露",
                   rl.get("value_origin") == "derived_from_chla_v0_3_risk_bands"
                   and rl.get("derived_is_proxy") is True)
-            src_usable = bool((results.get("chla") or {}).get("uncertainty", {}).get("decision_usable"))
+            chla_u = (results.get("chla") or {}).get("uncertainty", {})
+            src_usable = bool(chla_u.get("decision_usable"))
+            src_cov = chla_u.get("empirical_coverage")
             ru = rl.get("uncertainty") or {}
             blocked = rl.get("band_range_blocked") or {}
             if src_usable:
-                check(f"{rtag} 源区间可用→等级范围给出", bool(ru.get("band_range")))
+                check(f"{rtag} 源区间可用→等级范围给出（决策模式）", bool(ru.get("band_range")))
+            elif isinstance(src_cov, (int, float)) and src_cov >= 0.80:
+                # 双阈值（2026-09-13）：展示线 80%~决策线 88% 之间 → "参考范围"放行，
+                # 必须带 band_mode=reference/display_usable 标注；不得无标注放行。
+                check(f"{rtag} 覆盖率≥展示线80%→参考范围放行且带标注",
+                      bool(ru.get("band_range")) and ru.get("band_mode") == "reference"
+                      and ru.get("display_usable") is True and not blocked,
+                      f"mode={ru.get('band_mode')} cov={src_cov:.4f} display={ru.get('display_usable')}")
             else:
-                check(f"{rtag} 源区间不可用→等级范围阻断且有原因",
+                check(f"{rtag} 低于展示线→等级范围阻断且有原因",
                       not ru.get("band_range") and bool(blocked.get("reason")),
                       str(blocked.get("reason"))[:60])
             # 中长期默认风险概率路由

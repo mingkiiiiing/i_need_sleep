@@ -1504,7 +1504,10 @@ const acceptanceBlock = computed(() => props.modelForecast?.acceptance || null)
 const fusionStabilityText = computed(() => {
   const fs = acceptanceBlock.value?.fusion_stability
   if (!fs) return ''
-  return `${fs.pass_text} 通过` + (fs.degrade ? `（劣化 ${fs.degrade} 行）` : '')
+  const parts = []
+  if (fs.degrade) parts.push(`劣化 ${fs.degrade} 行`)
+  if (fs.indeterminate_baseline_zero) parts.push(`基线为零不可比 ${fs.indeterminate_baseline_zero} 行`)
+  return `${fs.pass_text} 通过` + (parts.length ? `（${parts.join('，')}）` : '')
 })
 const significantGainText = computed(() => {
   const a = acceptanceBlock.value
@@ -1621,6 +1624,19 @@ const UNCERTAINTY_STATUS_LABELS = {
 const uncertaintyStatus = computed(() => {
   const u = v3Uncertainty.value
   if (!u) return { key: 'none', title: '当前任务未提供预测区间', shortTitle: '无可用区间', detail: '不可用，不据此作决策。' }
+  // 交互一致性（2026-09-13 复审）：焦点为风险等级且等级范围处于"参考范围"模式时，
+  // 顶部结论必须与范围块同口径（源区间覆盖率证据），不得沿用焦点映射区间（如概率
+  // 97.5% validated）的状态标签造成"参考范围=已验证"的误读。
+  if (props.metric === 'risk' && bandRangeUncertainty.value?.band_mode === 'reference') {
+    const b = bandRangeUncertainty.value
+    const src = b.source_interval || {}
+    const cov = Number(src.empirical_coverage)
+    return {
+      key: 'watch', shortTitle: '参考范围',
+      title: `等级范围：${bandText(b.p05_band)} — ${bandText(b.p95_band)}`,
+      detail: `源区间（叶绿素 a）经验覆盖率 ${Number.isFinite(cov) ? (cov * 100).toFixed(2) + '%' : '—'}：已达展示线 80%，未达决策线 88%；范围供趋势参考、不用于决策。`
+    }
+  }
   const structuralValid = Boolean(u.structural_valid)
   const calibStatus = u.calibration_status || 'unavailable'
   const testN = Number(u.test_n ?? u.coverage?.test_n ?? u.source_interval?.test_n ?? 0)

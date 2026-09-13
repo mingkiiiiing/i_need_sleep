@@ -15,7 +15,9 @@ import fs from 'node:fs'
 
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
 const BASE = 'http://127.0.0.1:5173'
-const API = 'http://127.0.0.1:8000/api/v1'
+// 8000 被其他服务占用时用 A23_API_BASE 指向实际后端；主机形式（不带 /api/v1）自动补全（2026-09-13）
+const API = (process.env.A23_API_BASE || 'http://127.0.0.1:8000/api/v1').replace(/\/$/, '')
+const API_FULL = API.includes('/api/v1') ? API : `${API}/api/v1`
 
 const ST_A = 'mee-0145cdb7' // 临江
 const ST_B = 'mee-077b367a' // 池家浜水文站
@@ -33,19 +35,21 @@ function check(name, ok, detail) {
   }
 }
 
-async function expected(entityId, metric, horizon, tries = 6) {
-  // 快照后台重建期间站点视图会短暂 409/data 为空：指数退避重试，而不是让整轮冒烟崩死
-  const url = `${API}/model/v3/prediction-snapshot?entity_id=${encodeURIComponent(entityId)}&focus_metric=${metric}`
+async function expected(entityId, metric, horizon, tries = 8) {
+  // 快照后台重建期间站点视图会短暂 409/data 为空：带超时的退避重试，而不是让整轮冒烟崩死。
+  // fetch 必须带 AbortSignal 超时（2026-09-13）：无超时的 fetch 在重建窗口会挂死整轮，
+  // 表现为"重试 6 次仍不可用"但实际是首次请求永不返回。
+  const url = `${API_FULL}/model/v3/prediction-snapshot?entity_id=${encodeURIComponent(entityId)}&focus_metric=${metric}`
   let d = null
   for (let t = 0; t < tries; t++) {
     try {
-      const resp = await fetch(url)
+      const resp = await fetch(url, { signal: AbortSignal.timeout(20000) })
       if (resp.ok) {
         const body = (await resp.json()).data
         if (body && body.horizons && body.horizons[String(horizon)]) { d = body; break }
       }
-    } catch { /* 网络抖动继续重试 */ }
-    await new Promise((r) => setTimeout(r, 4000))
+    } catch { /* 网络抖动/超时继续重试 */ }
+    await new Promise((r) => setTimeout(r, 5000))
   }
   if (!d) throw new Error(`expected(${entityId}, ${metric}, ${horizon}): 快照暂不可用（重试 ${tries} 次）`)
   const h = d.horizons[String(horizon)]
@@ -61,6 +65,10 @@ async function expected(entityId, metric, horizon, tries = 6) {
     decisionUsable: Boolean(u.decision_usable),
     // 等级范围的给出与否取决于叶绿素 a 源区间是否可决策（2026-09-11 合同收紧）
     chlaUsable: Boolean((((h.results || {}).chla || {}).uncertainty || {}).decision_usable),
+    // 双阈值判据输入：叶绿素源区间覆盖率（2026-09-13）
+    sourceInterval: (((h.results || {}).risk_level || {}).band_range_blocked || {}).source_interval
+      || (((h.results || {}).chla || {}).uncertainty || {}).source_interval
+      || { empirical_coverage: (((h.results || {}).chla || {}).uncertainty || {}).empirical_coverage },
     // 该站实测观测里是否有 MEE 水温（决定驱动面板温度的诚实标注形态）
     chlaHasTemp: (((h.scope || {}).observed_fields || [])).includes('wq_water_temp'),
     comparisonUsable: Boolean((h.entity_diagnostic || {}).comparison_usable),
@@ -125,7 +133,7 @@ async function main() {
   const browser = await puppeteer.launch({
     executablePath: EDGE,
     headless: true,
-    args: ['--no-sandbox', '--disable-gpu', '--window-size=1600,1000']
+    args: ['--no-sandbox', '--disable-gpu', '--window-size=1600,1000', '--no-proxy-server'] // 无头 Edge 默认走系统代理，代理波动会拖死 localhost（2026-09-13）
   })
   const page = await browser.newPage()
   await page.setViewport({ width: 1600, height: 1000 })
@@ -326,9 +334,17 @@ async function main() {
   // 双向：后端 decision_usable 为真才允许显示"区间可用"；为假时必须降级。
   // 曾经这条是单向的（一律不得显示"可用"），因为当时所有模型 test_n=0；现在补训协议
   // 切出真实留出测试段，证据成立就该允许"可用"，否则页面会低报自己已经做到的证据。
-  check('T8 区间可用结论与后端 decision_usable 一致',
-    eU.decisionUsable ? uTab.statusText === '区间可用' : uTab.statusText !== '区间可用',
-    `shortTitle=${uTab.statusText} 后端decision_usable=${eU.decisionUsable}`)
+  // 2026-09-13 修订：risk 焦点的顶部结论与等级范围块同口径（判据=叶绿素源区间，双阈值），
+  // 不得用焦点映射的概率区间（validated 97.5%）判定——那是"交互一致性"修订的本意。
+  const covRef = Number(((eU.sourceInterval || {}).empirical_coverage))
+  const chlaCovOk = Number.isFinite(covRef) && covRef >= 0.80
+  const topExpectOk =
+    eU.chlaUsable ? uTab.statusText === '区间可用'
+    : chlaCovOk ? uTab.statusText === '参考范围'
+    : uTab.statusText !== '区间可用'
+  check('T8 区间可用结论与后端 decision_usable 一致（risk 焦点=等级范围口径）',
+    topExpectOk,
+    `shortTitle=${uTab.statusText} chlaUsable=${eU.chlaUsable} cov=${isNaN(covRef) ? '—' : covRef.toFixed(4)}`)
   check('T8 区间刻度尺绘制与后端结构自洽一致', uTab.hasScale === Boolean(eU.structuralValid),
     `尺=${uTab.hasScale} 后端structural_valid=${eU.structuralValid}`)
   // 校准未核算（decision_usable=false）时环必须明示"未核算"，不得表述为已核算/达标
@@ -372,9 +388,9 @@ async function main() {
     `chlaUsable=${eRisk.chlaUsable} band=${uDerived.bandPresent} status=${uDerived.bandStatus} ` +
     `refNote=${uDerived.referenceNote} blocked=${uDerived.bandBlocked} ` +
     `reason=${uDerived.bandBlockedReason.slice(0, 70)}`)
-  check('T8b 后端 decision_usable 与页面结论一致',
-    !eRisk.decisionUsable || uDerived.statusKey === 'usable',
-    `后端=${eRisk.decisionUsable} 页面=${uDerived.statusKey}`)
+  check('T8b 等级范围结论与叶绿素源区间口径一致（非焦点概率口径）',
+    eRisk.chlaUsable ? uDerived.statusKey === 'usable' : true,
+    `chlaUsable=${eRisk.chlaUsable} 页面=${uDerived.statusKey}`)
   // T+30（中长期档）：季节基线 v3 三段回测后，独立测试覆盖率低于验收线的时效同样阻断；
   // 断言数据驱动——源区间可决策必须给三档范围，不可决策必须渲染阻断原因，不允许空态。
   await page.goto(deep(`mode=forecast&scale=long&metric=risk&station=${ST_A}&stop=t30`), { waitUntil: 'domcontentloaded' })
@@ -415,7 +431,7 @@ async function main() {
   st = await readPage(page)
   // 站点分母动态化（审计整改）：目录 79 站、当轮活跃可能只有 78，断言读 API 实际口径
   {
-    const statusResp = await (await fetch(`${API}/model/v3/prediction-status`)).json()
+    const statusResp = await (await fetch(`${API_FULL}/model/v3/prediction-status`)).json()
     const stb = (statusResp.data || {}).stations || {}
     const expectCoverage = `${stb.done}/${stb.total}`
     check('T9 预测覆盖与 API 实际口径一致（动态分母）',

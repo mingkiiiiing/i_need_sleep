@@ -3092,6 +3092,11 @@ class AlgorithmModelServiceV3:
             "min_test_rows": gate.get("min_test_rows"),
             "evidence": "/api/v1/model/acceptance/detail",
             "fusion_stability": self._fusion_stability(gate),
+            "reverification_disclosure": (
+                "复核提示（2026-09-12/13）：备份分支 backup/round3-freeze-20260913 的重训复验对上表 6 条 PASS 行给出反证——"
+                "修复机理退化交互与序数评估缺陷后，6 条在重训/补验下均不复现（T3 residual 0.1932×4、T3 h90、T4 h90）。"
+                "本表为 2026-09-11 冻结产物，对外宣称门禁通过前须以复验口径复核；引用本页数字不得表述为“经复验确认”。"
+            ),
             "honesty_note": gate.get("honesty_note"),
             "note": summary.get("note"),
             "action": (
@@ -3335,11 +3340,15 @@ class AlgorithmModelServiceV3:
         models = manifest.get("models", [])
         # 覆盖有效性分层：校准器存在 ≠ 已验证 ≠ 可决策。判据 = 样本量 + 覆盖率已核算 + 覆盖率达标，
         # 与 calibration_coverage() 共用 _calibration_verdict，避免两处口径漂移。
-        calibrated = [
+        # 口径修正（2026-09-13 复审）：携带残差校准元数据 ≠ 提供数值区间——5 个 risk_level
+        # 分类 bundle 为类别输出，不输出 P05/P95 区间，单独计数，不得计入"带 conformal 区间"。
+        interval_models = [
             m for m in models
             if (m.get("uncertainty") or {}).get("test_n") is not None
             or (m.get("uncertainty") or {}).get("calibration_n")
         ]
+        calibrated = [m for m in interval_models if m.get("variant") != "risk_level"]
+        class_only = len(interval_models) - len(calibrated)
         verdicts = []
         for model in calibrated:
             uncertainty = model.get("uncertainty") or {}
@@ -3421,8 +3430,9 @@ class AlgorithmModelServiceV3:
                     "status": p0_2,
                     "evidence": [{"label": "覆盖率元数据", "href": "/api/v1/model/calibration/coverage"}],
                     "detail": (
-                        f"{len(calibrated)}/{len(models)} 个 bundle 带 conformal 校准器；"
-                        f"{len(validated)}/{len(calibrated)} 同时满足样本量与覆盖率验收线"
+                        f"{len(calibrated)}/{len(models)} 个 bundle 输出 conformal 数值区间（P05/P95）"
+                        + (f"；另有 {class_only} 个 risk_level 分类 bundle 为类别输出，不提供数值区间校准" if class_only else "")
+                        + f"；{len(validated)}/{len(calibrated)} 同时满足样本量与覆盖率验收线"
                         f"（标称 {COVERAGE_TARGET:.0%}，验收线 {COVERAGE_ACCEPTANCE_MIN:.0%}）；"
                         f"{len(undercovered)} 个实测覆盖率低于验收线，不得标为决策可用。"
                         if calibrated else "无带校准器的 bundle。"
