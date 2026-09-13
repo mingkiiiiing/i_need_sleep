@@ -76,17 +76,7 @@
       </figure>
     </section>
 
-    <!-- ============ 工程脉搏：真实系统数字带 ============ -->
-    <div :ref="pulseReveal.targetRef" class="home-reveal" :class="{ 'is-in': pulseReveal.visible.value }">
-      <SystemPulse
-        :station-total="summary?.station_total ?? '—'"
-        :plottable="plottableCount"
-        :warnings="summary?.warnings?.length ?? '—'"
-        :state="rtState"
-      />
-    </div>
-
-    <!-- ============ 第二屏：六个核心入口（聚光/磁吸/stagger 升级版） ============ -->
+    <!-- ============ 第二屏：六个核心业务模块入口（聚光/磁吸/stagger 升级版） ============ -->
     <div :ref="entriesReveal.targetRef" class="home-reveal" :class="{ 'is-in': entriesReveal.visible.value }">
       <EntryGrid :entries="entries" />
     </div>
@@ -102,7 +92,6 @@ import { fetchRealtimeSummary } from '../services/realtime.js'
 import DataModeBadge from '../components/common/DataModeBadge.vue'
 import FlowCanvas from '../components/home/FlowCanvas.vue'
 import EntryGrid from '../components/home/EntryGrid.vue'
-import SystemPulse from '../components/home/SystemPulse.vue'
 import ScrambleText from '../components/home/ScrambleText.vue'
 import { useReveal } from '../composables/useReveal.js'
 
@@ -224,13 +213,7 @@ function goStation(id) {
   router.push({ path: '/stations', query: { p: id } })
 }
 
-// 有坐标站数（可上图）：工程脉搏 live 口径
-const plottableCount = computed(
-  () => (summary.value?.markers || []).filter((m) => m.lat != null && m.lon != null).length
-)
-
 // 下方区块滚动入场（进入视口一次性 reveal）
-const pulseReveal = useReveal()
 const entriesReveal = useReveal()
 
 // ---------- 核心入口（顺序 = 业务动线：总览 → 站点 → 预警处置 → 分析 → 展示） ----------

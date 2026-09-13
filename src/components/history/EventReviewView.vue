@@ -7,24 +7,18 @@
         <div class="erv-stat">
           <span class="erv-stat-label">事件总数</span>
           <strong class="erv-stat-value">{{ stats.total }}</strong>
-          <span class="erv-stat-sub">
-            实时 {{ stats.by_type?.realtime ?? 0 }} · 预测 {{ stats.by_type?.predicted ?? 0 }} · 当前筛选 {{ listData.total }} 个
-          </span>
         </div>
         <div class="erv-stat">
           <span class="erv-stat-label">关闭率</span>
           <strong class="erv-stat-value">{{ stats.closed?.rate != null ? Math.round(stats.closed.rate * 100) + '%' : '—' }}</strong>
-          <span class="erv-stat-sub">已关闭 {{ stats.closed?.num }} / 全部 {{ stats.closed?.den }} · 撤销 {{ stats.closed?.revoked }} · 处理中 {{ stats.closed?.open }}</span>
         </div>
         <div class="erv-stat">
           <span class="erv-stat-label">平均响应</span>
           <strong class="erv-stat-value">{{ stats.avg_response_min?.value != null ? stats.avg_response_min.value : '—' }}<small v-if="stats.avg_response_min?.value != null"> 分钟</small></strong>
-          <span class="erv-stat-sub">触发→确认 · 样本 {{ stats.avg_response_min?.samples ?? 0 }}</span>
         </div>
         <div class="erv-stat">
           <span class="erv-stat-label">平均处置时长</span>
           <strong class="erv-stat-value">{{ stats.avg_handling_min?.value != null ? stats.avg_handling_min.value : '—' }}<small v-if="stats.avg_handling_min?.value != null"> 分钟</small></strong>
-          <span class="erv-stat-sub">触发→关闭/撤销 · 样本 {{ stats.avg_handling_min?.samples ?? 0 }}</span>
         </div>
       </template>
     </section>
@@ -323,11 +317,6 @@ onMounted(() => {
 .erv-stat-value small {
   font-size: 11px;
   font-weight: 400;
-  color: var(--text-muted);
-}
-.erv-stat-sub {
-  font-size: 10px;
-  font-family: var(--font-mono);
   color: var(--text-muted);
 }
 .erv-main {

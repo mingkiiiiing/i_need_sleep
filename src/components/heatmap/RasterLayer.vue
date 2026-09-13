@@ -1,8 +1,8 @@
 <template>
-  <section class="rl" aria-label="V0.3 月度叶绿素 a 栅格场">
+  <section class="rl" aria-label="月度叶绿素 a 栅格场">
     <header class="rl-head">
       <div class="rl-head-text">
-        <h3>V0.3 月度叶绿素 a 栅格场</h3>
+        <h3>月度叶绿素 a 栅格场</h3>
         <p>
           月度反演重建基底：年度反演产品（固定色标反解）× 地面 / CLMS 月度锚点残差 IDW 修正，
           不随预测时效生成未来空间场；边界为 {{ field?.boundary?.threshold_ug_l ?? 20 }} μg/L 阈值分割。

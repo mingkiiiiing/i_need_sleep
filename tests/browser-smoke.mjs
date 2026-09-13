@@ -6,7 +6,8 @@
 //   - 短期预测（T+1..15）与中长期月度趋势（T+30..90）在趋势图上实线/虚线分口；
 //     中长期按真实来源命名（90 天逐站模型 / 30/60 天季节气候态基线），不再写"情景推演·未验证"；
 //   - 月度栅格场开关归左栏控制面板；驱动因素逐项标注"逐站 / 全湖"；
-//   - 覆盖披露三行：预测覆盖 79/79 · 地图覆盖 48/79 · 未上图站给出原因；
+//   - 覆盖披露 chips（预测覆盖/地图覆盖）与"N 站可上图"注已按产品要求移除，
+//     仅保留"未上图站原因"条件行（T9 做反向回归守卫）；
 //   - 快速切换/前进后退不串站；页面读取零推理（同源校验走快照 ID）。
 //
 // 运行：npm run test:browser （puppeteer-core + 本机 Edge，需 5173/8000 在线）
@@ -97,22 +98,18 @@ async function readPage(page) {
       statusTagText: q('prediction-status-tag')?.innerText?.trim() || null,
       aggCardCount: document.querySelectorAll('[data-role="lake-aggregate-cards"] .frp-card').length,
       stationCardCount: document.querySelectorAll('[data-role="model-results"] .frp-card').length,
-      stationVsLake: (q('station-vs-lake') || {}).innerText?.trim() || null,
       prevBanner: !!q('previous-version-banner'),
       retryBtn: !!q('model-retry'),
       trendPresent: !!trend,
       trendCaptions: trend ? Array.from(trend.querySelectorAll('.frp-trend-caption')).map((e) => e.textContent.trim()) : [],
       trendScenarioLine: !!document.querySelector('.frp-trend-line--scenario'),
       trendShortLine: !!document.querySelector('.frp-trend-line:not(.frp-trend-line--scenario)'),
-      trendResolutionNote: (q('trend-resolution-note') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
       areaNote: (q('lake-area-note') || {}).innerText?.trim() || null,
-      predictionCoverage: (q('prediction-coverage') || {}).textContent?.trim() || null,
-      mapCoverage: (q('spatial-coverage') || {}).textContent?.trim() || null,
       notPlottable: (q('not-plottable-note') || {}).textContent?.trim() || null,
       lddNotes: (q('ldd-data-notes') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
       driverSources: Array.from(document.querySelectorAll('[data-role="mechanism-factors"] [data-role="driver-source"]')).map((e) => e.textContent.trim()),
-      driverSourceGroups: (q('driver-source-groups') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
       lightSource: (document.querySelector('[data-factor="light"] [data-role="driver-source"]') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
+      flowSource: (document.querySelector('[data-factor="flow"] [data-role="driver-source"]') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
       tempSource: (document.querySelector('[data-factor="temperature"] [data-role="driver-source"]') || {}).innerText?.replace(/\s+/g, ' ').trim() || null,
       // 逐站 / 全湖 徽标：结构化的分辨率标注，不靠来源长句推断
       driverResolutions: Array.from(document.querySelectorAll('[data-role="mechanism-factors"] [data-role="driver-source"] em'))
@@ -205,7 +202,8 @@ async function main() {
   check('T2 深链站点 A：URL 带 station', st.hash.includes(`station=${ST_A}`), `hash=${st.hash}`)
   check('T2 深链站点 A：对象名为临江', st.objectName === '临江', `对象=${st.objectName}`)
   check('T2 深链站点 A：显示本站 9 任务卡', st.stationCardCount >= 8, `站点卡=${st.stationCardCount}`)
-  check('T2 深链站点 A：本站 vs 全湖中位可见', (st.stationVsLake || '').includes('全湖中位'), st.stationVsLake)
+  check('T2 深链站点 A：站内不再出现"vs 全湖中位"对比行', !(st.panelText || '').includes('vs 全湖中位'),
+    (st.panelText || '').slice(0, 120))
   check('T2 深链站点 A：hero 口径为本站预测', st.heroScope === '本站模型预测', `heroScope=${st.heroScope}`)
   check('T2 深链站点 A：T+1 概率与接口同值（展示精度）',
     st.heroPct != null && Math.abs(st.heroPct - eA.value * 100) < 0.05,
@@ -269,7 +267,6 @@ async function main() {
   check('T6 返回全湖后对象名为"全湖"', st.objectName === '全湖', `对象=${st.objectName}`)
   check('T6 返回全湖后聚合卡恢复', st.aggCardCount >= 6 && st.stationCardCount === 0,
     `聚合卡=${st.aggCardCount} 站点卡=${st.stationCardCount}`)
-  check('T6 返回全湖后无站点残留行', !st.stationVsLake, st.stationVsLake)
   check('T6 返回全湖后 hero 数值回到聚合中位',
     st.heroPct != null && Math.abs(st.heroPct - eLake.lakeProbMedian * 100) < 0.05,
     `页面=${st.heroPct}% 接口=${eLake.lakeProbMedian * 100}%`)
@@ -425,20 +422,27 @@ async function main() {
   await page.goto(deep(`mode=forecast&scale=short&metric=risk&station=${ST_A}&stop=t1`), { waitUntil: 'domcontentloaded' })
   await settle(1800)
 
-  // ---------- T9 覆盖披露三行 ----------
+  // ---------- T9 覆盖披露与研发口径文案移除（2026-09-13 产品裁剪） ----------
+  // "预测覆盖/地图覆盖"chips、"N 站可上图 · N 站有预测"注、"9 任务同一时效"徽标、
+  // 趋势图注/逐点来源清单、"本站 vs 全湖中位"行、驱动来源分组句、流速来源注、
+  // 融合稳定性行已按产品要求从前端与后端载荷一并移除；这里做反向回归守卫。
   await page.click('[data-role="result-tab-overview"]')
   await settle(800)
   st = await readPage(page)
-  // 站点分母动态化（审计整改）：目录 79 站、当轮活跃可能只有 78，断言读 API 实际口径
-  {
-    const statusResp = await (await fetch(`${API_FULL}/model/v3/prediction-status`)).json()
-    const stb = (statusResp.data || {}).stations || {}
-    const expectCoverage = `${stb.done}/${stb.total}`
-    check('T9 预测覆盖与 API 实际口径一致（动态分母）',
-      (st.predictionCoverage || '').includes(expectCoverage),
-      `页面=${st.predictionCoverage} API=${expectCoverage}`)
+  for (const [label, needle] of [
+    ['预测覆盖 chips', '预测覆盖'],
+    ['地图覆盖 chips', '地图覆盖'],
+    ['站可上图注', '站可上图'],
+    ['9 任务同一时效徽标', '任务同一时效'],
+    ['月度标签合并图注', '共用同一个月度标签'],
+    ['逐点站间比较清单', '不做站间比较'],
+    ['融合稳定性行', '融合稳定性'],
+    ['V0.3 栅格场前缀', 'V0.3 月度栅格场'],
+    ['流速来源注', '特征契约无流速字段']
+  ]) {
+    check(`T9 页面不再出现${label}`, !(st.pageText || '').includes(needle),
+      (st.pageText || '').match(new RegExp(`.{0,40}${needle}.{0,40}`))?.[0] || '')
   }
-  check('T9 地图覆盖 48/79', (st.mapCoverage || '').includes('48/79'), st.mapCoverage)
   check('T9 未上图站披露原因（缺可核验坐标）', (st.notPlottable || '').includes('缺少可核验坐标'), st.notPlottable)
 
   // ---------- T10 驱动因素口径 ----------
@@ -466,12 +470,10 @@ async function main() {
     /网格|气候态/.test(st.lightSource || '') && !(st.lightSource || '').includes('本站实测'),
     st.lightSource)
   check('T10 光照适合度取到上界时明示', (st.lightSource || '').includes('已取到上限'), st.lightSource)
-  check('T10 驱动来源分组披露逐站与全湖', (st.driverSourceGroups || '').includes('逐站')
-    && (st.driverSourceGroups || '').includes('全湖同值'), st.driverSourceGroups)
   check('T10 逐站/全湖徽标成对出现', st.driverResolutions.includes('station') && st.driverResolutions.includes('lake'),
     JSON.stringify(st.driverResolutions))
-  check('T10 流速明示不可用', st.driverSources.some((s) => s.includes('不可用')),
-    JSON.stringify(st.driverSources))
+  // 流速来源注已随产品裁剪移除（后端 source=None，前端不再补文案），仅保留"全湖"徽标
+  check('T10 流速行只剩徽标不带来源长句', st.flowSource === '全湖', st.flowSource)
   // 全湖驱动的数据口径披露（切回全湖后页签会重置为总览，需再点一次驱动页签）
   await page.click('[data-role="scope-lake"]')
   await settle(1800)

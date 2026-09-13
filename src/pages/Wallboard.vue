@@ -2,7 +2,6 @@
   <main class="page-wallboard">
     <header class="wb-head">
       <div class="wb-title">
-        <p class="wb-kicker">WALLBOARD · REALTIME STATIONS</p>
         <h1>太湖流域国控站点实时大屏</h1>
       </div>
       <DataModeBadge mode="observed" label="实时观测" />
@@ -58,7 +57,6 @@
         </div>
         <div class="wb-station-foot">
           <span>可用 {{ s.available_variable_count }}/{{ variableTotal(s) }}</span>
-          <span v-if="s.missing_variable_count" class="wb-miss">缺测 {{ s.missing_variable_count }}</span>
           <span class="wb-time">{{ formatStamp(s.latest_observed_at) }}</span>
         </div>
       </article>
@@ -166,7 +164,6 @@ onBeforeUnmount(() => {
   align-content: start;
 }
 .wb-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.wb-kicker { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; color: var(--color-primary); margin: 0; }
 .wb-title h1 { margin: 2px 0 0; font-family: var(--font-display); font-size: clamp(20px, 2.2vw, 28px); color: var(--text-primary); }
 .wb-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
 .wb-card {
@@ -252,7 +249,6 @@ onBeforeUnmount(() => {
   border: 1px solid color-mix(in srgb, var(--risk-critical, #ef4444) 60%, transparent);
 }
 .wb-station-foot { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); }
-.wb-miss { color: var(--risk-medium, #f5b45d); }
 .wb-time { margin-left: auto; color: var(--text-muted); }
 .wb-error, .wb-loading {
   border: 1px dashed var(--border-subtle);

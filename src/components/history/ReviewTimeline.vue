@@ -2,7 +2,6 @@
   <section class="rtl" aria-label="事件全过程时间线">
     <header class="rtl-head">
       <div>
-        <p class="rtl-kicker">EVENT TIMELINE · 全过程</p>
         <h2>事件全过程时间线</h2>
       </div>
       <div class="rtl-legend" aria-label="节点颜色图例">
@@ -113,13 +112,6 @@ function nodeColor(node) {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-}
-.rtl-kicker {
-  margin: 0 0 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--color-primary);
 }
 .rtl-head h2 {
   margin: 0;

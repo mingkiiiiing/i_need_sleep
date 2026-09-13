@@ -215,10 +215,14 @@ def test_health_exposes_stable_product_identity():
 
 
 def test_mechanism_state_discloses_ammonia_and_missing_flow(fake_realtime):
-    """氨氮和流速要显示输入可用性，但不得伪装成已进入机理贡献公式。"""
+    """氨氮和流速要显示输入可用性，但不得伪装成已进入机理贡献公式。
+
+    流速契约缺字段：不再输出来源注文案（页面只保留"不可用"状态标签）。
+    """
     factors = {item["key"]: item for item in _suite(3)["mechanism_drivers"]["factors"]}
     assert factors["ammonia"]["source_value"] == pytest.approx(0.21)
     assert factors["ammonia"]["state_only"] is True
     assert factors["flow"]["source_value"] is None
     assert factors["flow"]["state_only"] is True
-    assert "不可用" in factors["flow"]["source"]
+    assert not factors["flow"]["source"]
+    assert "source_groups" not in _suite(3)["mechanism_drivers"]

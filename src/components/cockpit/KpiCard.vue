@@ -46,9 +46,6 @@
           </span>
         </li>
       </ul>
-
-      <!-- 口径注记（文案逐字保持，动态填充） -->
-      <p class="rcc-kpi-note">均值仅统计报数站（chla {{ chlaCount }}/{{ stationTotal }} 站），缺测不参与。</p>
     </template>
 
     <!-- loading 骨架（等价 stn-list-skeleton 的微光扫描条；aria-hidden） -->
@@ -60,7 +57,6 @@
         class="rcc-skel rcc-skel--row"
         :style="i === 5 ? { width: '64%' } : null"
       ></span>
-      <span class="rcc-skel rcc-skel--note"></span>
     </div>
   </section>
 </template>
@@ -189,10 +185,6 @@ const sparkLatestText = computed(() => {
 const sparkAria = computed(
   () => `全湖叶绿素 a 均值近 ${sparkCount.value} 次快照走势，最新 ${sparkLatestText.value} μg/L`
 )
-
-// ---------- 口径注记（文案逐字保持，动态填充） ----------
-const chlaCount = computed(() => props.summary?.means?.chlorophyll_a?.count ?? 0)
-const stationTotal = computed(() => props.summary?.station_total ?? '—')
 </script>
 
 <style scoped>
@@ -249,7 +241,6 @@ const stationTotal = computed(() => props.summary?.station_total ?? '—')
 .rcc-trend--up { color: var(--risk-critical, #ef4444); }
 .rcc-trend--down { color: var(--risk-low, #22c55e); }
 .rcc-trend--flat { color: var(--text-muted); }
-.rcc-kpi-note { margin: 8px 0 0; font-size: 10px; color: var(--text-muted); line-height: 1.6; }
 
 /* —— 读屏专用（方向语义文字） —— */
 .rcc-sr-only {
@@ -268,7 +259,6 @@ const stationTotal = computed(() => props.summary?.station_total ?? '—')
 .rcc-skel-root { display: grid; gap: 8px; }
 .rcc-skel--strip { display: block; height: 26px; border-radius: 8px; }
 .rcc-skel--row { display: block; height: 16px; border-radius: 6px; }
-.rcc-skel--note { display: block; height: 12px; width: 72%; border-radius: 6px; }
 .rcc-skel {
   background: linear-gradient(90deg,
     color-mix(in srgb, var(--text-muted) 12%, transparent),

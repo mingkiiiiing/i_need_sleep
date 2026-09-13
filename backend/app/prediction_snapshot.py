@@ -580,11 +580,6 @@ class PredictionSnapshotService:
         diagnostics = (self._published.get("manifest") or {}).get("responsiveness") or {}
         horizon_diag = diagnostics.get(str(horizon_days)) or {}
         data["entity_diagnostic"] = horizon_diag.get(result_key) if result_key else None
-        # 站点载荷附带全湖聚合层：页面"本站 vs 全湖中位"对比与右侧全湖汇总同源
-        if entity_id != "lake":
-            lake_agg = ((self._published.get("lake") or {}).get(str(horizon_days)) or {}).get("station_aggregate")
-            if lake_agg:
-                data["lake_aggregate"] = lake_agg
         explainability = self._cached_explainability(entity_id, horizon_days, result_key)
         if explainability is not None and isinstance(data.get("results"), dict):
             item = data["results"].get(result_key)

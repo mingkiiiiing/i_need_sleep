@@ -161,7 +161,6 @@
         >
           <span class="fcp-tgl-switch" aria-hidden="true"></span>
           <span class="fcp-tgl-name">模型空间场</span>
-          <small class="fcp-tgl-note">{{ spatialSummary.covered || 0 }} 站可上图 · {{ spatialSummary.withPrediction || 0 }} 站有预测</small>
         </button>
         <button
           type="button"
@@ -177,14 +176,12 @@
         </button>
       </div>
       <div v-if="mode === 'forecast'" class="fcp-layer-status" aria-label="空间图层状态">
-        <span :data-state="spatialSummary.state" data-role="prediction-coverage">预测覆盖 {{ spatialSummary.withPrediction || 0 }}/{{ spatialSummary.total || '—' }}</span>
-        <span :data-state="spatialSummary.state" data-role="spatial-coverage">地图覆盖 {{ spatialSummary.covered || 0 }}/{{ spatialSummary.total || '—' }}</span>
         <span v-if="spatialSummary.notPlottable" data-role="not-plottable-note">未上图 {{ spatialSummary.notPlottable }} 站：缺少可核验坐标，仅列表查看</span>
         <span v-if="boundaryEnabled">圈定 {{ spatialSummary.highCount || 0 }} 个相对高值站</span>
       </div>
     </section>
 
-    <!-- 月度栅格场（V0.3 连续栅格 + 20 μg/L 边界） -->
+    <!-- 月度栅格场（连续栅格 + 20 μg/L 边界） -->
     <section v-if="mode !== 'rs'" class="fcp-sec" aria-label="月度栅格场">
       <h3 class="fcp-h">月度栅格场</h3>
       <div class="fcp-toggles" role="group" aria-label="月度栅格场开关">
@@ -197,7 +194,7 @@
           @click="$emit('update:rasterOpen', !rasterOpen)"
         >
           <span class="fcp-tgl-switch" aria-hidden="true"></span>
-          <span class="fcp-tgl-name">V0.3 月度栅格场</span>
+          <span class="fcp-tgl-name">月度栅格场</span>
           <small class="fcp-tgl-note">{{ rasterOpen ? '收起图层' : '连续栅格 + 20 μg/L 边界' }}</small>
         </button>
       </div>

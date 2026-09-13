@@ -2,7 +2,6 @@
   <aside class="rel" aria-label="历史预警事件列表">
     <header class="rel-head">
       <div>
-        <p class="rel-kicker">EVENT REVIEW LIST · 历史事件</p>
         <h2>历史事件列表</h2>
       </div>
       <span class="rel-count">共 <b data-role="event-count">{{ total }}</b> 个</span>
@@ -114,7 +113,6 @@
               {{ levelText(e.level) }}
             </span>
             <b class="rel-item-station">{{ e.station_name }}</b>
-            <span class="rel-item-no">{{ e.no }}</span>
           </span>
           <span class="rel-item-row rel-item-title">{{ e.title }}</span>
           <span class="rel-item-row rel-item-meta">
@@ -203,13 +201,6 @@ function reset() {
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-}
-.rel-kicker {
-  margin: 0 0 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--color-primary);
 }
 .rel-head h2 {
   margin: 0;
@@ -358,11 +349,6 @@ function reset() {
 .rel-item-station {
   font-size: 12.5px;
   color: var(--text-primary);
-}
-.rel-item-no {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
 }
 .rel-item-title {
   font-size: 11px;

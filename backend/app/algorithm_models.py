@@ -2246,15 +2246,10 @@ class AlgorithmModelServiceV3:
             {"key": "flow", "label": "流速输入", "value": None,
              "source_value": None, "unit": "m/s", "proxy": False, "state_only": True,
              "station_resolution": False,
-             "source": "当前 V0.3 特征契约无流速字段·不可用"},
+             "source": None},
         ]
         known = [f for f in factors if f["value"] is not None]
         limiting = min(known, key=lambda f: f["value"])["key"] if known else None
-        # 来源分组（结构化，供前端直接渲染，不靠字符串匹配）：
-        # 逐站可得 vs 全湖同一值。光照与气温来自单一气象网格，物理上不存在站间差异；
-        # 全湖实体的水温/营养盐本身即 79 站聚合，可回溯到逐站实测。
-        per_station = [f["key"] for f in factors if f.get("station_resolution")]
-        lake_wide = [f["key"] for f in factors if not f.get("station_resolution")]
         return {
             "factors": factors,
             "nutrient_factor": f_nutr,
@@ -2262,14 +2257,6 @@ class AlgorithmModelServiceV3:
             "net_growth_rate_d": _json_scalar(net) if net is not None else None,
             "net_growth_range": [-0.16, 0.6],
             "station_resolution_scope": "lake_aggregate" if entity_id == "lake" else "station",
-            "source_groups": {
-                "per_station": per_station,
-                "lake_wide": lake_wide,
-                "lake_wide_note": (
-                    "光照与气温取自单一气象网格，物理上全湖同值，不构成站间差异；"
-                    "温度与营养盐为逐站实测（全湖视图下为 79 站聚合，可回溯到站）。"
-                ),
-            },
             "formula": "net = 0.9·f_T·f_I·min(f_P, f_N) − 0.16（与特征契约 mech_* 同式）",
             "note": (
                 "机理净生长率分解：反映当前环境对藻类生长的适合度与限制因子，公式与训练特征一致、"
@@ -3049,33 +3036,6 @@ class AlgorithmModelServiceV3:
             index[key] = row
         return index
 
-    @staticmethod
-    def _fusion_stability(gate: dict[str, Any]) -> dict[str, Any]:
-        """融合稳定性聚合（产品分层展示 2026-09-13）：增益 ≥ 0% 即"不劣于最佳单模型"。
-
-        展示层主口径；显著融合增益（≥10%）严格口径保留在 pass/fail 与评估详情。
-        基线为零导致 uplift 无法计算的行单列（indeterminate），不混入通过或劣化。
-        """
-        rows = gate.get("rows") or []
-        ev = [r for r in rows if r.get("status") in ("PASS", "FAIL")]
-        num = [
-            r for r in ev
-            if isinstance(r.get("uplift"), (int, float)) and not isinstance(r.get("uplift"), bool)
-        ]
-        stab = sum(1 for r in num if r["uplift"] >= 0)
-        degrade = len(num) - stab
-        indeterminate = len(ev) - len(num)
-        return {
-            "requirement": "融合稳定性：融合模型不劣于最佳单一数据驱动模型（增益 ≥ 0%）",
-            "evaluable": len(ev),
-            "pass": stab,
-            "degrade": degrade,
-            "indeterminate_baseline_zero": indeterminate,
-            "pass_text": f"{stab}/{len(ev)}",
-            "status": "PASS" if degrade == 0 and indeterminate == 0 else "PARTIAL",
-            "note": "展示层主口径（不劣于单模型）。显著融合增益（≥10%）严格口径见 pass/fail 与评估详情；劣化行与基线为零行如实列出，不做隐藏。",
-        }
-
     def acceptance(self) -> dict[str, Any]:
         gate = self._gate_table()
         summary = gate["summary"]
@@ -3091,7 +3051,6 @@ class AlgorithmModelServiceV3:
             "baseline": "同一任务和时效下 Random Forest 与 XGBoost 的较优者（validation 选族、冻结测试集同口径）",
             "min_test_rows": gate.get("min_test_rows"),
             "evidence": "/api/v1/model/acceptance/detail",
-            "fusion_stability": self._fusion_stability(gate),
             "reverification_disclosure": (
                 "复核提示（2026-09-12/13）：备份分支 backup/round3-freeze-20260913 的重训复验对上表 6 条 PASS 行给出反证——"
                 "修复机理退化交互与序数评估缺陷后，6 条在重训/补验下均不复现（T3 residual 0.1932×4、T3 h90、T4 h90）。"
@@ -3132,7 +3091,6 @@ class AlgorithmModelServiceV3:
                 "uplift": None,
             })
         return {
-            "fusion_stability": self._fusion_stability(gate),
             "gate_version": gate.get("gate_version"),
             "generated_at": gate.get("generated_at"),
             "comparison_rule": gate.get("comparison_rule"),

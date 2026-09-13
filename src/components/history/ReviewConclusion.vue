@@ -1,13 +1,12 @@
 <template>
   <aside class="rcc" aria-label="复盘结论">
     <header class="rcc-head">
-      <p class="rcc-kicker">REVIEW CONCLUSION · 结论</p>
       <h2>复盘结论</h2>
     </header>
 
     <!-- ===== 系统统计（自动计算，证据口径） ===== -->
     <section class="rcc-sec" aria-label="系统统计">
-      <h3>系统统计<span class="rcc-sec-tag">自动生成</span></h3>
+      <h3>系统统计</h3>
       <div v-if="metrics" class="rcc-facts" data-role="system-metrics">
         <div><dt>触发 → 首次确认</dt><dd><b>{{ formatDuration(metrics.trigger_to_confirm?.minutes) }}</b></dd></div>
         <div><dt>确认 → 开始处置</dt><dd><b>{{ formatDuration(metrics.confirm_to_start?.minutes) }}</b></dd></div>
@@ -28,14 +27,11 @@
         </div>
       </div>
       <p v-else class="rcc-note">选中事件后展示系统统计。</p>
-      <p class="rcc-note">
-        口径：任务完成≠措施被证明有效；模拟推送成功≠真实送达；待核实不视为恢复。
-      </p>
     </section>
 
     <!-- ===== 人工复盘（复盘意见，与系统证据分离） ===== -->
     <section class="rcc-sec" aria-label="人工复盘意见">
-      <h3>人工复盘<span class="rcc-sec-tag rcc-sec-tag--manual">复盘意见</span></h3>
+      <h3>人工复盘</h3>
       <p v-if="!detail" class="rcc-note">选中事件后可填写复盘意见。</p>
       <template v-else>
         <p v-if="notes.version > 0" class="rcc-version" data-role="review-notes-version">
@@ -171,13 +167,6 @@ async function save() {
   font-size: 14px;
   color: var(--text-primary);
 }
-.rcc-kicker {
-  margin: 0 0 2px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--color-primary);
-}
 .rcc-sec {
   display: grid;
   gap: 8px;
@@ -189,18 +178,6 @@ async function save() {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.rcc-sec-tag {
-  font-size: 9.5px;
-  font-family: var(--font-mono);
-  padding: 1px 7px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, #4da3ff 50%, transparent);
-  color: #4da3ff;
-}
-.rcc-sec-tag--manual {
-  border-color: color-mix(in srgb, #a78bfa 55%, transparent);
-  color: #a78bfa;
 }
 .rcc-facts {
   margin: 0;

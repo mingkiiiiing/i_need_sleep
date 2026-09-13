@@ -74,7 +74,6 @@
     <div class="orp-main">
       <section class="orp-map-panel" aria-label="历史站点地图">
         <header class="orp-panel-head">
-          <p class="orp-kicker">SNAPSHOT MAP · 历史快照</p>
           <span v-if="summary" class="orp-badge" :class="{ 'orp-badge--old': !summary.is_latest }" data-role="replay-badge">
             {{ summary.is_latest ? '最新快照' : '历史快照回放（非最新）' }}
           </span>
@@ -99,7 +98,6 @@
 
       <section class="orp-summary" aria-label="当前快照摘要">
         <header class="orp-panel-head">
-          <p class="orp-kicker">SNAPSHOT SUMMARY · 当前快照</p>
           <span v-if="snapshotId" class="orp-mono orp-snap-id">{{ snapshotId }}</span>
         </header>
         <div v-if="sumState === 'loading'" class="orp-note">快照详情加载中…</div>
@@ -157,7 +155,6 @@
     <!-- ===== 选中站点趋势 ===== -->
     <section class="orp-trend" aria-label="选中站点趋势曲线">
       <header class="orp-panel-head">
-        <p class="orp-kicker">STATION TREND · 站点趋势</p>
         <span v-if="trendStationName" class="orp-trend-name">{{ trendStationName }} · {{ indicatorLabel }}</span>
       </header>
       <div v-if="!station" class="orp-note">在筛选区选择站点，或点击地图 / 预警站点查看该站历史观测趋势。</div>
@@ -734,13 +731,8 @@ onBeforeUnmount(() => {
   gap: 8px;
   flex-wrap: wrap;
 }
-.orp-kicker {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--color-primary);
-}
+/* 英文眉标移除后，头部仅剩右侧徽标/快照号，推到右端保持原布局 */
+.orp-panel-head > :first-child { margin-left: auto; }
 .orp-badge {
   font-size: 10.5px;
   font-family: var(--font-mono);
