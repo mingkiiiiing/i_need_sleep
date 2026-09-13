@@ -145,7 +145,7 @@
 
 | 面板 | train / val / test | test 窗口 | 备注 |
 | --- | --- | --- | --- |
-| T1-bloom / T6-probability（mo=0，冻结段） | — / 31 / 40 | 2024-09..2026-08 | 阳性 2/40；validation 全阴性（L-data-06） |
+| T1-bloom / T6-probability（mo=0，冻结段） | 586 / 31 / 40 | 2024-09..2026-08 | 阳性 2/40；validation 全阴性（L-data-06） |
 | T3-density（mo=0，时间分块） | 342 / 117 / 117 | 2017-11..2020-11 | 标签为分位秩代理 |
 | T4-biomass（mo=0，时间分块） | 342 / 117 / 117 | 2017-11..2020-11 | 重尾分布 |
 | T5-chla（mo=0，时间分块） | 360 / 126 / 132 | 训练期内留出块 | 代理标签（锚点 6.124 μg/L） |
@@ -284,6 +284,8 @@ PASS 判定：uplift ≥ 0.10 且 n_test ≥ 15 且测试段类别支持满足 F
 | T5-chla h90 | constrained_blend | +1.45% | 8.55 pp |
 | T6-risk_level mo0 | constrained_blend | −10.25% | — |
 
+注（T3-density mo0 行）：该面板 CB 最优权重 w=0，退化为纯 AI 支路（与 XGB 逐位同值 0.16077），严格而言此面板无融合增益。
+
 旧 gate_table 的 6 条 PASS（T3 residual h1/3/7/15 四条 + T3/T4 h90 两条）在修复口径重验下**全部不复现**：mo0 四条系机理常数回退下的向均值收缩噪声；T3/T4 h90 已补跑反证（融合族 −19.4% / +3.34%）。即修复后真实口径为 **0 达标**，与 serving 公示的"0/8 可评估 PASS、门禁 FAIL"一致。
 
 按模板第 6 节注意事项自查：本报告全部提升基于真实（含代理标签）测试段计算，无训练集数字、无样例数据；对照组指标过低（T4 全体 AI 不敌常数）与样本过少（T1 阳性 2）处均已声明结果不稳定。
@@ -345,3 +347,5 @@ PASS 判定：uplift ≥ 0.10 且 n_test ≥ 15 且测试段类别支持满足 F
 | 合成环境门禁 PASS 边界 | `企业提交材料/算法组提交材料_V0.1/11_合成环境机理融合增益验证_V0.1.md` |
 | serving 门禁公示 | `GET /api/v1/model/acceptance`（V0.2，0/189）、`GET /api/v1/model/v3/acceptance`（V0.3 真实口径，0/8 可评估） |
 | 机理原型（Logistic+Monod） | `里程碑7_成员C机理AI融合建模/02_代码/blue_algae_m7/mechanism.py` |
+
+注：`chla_proxy_params.json` 内 anchor.chla_mean_ug_l=3.0651 为 2026-09-11 单位修复前落盘值；本报告锚点 6.124 为修复后口径，演变记录见 T3b 报告 §4。
