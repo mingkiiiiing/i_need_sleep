@@ -30,6 +30,11 @@
         @focus="focusStationById"
       />
       <KpiCard :summary="summary" :snapshots="timeline?.snapshots || []" />
+      <InflowCard
+        :inflow="inflowSummary"
+        :error="inflowError"
+        @retry="loadInflow"
+      />
     </aside>
 
     <!-- ===== 点位图例（chla 筛查口径，与 realtime.chlaColor 着色一致） ===== -->
@@ -90,12 +95,14 @@ import ReplayTimeline from '../components/cockpit/ReplayTimeline.vue'
 import TopStatusChip from '../components/cockpit/TopStatusChip.vue'
 import CockpitStationDrawer from '../components/stations/CockpitStationDrawer.vue'
 import CockpitAnalysisPanel from '../components/stations/CockpitAnalysisPanel.vue'
+import InflowCard from '../components/cockpit/InflowCard.vue'
 import {
   chlaColor,
   fetchRealtimeStations,
   fetchRealtimeSummary,
   fetchRealtimeTimeline
 } from '../services/realtime.js'
+import { getInflowRiversSummary } from '../services/api.js'
 import { setRealtimeUpdate, clearRealtimeUpdate } from '../stores/realtimeUpdate.js'
 
 const summary = ref(null)
@@ -142,6 +149,20 @@ async function loadTimeline(force = false) {
   }
 }
 
+// 入湖负荷卡：江苏省控入湖河流静态官方档案（月度节奏），加载一次即可，不进 60s 轮询；
+// 失败显式错误态（卡片内重试），不做静默降级。
+const inflowSummary = ref(null)
+const inflowError = ref(false)
+async function loadInflow() {
+  inflowError.value = false
+  try {
+    inflowSummary.value = await getInflowRiversSummary()
+  } catch {
+    inflowSummary.value = null
+    inflowError.value = true
+  }
+}
+
 function selectSnapshot(id) {
   if (!id || id === activeSnapshotId.value) return
   activeSnapshotId.value = id
@@ -181,6 +202,7 @@ function togglePlay() {
 onMounted(() => {
   load()
   loadTimeline()
+  loadInflow()
   fetchRealtimeStations().then((list) => { stationCatalog.value = list }).catch(() => { stationCatalog.value = [] })
   refreshTimer = setInterval(async () => {
     await loadTimeline(true)

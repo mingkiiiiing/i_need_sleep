@@ -16,6 +16,7 @@ from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel
 
 from . import schemas
+from . import inflow
 from .contracts import (
     OBSERVATION_VERSION,
     PREDICTION_RUN_ID,
@@ -166,6 +167,53 @@ def get_capabilities(request: Request):
 @router.get("/datasets/summary", response_model=schemas.Envelope[schemas.DatasetsSummaryData])
 def get_datasets_summary(request: Request):
     return _ok(request, service.datasets_summary(), OBSERVATION_VERSION)
+
+
+# ---------- 入湖河流负荷（江苏省控断面 · 静态官方档案，月度节奏） ----------
+
+
+def _inflow_call(request: Request, fn, *args, **kwargs) -> dict[str, Any]:
+    """执行入湖河流静态档案取数：档案缺失/损坏 → 409、未知断面 → 404。
+
+    成功与错误信封统一用档案自身版本号（inflow.INFLOW_DATASET_VERSION），
+    与观察轨 OBSERVATION_VERSION 分轨，禁止混用标注静态档案。
+    """
+    try:
+        data = fn(*args, **kwargs)
+    except inflow.InflowDataUnavailable as exc:
+        raise capability_unavailable(
+            "入湖河流静态数据不可用：档案文件缺失或损坏",
+            detail=str(exc),
+            dataset_version=inflow.INFLOW_DATASET_VERSION,
+        ) from exc
+    except KeyError as exc:
+        raise entity_not_found(
+            "入湖河流断面不存在",
+            dataset_version=inflow.INFLOW_DATASET_VERSION,
+            detail=f"section={exc.args[0]!r} 不在 7 个省控入湖断面清单中",
+        ) from exc
+    return _ok(request, data, inflow.INFLOW_DATASET_VERSION)
+
+
+@router.get("/inflow/rivers/summary", response_model=schemas.Envelope[dict])
+def get_inflow_rivers_summary(request: Request):
+    """7个省控主要入湖河流断面概览：最新月实测 + 统计摘要 + 水质类别分布。
+
+    数据为江苏省提供的静态官方档案（2022-01 ~ 2026-08 逐月），非实时采集轨，
+    as_of 即档案终点月份；之后月份不存在，不做外推。
+    """
+    return _inflow_call(request, inflow.summary)
+
+
+@router.get("/inflow/rivers/monthly", response_model=schemas.Envelope[dict])
+def get_inflow_rivers_monthly(request: Request, section: str | None = None):
+    """入湖河流逐月全序列（可选按断面过滤），供明细查询与联调。
+
+    section 传空字符串（?section=）与不传等价：视为未提供过滤条件，返回
+    全量序列；仅未知非空断面才显式 404（禁止静默空集）。
+    """
+    section = section or None  # 空串归一化为「未提供」，避免 falsy 分支歧义
+    return _inflow_call(request, inflow.monthly, section)
 
 
 @router.get("/pipeline/runs/latest", response_model=schemas.Envelope[schemas.PipelineRunData])

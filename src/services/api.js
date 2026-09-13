@@ -10,7 +10,24 @@ async function request(path, options = {}) {
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options
   })
-  if (!response.ok) throw new Error(`API 请求失败：${response.status}`)
+  if (!response.ok) {
+    // 错误信封透传：HTTP 非 2xx 时尽力解析响应体，把后端统一信封（{code,message,...,errors}）
+    // 或 FastAPI 原生 {detail} 里的 message 并入抛出的 Error；调用方依旧只需 catch 文本/布尔处理。
+    // 网关/代理可能返回 HTML 错误页或因 CORS 拦截导致 body 不可读，解析失败时回退状态码文案。
+    let message = ''
+    try {
+      const body = await response.json()
+      const detail = body && body.detail
+      const firstError = body && Array.isArray(body.errors) ? body.errors[0] : null
+      message = (detail && typeof detail === 'object' ? detail.message : detail)
+        || (body && body.message)
+        || (firstError && firstError.detail)
+        || ''
+    } catch {
+      // 响应体不是 JSON 或读取失败：保持原有状态码兜底文案
+    }
+    throw new Error(message || `API 请求失败：${response.status}`)
+  }
   const body = await response.json()
   if (body.code !== 200) throw new Error(body.message || body.msg || 'API 返回异常')
   return body.data
@@ -278,4 +295,15 @@ export function handleWarning(eventId) {
 
 export function getTimeline(startDate, endDate) {
   return request(`/cockpit/timeline?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
+}
+
+// ---------- 入湖河流负荷（江苏省控断面 · 静态官方档案，月度节奏） ----------
+
+export function getInflowRiversSummary() {
+  return request('/inflow/rivers/summary')
+}
+
+export function getInflowRiversMonthly(section) {
+  const q = section ? `?section=${encodeURIComponent(section)}` : ''
+  return request(`/inflow/rivers/monthly${q}`)
 }
