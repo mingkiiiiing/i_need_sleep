@@ -162,6 +162,7 @@
             :scenario-x="horizonTrend.scenarioX"
             :active-horizon="horizonDays"
             :band-caption="horizonTrend.bandCaption"
+            :band-ranges="horizonTrend.bandRanges"
             :aria-label="`${metricLabel}七时效趋势`"
           />
           <p v-if="horizonTrend.resolutionNote" class="frp-unc-note" data-role="trend-resolution-note">
@@ -1154,7 +1155,7 @@ const horizonTrend = computed(() => {
     }
   })
   // 图注（事实性中性小字）：写清带的真实分位口径；带未渲染时组件不会显示它
-  const bandCaption = props.scope === 'lake'
+  const bandCaptionBase = props.scope === 'lake'
     ? '带 = P25–P75（站间分布）'
     : '带 = P05–P95（预测区间）'
   // 线：短期实线；中长期段虚线并从最后一个短期点延续，保持视觉连续但口径分明。
@@ -1205,11 +1206,45 @@ const horizonTrend = computed(() => {
     }
     return `${label} 来源未标注站点分辨率，按全湖同值对待`
   })
+  // 等级色带（2026-09-13，用户选定方案）：risk 焦点时把各时效"风险等级范围"
+  // （risk_level.uncertainty 的 p05_band→p95_band，由叶绿素 a 区间映射、经双阈值
+  // 放行）画成轴下方背景色带，与不确定页签的等级范围块呼应；无带时效（T+30/60
+  // 被阻断）留白，绝不造带。仅 risk 焦点构造，其他指标不传不渲染。
+  let bandRanges = []
+  if (props.metric === 'risk') {
+    const LEVEL_COLOR = { none: '#5fd6a4', low: '#a3d977', medium: '#f5b45d', high: '#ef4444', severe: '#b91c1c' }
+    const riskBandByH = new Map()
+    for (const suite of props.horizonForecasts || []) {
+      const u = suite?.results?.risk_level?.uncertainty
+      if (u?.band_range && u?.p05_band && u?.p95_band) {
+        riskBandByH.set(Number(suite.horizon_days), { lo: u.p05_band, hi: u.p95_band, mode: u.band_mode })
+      }
+    }
+    const segOf = (x1, x2, info) => ({
+      x1, x2,
+      colorFrom: LEVEL_COLOR[info.lo] || '#94a3b8',
+      colorTo: LEVEL_COLOR[info.hi] || '#94a3b8',
+      label: `风险等级范围：${RISK_BAND_TEXT[info.lo] || info.lo} → ${RISK_BAND_TEXT[info.hi] || info.hi}${info.mode === 'reference' ? '（参考范围，由叶绿素 a 区间映射）' : ''}`
+    })
+    if (shortGroup) {
+      const shorts = shortPoints.map((p2) => riskBandByH.get(p2.horizon)).filter(Boolean)
+      if (shorts.length && shorts.every((b2) => b2.lo === shorts[0].lo && b2.hi === shorts[0].hi)) {
+        bandRanges.push(segOf(shortGroup.x1, shortGroup.x2, shorts[0]))
+      }
+    }
+    const p90 = scenarioPoints.find((p2) => p2.horizon === 90)
+    const r90 = p90 ? riskBandByH.get(90) : null
+    if (p90 && r90) bandRanges.push(segOf(p90.x - 16, p90.x + 16, r90))
+  }
+  const bandCaption = bandRanges.length
+    ? `${bandCaptionBase}；底色带 = 风险等级范围（叶绿素 a 区间映射，双阈值口径）`
+    : bandCaptionBase
   return {
     points,
     shortPoints,
     scenarioPoints,
     shortGroup,
+    bandRanges,
     lineShort: shortPoints.length >= 2 ? shortPoints.map((p) => `${p.x},${p.y}`).join(' ') : '',
     lineScenario: scenarioLine.length >= 2 ? scenarioLine.map((p) => `${p.x},${p.y}`).join(' ') : '',
     intervals,

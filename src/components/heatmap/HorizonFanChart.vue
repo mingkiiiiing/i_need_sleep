@@ -6,6 +6,25 @@
     <svg viewBox="0 0 420 126" width="100%" height="126" preserveAspectRatio="none" role="img" :aria-label="ariaLabel">
       <line x1="18" y1="82" x2="402" y2="82" class="frp-trend-axis" />
       <line :x1="scenarioX" :x2="scenarioX" y1="8" y2="88" class="frp-trend-split" />
+      <!-- 风险等级范围色带（2026-09-13）：risk 焦点专属背景层，画"叶绿素 a 区间映射的
+           等级跨度"（如 无→低），与不确定页签的等级范围块呼应；无带时效留白不造带 -->
+      <defs>
+        <linearGradient
+          v-for="(b, i) in bandRanges"
+          :key="`brg${i}`"
+          :id="`hfc-bandrange-${i}`" x1="0" y1="0" x2="1" y2="0"
+        >
+          <stop offset="0" :stop-color="b.colorFrom" />
+          <stop offset="1" :stop-color="b.colorTo" />
+        </linearGradient>
+      </defs>
+      <g v-for="(b, i) in bandRanges" :key="`br${i}`" data-role="risk-band-range-strip">
+        <rect
+          :x="b.x1" y="94"
+          :width="Math.max(b.x2 - b.x1, 8)" height="8"
+          rx="4" :fill="`url(#hfc-bandrange-${i})`" opacity="0.9"
+        ><title>{{ b.label }}</title></rect>
+      </g>
       <!-- 扇形带：只画真实存在的分位锚点；某时效缺分位 → 该处断带，绝不跨缺口连接造区间 -->
       <path v-for="(seg, i) in bandSegments" :key="`band${i}`" :d="seg" class="frp-trend-band" />
       <!-- 选中时效游标 · 竖线：transform 过渡让高亮在时效切换时平滑移动 -->
@@ -76,6 +95,8 @@ const props = defineProps({
   scenarioX: { type: Number, default: 238 },
   // 事实性图注（如「带 = P25–P75（站间分布）」）；带未渲染时不显示
   bandCaption: { type: String, default: '' },
+  // 风险等级范围色带（2026-09-13）：risk 焦点专属；元素 { x1,x2,colorFrom,colorTo,label }
+  bandRanges: { type: Array, default: () => [] },
   ariaLabel: { type: String, default: '七时效趋势' }
 })
 
@@ -195,3 +216,4 @@ const hasBand = computed(() => bandSegments.value.length > 0)
   }
 }
 </style>
+

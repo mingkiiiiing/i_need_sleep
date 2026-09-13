@@ -46,7 +46,7 @@
     {
       "name": "T1b 四区域（载荷/趋势/地图/驱动）绑定同一 prediction_snapshot_id",
       "ok": true,
-      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260913T025434Z_9700a110c33f\",\"spatial\":\"PRED_mee_surface_water_realtime_20260913T025434Z_9700a110c33f\",\"driver\":\"PRED_mee_surface_water_realtime_20260913T025434Z_9700a110c33f\",\"trendAllBound\":true}"
+      "detail": "{\"payload\":\"PRED_mee_surface_water_realtime_20260913T035436Z_3c914e6eafb6\",\"spatial\":\"PRED_mee_surface_water_realtime_20260913T035436Z_3c914e6eafb6\",\"driver\":\"PRED_mee_surface_water_realtime_20260913T035436Z_3c914e6eafb6\",\"trendAllBound\":true}"
     },
     {
       "name": "T2 深链站点 A：URL 带 station",
