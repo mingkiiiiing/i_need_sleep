@@ -119,8 +119,8 @@ backend/model_runtime_v0_3/*backup*/
 backend/model_runtime_v0_3/*_backup/
 backend/model_runtime_v0_3/_derived_backup_*/
 
-# 预警中心运行态（2026-09-12 复审整改）：事件/通知/状态由运行中的系统持续改写，
-# 提交进 Git 只会让工作树反复变脏。目录保留在磁盘，代码在缺目录时自行创建。
+# 预警中心运行态（2026-09-12 复审整改；2026-09-14 起改为随仓库分发，见文件末白名单）：
+# 事件/通知/状态由运行中的系统持续改写，运行后会产生已修改增量，按需提交。
 backend/alerts-data/
 dist_check_*/
 
@@ -133,6 +133,17 @@ dist_check_*/
 !backend/model_runtime_v0_3/pair_dataset/pairs.parquet
 !backend/model_runtime_v0_3/supervised/features_base.parquet
 !backend/model_runtime_v0_3/supervised/labels_wide.parquet
+
+# ── 运行期历史随仓库分发（2026-09-14 用户决策：队友克隆即含全部运行积累）──
+# alerts-data=告警/事件/审计处置历史；prediction-cache/snapshots=预测快照历史
+#（123 期，原始 JSON 压缩率高，git 包仅约数十 MB）。二者在开发机上仍会被运行中的
+# 系统改写/新增，产生的增量属未跟踪或已修改状态，按需提交即可。
+!backend/alerts-data/
+!backend/alerts-data/**
+!backend/prediction-cache/
+!backend/prediction-cache/**
+# 实时采集历史冻结档案（providers 默认解析的回退目录，见 data/realtime_history/README.md）
+!data/realtime_history/mee_realtime/observations.parquet
 
 # 本地备份（审计/审查/PPT素材/临时件）——只留本地，永不上传
 _local_backup_*/

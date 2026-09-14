@@ -237,6 +237,25 @@ class SimulatedPredictionProvider(PredictionProvider):
 
 REALTIME_CATALOG_ENV = "TAIHU_REALTIME_CATALOG_DIR"
 _DEFAULT_REALTIME_DIR = Path(__file__).resolve().parents[2] / "data-cleaning" / "storage" / "silver" / "mee_realtime"
+_SHIPPED_REALTIME_DIR = Path(__file__).resolve().parents[2] / "data" / "realtime_history" / "mee_realtime"
+
+
+def _catalog_present(path: Path) -> bool:
+    return (path / "stations.json").exists() and (path / "status.json").exists()
+
+
+def _resolve_default_catalog_dir() -> Path:
+    """无环境变量时的目录解析：本机实时采集 silver 优先；缺失时回退随仓库分发的
+    冻结采集历史（data/realtime_history，真实观测档案而非模拟；as_of 以档案内
+    status.json 为准，freshness 如实反映冻结时点）。两处都缺失才回到 silver 路径
+    （由采集任务首跑创建，报 unavailable 与现状一致）。"""
+    if _catalog_present(_DEFAULT_REALTIME_DIR):
+        return _DEFAULT_REALTIME_DIR
+    if _catalog_present(_SHIPPED_REALTIME_DIR):
+        return _SHIPPED_REALTIME_DIR
+    return _DEFAULT_REALTIME_DIR
+
+
 REALTIME_SOURCE_ID = "mee_surface_water_realtime"
 # 展示新鲜度分带（小时）：≤6 正常 / ≤12 延迟 / >12 严重过期；无成功快照 → unavailable
 FRESHNESS_NORMAL_H = 6.0
@@ -267,7 +286,7 @@ class MeeRealtimeObservationProvider:
 
     def __init__(self, catalog_dir: Path | str | None = None) -> None:
         raw = os.environ.get(REALTIME_CATALOG_ENV, "").strip()
-        self._catalog_dir = Path(catalog_dir) if catalog_dir else (Path(raw) if raw else _DEFAULT_REALTIME_DIR)
+        self._catalog_dir = Path(catalog_dir) if catalog_dir else (Path(raw) if raw else _resolve_default_catalog_dir())
         self._loaded = False
         self._stations: list[dict[str, Any]] = []
         self._snapshots: list[dict[str, Any]] = []

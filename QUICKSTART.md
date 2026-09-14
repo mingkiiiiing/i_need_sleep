@@ -1,6 +1,6 @@
 # 快速开始（正式版 v1.1）
 
-队友克隆本仓库后，**数据已随仓库附带**（小型运行数据包 + 34 个模型文件 + 遥感图层 rs_overlays 123 个），无需额外下载。三条命令跑起来：
+队友克隆本仓库后，**数据与运行历史已随仓库附带**（小型运行数据包 + 实时采集历史冻结档案 + 告警/事件/审计处置历史 + 预测快照 123 期 + 34 个模型文件 + 遥感图层 rs_overlays 123 个），无需额外下载。三条命令跑起来：
 
 ```powershell
 # 1. 一键安装（自动创建 backend/.venv + pip 依赖 + npm 依赖 + 数据校验）
@@ -33,5 +33,6 @@ powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1
 - 模型：v0.3，34 个 joblib（`backend/model_runtime_v0_3/models/`）；数据版本 `TAIHU_CLEAN_FINAL_V1_20260831`
 - 解释口径：is_shap=false（敏感性分析，非 SHAP，页面如实标注）
 - 站点口径：79 站采集 → 56 有坐标 → 48 可信上图
+- 实时口径：随仓库附带实时采集历史冻结档案（`data/realtime_history/`，数据时点见其 `status.json` 的 `as_of`，freshness 如实显示滞后）；本机注册采集任务后自动优先最新实测，无需任何配置
 
 更完整的部署细节见 `docs/A23_环境与部署说明_V1.0.docx`；启动脚本的幂等与端口说明见 `docs/部署验证_运行记录_20260912.md`。

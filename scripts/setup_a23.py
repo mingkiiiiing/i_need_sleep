@@ -31,6 +31,9 @@ DATA_FILES = [  # 队友克隆后必须存在的数据/模型文件
     ROOT / "backend/model_runtime_v0_3/supervised/features_base.parquet",
     ROOT / "backend/model_runtime_v0_3/supervised/labels_wide.parquet",
     ROOT / "backend/model_runtime_v0_3/pair_dataset/pairs.parquet",
+    # 实时采集历史冻结档案（providers 默认解析的回退目录，克隆即有实时轨数据）
+    ROOT / "data/realtime_history/mee_realtime/stations.json",
+    ROOT / "data/realtime_history/mee_realtime/status.json",
 ]
 PASS, FAIL = "PASS", "FAIL"
 
