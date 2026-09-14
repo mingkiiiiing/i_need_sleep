@@ -27,6 +27,10 @@ DATA_FILES = [  # 队友克隆后必须存在的数据/模型文件
     ROOT / "backend/sample-data/simulated_observations_v1.csv",
     ROOT / "backend/model_runtime_v0_3/manifest.json",
     ROOT / "backend/model_runtime_v0_3/evaluation/gate_table.json",
+    # serving 月度上下文/XAI 步长输入 + 重训链数据（2026-09-14 部署一致性修复起随仓库分发）
+    ROOT / "backend/model_runtime_v0_3/supervised/features_base.parquet",
+    ROOT / "backend/model_runtime_v0_3/supervised/labels_wide.parquet",
+    ROOT / "backend/model_runtime_v0_3/pair_dataset/pairs.parquet",
 ]
 PASS, FAIL = "PASS", "FAIL"
 

@@ -128,5 +128,12 @@ dist_check_*/
 !企业提交材料/A23_小型运行数据包_V1.0/realtime_catalog/observations.parquet
 !企业提交材料/A23_小型运行数据包_V1.0.zip
 
+# v0.3 交付包三个小型 parquet（合计约 330KB，2026-09-14 部署一致性修复）：
+# features_base 是 serving 月度上下文与 XAI 敏感性步长的运行时输入（缺失会静默
+# 降级、克隆端预测数值与开发机不一致），pairs/labels 保证重训链完整，必须随仓库分发。
+!backend/model_runtime_v0_3/pair_dataset/pairs.parquet
+!backend/model_runtime_v0_3/supervised/features_base.parquet
+!backend/model_runtime_v0_3/supervised/labels_wide.parquet
+
 # 本地备份（审计/审查/PPT素材/临时件）——只留本地，永不上传
 _local_backup_*/

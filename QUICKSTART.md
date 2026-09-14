@@ -14,12 +14,13 @@ powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1
 #    API 健康：http://127.0.0.1:8000/api/health   （product_id=taihu-a23-algae-warning）
 ```
 
-要求：Python >= 3.10、Node.js >= 18（npm 随附）。Windows 直接可用；其他系统用 `python3`/`npm` 等价命令。
+要求：Python >= 3.10、Node.js >= 18（npm 随附）、**Git LFS**（两份 >100MB 官方清洗交付物走 LFS：`data-cleaning/storage/final_cleaned/` 下的 sqlite 与全量长表；装好 `git lfs install` 后再 `git clone` 即自动下载）。Windows 直接可用；其他系统用 `python3`/`npm` 等价命令。
 
 ## 常见问题
 
 | 现象 | 处理 |
 | --- | --- |
+| `data-cleaning/.../taihu_clean_final.sqlite` 打不开、内容是百来字节的文本 | 该文件走 Git LFS。先 `git lfs install`，再重新 clone；或对已有克隆执行 `git lfs pull` |
 | `setup_a23.py` 报数据文件缺失 | 克隆不完整，重新 `git clone`（确认含 `企业提交材料/A23_小型运行数据包_V1.0/` 与 `backend/model_runtime_v0_3/models/`） |
 | 8000 端口被占（本机常见：其他项目默认占 8000） | `powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1 -BackendPort 8010`（前端代理自动跟随）；启动脚本会自动探测 8000 是否为 A23 后端，非 A23 占用时拒绝启动并提示换端口 |
 | 首次打开页面数值为空 | 后端启动后快照预热约 1~2 分钟，稍候刷新 |
