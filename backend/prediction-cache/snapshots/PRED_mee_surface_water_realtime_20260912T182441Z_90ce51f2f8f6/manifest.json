@@ -1,0 +1,92 @@
+{
+  "prediction_snapshot_id": "PRED_mee_surface_water_realtime_20260912T182441Z_90ce51f2f8f6",
+  "version_key": {
+    "schema": "prediction_snapshot_v11",
+    "source_snapshot_id": "mee_surface_water_realtime_20260912T182441Z",
+    "model_version": "0.3",
+    "model_count": 34,
+    "feature_contract": {
+      "groups": {
+        "calendar": 2,
+        "hydrology": 2,
+        "lag_state": 27,
+        "mechanism": 6,
+        "meteorology": 5,
+        "remote_sensing": 20,
+        "static": 6,
+        "water_quality": 10
+      },
+      "n_features": 78,
+      "sha256": "105612a7ae3f17bf41bb2dde2299e05f3a471772cc84d9c1bd6448be03f37b02",
+      "version": "v2.0"
+    },
+    "data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+    "manifest_sha256": "71fdb7b727be76a5979a35d6f26d378e66c89bad1f3d3da7f595add35bd64b94",
+    "bundle_digest": "a5eb28efc5001c9423a14aae0c9867c80fb53da4983954a030876dbba32df818",
+    "bundle_hashes": {
+      "T1-bloom-0m-s20260907-15d.joblib": "ee941fed15b0af60b2c6b9630be55e2b268d572863509dec7b2b8145a74982c8",
+      "T1-bloom-0m-s20260907-1d.joblib": "f085d21bf8f9f885e43fb27cfae86f89f11ef6b8a0a1bb31b9c688d7e877b7d4",
+      "T1-bloom-0m-s20260907-3d.joblib": "0cb93729cbcc2319beda8ced246efd26b1dd03b44da2c2eedc720ee6062413d5",
+      "T1-bloom-0m-s20260907-7d.joblib": "97d2409adab8737dd673c7f98ebbc9768ddc7c5c4f7fa73751a3ef8abbd1cd1b",
+      "T1-bloom-1m-s20260907-30d.joblib": "0fc337d1237e46f976a734bfed4eae98988bdfe9491c97d2ae6881a891c8bfc9",
+      "T1-bloom-2m-s20260907-60d.joblib": "0bb69601a53ae5f0c50fe73bd98ae3da258110ff2e84d8376e7a854987f37dae",
+      "T1-bloom-3m-s20260907-90d.joblib": "69e9dcf6f226ad3c62a70d71d994b875c6bb28b0254081568c53885229568fcd",
+      "T3-density-0m-s20260907-15d.joblib": "76bd0e95558abe772ba168c68fa9d9a5049096742d57627518f10dd89f66aa56",
+      "T3-density-0m-s20260907-1d.joblib": "bf819f895c1f6ff33b4a4f770d40312abdbea42e3caa14402dabad9550a2e980",
+      "T3-density-0m-s20260907-3d.joblib": "9fdd0a736a326d747488ac957a79973cc60b1aa7b540676684786e4357d38cc7",
+      "T3-density-0m-s20260907-7d.joblib": "4f8d618ea010d27329d66277ab12cf57dc84ce8878720f20587da78118475729",
+      "T3-density-3m-s20260907-90d.joblib": "3fdc358011f9ef4b6240b501fbd479f80c299b30d20de36a8f047bf2e35f3e23",
+      "T4-biomass-0m-s20260907-15d.joblib": "48b62dd3af19339dbb9421270ae521681a3dab497e6b7544ddb2676f67627beb",
+      "T4-biomass-0m-s20260907-1d.joblib": "4aeca2df05139933ccfdc5e9e38b88b72aedf7afbc9cc1bb37f20edb07f1fc5c",
+      "T4-biomass-0m-s20260907-3d.joblib": "1f99fc1c2838840056e6ee6cd1fa8a93642141a03722952675abb14986e8877d",
+      "T4-biomass-0m-s20260907-7d.joblib": "dacd15b2301a97fcb7b56148cd63909290d35695f0fcb41e6b8b6fc34f104838",
+      "T4-biomass-3m-s20260907-90d.joblib": "b782e71a2ff8c4d4d711d6ba7bc34ea25ff430b9507b5e17b984848dd0de0d05",
+      "T5-chla-0m-s20260907-15d.joblib": "90a1ff72d8b8d65557e7a0c657f4b339f658a879e6a4564d05062be07a0c2db1",
+      "T5-chla-0m-s20260907-1d.joblib": "4633ca0fbec4cf4d0e6b38b1512d2b210a13a8ae42a3ab6153755a7aeb634ba8",
+      "T5-chla-0m-s20260907-3d.joblib": "d66255a2851c4eae6878fcd950ded1a03bae0aae1fb9868fe8b3c01d7b3d9fd3",
+      "T5-chla-0m-s20260907-7d.joblib": "da6d9b2057f348882abc3c901deb623034ad32db2c772752a1b049f96c4cdcd8",
+      "T5-chla-3m-s20260907-90d.joblib": "830418a220e7f354bfa24861f9691c2bbce8d86c4b93ccc81c743646fc5c0b05",
+      "T6-probability-0m-s20260907-15d.joblib": "eb0903224cbfb0e257114423678a1bc9bd124d8ddc844b26843c104070729737",
+      "T6-probability-0m-s20260907-1d.joblib": "cb185f4afab7bb8bae10f20073cfc67b795cb4c5e891503f8f089ec995da8f2c",
+      "T6-probability-0m-s20260907-3d.joblib": "6539d69cc84eea5a0e05e520556433860fe9f04cdede808ac5fe3f0cd43d9d06",
+      "T6-probability-0m-s20260907-7d.joblib": "df45411b1b9cd820942ae8bf67dbe435a983cf54a5ddbf703208806e03a27957",
+      "T6-probability-1m-s20260907-30d.joblib": "5f71df82910af21507453b89bfda14b4ab1faa9fe70c9de3e216160adb90cc99",
+      "T6-probability-2m-s20260907-60d.joblib": "5f16e704efa3568c79757e7543451805080be1788f72288212e14d6b5cdf0799",
+      "T6-probability-3m-s20260907-90d.joblib": "921a32bad6a570feca59ec1efdad7d617f5516c9313702596b91119c60a5eb1a",
+      "T6-risk_level-0m-s20260907-15d.joblib": "a25a81dc4d2826d9ebf5a77f92c682fd0ded66338ac492631f57e04c5000025e",
+      "T6-risk_level-0m-s20260907-1d.joblib": "bd58e1e0cc922252cbf26dadad653b072fce9b4227b7b5eed06035ce8bca09a9",
+      "T6-risk_level-0m-s20260907-3d.joblib": "d20f247ddd994ae04f9a5260c197beefb0574da75bec755751d8129265b474fd",
+      "T6-risk_level-0m-s20260907-7d.joblib": "f30c169633e26779c64ee9d010e6c0484682d51f602871fa0c07238218e4132b",
+      "T6-risk_level-3m-s20260907-90d.joblib": "b8341deb98929d98e58731513fd5702d813502803bb396ce5f2a073dfcbc21d9"
+    },
+    "training_data_version": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+    "preprocessor": {
+      "implementation": "RealPreprocessor(train_median_fillna + missing_indicator)",
+      "source_sha256": "14bed0e012738e104f523772f346c516209ca02968ba58ab796f4f0553e891ad",
+      "feature_contract_version": "v2.0",
+      "feature_contract_sha256": "105612a7ae3f17bf41bb2dde2299e05f3a471772cc84d9c1bd6448be03f37b02"
+    }
+  },
+  "schema": "prediction_snapshot_v11",
+  "generated_at": "2026-09-13T02:25:44+08:00",
+  "horizons": [
+    1,
+    3,
+    7,
+    15,
+    30,
+    60,
+    90
+  ],
+  "stations": {
+    "ready": false,
+    "done": 0,
+    "total": 79,
+    "directory_total": 79,
+    "excluded_stations": []
+  },
+  "provenance": {
+    "generated_by": "PredictionSnapshotService",
+    "note": "由实测快照驱动的后台预生成结果；站点结果补齐前，站点读取回落到即时推理（同样按实测快照缓存），页面如实披露。"
+  }
+}

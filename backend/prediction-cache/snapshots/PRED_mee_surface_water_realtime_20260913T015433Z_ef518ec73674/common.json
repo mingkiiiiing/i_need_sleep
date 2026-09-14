@@ -1,0 +1,411 @@
+{
+  "acceptance": {
+    "requirement": "融合模型相对最强单一数据驱动模型提升不低于10%",
+    "status": "FAIL",
+    "target": 0.1,
+    "comparison_rows": 42,
+    "evaluable_comparisons": 30,
+    "pass": 6,
+    "fail": 24,
+    "not_applicable": 12,
+    "baseline": "同一任务和时效下 Random Forest 与 XGBoost 的较优者（validation 选族、冻结测试集同口径）",
+    "min_test_rows": 15,
+    "evidence": "/api/v1/model/acceptance/detail",
+    "fusion_stability": {
+      "requirement": "融合稳定性：融合模型不劣于最佳单一数据驱动模型（增益 ≥ 0%）",
+      "evaluable": 30,
+      "pass": 22,
+      "degrade": 3,
+      "indeterminate_baseline_zero": 5,
+      "pass_text": "22/30",
+      "status": "PARTIAL",
+      "note": "展示层主口径（不劣于单模型）。显著融合增益（≥10%）严格口径见 pass/fail 与评估详情；劣化行与基线为零行如实列出，不做隐藏。"
+    },
+    "reverification_disclosure": "复核提示（2026-09-12/13）：备份分支 backup/round3-freeze-20260913 的重训复验对上表 6 条 PASS 行给出反证——修复机理退化交互与序数评估缺陷后，6 条在重训/补验下均不复现（T3 residual 0.1932×4、T3 h90、T4 h90）。本表为 2026-09-11 冻结产物，对外宣称门禁通过前须以复验口径复核；引用本页数字不得表述为“经复验确认”。",
+    "honesty_note": "本比较表由真实冻结测试集评估实时生成（gate.py 扫描 runs/*/test_metrics_by_family.json），无任何硬编码比较数；n_test<15 的行按主理人裁定记为 N.A. 并披露原因；测试集行数以 evaluation_manifest 为准，禁止挑选子集或调整口径。",
+    "note": "可评估比较 30 条，PASS 比例 20.00%，门禁阈值 90%。",
+    "action": "如未达标，须补足真实标签与驱动数据后重训，禁止调整口径。"
+  },
+  "retrieval_and_calibration": {
+    "status": "ground_pair_calibrated_holdout_validated",
+    "parameters": {
+      "chlorophyll_a": "annual_product_plus_monthly_station_residual_field",
+      "cyanobacteria_density": "proxy_feature_contract_only",
+      "bloom_area": "threshold_20_ug_l_on_calibrated_field"
+    },
+    "calibration": {
+      "runtime_pair_calibration_endpoint": true,
+      "independent_holdout_validation": true,
+      "holdout_pair_count": 82,
+      "holdout_r2": 0.05613126057487028,
+      "s2_group_choice": {
+        "chosen": "s2_30m_mci",
+        "rule": "S2 各候选组按留出 R² 择优（并列取 RMSE 低者）；第二轮加入季节分组（DJF/MAM/JJA/SON）分层校准版本，两者取留出 R² 较高者并披露口径",
+        "season_grouped_metrics": {
+          "s2_30m_mci": {
+            "r2": -0.4459109495738449,
+            "rmse": 6.130878112691894,
+            "mae": 4.5605391330731635,
+            "n": 63
+          },
+          "s2_30m_ndci": {
+            "r2": -0.4459109495738449,
+            "rmse": 6.130878112691894,
+            "mae": 4.5605391330731635,
+            "n": 63
+          }
+        },
+        "seasonal_chosen": "s2_30m_mci",
+        "unavailable": {
+          "s2_20m_ndci": "no_pairs_in_release_20m_bands_null_at_field_stations"
+        }
+      },
+      "reason": "留出集 R²/RMSE 如实披露（可为负/偏低）；反演值永不成为观测真值。"
+    },
+    "value_origin_rule": "retrieved/calibrated values remain derived and never become observed truth"
+  },
+  "model": {
+    "package_generation": "v0_3",
+    "package_version": "0.3",
+    "model_count": 34,
+    "training_data": "TAIHU_CLEAN_FINAL_V1_20260831/model_dataset.parquet",
+    "claim_boundary": "real_data_monthly_station_v0_3",
+    "granularity_disclosure": "月度标签粒度：1/3/7/15 天映射为当月标签（7/15 为半月近似披露），30/60/90 天映射为 t+1/2/3 月",
+    "mechanism_modules": [
+      "真实驱动机理因子（温度/光照/磷/氮限制）",
+      "营养盐限制",
+      "净生长率代理"
+    ],
+    "ai_algorithms": [
+      "Random Forest",
+      "XGBoost"
+    ],
+    "fusion_algorithms": [
+      "机理特征融合",
+      "残差融合",
+      "约束加权融合"
+    ]
+  },
+  "model_quality": {
+    "T1-bloom-0m-s20260907": {
+      "selected_family": "random_forest",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T1-bloom-1m-s20260907-cv": {
+      "selected_family": "persistence",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T1-bloom-2m-s20260907-cv": {
+      "selected_family": "persistence",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T1-bloom-3m-s20260907-cv": {
+      "selected_family": "climatology_global",
+      "test_metrics": {
+        "brier_score": 0.0017690831983655055,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0226,
+            "n": 26,
+            "observed_frequency": 0.0
+          },
+          {
+            "bin": 1,
+            "mean_predicted": 0.1181,
+            "n": 2,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.029446,
+        "f1": null,
+        "n": 28,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T3-density-0m-s20260907-cv": {
+      "selected_family": "residual",
+      "test_metrics": {
+        "log1p_mae": 0.1567628103135278,
+        "mae": 0.2406935223567568,
+        "n": 117,
+        "r2": -0.19438180692365536,
+        "rmse": 0.27876043384802196
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T3-density-3m-s20260907-cv": {
+      "selected_family": "climatology_global",
+      "test_metrics": {
+        "log1p_mae": 0.16050539887937046,
+        "mae": 0.2462759450680866,
+        "n": 117,
+        "r2": -0.3008028519686561,
+        "rmse": 0.2909144423754899
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T4-biomass-0m-s20260907-cv": {
+      "selected_family": "constrained_blend",
+      "test_metrics": {
+        "log1p_mae": 0.8045558220970643,
+        "mae": 5.0343646800086175,
+        "n": 117,
+        "r2": -0.15359826755614203,
+        "rmse": 7.625577085476113
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T4-biomass-3m-s20260907-cv": {
+      "selected_family": "climatology_global",
+      "test_metrics": {
+        "log1p_mae": 0.7489633559261516,
+        "mae": 4.634984497061732,
+        "n": 117,
+        "r2": -0.030719387366426876,
+        "rmse": 7.208014316327171
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T5-chla-0m-s20260907-cv": {
+      "selected_family": "mechanism_feature",
+      "test_metrics": {
+        "log1p_mae": 0.44209682603469086,
+        "mae": 3.0946632188041128,
+        "n": 132,
+        "r2": 0.2690556489529474,
+        "rmse": 3.9649316241441888
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T5-chla-3m-s20260907-cv": {
+      "selected_family": "random_forest",
+      "test_metrics": {
+        "log1p_mae": 0.39708073056395676,
+        "mae": 3.0756071138512726,
+        "n": 117,
+        "r2": 0.1808310475746654,
+        "rmse": 4.229263169819935
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-probability-0m-s20260907": {
+      "selected_family": "random_forest",
+      "test_metrics": {
+        "brier_score": 0.025069711113573562,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0045,
+            "n": 40,
+            "observed_frequency": 0.025
+          }
+        ],
+        "expected_calibration_error": 0.020467,
+        "f1": null,
+        "n": 40,
+        "pr_auc": 0.025,
+        "precision": null,
+        "recall": 0.0,
+        "roc_auc": 0.3076923076923077
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-probability-1m-s20260907-cv": {
+      "selected_family": "persistence",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-probability-2m-s20260907-cv": {
+      "selected_family": "persistence",
+      "test_metrics": {
+        "brier_score": 0.0,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0,
+            "n": 5,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.0,
+        "f1": null,
+        "n": 5,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-probability-3m-s20260907-cv": {
+      "selected_family": "climatology_global",
+      "test_metrics": {
+        "brier_score": 0.0017690831983655055,
+        "calibration_bins": [
+          {
+            "bin": 0,
+            "mean_predicted": 0.0226,
+            "n": 26,
+            "observed_frequency": 0.0
+          },
+          {
+            "bin": 1,
+            "mean_predicted": 0.1181,
+            "n": 2,
+            "observed_frequency": 0.0
+          }
+        ],
+        "expected_calibration_error": 0.029446,
+        "f1": null,
+        "n": 28,
+        "pr_auc": null,
+        "precision": null,
+        "recall": null,
+        "roc_auc": null
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-risk_level-0m-s20260907-cv": {
+      "selected_family": "simple_baseline",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 132
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    },
+    "T6-risk_level-3m-s20260907-cv": {
+      "selected_family": "simple_baseline",
+      "test_metrics": {
+        "accuracy": 0.0,
+        "macro_f1": 0.0,
+        "n": 117
+      },
+      "validation_metrics": null,
+      "validation_metric_source": null,
+      "train_rows": null,
+      "test_rows": null
+    }
+  }
+}
