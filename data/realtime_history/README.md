@@ -1,7 +1,8 @@
 # realtime_history —— 实时采集历史（随仓库分发的冻结档案）
 
 本目录是 `data-cleaning/storage/silver/mee_realtime`（本机实时采集 silver 目录）在
-**2026-09-14 15:00 (UTC+8)** 时点的冻结副本，四件套结构与 silver 完全一致：
+**2026-09-14 21:54 (UTC+8)** 时点的冻结副本（数据终点以本目录 `status.json` 的
+`as_of` 为准），四件套结构与 silver 完全一致：
 
 | 文件 | 内容 |
 | --- | --- |

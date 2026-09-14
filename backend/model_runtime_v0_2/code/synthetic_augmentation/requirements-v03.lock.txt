@@ -1,0 +1,15 @@
+# Derived with: bundled python -m pip list --format=freeze --path 训练准备/.runtime/v03
+# Controlled wheel hashes are unavailable; versions are locked without hashes.
+certifi==2026.7.22
+geopandas==1.1.4
+numpy==2.5.2
+packaging==26.3
+pandas==3.0.5
+pyarrow==25.0.1
+pyogrio==0.13.0
+pyproj==3.8.0
+python-dateutil==2.9.0.post0
+scipy==1.18.1
+shapely==2.1.2
+six==1.17.0
+tzdata==2026.3

@@ -1,0 +1,13 @@
+policy_version: taihu-modeling-v1
+t1_min_recall: 0.80
+t1_max_fnr: 0.20
+t1_decision_policy: max_f1_subject_to_min_recall
+t1_alert_rate_limit: null
+t6_high_severe_min_recall: 0.75
+high_intensity_definition: train_target_at_or_above_q90
+bootstrap_replicates: 1000
+confidence_level: 0.95
+minimum_stratum_rows: 2000
+minimum_stratum_dates: 30
+minimum_stratum_positive_or_events: 20
+seeds: [20260907, 20260908, 20260909]
