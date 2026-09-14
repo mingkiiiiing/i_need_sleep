@@ -406,7 +406,7 @@ class AlgorithmModelService:
             "fail": 175,
             "not_applicable": 14,
             "baseline": "同一任务和时效下 Random Forest 与 XGBoost 的较优者",
-            "evidence": "企业提交材料/算法组提交材料_V0.1/06_融合策略对比分析_V0.1.md",
+            "evidence": "docs/算法组提交材料_V0.1/06_融合策略对比分析_V0.1.md",
             "action": "补充真实标签、氨氮/水动力/气象预报驱动并重训；测试集冻结后重新运行同口径门禁。",
         }
 

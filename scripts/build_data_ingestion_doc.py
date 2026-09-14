@@ -14,7 +14,7 @@ from build_environment_deployment_doc import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "企业提交材料" / "A23_小型运行数据包与数据接入说明_V1.0.docx"
+OUTPUT = ROOT / "docs" / "A23_小型运行数据包与数据接入说明_V1.0.docx"
 
 
 def build() -> None:
@@ -63,7 +63,7 @@ def build() -> None:
 
     doc.add_page_break()
     add_heading(doc, "1 数据包内容")
-    add_body(doc, "数据包已经放在企业提交材料目录中，解压后不需要改动源代码即可使用。实时目录提供当前后端真正读取的四件套；模拟目录只提供字段示例，不会自动覆盖实时数据。")
+    add_body(doc, "数据包已经放在仓库 data 目录中，不需要改动源代码即可使用。实时目录提供当前后端真正读取的四件套；模拟目录只提供字段示例，不会自动覆盖实时数据。")
     add_table(doc, ["目录或文件", "作用", "是否进入实时链路"], [
         ["realtime_catalog/stations.json", "站点和空间对象目录", "是"],
         ["realtime_catalog/snapshots.json", "快照时间轴和快照 ID", "是"],
@@ -82,7 +82,7 @@ def build() -> None:
     add_heading(doc, "2 离线数据接入方式")
     add_body(doc, "推荐比赛评审使用环境变量指定数据目录。这样不需要把数据复制到源码内部，也便于企业后续替换为自己的发布目录。")
     add_code(doc, [
-        "$env:TAIHU_REALTIME_CATALOG_DIR = (Resolve-Path '.\\企业提交材料\\A23_小型运行数据包_V1.0\\realtime_catalog')",
+        "$env:TAIHU_REALTIME_CATALOG_DIR = (Resolve-Path '.\\data\\A23_小型运行数据包_V1.0\\realtime_catalog')",
         "backend\\.venv\\Scripts\\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000",
         "# 检查：http://127.0.0.1:8000/api/v1/realtime/status",
     ])

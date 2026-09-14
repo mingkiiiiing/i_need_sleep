@@ -20,10 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 VENV = ROOT / "backend" / ".venv"
 REQ = ROOT / "backend" / "requirements.txt"
 DATA_FILES = [  # 队友克隆后必须存在的数据/模型文件
-    ROOT / "企业提交材料/A23_小型运行数据包_V1.0/realtime_catalog/observations.parquet",
-    ROOT / "企业提交材料/A23_小型运行数据包_V1.0/realtime_catalog/stations.json",
-    ROOT / "企业提交材料/A23_小型运行数据包_V1.0/realtime_catalog/snapshots.json",
-    ROOT / "企业提交材料/A23_小型运行数据包_V1.0/simulated/simulated_observations_v1.csv",
+    ROOT / "data/A23_小型运行数据包_V1.0/realtime_catalog/observations.parquet",
+    ROOT / "data/A23_小型运行数据包_V1.0/realtime_catalog/stations.json",
+    ROOT / "data/A23_小型运行数据包_V1.0/realtime_catalog/snapshots.json",
+    ROOT / "data/A23_小型运行数据包_V1.0/simulated/simulated_observations_v1.csv",
     ROOT / "backend/sample-data/simulated_observations_v1.csv",
     ROOT / "backend/model_runtime_v0_3/manifest.json",
     ROOT / "backend/model_runtime_v0_3/evaluation/gate_table.json",

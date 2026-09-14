@@ -43,7 +43,7 @@
 | 当前用途 | 机理基线 + 融合消融臂（F3.4） |
 | 实现位置 | `modeling_real/target_builder.py:_mechanism_columns`、`training_real.py:_fit_mechanism` |
 
-原型对照：里程碑7 的 `blue_algae_m7/mechanism.py` 另有一版 Logistic+Monod 加权风险指数（温度高斯核 opt=28℃/width=12℃，Monod 半饱和 P=0.05/N=0.50，风遮蔽 1/(1+w/2)，权重 0.30/0.22/0.16/0.17/0.15），作为答辩讲机理的可解释原型，未进入 V0.3 训练候选。
+原型对照：成员C里程碑原型 `blue_algae_m7/mechanism.py`（已归档本地，未随仓库分发）另有一版 Logistic+Monod 加权风险指数（温度高斯核 opt=28℃/width=12℃，Monod 半饱和 P=0.05/N=0.50，风遮蔽 1/(1+w/2)，权重 0.30/0.22/0.16/0.17/0.15），作为答辩讲机理的可解释原型，未进入 V0.3 训练候选。
 
 ### 3.2 方案二：AI 模型一（Random Forest）
 
@@ -343,9 +343,9 @@ PASS 判定：uplift ≥ 0.10 且 n_test ≥ 15 且测试段类别支持满足 F
 | 修复与重训报告（本报告数字主源） | `backend/model_runtime_v0_3/evaluation/experiments_r1/T3b_修复与重训报告_20260912.md` |
 | 口径冻结条款 F1~F6 | `backend/model_runtime_v0_3/evaluation/experiments_r1/口径冻结提案_20260912.md` |
 | 重训 draft 面板 JSON | `backend/model_runtime_v0_3/evaluation/experiments_r1/ablation_retrain_*_20260912.json` |
-| V0.2 合成路线对比（历史） | `企业提交材料/算法组提交材料_V0.1/06_融合策略对比分析_V0.1.md` |
-| 合成环境门禁 PASS 边界 | `企业提交材料/算法组提交材料_V0.1/11_合成环境机理融合增益验证_V0.1.md` |
+| V0.2 合成路线对比（历史） | `算法组提交材料_V0.1/06_融合策略对比分析_V0.1.md`（同在 docs/） |
+| 合成环境门禁 PASS 边界 | `算法组提交材料_V0.1/11_合成环境机理融合增益验证_V0.1.md`（同在 docs/） |
 | serving 门禁公示 | `GET /api/v1/model/acceptance`（V0.2，0/189）、`GET /api/v1/model/v3/acceptance`（V0.3 真实口径，0/8 可评估） |
-| 机理原型（Logistic+Monod） | `里程碑7_成员C机理AI融合建模/02_代码/blue_algae_m7/mechanism.py` |
+| 机理原型（Logistic+Monod） | `blue_algae_m7/mechanism.py`（里程碑7 归档件，未随仓库分发） |
 
 注：`chla_proxy_params.json` 内 anchor.chla_mean_ug_l=3.0651 为 2026-09-11 单位修复前落盘值；本报告锚点 6.124 为修复后口径，演变记录见 T3b 报告 §4。

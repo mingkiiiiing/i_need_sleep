@@ -215,7 +215,7 @@ def probe_paths() -> None:
         ("start-a23-dev.ps1（一键启动）", PROJECT_ROOT / "start-a23-dev.ps1"),
         ("scripts/check-a23-backend.ps1（后端身份核查）",
          PROJECT_ROOT / "scripts" / "check-a23-backend.ps1"),
-        ("小型数据包 manifest", PROJECT_ROOT / "企业提交材料" / "A23_小型运行数据包_V1.0" / "manifest.json"),
+        ("小型数据包 manifest", PROJECT_ROOT / "data" / "A23_小型运行数据包_V1.0" / "manifest.json"),
     ]
     for label, p in must:
         if p.exists():
@@ -235,11 +235,11 @@ def probe_paths() -> None:
         add("FAIL", "[3] 关键路径", "model_runtime_v0_3/models", "目录缺失")
 
     # 小型数据包 realtime_catalog 四件套 + simulated
-    rt = PROJECT_ROOT / "企业提交材料" / "A23_小型运行数据包_V1.0" / "realtime_catalog"
+    rt = PROJECT_ROOT / "data" / "A23_小型运行数据包_V1.0" / "realtime_catalog"
     for f in ("stations.json", "snapshots.json", "observations.parquet", "status.json"):
         (add("PASS", "[3] 关键路径", f"小型数据包 realtime_catalog/{f}", "") if (rt / f).exists()
          else add("FAIL", "[3] 关键路径", f"小型数据包 realtime_catalog/{f}", "缺失"))
-    sim = PROJECT_ROOT / "企业提交材料" / "A23_小型运行数据包_V1.0" / "simulated"
+    sim = PROJECT_ROOT / "data" / "A23_小型运行数据包_V1.0" / "simulated"
     n_sim = len(list(sim.glob("*"))) if sim.is_dir() else 0
     add(*(("PASS", "[3] 关键路径", "小型数据包 simulated/ 样例", f"{n_sim} 个文件") if n_sim
           else ("WARN", "[3] 关键路径", "小型数据包 simulated/ 样例", "目录缺失或为空")))
@@ -270,16 +270,6 @@ def probe_paths() -> None:
             else:
                 add("WARN", "[3] 关键路径", f"{ps} 编码", "无 UTF-8 BOM（Windows PowerShell 5.1 解析中文可能乱码）")
 
-    # 小型数据包 zip 与目录的新旧
-    pkg_dir = PROJECT_ROOT / "企业提交材料" / "A23_小型运行数据包_V1.0"
-    pkg_zip = PROJECT_ROOT / "企业提交材料" / "A23_小型运行数据包_V1.0.zip"
-    if pkg_zip.exists() and pkg_dir.is_dir():
-        dz = pkg_zip.stat().st_mtime - max(x.stat().st_mtime for x in pkg_dir.rglob("*") if x.is_file())
-        if dz < -3600:
-            add("WARN", "[3] 关键路径", "A23_小型运行数据包_V1.0.zip",
-                f"zip 比目录内容旧约 {abs(dz)/3600:.1f} 小时，终审打包前需重新压缩以保持同步")
-        else:
-            add("PASS", "[3] 关键路径", "A23_小型运行数据包_V1.0.zip", "zip 不落后于目录")
 
 
 # ---------------------------------------------------------------- 端口探测
@@ -401,7 +391,7 @@ def print_idempotency_hints(state: dict[int, str]) -> None:
     lines.append("- 幂等性提示：后端有身份检查可安全重跑；前端无幂等检查，重复执行 start-a23-dev.ps1 "
                  "会叠加 vite 进程，重启验证前建议先结束旧 node/vite 进程。")
     lines.append("- 数据包演示提示：如需使用小型运行数据包，先执行 "
-                 "$env:TAIHU_REALTIME_CATALOG_DIR='<项目根>\\企业提交材料\\A23_小型运行数据包_V1.0\\realtime_catalog' "
+                 "$env:TAIHU_REALTIME_CATALOG_DIR='<项目根>\\data\\A23_小型运行数据包_V1.0\\realtime_catalog' "
                  "再启动后端（见小型数据包 README）。")
     for ln in lines:
         add("INFO", "[5] 一键启动幂等提示", ln, "")

@@ -21,7 +21,7 @@ powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1
 | 现象 | 处理 |
 | --- | --- |
 | `data-cleaning/.../taihu_clean_final.sqlite` 打不开、内容是百来字节的文本 | 该文件走 Git LFS。先 `git lfs install`，再重新 clone；或对已有克隆执行 `git lfs pull` |
-| `setup_a23.py` 报数据文件缺失 | 克隆不完整，重新 `git clone`（确认含 `企业提交材料/A23_小型运行数据包_V1.0/` 与 `backend/model_runtime_v0_3/models/`） |
+| `setup_a23.py` 报数据文件缺失 | 克隆不完整，重新 `git clone`（确认含 `data/A23_小型运行数据包_V1.0/` 与 `backend/model_runtime_v0_3/models/`） |
 | 8000 端口被占（本机常见：其他项目默认占 8000） | `powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1 -BackendPort 8010`（前端代理自动跟随）；启动脚本会自动探测 8000 是否为 A23 后端，非 A23 占用时拒绝启动并提示换端口 |
 | 首次打开页面数值为空 | 后端启动后快照预热约 1~2 分钟，稍候刷新 |
 | 只想校验不安装 | `python scripts/setup_a23.py --check` |
@@ -34,4 +34,4 @@ powershell -ExecutionPolicy Bypass -File start-a23-dev.ps1
 - 解释口径：is_shap=false（敏感性分析，非 SHAP，页面如实标注）
 - 站点口径：79 站采集 → 56 有坐标 → 48 可信上图
 
-更完整的部署细节见 `企业提交材料/A23_环境与部署说明_V1.0.docx`；启动脚本的幂等与端口说明见 `docs/部署验证_运行记录_20260912.md`。
+更完整的部署细节见 `docs/A23_环境与部署说明_V1.0.docx`；启动脚本的幂等与端口说明见 `docs/部署验证_运行记录_20260912.md`。

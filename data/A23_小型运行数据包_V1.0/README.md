@@ -13,7 +13,7 @@
 在项目根目录执行：
 
 ```powershell
-$env:TAIHU_REALTIME_CATALOG_DIR = (Resolve-Path '.\企业提交材料\A23_小型运行数据包_V1.0\realtime_catalog')
+$env:TAIHU_REALTIME_CATALOG_DIR = (Resolve-Path '.\data\A23_小型运行数据包_V1.0\realtime_catalog')
 backend\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 

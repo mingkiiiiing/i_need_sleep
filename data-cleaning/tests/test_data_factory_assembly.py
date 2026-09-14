@@ -87,10 +87,9 @@ def _contract_enum(field_name: str) -> set[str]:
     from pathlib import Path
 
     path = (
-        Path(__file__).resolve().parents[2]
-        / "里程碑7_成员C机理AI融合建模"
-        / "01_成果"
-        / "member_c_modeling_framework"
+        Path(__file__).resolve().parents[1]
+        / "data_factory"
+        / "contracts"
         / "required_training_schema_V0.1.csv"
     )
     with path.open(encoding="utf-8") as handle:

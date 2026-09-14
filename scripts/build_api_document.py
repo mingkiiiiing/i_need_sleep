@@ -27,7 +27,7 @@ from build_environment_deployment_doc import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "企业提交材料" / "A23_接口文档_V1.0.docx"
+OUTPUT = ROOT / "docs" / "A23_接口文档_V1.0.docx"
 
 
 def add_endpoint_heading(doc: Document, method: str, path: str, title: str) -> None:

@@ -14,7 +14,7 @@ from build_environment_deployment_doc import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "企业提交材料" / "A23_系统使用说明_V1.0.docx"
+OUTPUT = ROOT / "docs" / "A23_系统使用说明_V1.0.docx"
 
 
 def build() -> None:

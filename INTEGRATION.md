@@ -1,6 +1,6 @@
 # A23 前后端联调说明
 
-> 算法链路口径（2026-09-10 更新）：主链路为 **V0.3 真实数据包**（`/api/v1/model/v3/*`，20 bundle = 12 冻结划分 + 8 补训 CV 协议，含 conformal 区间与动态质量门）；legacy **V0.2 合成包**（63 bundle，`synthetic_development_only`）保留作对照与回退。三轨数据口径：`simulated` 旧演示轨、`observed` MEE 实时观测轨、`hybrid` 算法推演轨。**统一指标口径见 `企业提交材料/算法组提交材料_V0.1/12_命题条款对照与统一指标口径_V0.1.md`。**
+> 算法链路口径（2026-09-10 更新）：主链路为 **V0.3 真实数据包**（`/api/v1/model/v3/*`，20 bundle = 12 冻结划分 + 8 补训 CV 协议，含 conformal 区间与动态质量门）；legacy **V0.2 合成包**（63 bundle，`synthetic_development_only`）保留作对照与回退。三轨数据口径：`simulated` 旧演示轨、`observed` MEE 实时观测轨、`hybrid` 算法推演轨。**统一指标口径见 `docs/算法组提交材料_V0.1/12_命题条款对照与统一指标口径_V0.1.md`。**
 
 ## 启动
 
